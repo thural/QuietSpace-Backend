@@ -1,5 +1,6 @@
 package dev.thural.quietspacebackend.model;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,9 @@ public class Post {
     @Id
     private ObjectId id;
     private OffsetDateTime date = OffsetDateTime.now();
+    @NotBlank
     private String username;
+    @NotBlank
     private String text;
     @DocumentReference
     private List<User> likes;
