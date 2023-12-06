@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class CommentServiceImpl implements CommentService{
+public class CommentServiceImpl implements CommentService {
 
     CommentRepository commentRepository;
 
@@ -20,5 +20,10 @@ public class CommentServiceImpl implements CommentService{
     @Override
     public List<Comment> getAll() {
         return commentRepository.findAll();
+    }
+
+    @Override
+    public Comment addOne(Comment comment) {
+        return commentRepository.save(comment);
     }
 }

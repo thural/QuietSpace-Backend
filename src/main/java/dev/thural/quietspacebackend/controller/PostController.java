@@ -3,6 +3,7 @@ package dev.thural.quietspacebackend.controller;
 import dev.thural.quietspacebackend.model.Post;
 import dev.thural.quietspacebackend.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,13 +17,17 @@ public class PostController {
     private final PostService postService;
 
     @Autowired
-    PostController(PostService postService){
+    PostController(PostService postService) {
         this.postService = postService;
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    List<Post> list(){
+    List<Post> list() {
         return postService.getAll();
     }
 
+    @RequestMapping(value = "", method = RequestMethod.POST)
+    Post createPost(@RequestBody Post post) {
+        return postService.addOne(post);
+    }
 }

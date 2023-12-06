@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface CommentService {
     List<Comment> getAll();
+    Comment addOne(Comment comment);
 }
