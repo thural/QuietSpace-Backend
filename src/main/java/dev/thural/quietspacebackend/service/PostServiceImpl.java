@@ -2,10 +2,12 @@ package dev.thural.quietspacebackend.service;
 
 import dev.thural.quietspacebackend.model.Post;
 import dev.thural.quietspacebackend.repository.PostRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PostServiceImpl implements PostService {
@@ -25,5 +27,10 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post addOne(Post post) {
         return postRepository.save(post);
+    }
+
+    @Override
+    public Optional<Post> getById(ObjectId id) {
+        return postRepository.findById(id);
     }
 }
