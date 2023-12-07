@@ -33,4 +33,14 @@ public class UserServiceImpl implements UserService {
     public Optional<User> getById(ObjectId id) {
         return userRepository.findById(id);
     }
+
+    @Override
+    public void updateOne(ObjectId id, User user) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        User foundUser = optionalUser.get();
+        foundUser.setUsername(user.getUsername());
+        foundUser.setPassword(user.getPassword());
+        foundUser.setFriendIds(user.getFriendIds());
+        userRepository.save(foundUser);
+    }
 }

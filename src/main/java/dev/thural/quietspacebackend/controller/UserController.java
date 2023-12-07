@@ -41,4 +41,10 @@ public class UserController {
         headers.add("Location", "/api/v1/users" + "/" + savedUser.getId());
         return new ResponseEntity(headers, HttpStatus.CREATED);
     }
+
+    @RequestMapping(value = "/{userId}", method = RequestMethod.PUT)
+    ResponseEntity putUser(@PathVariable("userId") ObjectId id, @RequestBody User user){
+        userService.updateOne(id, user);
+        return  new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
 }

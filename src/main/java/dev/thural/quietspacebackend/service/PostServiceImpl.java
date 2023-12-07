@@ -33,4 +33,15 @@ public class PostServiceImpl implements PostService {
     public Optional<Post> getById(ObjectId id) {
         return postRepository.findById(id);
     }
+
+    @Override
+    public void updateOne(ObjectId id, Post post) {
+        Optional<Post> optionalPost = postRepository.findById(id);
+        Post foundPost = optionalPost.get();
+        foundPost.setUsername(post.getUsername());
+        foundPost.setText(post.getText());
+        foundPost.setComments(post.getComments());
+        foundPost.setLikes(post.getLikes());
+        postRepository.save(foundPost);
+    }
 }

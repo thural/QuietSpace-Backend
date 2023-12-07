@@ -12,4 +12,6 @@ public interface UserService {
     User addOne(User user);
 
     Optional<User> getById(ObjectId id);
+
+    void updateOne(ObjectId id, User user);
 }

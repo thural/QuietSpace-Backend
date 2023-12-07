@@ -43,4 +43,10 @@ public class CommentController {
         headers.add("Location", "/api/v1/comments" + "/" + savedComment.getId());
         return new ResponseEntity(headers, HttpStatus.CREATED);
     }
+
+    @RequestMapping(value = "/{commentId}", method = RequestMethod.PUT)
+    ResponseEntity putComment(@PathVariable("commentId") ObjectId id, @RequestBody Comment comment){
+        commentService.updateOne(id, comment);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
 }

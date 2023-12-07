@@ -11,4 +11,6 @@ public interface CommentService {
     Comment addOne(Comment comment);
 
     Optional<Comment> getById(ObjectId id);
+
+    void updateOne(ObjectId id, Comment comment);
 }

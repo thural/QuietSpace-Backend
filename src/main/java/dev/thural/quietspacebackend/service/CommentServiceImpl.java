@@ -33,4 +33,14 @@ public class CommentServiceImpl implements CommentService {
     public Optional<Comment> getById(ObjectId id) {
         return commentRepository.findById(id);
     }
+
+    @Override
+    public void updateOne(ObjectId id, Comment comment) {
+        Optional<Comment> optionalComment = commentRepository.findById(id);
+        Comment foundComment = optionalComment.get();
+        foundComment.setUserId(comment.getUserId());
+        foundComment.setText(comment.getText());
+        foundComment.setLikes(comment.getLikes());
+        commentRepository.save(foundComment);
+    }
 }

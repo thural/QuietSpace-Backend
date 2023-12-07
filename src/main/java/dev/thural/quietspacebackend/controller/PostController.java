@@ -42,4 +42,10 @@ public class PostController {
         headers.add("Location", "/api/v1/posts" + "/" + savedPost.getId());
         return new  ResponseEntity(headers, HttpStatus.CREATED);
     }
+
+    @RequestMapping(value = "{postId}", method = RequestMethod.PUT)
+    ResponseEntity putPost(@PathVariable("postId") ObjectId id, @RequestBody Post post){
+        postService.updateOne(id, post);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
 }
