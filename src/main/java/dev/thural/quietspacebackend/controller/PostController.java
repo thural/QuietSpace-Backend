@@ -4,6 +4,9 @@ import dev.thural.quietspacebackend.model.Post;
 import dev.thural.quietspacebackend.service.PostService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,7 +28,7 @@ public class PostController {
         return postService.getAll();
     }
 
-    @RequestMapping("/{postId}")
+    @RequestMapping(value = "/{postId}", method = RequestMethod.GET)
     Post getPostById(@PathVariable("postId") ObjectId id){
         Optional<Post> optionalPost = postService.getById(id);
         Post foundPost = optionalPost.orElse(null);
@@ -33,7 +36,10 @@ public class PostController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
-    Post createPost(@RequestBody Post post) {
-        return postService.addOne(post);
+    ResponseEntity createPost(@RequestBody Post post) {
+        Post savedPost = postService.addOne(post);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", "/api/v1/posts" + "/" + savedPost.getId());
+        return new  ResponseEntity(headers, HttpStatus.CREATED);
     }
 }

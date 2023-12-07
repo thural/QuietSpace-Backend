@@ -1,9 +1,13 @@
 package dev.thural.quietspacebackend.controller;
 
 import dev.thural.quietspacebackend.model.Comment;
+import dev.thural.quietspacebackend.model.User;
 import dev.thural.quietspacebackend.service.CommentService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,7 +37,10 @@ public class CommentController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
-    Comment createComment(@RequestBody Comment comment) {
-        return commentService.addOne(comment);
+    ResponseEntity createComment(@RequestBody Comment comment) {
+        Comment savedComment = commentService.addOne(comment);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", "/api/v1/comments" + "/" + savedComment.getId());
+        return new ResponseEntity(headers, HttpStatus.CREATED);
     }
 }

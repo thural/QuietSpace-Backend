@@ -4,6 +4,9 @@ import dev.thural.quietspacebackend.model.User;
 import dev.thural.quietspacebackend.service.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +27,7 @@ public class UserController {
         return userService.getAll();
     }
 
-    @RequestMapping("/{userId}")
+    @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
     User getUserById(@PathVariable("userId") ObjectId id){
         Optional<User> optionalUser = userService.getById(id);
         User foundUser = optionalUser.orElse(null);
@@ -32,7 +35,10 @@ public class UserController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
-    User createUser(@RequestBody User user) {
-        return userService.addOne(user);
+    ResponseEntity createUser(@RequestBody User user) {
+        User savedUser = userService.addOne(user);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", "/api/v1/users" + "/" + savedUser.getId());
+        return new ResponseEntity(headers, HttpStatus.CREATED);
     }
 }
