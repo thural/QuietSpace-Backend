@@ -21,7 +21,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    List<User> getAll() {
+    List<User> getAllUsers() {
         return userService.getAll();
     }
 

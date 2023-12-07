@@ -22,7 +22,7 @@ public class CommentController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    List<Comment> getAll() {
+    List<Comment> getAllComments() {
         return commentService.getAll();
     }
 

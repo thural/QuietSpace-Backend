@@ -22,7 +22,7 @@ public class PostController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    List<Post> list() {
+    List<Post> getAllPosts() {
         return postService.getAll();
     }
 
