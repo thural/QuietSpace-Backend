@@ -16,4 +16,6 @@ public interface UserService {
     void updateOne(ObjectId id, User user);
 
     void deleteOne(ObjectId id);
+
+    void patchOne(ObjectId id, User user);
 }

@@ -54,4 +54,10 @@ public class CommentController {
         commentService.deleteOne(id);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
+
+    @RequestMapping(value = "/{commentId}", method = RequestMethod.PATCH)
+    ResponseEntity patchComment(@PathVariable("commentId") ObjectId id, @RequestBody Comment comment){
+        commentService.patchOne(id, comment);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
 }

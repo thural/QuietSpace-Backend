@@ -5,6 +5,7 @@ import dev.thural.quietspacebackend.repository.PostRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,4 +50,20 @@ public class PostServiceImpl implements PostService {
     public void deleteOne(ObjectId id) {
         postRepository.deleteById(id);
     }
+
+    @Override
+    public void patchOne(ObjectId id, Post post) {
+        Optional<Post> optionalPost = postRepository.findById(id);
+        Post foundPost = optionalPost.get();
+        if (StringUtils.hasText(post.getUsername()))
+            foundPost.setUsername(post.getUsername());
+        if (StringUtils.hasText(post.getText()))
+            foundPost.setText(post.getText());
+        if (post.getComments() != null)
+            foundPost.setComments(post.getComments());
+        if (post.getLikes() != null)
+            foundPost.setLikes(post.getLikes());
+        postRepository.save(foundPost);
+    }
+
 }

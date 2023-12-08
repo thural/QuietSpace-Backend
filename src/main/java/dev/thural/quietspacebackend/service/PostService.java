@@ -16,4 +16,6 @@ public interface PostService {
     void updateOne(ObjectId id, Post post);
 
     void deleteOne(ObjectId id);
+
+    void patchOne(ObjectId id, Post post);
 }

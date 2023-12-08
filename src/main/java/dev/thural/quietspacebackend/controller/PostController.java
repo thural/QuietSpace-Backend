@@ -2,6 +2,7 @@ package dev.thural.quietspacebackend.controller;
 
 import dev.thural.quietspacebackend.model.Post;
 import dev.thural.quietspacebackend.service.PostService;
+import org.apache.coyote.Response;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -52,6 +53,12 @@ public class PostController {
     @RequestMapping(value = "/{postId}", method = RequestMethod.DELETE)
     ResponseEntity deletePost(@PathVariable("postId") ObjectId id) {
         postService.deleteOne(id);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    @RequestMapping(value = "/{postId}", method = RequestMethod.PATCH)
+    ResponseEntity patchPost(@PathVariable("postId") ObjectId id, @RequestBody Post post) {
+        postService.patchOne(id, post);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }

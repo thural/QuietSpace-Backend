@@ -16,4 +16,6 @@ public interface CommentService {
     void updateOne(ObjectId id, Comment comment);
 
     void deleteOne(ObjectId id);
+
+    void patchOne(ObjectId id, Comment comment);
 }
