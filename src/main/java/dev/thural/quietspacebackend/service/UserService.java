@@ -14,4 +14,6 @@ public interface UserService {
     Optional<User> getById(ObjectId id);
 
     void updateOne(ObjectId id, User user);
+
+    void deleteOne(ObjectId id);
 }

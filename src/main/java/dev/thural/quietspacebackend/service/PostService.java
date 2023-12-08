@@ -14,4 +14,6 @@ public interface PostService {
     Optional<Post> getById(ObjectId id);
 
     void updateOne(ObjectId id, Post post);
+
+    void deleteOne(ObjectId id);
 }

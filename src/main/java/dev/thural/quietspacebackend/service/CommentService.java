@@ -8,9 +8,12 @@ import java.util.Optional;
 
 public interface CommentService {
     List<Comment> getAll();
+
     Comment addOne(Comment comment);
 
     Optional<Comment> getById(ObjectId id);
 
     void updateOne(ObjectId id, Comment comment);
+
+    void deleteOne(ObjectId id);
 }

@@ -1,7 +1,6 @@
 package dev.thural.quietspacebackend.controller;
 
 import dev.thural.quietspacebackend.model.Comment;
-import dev.thural.quietspacebackend.model.User;
 import dev.thural.quietspacebackend.service.CommentService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ public class CommentController {
     }
 
     @RequestMapping("/{commentId}")
-    Comment getCommentById(@PathVariable("commentId") ObjectId id){
+    Comment getCommentById(@PathVariable("commentId") ObjectId id) {
         Optional<Comment> optionalComment = commentService.getById(id);
         Comment foundComment = optionalComment.orElse(null);
         return foundComment;
@@ -45,8 +44,14 @@ public class CommentController {
     }
 
     @RequestMapping(value = "/{commentId}", method = RequestMethod.PUT)
-    ResponseEntity putComment(@PathVariable("commentId") ObjectId id, @RequestBody Comment comment){
+    ResponseEntity putComment(@PathVariable("commentId") ObjectId id, @RequestBody Comment comment) {
         commentService.updateOne(id, comment);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    @RequestMapping(value = "/{commentId}", method = RequestMethod.DELETE)
+    ResponseEntity deleteComment(@PathVariable("commentId") ObjectId id) {
+        commentService.deleteOne(id);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }

@@ -15,7 +15,7 @@ public class UserServiceImpl implements UserService {
     UserRepository userRepository;
 
     @Autowired
-    UserServiceImpl(UserRepository userRepository){
+    UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -42,5 +42,10 @@ public class UserServiceImpl implements UserService {
         foundUser.setPassword(user.getPassword());
         foundUser.setFriendIds(user.getFriendIds());
         userRepository.save(foundUser);
+    }
+
+    @Override
+    public void deleteOne(ObjectId id) {
+        userRepository.deleteById(id);
     }
 }

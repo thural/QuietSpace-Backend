@@ -28,7 +28,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
-    User getUserById(@PathVariable("userId") ObjectId id){
+    User getUserById(@PathVariable("userId") ObjectId id) {
         Optional<User> optionalUser = userService.getById(id);
         User foundUser = optionalUser.orElse(null);
         return foundUser;
@@ -43,8 +43,14 @@ public class UserController {
     }
 
     @RequestMapping(value = "/{userId}", method = RequestMethod.PUT)
-    ResponseEntity putUser(@PathVariable("userId") ObjectId id, @RequestBody User user){
+    ResponseEntity putUser(@PathVariable("userId") ObjectId id, @RequestBody User user) {
         userService.updateOne(id, user);
-        return  new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    @RequestMapping(value = "{/userId}", method = RequestMethod.DELETE)
+    ResponseEntity deleteUser(@PathVariable("userId") ObjectId id) {
+        userService.deleteOne(id);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }

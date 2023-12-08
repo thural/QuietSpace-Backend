@@ -29,7 +29,7 @@ public class PostController {
     }
 
     @RequestMapping(value = "/{postId}", method = RequestMethod.GET)
-    Post getPostById(@PathVariable("postId") ObjectId id){
+    Post getPostById(@PathVariable("postId") ObjectId id) {
         Optional<Post> optionalPost = postService.getById(id);
         Post foundPost = optionalPost.orElse(null);
         return foundPost;
@@ -40,12 +40,18 @@ public class PostController {
         Post savedPost = postService.addOne(post);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", "/api/v1/posts" + "/" + savedPost.getId());
-        return new  ResponseEntity(headers, HttpStatus.CREATED);
+        return new ResponseEntity(headers, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "{postId}", method = RequestMethod.PUT)
-    ResponseEntity putPost(@PathVariable("postId") ObjectId id, @RequestBody Post post){
+    ResponseEntity putPost(@PathVariable("postId") ObjectId id, @RequestBody Post post) {
         postService.updateOne(id, post);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    @RequestMapping(value = "/{postId}", method = RequestMethod.DELETE)
+    ResponseEntity deletePost(@PathVariable("postId") ObjectId id) {
+        postService.deleteOne(id);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }

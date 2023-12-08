@@ -15,7 +15,7 @@ public class CommentServiceImpl implements CommentService {
     CommentRepository commentRepository;
 
     @Autowired
-    CommentServiceImpl(CommentRepository commentRepository){
+    CommentServiceImpl(CommentRepository commentRepository) {
         this.commentRepository = commentRepository;
     }
 
@@ -42,5 +42,10 @@ public class CommentServiceImpl implements CommentService {
         foundComment.setText(comment.getText());
         foundComment.setLikes(comment.getLikes());
         commentRepository.save(foundComment);
+    }
+
+    @Override
+    public void deleteOne(ObjectId id) {
+        commentRepository.deleteById(id);
     }
 }

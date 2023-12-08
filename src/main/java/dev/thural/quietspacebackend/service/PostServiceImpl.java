@@ -15,7 +15,7 @@ public class PostServiceImpl implements PostService {
     PostRepository postRepository;
 
     @Autowired
-    PostServiceImpl(PostRepository postRepository){
+    PostServiceImpl(PostRepository postRepository) {
         this.postRepository = postRepository;
     }
 
@@ -43,5 +43,10 @@ public class PostServiceImpl implements PostService {
         foundPost.setComments(post.getComments());
         foundPost.setLikes(post.getLikes());
         postRepository.save(foundPost);
+    }
+
+    @Override
+    public void deleteOne(ObjectId id) {
+        postRepository.deleteById(id);
     }
 }
