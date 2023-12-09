@@ -16,7 +16,7 @@ public class PostServiceImpl implements PostService {
     PostRepository postRepository;
 
     @Autowired
-    PostServiceImpl(PostRepository postRepository) {
+    public PostServiceImpl(PostRepository postRepository) {
         this.postRepository = postRepository;
     }
 
