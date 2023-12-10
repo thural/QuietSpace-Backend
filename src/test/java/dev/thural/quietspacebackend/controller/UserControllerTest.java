@@ -3,6 +3,7 @@ package dev.thural.quietspacebackend.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspacebackend.model.Comment;
+import dev.thural.quietspacebackend.model.Post;
 import dev.thural.quietspacebackend.model.User;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.UserService;
@@ -23,8 +24,8 @@ import java.util.UUID;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -95,5 +96,22 @@ public class UserControllerTest {
                         .content(objectMapper.writeValueAsString(testUser)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"));
+    }
+
+    @Test
+    void updateUser() throws Exception {
+        List<User> testUsers = userServiceImpl.getAll();
+
+        User testUser = testUsers.get(0);
+        testUser.setUsername("testUser");
+        testUser.setPassword("testPassword");
+
+        mockMvc.perform(put("/api/v1/users")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testUser)))
+                .andExpect(status().isNoContent());
+
+        verify(userService).updateOne(any(ObjectId.class), any(User.class));
     }
 }

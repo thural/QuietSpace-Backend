@@ -22,8 +22,8 @@ import java.util.UUID;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -92,5 +92,21 @@ public class PostControllerTest {
                         .content(objectMapper.writeValueAsString(testPost)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"));
+    }
+
+    @Test
+    void updatePost() throws Exception {
+        List<Post> testPosts = postServiceImpl.getAll();
+
+        Post testPost = testPosts.get(0);
+        testPost.setText("testText");
+
+        mockMvc.perform(put("/api/v1/posts")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testPost)))
+                .andExpect(status().isNoContent());
+
+        verify(postService).updateOne(any(ObjectId.class), any(Post.class));
     }
 }
