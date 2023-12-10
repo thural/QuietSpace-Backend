@@ -12,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,6 +35,19 @@ public class PostControllerTest {
     PostService postServiceImpl;
 
     @Test
+    void getAllPosts() throws Exception {
+        List<Post> testPosts = postServiceImpl.getAll();
+
+        given(postService.getAll()).willReturn(testPosts);
+
+        mockMvc.perform(get("/api/v1/posts/")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()", is(testPosts.size())));
+    }
+
+    @Test
     void getPostById() throws Exception {
 
         Post testPost = postServiceImpl.getAll().get(0);
@@ -42,7 +56,7 @@ public class PostControllerTest {
                 .willReturn(Optional.of(testPost));
 
         mockMvc.perform(get("/api/v1/posts" + "/" + testPost.getId())
-                .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(testPost.getId().toString())))

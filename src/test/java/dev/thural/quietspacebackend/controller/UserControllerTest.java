@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,6 +34,19 @@ public class UserControllerTest {
     UserService userServiceImpl;
 
     @Test
+    void getAllUsers() throws Exception {
+        List<User> testUsers = userServiceImpl.getAll();
+
+        given(userService.getAll()).willReturn(testUsers);
+
+        mockMvc.perform(get("api/v1/users")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()", is(testUsers.size())));
+    }
+
+    @Test
     void getUserById() throws Exception {
 
         User testUser = userServiceImpl.getAll().get(0);
@@ -41,7 +55,7 @@ public class UserControllerTest {
                 .willReturn(Optional.of(testUser));
 
         mockMvc.perform(get("/api/v1/users" + "/" + testUser.getId())
-                .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(testUser.getId().toString())))
