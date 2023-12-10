@@ -8,6 +8,7 @@ import dev.thural.quietspacebackend.service.CommentServiceImpl;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -16,8 +17,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -63,7 +64,6 @@ public class CommentControllerTest {
 
     @Test
     void getCommentById() throws Exception {
-
         Comment testComment = commentServiceImpl.getAll().get(0);
 
         given(commentService.getById(testComment.getId()))
@@ -96,7 +96,6 @@ public class CommentControllerTest {
     @Test
     void updateComment() throws Exception {
         List<Comment> testComments = commentServiceImpl.getAll();
-
         Comment testComment = testComments.get(0);
         testComment.setText("testText");
 
@@ -107,5 +106,22 @@ public class CommentControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(commentService).updateOne(any(ObjectId.class), any(Comment.class));
+    }
+
+    @Test
+    void deleteComment() throws Exception {
+        List<Comment> testComments = commentServiceImpl.getAll();
+
+        Comment testComment = testComments.get(0);
+
+        mockMvc.perform(delete("/api/v1/comments" + "/" + testComment.getId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        ArgumentCaptor<ObjectId> objectIdArgumentCaptor = ArgumentCaptor.forClass(ObjectId.class);
+
+        verify(commentService).deleteOne(objectIdArgumentCaptor.capture());
+
+        assertThat(testComment.getId()).isEqualTo(objectIdArgumentCaptor.getValue());
     }
 }

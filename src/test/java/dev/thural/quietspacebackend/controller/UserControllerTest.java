@@ -1,9 +1,6 @@
 package dev.thural.quietspacebackend.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspacebackend.model.Comment;
-import dev.thural.quietspacebackend.model.Post;
 import dev.thural.quietspacebackend.model.User;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.UserService;
@@ -11,6 +8,7 @@ import dev.thural.quietspacebackend.service.UserServiceImpl;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -19,8 +17,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -65,7 +63,6 @@ public class UserControllerTest {
 
     @Test
     void getUserById() throws Exception {
-
         User testUser = userServiceImpl.getAll().get(0);
 
         given(userService.getById(testUser.getId()))
@@ -81,9 +78,7 @@ public class UserControllerTest {
 
     @Test
     void createUser() throws Exception {
-
         List<User> testUsers = userServiceImpl.getAll();
-
         User testUser = testUsers.get(0);
         testUser.setUsername("testUser");
         testUser.setPassword("testPassword");
@@ -113,5 +108,21 @@ public class UserControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(userService).updateOne(any(ObjectId.class), any(User.class));
+    }
+
+    @Test
+    void deleteUser() throws Exception {
+        List<User> testUsers = userServiceImpl.getAll();
+        User testUser = testUsers.get(0);
+
+        mockMvc.perform(delete("/api/v1/users" + "/" + testUser.getId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        ArgumentCaptor<ObjectId> objectIdArgumentCaptor = ArgumentCaptor.forClass(ObjectId.class);
+
+        verify(userService).deleteOne(objectIdArgumentCaptor.capture());
+
+        assertThat(testUser.getId()).isEqualTo(objectIdArgumentCaptor.getValue());
     }
 }
