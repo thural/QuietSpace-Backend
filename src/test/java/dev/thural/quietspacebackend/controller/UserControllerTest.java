@@ -14,11 +14,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @WebMvcTest(UserController.class)
@@ -35,14 +35,16 @@ public class UserControllerTest {
     @Test
     void getUserById() throws Exception {
 
-        User testComment = userServiceImpl.getAll().get(0);
+        User testUser = userServiceImpl.getAll().get(0);
 
-        given(userService.getById(any(ObjectId.class)))
-                .willReturn(Optional.ofNullable(testComment));
+        given(userService.getById(testUser.getId()))
+                .willReturn(Optional.of(testUser));
 
-        mockMvc.perform(get("/api/v1/users" + "/" + UUID.randomUUID())
+        mockMvc.perform(get("/api/v1/users" + "/" + testUser.getId())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is(testUser.getId().toString())))
+                .andExpect(jsonPath("$.username", is(testUser.getUsername())));
     }
 }
