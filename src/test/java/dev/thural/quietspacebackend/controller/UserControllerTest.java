@@ -1,9 +1,14 @@
 package dev.thural.quietspacebackend.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspacebackend.model.Comment;
 import dev.thural.quietspacebackend.model.User;
+import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.UserService;
+import dev.thural.quietspacebackend.service.UserServiceImpl;
 import org.bson.types.ObjectId;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -19,6 +24,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -27,11 +33,21 @@ public class UserControllerTest {
     @Autowired
     MockMvc mockMvc;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @Autowired
+    UserRepository userRepository;
+
     @MockBean
     UserService userService;
 
-    @Autowired
     UserService userServiceImpl;
+
+    @BeforeEach
+    void setUp() {
+        userServiceImpl = new UserServiceImpl(userRepository);
+    }
 
     @Test
     void getAllUsers() throws Exception {
@@ -60,5 +76,24 @@ public class UserControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(testUser.getId().toString())))
                 .andExpect(jsonPath("$.username", is(testUser.getUsername())));
+    }
+
+    @Test
+    void createUser() throws Exception {
+
+        List<User> testUsers = userServiceImpl.getAll();
+
+        User testUser = testUsers.get(0);
+        testUser.setUsername("testUser");
+        testUser.setPassword("testPassword");
+
+        given(userService.addOne(any(User.class))).willReturn(testUsers.get(1));
+
+        mockMvc.perform(post("/api/v1/users")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testUser)))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"));
     }
 }

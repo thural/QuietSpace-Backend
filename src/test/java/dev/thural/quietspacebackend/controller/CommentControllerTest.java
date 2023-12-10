@@ -1,7 +1,11 @@
 package dev.thural.quietspacebackend.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspacebackend.model.Comment;
+import dev.thural.quietspacebackend.repository.CommentRepository;
 import dev.thural.quietspacebackend.service.CommentService;
+import dev.thural.quietspacebackend.service.CommentServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -13,8 +17,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -27,7 +33,17 @@ public class CommentControllerTest {
     CommentService commentService;
 
     @Autowired
+    ObjectMapper objectMapper;
+
     CommentService commentServiceImpl;
+
+    @Autowired
+    CommentRepository commentRepository;
+
+    @BeforeEach
+    void setUp() {
+        commentServiceImpl = new CommentServiceImpl(commentRepository);
+    }
 
     @Test
     void getAllComments() throws Exception {
@@ -57,5 +73,21 @@ public class CommentControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(testComment.getId().toString())))
                 .andExpect(jsonPath("$.text", is(testComment.getText())));
+    }
+
+    @Test
+    void createComment() throws Exception {
+        List<Comment> testComments = commentServiceImpl.getAll();
+        Comment testComment = testComments.get(0);
+        testComment.setText("testText");
+
+        given(commentService.addOne(any(Comment.class))).willReturn(testComments.get(1));
+
+        mockMvc.perform(post("/api/v1/comments")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testComment)))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"));
     }
 }

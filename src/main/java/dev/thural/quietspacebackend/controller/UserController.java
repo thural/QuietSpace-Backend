@@ -48,13 +48,13 @@ public class UserController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = "{/userId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE)
     ResponseEntity deleteUser(@PathVariable("userId") ObjectId id) {
         userService.deleteOne(id);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = "{/userId}", method = RequestMethod.PATCH)
+    @RequestMapping(value = "/{userId}", method = RequestMethod.PATCH)
     ResponseEntity patchUser(@PathVariable("userId") ObjectId id, @RequestBody User user){
         userService.patchOne(id, user);
         return new ResponseEntity(HttpStatus.NO_CONTENT);

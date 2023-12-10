@@ -1,10 +1,13 @@
 package dev.thural.quietspacebackend.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspacebackend.model.Comment;
 import dev.thural.quietspacebackend.model.Post;
+import dev.thural.quietspacebackend.repository.PostRepository;
 import dev.thural.quietspacebackend.service.PostService;
 import dev.thural.quietspacebackend.service.PostServiceImpl;
 import org.bson.types.ObjectId;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -20,6 +23,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -32,7 +36,17 @@ public class PostControllerTest {
     PostService postService;
 
     @Autowired
+    ObjectMapper objectMapper;
+
     PostService postServiceImpl;
+
+    @Autowired
+    PostRepository postRepository;
+
+    @BeforeEach
+    void setUp() {
+        postServiceImpl = new PostServiceImpl(postRepository);
+    }
 
     @Test
     void getAllPosts() throws Exception {
@@ -61,5 +75,22 @@ public class PostControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(testPost.getId().toString())))
                 .andExpect(jsonPath("$.text", is(testPost.getText())));
+    }
+
+    @Test
+    void createPost() throws Exception {
+        List<Post> testPosts = postServiceImpl.getAll();
+        Post testPost = testPosts.get(0);
+        testPost.setText("testText");
+
+        given(postService.addOne(any(Post.class)))
+                .willReturn(testPosts.get(1));
+
+        mockMvc.perform(post("/api/v1/posts")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testPost)))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"));
     }
 }
