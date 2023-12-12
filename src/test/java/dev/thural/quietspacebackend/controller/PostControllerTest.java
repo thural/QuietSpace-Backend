@@ -9,6 +9,7 @@ import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -34,6 +35,12 @@ public class PostControllerTest {
 
     @MockBean
     PostService postService;
+
+    @Captor
+    ArgumentCaptor<ObjectId> objectIdArgumentCaptor;
+
+    @Captor
+    ArgumentCaptor<Post> postArgumentCaptor;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -99,7 +106,7 @@ public class PostControllerTest {
         Post testPost = testPosts.get(0);
         testPost.setText("testText");
 
-        mockMvc.perform(put("/api/v1/posts")
+        mockMvc.perform(put("/api/v1/posts" + "/" + testPost.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testPost)))
@@ -122,5 +129,26 @@ public class PostControllerTest {
         verify(postService).deleteOne(objectIdArgumentCaptor.capture());
 
         assertThat(testPost.getId()).isEqualTo(objectIdArgumentCaptor.getValue());
+    }
+
+    @Test
+    void patchPost() throws Exception {
+        List<Post> testPosts = postServiceImpl.getAll();
+
+        Post testPost = testPosts.get(0);
+        testPost.setUsername("testUser");
+        testPost.setText("testText");
+
+        mockMvc.perform(patch("/api/v1/posts" + "/" + testPost.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testPost)))
+                .andExpect(status().isNoContent());
+
+        verify(postService).patchOne(objectIdArgumentCaptor.capture(), postArgumentCaptor.capture());
+
+        assertThat(testPost.getId()).isEqualTo(objectIdArgumentCaptor.getValue());
+        assertThat(testPost.getUsername()).isEqualTo(postArgumentCaptor.getValue().getUsername());
+        assertThat(testPost.getText()).isEqualTo(postArgumentCaptor.getValue().getText());
     }
 }

@@ -9,6 +9,7 @@ import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -31,6 +32,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UserControllerTest {
     @Autowired
     MockMvc mockMvc;
+
+    @Captor
+    ArgumentCaptor<ObjectId> objectIdArgumentCaptor;
+
+    @Captor
+    ArgumentCaptor<User> userArgumentCaptor;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -101,7 +108,7 @@ public class UserControllerTest {
         testUser.setUsername("testUser");
         testUser.setPassword("testPassword");
 
-        mockMvc.perform(put("/api/v1/users")
+        mockMvc.perform(put("/api/v1/users" + "/" + testUser.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testUser)))
@@ -119,10 +126,31 @@ public class UserControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        ArgumentCaptor<ObjectId> objectIdArgumentCaptor = ArgumentCaptor.forClass(ObjectId.class);
-
         verify(userService).deleteOne(objectIdArgumentCaptor.capture());
 
         assertThat(testUser.getId()).isEqualTo(objectIdArgumentCaptor.getValue());
     }
+
+    @Test
+    void patchUser() throws Exception {
+        List<User> testUsers = userServiceImpl.getAll();
+
+        User testUser = testUsers.get(0);
+        testUser.setUsername("testUser");
+        testUser.setPassword("testPassword");
+
+        mockMvc.perform(patch("/api/v1/users" + "/" + testUser.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testUser)))
+                .andExpect(status().isNoContent());
+
+        verify(userService).patchOne(objectIdArgumentCaptor.capture(), userArgumentCaptor.capture());
+
+        assertThat(testUser.getId()).isEqualTo(objectIdArgumentCaptor.getValue());
+        assertThat(testUser.getUsername()).isEqualTo(userArgumentCaptor.getValue().getUsername());
+        assertThat(testUser.getPassword()).isEqualTo(userArgumentCaptor.getValue().getPassword());
+    }
+
+
 }
