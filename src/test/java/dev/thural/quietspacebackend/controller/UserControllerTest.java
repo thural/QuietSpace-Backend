@@ -152,4 +152,12 @@ public class UserControllerTest {
         assertThat(testUser.getPassword()).isEqualTo(userArgumentCaptor.getValue().getPassword());
     }
 
+    @Test
+    void userByIdNotFound(){
+        given(userService.getById(any(ObjectId.class))).willThrow(NotFoundException.class);
+
+        mockMvc.perform(get(UserController.USER_PATH_ID, new ObjectId))
+                .andExpect(status().isNotFound());
+    }
+
 }
