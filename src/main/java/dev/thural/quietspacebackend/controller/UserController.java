@@ -13,8 +13,11 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/users")
 public class UserController {
+
+    public static final String USER_PATH = "/api/v1/users";
+    public static final String USER_PATH_ID = USER_PATH + "/{userId}";
+
     private final UserService userService;
 
     @Autowired
@@ -22,39 +25,39 @@ public class UserController {
         this.userService = userService;
     }
 
-    @RequestMapping(value = "", method = RequestMethod.GET)
+    @RequestMapping(value = USER_PATH, method = RequestMethod.GET)
     List<User> getAllUsers() {
         return userService.getAll();
     }
 
-    @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
+    @RequestMapping(value = USER_PATH_ID, method = RequestMethod.GET)
     User getUserById(@PathVariable("userId") ObjectId id) {
         Optional<User> optionalUser = userService.getById(id);
         User foundUser = optionalUser.orElse(null);
         return foundUser;
     }
 
-    @RequestMapping(value = "", method = RequestMethod.POST)
+    @RequestMapping(value = USER_PATH, method = RequestMethod.POST)
     ResponseEntity createUser(@RequestBody User user) {
         User savedUser = userService.addOne(user);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", "/api/v1/users" + "/" + savedUser.getId());
+        headers.add("Location", USER_PATH + "/" + savedUser.getId());
         return new ResponseEntity(headers, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/{userId}", method = RequestMethod.PUT)
+    @RequestMapping(value = USER_PATH_ID, method = RequestMethod.PUT)
     ResponseEntity putUser(@PathVariable("userId") ObjectId id, @RequestBody User user) {
         userService.updateOne(id, user);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = USER_PATH_ID, method = RequestMethod.DELETE)
     ResponseEntity deleteUser(@PathVariable("userId") ObjectId id) {
         userService.deleteOne(id);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = "/{userId}", method = RequestMethod.PATCH)
+    @RequestMapping(value = USER_PATH_ID, method = RequestMethod.PATCH)
     ResponseEntity patchUser(@PathVariable("userId") ObjectId id, @RequestBody User user){
         userService.patchOne(id, user);
         return new ResponseEntity(HttpStatus.NO_CONTENT);

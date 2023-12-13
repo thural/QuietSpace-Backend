@@ -61,7 +61,7 @@ public class UserControllerTest {
 
         given(userService.getAll()).willReturn(testUsers);
 
-        mockMvc.perform(get("api/v1/users")
+        mockMvc.perform(get(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -75,7 +75,7 @@ public class UserControllerTest {
         given(userService.getById(testUser.getId()))
                 .willReturn(Optional.of(testUser));
 
-        mockMvc.perform(get("/api/v1/users" + "/" + testUser.getId())
+        mockMvc.perform(get(UserController.USER_PATH + "/" + testUser.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -92,7 +92,7 @@ public class UserControllerTest {
 
         given(userService.addOne(any(User.class))).willReturn(testUsers.get(1));
 
-        mockMvc.perform(post("/api/v1/users")
+        mockMvc.perform(post(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testUser)))
@@ -108,7 +108,7 @@ public class UserControllerTest {
         testUser.setUsername("testUser");
         testUser.setPassword("testPassword");
 
-        mockMvc.perform(put("/api/v1/users" + "/" + testUser.getId())
+        mockMvc.perform(put(UserController.USER_PATH + "/" + testUser.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testUser)))
@@ -122,7 +122,7 @@ public class UserControllerTest {
         List<User> testUsers = userServiceImpl.getAll();
         User testUser = testUsers.get(0);
 
-        mockMvc.perform(delete("/api/v1/users" + "/" + testUser.getId())
+        mockMvc.perform(delete(UserController.USER_PATH + "/" + testUser.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
@@ -139,7 +139,7 @@ public class UserControllerTest {
         testUser.setUsername("testUser");
         testUser.setPassword("testPassword");
 
-        mockMvc.perform(patch("/api/v1/users" + "/" + testUser.getId())
+        mockMvc.perform(patch(UserController.USER_PATH + "/" + testUser.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testUser)))
@@ -151,6 +151,5 @@ public class UserControllerTest {
         assertThat(testUser.getUsername()).isEqualTo(userArgumentCaptor.getValue().getUsername());
         assertThat(testUser.getPassword()).isEqualTo(userArgumentCaptor.getValue().getPassword());
     }
-
 
 }

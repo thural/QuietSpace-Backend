@@ -61,7 +61,7 @@ public class PostControllerTest {
 
         given(postService.getAll()).willReturn(testPosts);
 
-        mockMvc.perform(get("/api/v1/posts/")
+        mockMvc.perform(get(PostController.POST_PATH)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -75,7 +75,7 @@ public class PostControllerTest {
         given(postService.getById(testPost.getId()))
                 .willReturn(Optional.of(testPost));
 
-        mockMvc.perform(get("/api/v1/posts" + "/" + testPost.getId())
+        mockMvc.perform(get(PostController.POST_PATH + "/" + testPost.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -92,7 +92,7 @@ public class PostControllerTest {
         given(postService.addOne(any(Post.class)))
                 .willReturn(testPosts.get(1));
 
-        mockMvc.perform(post("/api/v1/posts")
+        mockMvc.perform(post(PostController.POST_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testPost)))
@@ -106,7 +106,7 @@ public class PostControllerTest {
         Post testPost = testPosts.get(0);
         testPost.setText("testText");
 
-        mockMvc.perform(put("/api/v1/posts" + "/" + testPost.getId())
+        mockMvc.perform(put(PostController.POST_PATH + "/" + testPost.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testPost)))
@@ -120,7 +120,7 @@ public class PostControllerTest {
         List<Post> testPosts = postServiceImpl.getAll();
         Post testPost = testPosts.get(0);
 
-        mockMvc.perform(delete("/api/v1/posts" + "/" + testPost.getId())
+        mockMvc.perform(delete(PostController.POST_PATH + "/" + testPost.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
@@ -139,7 +139,7 @@ public class PostControllerTest {
         testPost.setUsername("testUser");
         testPost.setText("testText");
 
-        mockMvc.perform(patch("/api/v1/posts" + "/" + testPost.getId())
+        mockMvc.perform(patch(PostController.POST_PATH + "/" + testPost.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testPost)))

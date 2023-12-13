@@ -14,8 +14,10 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/posts")
 public class PostController {
+
+    public static final String POST_PATH = "/api/v1/posts";
+    public static final String POST_PATH_ID = POST_PATH + "/{postId}";
 
     private final PostService postService;
 
@@ -24,39 +26,39 @@ public class PostController {
         this.postService = postService;
     }
 
-    @RequestMapping(value = "", method = RequestMethod.GET)
+    @RequestMapping(value = POST_PATH, method = RequestMethod.GET)
     List<Post> getAllPosts() {
         return postService.getAll();
     }
 
-    @RequestMapping(value = "/{postId}", method = RequestMethod.GET)
+    @RequestMapping(value = POST_PATH_ID, method = RequestMethod.GET)
     Post getPostById(@PathVariable("postId") ObjectId id) {
         Optional<Post> optionalPost = postService.getById(id);
         Post foundPost = optionalPost.orElse(null);
         return foundPost;
     }
 
-    @RequestMapping(value = "", method = RequestMethod.POST)
+    @RequestMapping(value = POST_PATH, method = RequestMethod.POST)
     ResponseEntity createPost(@RequestBody Post post) {
         Post savedPost = postService.addOne(post);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", "/api/v1/posts" + "/" + savedPost.getId());
+        headers.add("Location", POST_PATH + "/" + savedPost.getId());
         return new ResponseEntity(headers, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/{postId}", method = RequestMethod.PUT)
+    @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PUT)
     ResponseEntity putPost(@PathVariable("postId") ObjectId id, @RequestBody Post post) {
         postService.updateOne(id, post);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = "/{postId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = POST_PATH_ID, method = RequestMethod.DELETE)
     ResponseEntity deletePost(@PathVariable("postId") ObjectId id) {
         postService.deleteOne(id);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = "/{postId}", method = RequestMethod.PATCH)
+    @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PATCH)
     ResponseEntity patchPost(@PathVariable("postId") ObjectId id, @RequestBody Post post) {
         postService.patchOne(id, post);
         return new ResponseEntity(HttpStatus.NO_CONTENT);

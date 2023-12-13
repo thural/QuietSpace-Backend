@@ -62,7 +62,7 @@ public class CommentControllerTest {
         given(commentService.getAll())
                 .willReturn(commentServiceImpl.getAll());
 
-        mockMvc.perform(get("/api/v1/comments")
+        mockMvc.perform(get(CommentController.COMMENT_PATH)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -76,7 +76,7 @@ public class CommentControllerTest {
         given(commentService.getById(testComment.getId()))
                 .willReturn(Optional.of(testComment));
 
-        mockMvc.perform(get("/api/v1/comments" + "/" + testComment.getId())
+        mockMvc.perform(get(CommentController.COMMENT_PATH+ "/" + testComment.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -92,7 +92,7 @@ public class CommentControllerTest {
 
         given(commentService.addOne(any(Comment.class))).willReturn(testComments.get(1));
 
-        mockMvc.perform(post("/api/v1/comments")
+        mockMvc.perform(post(CommentController.COMMENT_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testComment)))
@@ -106,7 +106,7 @@ public class CommentControllerTest {
         Comment testComment = testComments.get(0);
         testComment.setText("testText");
 
-        mockMvc.perform(put("/api/v1/comments" + "/" + testComment.getId())
+        mockMvc.perform(put(CommentController.COMMENT_PATH+ "/" + testComment.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testComment)))
@@ -121,7 +121,7 @@ public class CommentControllerTest {
 
         Comment testComment = testComments.get(0);
 
-        mockMvc.perform(delete("/api/v1/comments" + "/" + testComment.getId())
+        mockMvc.perform(delete(CommentController.COMMENT_PATH + "/" + testComment.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
@@ -139,7 +139,7 @@ public class CommentControllerTest {
         Comment testComment = testPosts.get(0);
         testComment.setText("testText");
 
-        mockMvc.perform(patch("/api/v1/comments" + "/" + testComment.getId())
+        mockMvc.perform(patch(CommentController.COMMENT_PATH + "/" + testComment.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testComment)))
