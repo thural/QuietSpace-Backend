@@ -1,21 +1,21 @@
 package dev.thural.quietspacebackend.service;
 
-import dev.thural.quietspacebackend.model.Comment;
-import org.bson.types.ObjectId;
+import dev.thural.quietspacebackend.model.CommentDTO;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface CommentService {
-    List<Comment> getAll();
+    List<CommentDTO> getAll();
 
-    Comment addOne(Comment comment);
+    CommentDTO addOne(CommentDTO comment);
 
-    Optional<Comment> getById(ObjectId id);
+    Optional<CommentDTO> getById(UUID id);
 
-    void updateOne(ObjectId id, Comment comment);
+    void updateOne(UUID id, CommentDTO comment);
 
-    void deleteOne(ObjectId id);
+    void deleteOne(UUID id);
 
-    void patchOne(ObjectId id, Comment comment);
+    void patchOne(UUID id, CommentDTO comment);
 }

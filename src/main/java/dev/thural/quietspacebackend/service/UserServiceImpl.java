@@ -1,14 +1,14 @@
 package dev.thural.quietspacebackend.service;
 
-import dev.thural.quietspacebackend.model.User;
+import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.UserRepository;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -21,24 +21,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAll() {
+    public List<UserDTO> getAll() {
         return userRepository.findAll();
     }
 
     @Override
-    public User addOne(User user) {
+    public UserDTO addOne(UserDTO user) {
         return userRepository.save(user);
     }
 
     @Override
-    public Optional<User> getById(ObjectId id) {
+    public Optional<UserDTO> getById(UUID id) {
         return userRepository.findById(id);
     }
 
     @Override
-    public void updateOne(ObjectId id, User user) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        User foundUser = optionalUser.get();
+    public void updateOne(UUID id, UserDTO user) {
+        Optional<UserDTO> optionalUser = userRepository.findById(id);
+        UserDTO foundUser = optionalUser.get();
         foundUser.setUsername(user.getUsername());
         foundUser.setPassword(user.getPassword());
         foundUser.setFriendIds(user.getFriendIds());
@@ -46,14 +46,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteOne(ObjectId id) {
+    public void deleteOne(UUID id) {
         userRepository.deleteById(id);
     }
 
     @Override
-    public void patchOne(ObjectId id, User user) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        User foundUser = optionalUser.get();
+    public void patchOne(UUID id, UserDTO user) {
+        Optional<UserDTO> optionalUser = userRepository.findById(id);
+        UserDTO foundUser = optionalUser.get();
         if (StringUtils.hasText(user.getUsername()))
             foundUser.setUsername(user.getUsername());
         if (StringUtils.hasText(user.getPassword()))

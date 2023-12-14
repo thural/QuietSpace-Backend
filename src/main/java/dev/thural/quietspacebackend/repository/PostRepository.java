@@ -1,8 +1,9 @@
 package dev.thural.quietspacebackend.repository;
 
-import dev.thural.quietspacebackend.model.Post;
-import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import dev.thural.quietspacebackend.model.PostDTO;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PostRepository extends MongoRepository<Post, ObjectId> {
+import java.util.UUID;
+
+public interface PostRepository extends JpaRepository<PostDTO, UUID> {
 }

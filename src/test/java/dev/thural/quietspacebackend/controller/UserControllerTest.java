@@ -1,11 +1,10 @@
 package dev.thural.quietspacebackend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspacebackend.model.User;
+import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.UserService;
 import dev.thural.quietspacebackend.service.UserServiceImpl;
-import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -18,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -34,10 +34,10 @@ public class UserControllerTest {
     MockMvc mockMvc;
 
     @Captor
-    ArgumentCaptor<ObjectId> objectIdArgumentCaptor;
+    ArgumentCaptor<UUID> objectIdArgumentCaptor;
 
     @Captor
-    ArgumentCaptor<User> userArgumentCaptor;
+    ArgumentCaptor<UserDTO> userArgumentCaptor;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -57,7 +57,7 @@ public class UserControllerTest {
 
     @Test
     void getAllUsers() throws Exception {
-        List<User> testUsers = userServiceImpl.getAll();
+        List<UserDTO> testUsers = userServiceImpl.getAll();
 
         given(userService.getAll()).willReturn(testUsers);
 
@@ -70,7 +70,7 @@ public class UserControllerTest {
 
     @Test
     void getUserById() throws Exception {
-        User testUser = userServiceImpl.getAll().get(0);
+        UserDTO testUser = userServiceImpl.getAll().get(0);
 
         given(userService.getById(testUser.getId()))
                 .willReturn(Optional.of(testUser));
@@ -85,12 +85,12 @@ public class UserControllerTest {
 
     @Test
     void createUser() throws Exception {
-        List<User> testUsers = userServiceImpl.getAll();
-        User testUser = testUsers.get(0);
+        List<UserDTO> testUsers = userServiceImpl.getAll();
+        UserDTO testUser = testUsers.get(0);
         testUser.setUsername("testUser");
         testUser.setPassword("testPassword");
 
-        given(userService.addOne(any(User.class))).willReturn(testUsers.get(1));
+        given(userService.addOne(any(UserDTO.class))).willReturn(testUsers.get(1));
 
         mockMvc.perform(post(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
@@ -102,9 +102,9 @@ public class UserControllerTest {
 
     @Test
     void updateUser() throws Exception {
-        List<User> testUsers = userServiceImpl.getAll();
+        List<UserDTO> testUsers = userServiceImpl.getAll();
 
-        User testUser = testUsers.get(0);
+        UserDTO testUser = testUsers.get(0);
         testUser.setUsername("testUser");
         testUser.setPassword("testPassword");
 
@@ -114,13 +114,13 @@ public class UserControllerTest {
                         .content(objectMapper.writeValueAsString(testUser)))
                 .andExpect(status().isNoContent());
 
-        verify(userService).updateOne(any(ObjectId.class), any(User.class));
+        verify(userService).updateOne(any(UUID.class), any(UserDTO.class));
     }
 
     @Test
     void deleteUser() throws Exception {
-        List<User> testUsers = userServiceImpl.getAll();
-        User testUser = testUsers.get(0);
+        List<UserDTO> testUsers = userServiceImpl.getAll();
+        UserDTO testUser = testUsers.get(0);
 
         mockMvc.perform(delete(UserController.USER_PATH + "/" + testUser.getId())
                         .accept(MediaType.APPLICATION_JSON))
@@ -133,9 +133,9 @@ public class UserControllerTest {
 
     @Test
     void patchUser() throws Exception {
-        List<User> testUsers = userServiceImpl.getAll();
+        List<UserDTO> testUsers = userServiceImpl.getAll();
 
-        User testUser = testUsers.get(0);
+        UserDTO testUser = testUsers.get(0);
         testUser.setUsername("testUser");
         testUser.setPassword("testPassword");
 
@@ -154,9 +154,9 @@ public class UserControllerTest {
 
     @Test
     void userByIdNotFound() throws Exception {
-        given(userService.getById(any(ObjectId.class))).willThrow(NotFoundException.class);
+        given(userService.getById(any(UUID.class))).willReturn(Optional.empty());
 
-        mockMvc.perform(get(UserController.USER_PATH_ID, new ObjectId()))
+        mockMvc.perform(get(UserController.USER_PATH_ID, UUID.randomUUID()))
                 .andExpect(status().isNotFound());
     }
 

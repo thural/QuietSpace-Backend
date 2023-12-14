@@ -1,9 +1,7 @@
 package dev.thural.quietspacebackend.controller;
 
-import dev.thural.quietspacebackend.model.Post;
+import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.service.PostService;
-import org.apache.coyote.Response;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -12,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 public class PostController {
@@ -27,39 +26,39 @@ public class PostController {
     }
 
     @RequestMapping(value = POST_PATH, method = RequestMethod.GET)
-    List<Post> getAllPosts() {
+    List<PostDTO> getAllPosts() {
         return postService.getAll();
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.GET)
-    Post getPostById(@PathVariable("postId") ObjectId id) {
-        Optional<Post> optionalPost = postService.getById(id);
-        Post foundPost = optionalPost.orElse(null);
+    PostDTO getPostById(@PathVariable("postId") UUID id) {
+        Optional<PostDTO> optionalPost = postService.getById(id);
+        PostDTO foundPost = optionalPost.orElse(null);
         return foundPost;
     }
 
     @RequestMapping(value = POST_PATH, method = RequestMethod.POST)
-    ResponseEntity createPost(@RequestBody Post post) {
-        Post savedPost = postService.addOne(post);
+    ResponseEntity createPost(@RequestBody PostDTO post) {
+        PostDTO savedPost = postService.addOne(post);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", POST_PATH + "/" + savedPost.getId());
         return new ResponseEntity(headers, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PUT)
-    ResponseEntity putPost(@PathVariable("postId") ObjectId id, @RequestBody Post post) {
+    ResponseEntity putPost(@PathVariable("postId") UUID id, @RequestBody PostDTO post) {
         postService.updateOne(id, post);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.DELETE)
-    ResponseEntity deletePost(@PathVariable("postId") ObjectId id) {
+    ResponseEntity deletePost(@PathVariable("postId") UUID id) {
         postService.deleteOne(id);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PATCH)
-    ResponseEntity patchPost(@PathVariable("postId") ObjectId id, @RequestBody Post post) {
+    ResponseEntity patchPost(@PathVariable("postId") UUID id, @RequestBody PostDTO post) {
         postService.patchOne(id, post);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }

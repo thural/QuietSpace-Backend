@@ -1,14 +1,14 @@
 package dev.thural.quietspacebackend.service;
 
-import dev.thural.quietspacebackend.model.Post;
+import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.repository.PostRepository;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class PostServiceImpl implements PostService {
@@ -21,24 +21,24 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> getAll() {
+    public List<PostDTO> getAll() {
         return postRepository.findAll();
     }
 
     @Override
-    public Post addOne(Post post) {
+    public PostDTO addOne(PostDTO post) {
         return postRepository.save(post);
     }
 
     @Override
-    public Optional<Post> getById(ObjectId id) {
+    public Optional<PostDTO> getById(UUID id) {
         return postRepository.findById(id);
     }
 
     @Override
-    public void updateOne(ObjectId id, Post post) {
-        Optional<Post> optionalPost = postRepository.findById(id);
-        Post foundPost = optionalPost.get();
+    public void updateOne(UUID id, PostDTO post) {
+        Optional<PostDTO> optionalPost = postRepository.findById(id);
+        PostDTO foundPost = optionalPost.get();
         foundPost.setUsername(post.getUsername());
         foundPost.setText(post.getText());
         foundPost.setComments(post.getComments());
@@ -47,14 +47,14 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void deleteOne(ObjectId id) {
+    public void deleteOne(UUID id) {
         postRepository.deleteById(id);
     }
 
     @Override
-    public void patchOne(ObjectId id, Post post) {
-        Optional<Post> optionalPost = postRepository.findById(id);
-        Post foundPost = optionalPost.get();
+    public void patchOne(UUID id, PostDTO post) {
+        Optional<PostDTO> optionalPost = postRepository.findById(id);
+        PostDTO foundPost = optionalPost.get();
         if (StringUtils.hasText(post.getUsername()))
             foundPost.setUsername(post.getUsername());
         if (StringUtils.hasText(post.getText()))

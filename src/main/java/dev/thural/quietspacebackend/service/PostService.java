@@ -1,21 +1,21 @@
 package dev.thural.quietspacebackend.service;
 
-import dev.thural.quietspacebackend.model.Post;
-import org.bson.types.ObjectId;
+import dev.thural.quietspacebackend.model.PostDTO;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface PostService {
-    List<Post> getAll();
+    List<PostDTO> getAll();
 
-    Post addOne(Post post);
+    PostDTO addOne(PostDTO post);
 
-    Optional<Post> getById(ObjectId id);
+    Optional<PostDTO> getById(UUID id);
 
-    void updateOne(ObjectId id, Post post);
+    void updateOne(UUID id, PostDTO post);
 
-    void deleteOne(ObjectId id);
+    void deleteOne(UUID id);
 
-    void patchOne(ObjectId id, Post post);
+    void patchOne(UUID id, PostDTO post);
 }

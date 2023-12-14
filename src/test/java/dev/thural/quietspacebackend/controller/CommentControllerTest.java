@@ -1,11 +1,10 @@
 package dev.thural.quietspacebackend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspacebackend.model.Comment;
+import dev.thural.quietspacebackend.model.CommentDTO;
 import dev.thural.quietspacebackend.repository.CommentRepository;
 import dev.thural.quietspacebackend.service.CommentService;
 import dev.thural.quietspacebackend.service.CommentServiceImpl;
-import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -18,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -37,10 +37,10 @@ public class CommentControllerTest {
     CommentService commentService;
 
     @Captor
-    ArgumentCaptor<ObjectId> objectIdArgumentCaptor;
+    ArgumentCaptor<UUID> objectIdArgumentCaptor;
 
     @Captor
-    ArgumentCaptor<Comment> commentArgumentCaptor;
+    ArgumentCaptor<CommentDTO> commentArgumentCaptor;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -57,7 +57,7 @@ public class CommentControllerTest {
 
     @Test
     void getAllComments() throws Exception {
-        List<Comment> testComments = commentServiceImpl.getAll();
+        List<CommentDTO> testComments = commentServiceImpl.getAll();
 
         given(commentService.getAll())
                 .willReturn(commentServiceImpl.getAll());
@@ -71,7 +71,7 @@ public class CommentControllerTest {
 
     @Test
     void getCommentById() throws Exception {
-        Comment testComment = commentServiceImpl.getAll().get(0);
+        CommentDTO testComment = commentServiceImpl.getAll().get(0);
 
         given(commentService.getById(testComment.getId()))
                 .willReturn(Optional.of(testComment));
@@ -86,11 +86,11 @@ public class CommentControllerTest {
 
     @Test
     void createComment() throws Exception {
-        List<Comment> testComments = commentServiceImpl.getAll();
-        Comment testComment = testComments.get(0);
+        List<CommentDTO> testComments = commentServiceImpl.getAll();
+        CommentDTO testComment = testComments.get(0);
         testComment.setText("testText");
 
-        given(commentService.addOne(any(Comment.class))).willReturn(testComments.get(1));
+        given(commentService.addOne(any(CommentDTO.class))).willReturn(testComments.get(1));
 
         mockMvc.perform(post(CommentController.COMMENT_PATH)
                         .accept(MediaType.APPLICATION_JSON)
@@ -102,8 +102,8 @@ public class CommentControllerTest {
 
     @Test
     void updateComment() throws Exception {
-        List<Comment> testComments = commentServiceImpl.getAll();
-        Comment testComment = testComments.get(0);
+        List<CommentDTO> testComments = commentServiceImpl.getAll();
+        CommentDTO testComment = testComments.get(0);
         testComment.setText("testText");
 
         mockMvc.perform(put(CommentController.COMMENT_PATH+ "/" + testComment.getId())
@@ -112,20 +112,20 @@ public class CommentControllerTest {
                         .content(objectMapper.writeValueAsString(testComment)))
                 .andExpect(status().isNoContent());
 
-        verify(commentService).updateOne(any(ObjectId.class), any(Comment.class));
+        verify(commentService).updateOne(any(UUID.class), any(CommentDTO.class));
     }
 
     @Test
     void deleteComment() throws Exception {
-        List<Comment> testComments = commentServiceImpl.getAll();
+        List<CommentDTO> testComments = commentServiceImpl.getAll();
 
-        Comment testComment = testComments.get(0);
+        CommentDTO testComment = testComments.get(0);
 
         mockMvc.perform(delete(CommentController.COMMENT_PATH + "/" + testComment.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        ArgumentCaptor<ObjectId> objectIdArgumentCaptor = ArgumentCaptor.forClass(ObjectId.class);
+        ArgumentCaptor<UUID> objectIdArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
 
         verify(commentService).deleteOne(objectIdArgumentCaptor.capture());
 
@@ -134,9 +134,9 @@ public class CommentControllerTest {
 
     @Test
     void patchComment() throws Exception {
-        List<Comment> testPosts = commentServiceImpl.getAll();
+        List<CommentDTO> testPosts = commentServiceImpl.getAll();
 
-        Comment testComment = testPosts.get(0);
+        CommentDTO testComment = testPosts.get(0);
         testComment.setText("testText");
 
         mockMvc.perform(patch(CommentController.COMMENT_PATH + "/" + testComment.getId())

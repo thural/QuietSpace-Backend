@@ -1,11 +1,10 @@
 package dev.thural.quietspacebackend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspacebackend.model.Post;
+import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.repository.PostRepository;
 import dev.thural.quietspacebackend.service.PostService;
 import dev.thural.quietspacebackend.service.PostServiceImpl;
-import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -18,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -37,10 +37,10 @@ public class PostControllerTest {
     PostService postService;
 
     @Captor
-    ArgumentCaptor<ObjectId> objectIdArgumentCaptor;
+    ArgumentCaptor<UUID> objectIdArgumentCaptor;
 
     @Captor
-    ArgumentCaptor<Post> postArgumentCaptor;
+    ArgumentCaptor<PostDTO> postArgumentCaptor;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -57,7 +57,7 @@ public class PostControllerTest {
 
     @Test
     void getAllPosts() throws Exception {
-        List<Post> testPosts = postServiceImpl.getAll();
+        List<PostDTO> testPosts = postServiceImpl.getAll();
 
         given(postService.getAll()).willReturn(testPosts);
 
@@ -70,7 +70,7 @@ public class PostControllerTest {
 
     @Test
     void getPostById() throws Exception {
-        Post testPost = postServiceImpl.getAll().get(0);
+        PostDTO testPost = postServiceImpl.getAll().get(0);
 
         given(postService.getById(testPost.getId()))
                 .willReturn(Optional.of(testPost));
@@ -85,11 +85,11 @@ public class PostControllerTest {
 
     @Test
     void createPost() throws Exception {
-        List<Post> testPosts = postServiceImpl.getAll();
-        Post testPost = testPosts.get(0);
+        List<PostDTO> testPosts = postServiceImpl.getAll();
+        PostDTO testPost = testPosts.get(0);
         testPost.setText("testText");
 
-        given(postService.addOne(any(Post.class)))
+        given(postService.addOne(any(PostDTO.class)))
                 .willReturn(testPosts.get(1));
 
         mockMvc.perform(post(PostController.POST_PATH)
@@ -102,8 +102,8 @@ public class PostControllerTest {
 
     @Test
     void updatePost() throws Exception {
-        List<Post> testPosts = postServiceImpl.getAll();
-        Post testPost = testPosts.get(0);
+        List<PostDTO> testPosts = postServiceImpl.getAll();
+        PostDTO testPost = testPosts.get(0);
         testPost.setText("testText");
 
         mockMvc.perform(put(PostController.POST_PATH + "/" + testPost.getId())
@@ -112,19 +112,19 @@ public class PostControllerTest {
                         .content(objectMapper.writeValueAsString(testPost)))
                 .andExpect(status().isNoContent());
 
-        verify(postService).updateOne(any(ObjectId.class), any(Post.class));
+        verify(postService).updateOne(any(UUID.class), any(PostDTO.class));
     }
 
     @Test
     void deletePost() throws Exception {
-        List<Post> testPosts = postServiceImpl.getAll();
-        Post testPost = testPosts.get(0);
+        List<PostDTO> testPosts = postServiceImpl.getAll();
+        PostDTO testPost = testPosts.get(0);
 
         mockMvc.perform(delete(PostController.POST_PATH + "/" + testPost.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        ArgumentCaptor<ObjectId> objectIdArgumentCaptor = ArgumentCaptor.forClass(ObjectId.class);
+        ArgumentCaptor<UUID> objectIdArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
 
         verify(postService).deleteOne(objectIdArgumentCaptor.capture());
 
@@ -133,9 +133,9 @@ public class PostControllerTest {
 
     @Test
     void patchPost() throws Exception {
-        List<Post> testPosts = postServiceImpl.getAll();
+        List<PostDTO> testPosts = postServiceImpl.getAll();
 
-        Post testPost = testPosts.get(0);
+        PostDTO testPost = testPosts.get(0);
         testPost.setUsername("testUser");
         testPost.setText("testText");
 

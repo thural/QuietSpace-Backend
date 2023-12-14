@@ -1,14 +1,14 @@
 package dev.thural.quietspacebackend.service;
 
-import dev.thural.quietspacebackend.model.Comment;
+import dev.thural.quietspacebackend.model.CommentDTO;
 import dev.thural.quietspacebackend.repository.CommentRepository;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -21,24 +21,24 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<Comment> getAll() {
+    public List<CommentDTO> getAll() {
         return commentRepository.findAll();
     }
 
     @Override
-    public Comment addOne(Comment comment) {
+    public CommentDTO addOne(CommentDTO comment) {
         return commentRepository.save(comment);
     }
 
     @Override
-    public Optional<Comment> getById(ObjectId id) {
+    public Optional<CommentDTO> getById(UUID id) {
         return commentRepository.findById(id);
     }
 
     @Override
-    public void updateOne(ObjectId id, Comment comment) {
-        Optional<Comment> optionalComment = commentRepository.findById(id);
-        Comment foundComment = optionalComment.get();
+    public void updateOne(UUID id, CommentDTO comment) {
+        Optional<CommentDTO> optionalComment = commentRepository.findById(id);
+        CommentDTO foundComment = optionalComment.get();
         foundComment.setUserId(comment.getUserId());
         foundComment.setText(comment.getText());
         foundComment.setLikes(comment.getLikes());
@@ -46,14 +46,14 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void deleteOne(ObjectId id) {
+    public void deleteOne(UUID id) {
         commentRepository.deleteById(id);
     }
 
     @Override
-    public void patchOne(ObjectId id, Comment comment) {
-        Optional<Comment> optionalComment = commentRepository.findById(id);
-        Comment foundComment = optionalComment.get();
+    public void patchOne(UUID id, CommentDTO comment) {
+        Optional<CommentDTO> optionalComment = commentRepository.findById(id);
+        CommentDTO foundComment = optionalComment.get();
         if (comment.getUserId() != null)
             foundComment.setUserId(comment.getUserId());
         if (StringUtils.hasText(comment.getText()))

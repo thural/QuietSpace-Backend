@@ -1,21 +1,21 @@
 package dev.thural.quietspacebackend.service;
 
-import dev.thural.quietspacebackend.model.User;
-import org.bson.types.ObjectId;
+import dev.thural.quietspacebackend.model.UserDTO;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface UserService {
-    List<User> getAll();
+    List<UserDTO> getAll();
 
-    User addOne(User user);
+    UserDTO addOne(UserDTO user);
 
-    Optional<User> getById(ObjectId id);
+    Optional<UserDTO> getById(UUID id);
 
-    void updateOne(ObjectId id, User user);
+    void updateOne(UUID id, UserDTO user);
 
-    void deleteOne(ObjectId id);
+    void deleteOne(UUID id);
 
-    void patchOne(ObjectId id, User user);
+    void patchOne(UUID id, UserDTO user);
 }
