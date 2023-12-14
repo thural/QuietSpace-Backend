@@ -1,5 +1,7 @@
 package dev.thural.quietspacebackend.service;
 
+import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.mapper.UserMapper;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +11,12 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    UserMapper userMapper;
 
     UserRepository userRepository;
 
@@ -22,27 +27,33 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDTO> getAll() {
-        return userRepository.findAll();
+        return userRepository.findAll()
+                .stream()
+                .map(userMapper::userEntityToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public UserDTO addOne(UserDTO user) {
-        return userRepository.save(user);
+        UserEntity userEntity = userMapper.userDtoToEntity(user);
+        return userMapper.userEntityToDto(userRepository.save(userEntity));
     }
 
     @Override
     public Optional<UserDTO> getById(UUID id) {
-        return userRepository.findById(id);
+        UserEntity userEntity = userRepository.findById(id).orElse(null);
+        UserDTO userDTO = userMapper.userEntityToDto(userEntity);
+        return Optional.ofNullable(userDTO);
     }
 
     @Override
     public void updateOne(UUID id, UserDTO user) {
-        Optional<UserDTO> optionalUser = userRepository.findById(id);
-        UserDTO foundUser = optionalUser.get();
+        UserEntity userEntity = userRepository.findById(id).orElse(null);
+        UserDTO foundUser = userMapper.userEntityToDto(userEntity);
         foundUser.setUsername(user.getUsername());
         foundUser.setPassword(user.getPassword());
         foundUser.setFriendIds(user.getFriendIds());
-        userRepository.save(foundUser);
+        userRepository.save(userMapper.userDtoToEntity(foundUser));
     }
 
     @Override
@@ -52,15 +63,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void patchOne(UUID id, UserDTO user) {
-        Optional<UserDTO> optionalUser = userRepository.findById(id);
-        UserDTO foundUser = optionalUser.get();
+        UserEntity userEntity = userRepository.findById(id).orElse(null);
+        UserDTO foundUser = userMapper.userEntityToDto(userEntity);
         if (StringUtils.hasText(user.getUsername()))
             foundUser.setUsername(user.getUsername());
         if (StringUtils.hasText(user.getPassword()))
             foundUser.setPassword(user.getPassword());
         if (user.getFriendIds() != null)
             foundUser.setFriendIds(user.getFriendIds());
-        userRepository.save(foundUser);
+        userRepository.save(userMapper.userDtoToEntity(foundUser));
     }
 
 }

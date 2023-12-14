@@ -1,5 +1,7 @@
 package dev.thural.quietspacebackend.service;
 
+import dev.thural.quietspacebackend.entity.PostEntity;
+import dev.thural.quietspacebackend.mapper.PostMapper;
 import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +11,11 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class PostServiceImpl implements PostService {
-
+    PostMapper postMapper;
     PostRepository postRepository;
 
     @Autowired
@@ -22,28 +25,34 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostDTO> getAll() {
-        return postRepository.findAll();
+        return postRepository.findAll()
+                .stream()
+                .map(postMapper::postEntityToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public PostDTO addOne(PostDTO post) {
-        return postRepository.save(post);
+        PostEntity postEntity = postMapper.postDtoToEntity(post);
+        return postMapper.postEntityToDto(postRepository.save(postEntity));
     }
 
     @Override
     public Optional<PostDTO> getById(UUID id) {
-        return postRepository.findById(id);
+        PostEntity postEntity = postRepository.findById(id).orElse(null);
+        PostDTO postDTO = postMapper.postEntityToDto(postEntity);
+        return Optional.of(postDTO);
     }
 
     @Override
     public void updateOne(UUID id, PostDTO post) {
-        Optional<PostDTO> optionalPost = postRepository.findById(id);
-        PostDTO foundPost = optionalPost.get();
-        foundPost.setUsername(post.getUsername());
-        foundPost.setText(post.getText());
-        foundPost.setComments(post.getComments());
-        foundPost.setLikes(post.getLikes());
-        postRepository.save(foundPost);
+        PostEntity postEntity = postRepository.findById(id).orElse(null);
+        PostDTO postDTO = postMapper.postEntityToDto(postEntity);
+        postDTO.setUsername(post.getUsername());
+        postDTO.setText(post.getText());
+        postDTO.setComments(post.getComments());
+        postDTO.setLikes(post.getLikes());
+        postRepository.save(postMapper.postDtoToEntity(postDTO));
     }
 
     @Override
@@ -53,17 +62,17 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void patchOne(UUID id, PostDTO post) {
-        Optional<PostDTO> optionalPost = postRepository.findById(id);
-        PostDTO foundPost = optionalPost.get();
+        PostEntity postEntity = postRepository.findById(id).orElse(null);
+        PostDTO postDTO = postMapper.postEntityToDto(postEntity);
         if (StringUtils.hasText(post.getUsername()))
-            foundPost.setUsername(post.getUsername());
+            postDTO.setUsername(post.getUsername());
         if (StringUtils.hasText(post.getText()))
-            foundPost.setText(post.getText());
+            postDTO.setText(post.getText());
         if (post.getComments() != null)
-            foundPost.setComments(post.getComments());
+            postDTO.setComments(post.getComments());
         if (post.getLikes() != null)
-            foundPost.setLikes(post.getLikes());
-        postRepository.save(foundPost);
+            postDTO.setLikes(post.getLikes());
+        postRepository.save(postMapper.postDtoToEntity(postDTO));
     }
 
 }

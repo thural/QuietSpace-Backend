@@ -1,5 +1,7 @@
 package dev.thural.quietspacebackend.service;
 
+import dev.thural.quietspacebackend.entity.CommentEntity;
+import dev.thural.quietspacebackend.mapper.CommentMapper;
 import dev.thural.quietspacebackend.model.CommentDTO;
 import dev.thural.quietspacebackend.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +11,12 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentServiceImpl implements CommentService {
+
+    CommentMapper commentMapper;
 
     CommentRepository commentRepository;
 
@@ -22,27 +27,33 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<CommentDTO> getAll() {
-        return commentRepository.findAll();
+        return commentRepository.findAll()
+                .stream()
+                .map(commentMapper::commentEntityToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public CommentDTO addOne(CommentDTO comment) {
-        return commentRepository.save(comment);
+        CommentEntity commentEntity = commentMapper.commentDtoToEntity(comment);
+        return commentMapper.commentEntityToDto(commentRepository.save(commentEntity));
     }
 
     @Override
     public Optional<CommentDTO> getById(UUID id) {
-        return commentRepository.findById(id);
+        CommentEntity commentEntity = commentRepository.findById(id).orElse(null);
+        CommentDTO commentDTO = commentMapper.commentEntityToDto(commentEntity);
+        return Optional.of(commentDTO);
     }
 
     @Override
     public void updateOne(UUID id, CommentDTO comment) {
-        Optional<CommentDTO> optionalComment = commentRepository.findById(id);
-        CommentDTO foundComment = optionalComment.get();
-        foundComment.setUserId(comment.getUserId());
-        foundComment.setText(comment.getText());
-        foundComment.setLikes(comment.getLikes());
-        commentRepository.save(foundComment);
+        CommentEntity commentEntity = commentRepository.findById(id).orElse(null);
+        CommentDTO commentDTO = commentMapper.commentEntityToDto(commentEntity);
+        commentDTO.setUserId(comment.getUserId());
+        commentDTO.setText(comment.getText());
+        commentDTO.setLikes(comment.getLikes());
+        commentRepository.save(commentMapper.commentDtoToEntity(commentDTO));
     }
 
     @Override
@@ -52,15 +63,15 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void patchOne(UUID id, CommentDTO comment) {
-        Optional<CommentDTO> optionalComment = commentRepository.findById(id);
-        CommentDTO foundComment = optionalComment.get();
+        CommentEntity commentEntity = commentRepository.findById(id).orElse(null);
+        CommentDTO commentDTO = commentMapper.commentEntityToDto(commentEntity);
         if (comment.getUserId() != null)
-            foundComment.setUserId(comment.getUserId());
+            commentDTO.setUserId(comment.getUserId());
         if (StringUtils.hasText(comment.getText()))
-            foundComment.setText(comment.getText());
+            commentDTO.setText(comment.getText());
         if (comment.getLikes() != null)
-            foundComment.setLikes(comment.getLikes());
-        commentRepository.save(foundComment);
+            commentDTO.setLikes(comment.getLikes());
+        commentRepository.save(commentMapper.commentDtoToEntity(commentDTO));
     }
 
 }
