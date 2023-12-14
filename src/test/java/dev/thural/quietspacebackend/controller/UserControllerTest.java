@@ -153,10 +153,10 @@ public class UserControllerTest {
     }
 
     @Test
-    void userByIdNotFound(){
+    void userByIdNotFound() throws Exception {
         given(userService.getById(any(ObjectId.class))).willThrow(NotFoundException.class);
 
-        mockMvc.perform(get(UserController.USER_PATH_ID, new ObjectId))
+        mockMvc.perform(get(UserController.USER_PATH_ID, new ObjectId()))
                 .andExpect(status().isNotFound());
     }
 
