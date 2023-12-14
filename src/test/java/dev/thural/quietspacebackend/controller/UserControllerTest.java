@@ -108,6 +108,8 @@ public class UserControllerTest {
         testUser.setUsername("testUser");
         testUser.setPassword("testPassword");
 
+        given(userService.updateOne(any(),any())).willReturn(Optional.of(testUser));
+
         mockMvc.perform(put(UserController.USER_PATH + "/" + testUser.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -121,6 +123,8 @@ public class UserControllerTest {
     void deleteUser() throws Exception {
         List<UserDTO> testUsers = userServiceImpl.getAll();
         UserDTO testUser = testUsers.get(0);
+
+        given(userService.deleteOne(any())).willReturn(true);
 
         mockMvc.perform(delete(UserController.USER_PATH + "/" + testUser.getId())
                         .accept(MediaType.APPLICATION_JSON))

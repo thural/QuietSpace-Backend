@@ -78,7 +78,7 @@ class UserControllerIT {
     @Rollback
     @Transactional
     @Test
-    void updateExistingUser(){
+    void testUpdateExistingUser(){
         UserEntity userEntity = userRepository.findAll().get(0);
         UserDTO userDTO =  userMapper.userEntityToDto(userEntity);
         final String updatedName = "updated user name";
@@ -90,6 +90,32 @@ class UserControllerIT {
         UserEntity updatedUser = userRepository.findById(userEntity.getId()).orElse(null);
         assertThat(updatedUser.getUsername()).isEqualTo(updatedName);
 
+    }
+
+    @Test
+    void testUpdateNotFound(){
+        assertThrows(NotFoundException.class, () -> {
+            userController.putUser(UUID.randomUUID(), UserDTO.builder().build());
+        });
+    }
+
+    @Rollback
+    @Transactional
+    @Test
+    void testDeleteUser(){
+        UserEntity userEntity = userRepository.findAll().get(0);
+
+        ResponseEntity response = userController.deleteUser(userEntity.getId());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
+
+        assertThat(userRepository.findById(userEntity.getId())).isEmpty();
+    }
+
+    @Test
+    void testDeleteUserNotFound(){
+        assertThrows(NotFoundException.class, () -> {
+            userController.deleteUser(UUID.randomUUID());
+        });
     }
 
 }

@@ -15,7 +15,7 @@ public interface UserService {
 
     Optional<UserDTO> updateOne(UUID id, UserDTO user);
 
-    void deleteOne(UUID id);
+    Boolean deleteOne(UUID id);
 
     void patchOne(UUID id, UserDTO user);
 }
