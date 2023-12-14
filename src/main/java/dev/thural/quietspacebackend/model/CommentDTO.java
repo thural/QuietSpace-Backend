@@ -18,7 +18,7 @@ public class CommentDTO {
 
     private OffsetDateTime date = OffsetDateTime.now();
 
-    private User userId;
+    private String userId;
 
     private String text;
 
