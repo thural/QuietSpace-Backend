@@ -47,7 +47,7 @@ public class UserController {
 
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.PUT)
     ResponseEntity putUser(@PathVariable("userId") UUID id, @RequestBody UserDTO user) {
-        userService.updateOne(id, user);
+        userService.updateOne(id, user).orElseThrow(NotFoundException::new);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 

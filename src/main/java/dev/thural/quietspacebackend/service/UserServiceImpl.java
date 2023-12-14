@@ -11,6 +11,7 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,13 +48,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateOne(UUID id, UserDTO user) {
-        UserEntity userEntity = userRepository.findById(id).orElse(null);
-        UserDTO foundUser = userMapper.userEntityToDto(userEntity);
-        foundUser.setUsername(user.getUsername());
-        foundUser.setPassword(user.getPassword());
-        foundUser.setFriendIds(user.getFriendIds());
-        userRepository.save(userMapper.userDtoToEntity(foundUser));
+    public Optional<UserDTO> updateOne(UUID id, UserDTO user) {
+        AtomicReference<Optional<UserDTO>> atomicReference = new AtomicReference<>();
+
+        userRepository.findById(id).ifPresentOrElse(foundUser -> {
+
+            UserDTO userDTO = userMapper.userEntityToDto(foundUser);
+            userDTO.setUsername(user.getUsername());
+            userDTO.setPassword(user.getPassword());
+            userDTO.setFriendIds(user.getFriendIds());
+
+            UserEntity updatedUser = userRepository.save(userMapper.userDtoToEntity(userDTO));
+            atomicReference.set(Optional.of(userMapper.userEntityToDto(updatedUser)));
+        }, () -> atomicReference.set(Optional.empty()));
+
+        return atomicReference.get();
     }
 
     @Override

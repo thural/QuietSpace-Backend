@@ -13,7 +13,7 @@ public interface UserService {
 
     Optional<UserDTO> getById(UUID id);
 
-    void updateOne(UUID id, UserDTO user);
+    Optional<UserDTO> updateOne(UUID id, UserDTO user);
 
     void deleteOne(UUID id);
 
