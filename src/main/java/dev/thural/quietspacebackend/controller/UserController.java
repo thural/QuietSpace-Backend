@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,7 +39,7 @@ public class UserController {
     }
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.POST)
-    ResponseEntity createUser(@RequestBody UserDTO user) {
+    ResponseEntity createUser(@Validated @RequestBody UserDTO user) {
         UserDTO savedUser = userService.addOne(user);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", USER_PATH + "/" + savedUser.getId());

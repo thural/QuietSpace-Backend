@@ -1,6 +1,7 @@
 package dev.thural.quietspacebackend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.thural.quietspacebackend.mapper.UserMapper;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.UserService;
@@ -162,6 +163,22 @@ public class UserControllerTest {
 
         mockMvc.perform(get(UserController.USER_PATH_ID, UUID.randomUUID()))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void createUserNullUserName() throws Exception {
+        UUID userId = UUID.randomUUID();
+        UserDTO userDTO = UserDTO.builder()
+                .id(userId)
+                .build();
+
+        given(userService.addOne(any(UserDTO.class))).willReturn(userService.getById(userId).orElse(null));
+
+        mockMvc.perform(post(UserController.USER_PATH)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userDTO)))
+                .andExpect(status().isBadRequest());
     }
 
 }

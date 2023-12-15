@@ -1,6 +1,8 @@
 package dev.thural.quietspacebackend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -28,8 +30,12 @@ public class UserEntity {
     @Version
     private Integer version;
 
+    @NotNull
+    @NotBlank
     private String username;
 
+    @NotNull
+    @NotBlank
     private String password;
 
     private List<UserEntity> friendIds;
