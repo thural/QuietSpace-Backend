@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
 import java.util.Optional;
@@ -174,11 +175,13 @@ public class UserControllerTest {
 
         given(userService.addOne(any(UserDTO.class))).willReturn(userService.getById(userId).orElse(null));
 
-        mockMvc.perform(post(UserController.USER_PATH)
+        MvcResult result = mockMvc.perform(post(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userDTO)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest()).andReturn();
+
+        System.out.println(result.getResponse().getContentAsString());
     }
 
 }
