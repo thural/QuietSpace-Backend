@@ -32,9 +32,9 @@ public class PostEntity {
 
     private String text;
 
-    private List<UserEntity> likes;
+//    private List<UserEntity> likes;
 
-    private List<CommentEntity> comments;
+//    private List<CommentEntity> comments;
 
     private OffsetDateTime createDate;
 

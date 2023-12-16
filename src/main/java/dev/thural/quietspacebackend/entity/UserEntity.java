@@ -41,7 +41,7 @@ public class UserEntity {
     @NotBlank
     private String password;
 
-    private List<UserEntity> friendIds;
+//    private List<UserEntity> friendIds;
 
     private OffsetDateTime createDate;
 

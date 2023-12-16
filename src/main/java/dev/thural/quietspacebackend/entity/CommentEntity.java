@@ -33,7 +33,7 @@ public class CommentEntity {
 
     private String text;
 
-    private List<UUID> likes;
+//    private List<UUID> likes;
 
     private OffsetDateTime createDate = OffsetDateTime.now();
 
