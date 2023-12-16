@@ -3,6 +3,7 @@ package dev.thural.quietspacebackend.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -32,6 +33,8 @@ public class UserEntity {
 
     @NotNull
     @NotBlank
+    @Size(max = 32)
+    @Column(length = 32)
     private String username;
 
     @NotNull

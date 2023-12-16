@@ -1,5 +1,11 @@
 package dev.thural.quietspacebackend.model;
 
+import dev.thural.quietspacebackend.entity.UserEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.OffsetDateTime;
@@ -15,12 +21,20 @@ public class UserDTO {
 
     private UUID id;
 
-    private OffsetDateTime date = OffsetDateTime.now();
+    private Integer version;
 
+    @NotNull
+    @NotBlank
     private String username;
 
+    @NotNull
+    @NotBlank
     private String password;
 
-    private List<UserDTO> friendIds;
+    private List<UserEntity> friendIds;
+
+    private OffsetDateTime createDate;
+
+    private OffsetDateTime updateDate;
 
 }

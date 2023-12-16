@@ -1,7 +1,6 @@
 package dev.thural.quietspacebackend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspacebackend.mapper.UserMapper;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.UserService;
@@ -36,7 +35,7 @@ public class UserControllerTest {
     MockMvc mockMvc;
 
     @Captor
-    ArgumentCaptor<UUID> objectIdArgumentCaptor;
+    ArgumentCaptor<UUID> uuidArgumentCaptor;
 
     @Captor
     ArgumentCaptor<UserDTO> userArgumentCaptor;
@@ -132,9 +131,9 @@ public class UserControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        verify(userService).deleteOne(objectIdArgumentCaptor.capture());
+        verify(userService).deleteOne(uuidArgumentCaptor.capture());
 
-        assertThat(testUser.getId()).isEqualTo(objectIdArgumentCaptor.getValue());
+        assertThat(testUser.getId()).isEqualTo(uuidArgumentCaptor.getValue());
     }
 
     @Test
@@ -151,9 +150,9 @@ public class UserControllerTest {
                         .content(objectMapper.writeValueAsString(testUser)))
                 .andExpect(status().isNoContent());
 
-        verify(userService).patchOne(objectIdArgumentCaptor.capture(), userArgumentCaptor.capture());
+        verify(userService).patchOne(uuidArgumentCaptor.capture(), userArgumentCaptor.capture());
 
-        assertThat(testUser.getId()).isEqualTo(objectIdArgumentCaptor.getValue());
+        assertThat(testUser.getId()).isEqualTo(uuidArgumentCaptor.getValue());
         assertThat(testUser.getUsername()).isEqualTo(userArgumentCaptor.getValue().getUsername());
         assertThat(testUser.getPassword()).isEqualTo(userArgumentCaptor.getValue().getPassword());
     }
@@ -168,12 +167,9 @@ public class UserControllerTest {
 
     @Test
     void createUserNullUserName() throws Exception {
-        UUID userId = UUID.randomUUID();
-        UserDTO userDTO = UserDTO.builder()
-                .id(userId)
-                .build();
+        UserDTO userDTO = UserDTO.builder().build();
 
-        given(userService.addOne(any(UserDTO.class))).willReturn(userService.getById(userId).orElse(null));
+        given(userService.addOne(any(UserDTO.class))).willReturn(userService.getAll().get(0));
 
         MvcResult result = mockMvc.perform(post(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
