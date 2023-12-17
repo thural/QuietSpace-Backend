@@ -11,12 +11,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -58,20 +58,21 @@ public class UserControllerTest {
 
     @Test
     void getAllUsers() throws Exception {
-        List<UserDTO> testUsers = userServiceImpl.listUsers(null);
+        Page<UserDTO> testUsers = userServiceImpl.listUsers(null, null, null);
 
-        given(userService.listUsers(null)).willReturn(testUsers);
+        given(userService.listUsers(any(), any(), any())).willReturn(testUsers);
 
         mockMvc.perform(get(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.length()", is(testUsers.size())));
+                .andExpect(jsonPath("$.length()", is(testUsers.getContent().size())));
     }
 
     @Test
     void getUserById() throws Exception {
-        UserDTO testUser = userServiceImpl.listUsers(null).get(0);
+        UserDTO testUser = userServiceImpl.listUsers(null, null, null)
+                .getContent().get(1);
 
         given(userService.getById(testUser.getId()))
                 .willReturn(Optional.of(testUser));
@@ -86,12 +87,12 @@ public class UserControllerTest {
 
     @Test
     void createUser() throws Exception {
-        List<UserDTO> testUsers = userServiceImpl.listUsers(null);
-        UserDTO testUser = testUsers.get(0);
+        Page<UserDTO> testUsers = userServiceImpl.listUsers(null, null, null);
+        UserDTO testUser = testUsers.getContent().get(0);
         testUser.setUsername("testUser");
         testUser.setPassword("testPassword");
 
-        given(userService.addOne(any(UserDTO.class))).willReturn(testUsers.get(1));
+        given(userService.addOne(any(UserDTO.class))).willReturn(testUsers.getContent().get(0));
 
         mockMvc.perform(post(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
@@ -103,13 +104,13 @@ public class UserControllerTest {
 
     @Test
     void updateUser() throws Exception {
-        List<UserDTO> testUsers = userServiceImpl.listUsers(null);
+        Page<UserDTO> testUsers = userServiceImpl.listUsers(null, null, null);
 
-        UserDTO testUser = testUsers.get(0);
+        UserDTO testUser = testUsers.getContent().get(0);
         testUser.setUsername("testUser");
         testUser.setPassword("testPassword");
 
-        given(userService.updateOne(any(),any())).willReturn(Optional.of(testUser));
+        given(userService.updateOne(any(), any())).willReturn(Optional.of(testUser));
 
         mockMvc.perform(put(UserController.USER_PATH + "/" + testUser.getId())
                         .accept(MediaType.APPLICATION_JSON)
@@ -122,8 +123,8 @@ public class UserControllerTest {
 
     @Test
     void deleteUser() throws Exception {
-        List<UserDTO> testUsers = userServiceImpl.listUsers(null);
-        UserDTO testUser = testUsers.get(0);
+        Page<UserDTO> testUsers = userServiceImpl.listUsers(null, null, null);
+        UserDTO testUser = testUsers.getContent().get(0);
 
         given(userService.deleteOne(any())).willReturn(true);
 
@@ -138,9 +139,9 @@ public class UserControllerTest {
 
     @Test
     void patchUser() throws Exception {
-        List<UserDTO> testUsers = userServiceImpl.listUsers(null);
+        Page<UserDTO> testUsers = userServiceImpl.listUsers(null, null, null);
 
-        UserDTO testUser = testUsers.get(0);
+        UserDTO testUser = testUsers.getContent().get(0);
         testUser.setUsername("testUser");
         testUser.setPassword("testPassword");
 
@@ -169,7 +170,9 @@ public class UserControllerTest {
     void createUserNullUserName() throws Exception {
         UserDTO userDTO = UserDTO.builder().build();
 
-        given(userService.addOne(any(UserDTO.class))).willReturn(userService.listUsers(null).get(0));
+        given(userService.addOne(any(UserDTO.class)))
+                .willReturn(userService.listUsers(null, null, null)
+                .getContent().get(0));
 
         MvcResult result = mockMvc.perform(post(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)

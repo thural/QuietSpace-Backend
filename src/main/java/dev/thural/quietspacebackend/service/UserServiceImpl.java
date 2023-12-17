@@ -5,10 +5,11 @@ import dev.thural.quietspacebackend.mapper.UserMapper;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -21,29 +22,45 @@ public class UserServiceImpl implements UserService {
 
     UserRepository userRepository;
 
+    private final static Integer DEFAULT_PAGE = 0;
+    private final static Integer DEFAULT_PAGE_SIZE = 25;
+
     @Autowired
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @Override
-    public List<UserDTO> listUsers(String userName) {
+    public Page<UserDTO> listUsers(String userName, Integer pageNumber, Integer pageSize) {
 
-        List <UserEntity> userList;
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize);
 
-        if(StringUtils.hasText(userName)){
-            userList = listUsersByName(userName);
+        Page<UserEntity> userPage;
+
+        if (StringUtils.hasText(userName)) {
+            userPage = listUsersByName(userName);
         } else {
-            userList = userRepository.findAll();
+            userPage = userRepository.findAll(pageRequest);
         }
 
-        return userList.stream()
-                .map(userMapper::userEntityToDto)
-                .collect(Collectors.toList());
+        return userPage.map(userMapper::userEntityToDto);
     }
 
-    public List<UserEntity> listUsersByName(String userName){
-        return userRepository.findAllByUsernameIsLikeIgnoreCase("%" + userName + "%");
+    public PageRequest buildPageRequest(Integer pageNumber, Integer pageSize) {
+        Integer queryPageNumber;
+        Integer queryPageSize;
+
+        if (pageNumber != null && pageNumber > 0) queryPageNumber = pageNumber - 1;
+        else queryPageNumber = DEFAULT_PAGE;
+
+        if (pageSize == null) queryPageSize = DEFAULT_PAGE_SIZE;
+        else queryPageSize = pageSize > 1000 ? 1000 : pageSize;
+
+        return PageRequest.of(queryPageNumber, queryPageSize);
+    }
+
+    public Page<UserEntity> listUsersByName(String userName) {
+        return userRepository.findAllByUsernameIsLikeIgnoreCase("%" + userName + "%", null);
     }
 
     @Override
@@ -79,7 +96,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Boolean deleteOne(UUID id) {
-        if(userRepository.existsById(id)) {
+        if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
             return true;
         }

@@ -5,8 +5,8 @@ import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
 
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -19,9 +19,9 @@ class UserRepositoryTest {
 
     @Test
     void testGetUserListByName(){
-        List<UserEntity> list = userRepository.findAllByUsernameIsLikeIgnoreCase("%John%");
+        Page<UserEntity> list = userRepository.findAllByUsernameIsLikeIgnoreCase("%John%", null);
 
-        assertThat(list.size()).isEqualTo(33);
+        assertThat(list.toList().size()).isEqualTo(33);
     }
 
     @Test
@@ -39,7 +39,7 @@ class UserRepositoryTest {
     @Test
     void testSavedUserNameIsTooLong(){
         assertThrows(ConstraintViolationException.class, () -> {
-            UserEntity savedUser = userRepository.save(UserEntity.builder()
+            userRepository.save(UserEntity.builder()
                     .username("test user random text longer than 32 characters")
                     .build());
 

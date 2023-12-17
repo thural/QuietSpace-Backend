@@ -70,7 +70,7 @@ public class PostControllerTest {
 
     @Test
     void getPostById() throws Exception {
-        PostDTO testPost = postServiceImpl.getAll().get(0);
+        PostDTO testPost = postServiceImpl.getAll().get(1);
 
         given(postService.getById(testPost.getId()))
                 .willReturn(Optional.of(testPost));

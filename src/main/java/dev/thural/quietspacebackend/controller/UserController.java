@@ -3,13 +3,13 @@ package dev.thural.quietspacebackend.controller;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,8 +27,10 @@ public class UserController {
     }
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.GET)
-    List<UserDTO> listUsers(@RequestParam(required = false) String userName) {
-        return userService.listUsers(userName);
+    Page<UserDTO> listUsers(@RequestParam(required = false) String userName,
+                            @RequestParam(required = false) Integer pageNumber,
+                            @RequestParam(required = false) Integer pageSize) {
+        return userService.listUsers(userName, pageNumber, pageSize);
     }
 
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.GET)

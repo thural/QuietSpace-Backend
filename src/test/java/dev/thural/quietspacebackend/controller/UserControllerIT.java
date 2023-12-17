@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,7 +57,7 @@ class UserControllerIT {
     MockMvc mockMvc;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
@@ -81,13 +81,24 @@ class UserControllerIT {
         System.out.println(result.getResponse().getContentAsString());
     }
 
+    @Test
+    void testListUserByNamePage1() throws Exception {
+        mockMvc.perform(get(UserController.USER_PATH)
+                        .queryParam("userName", "John")
+                        .queryParam("pageNumber", "1")
+                        .queryParam("pageSize", "25"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(25)))
+                .andExpect(jsonPath("$.[0].userName", is("John")));
+    }
+
     @Rollback
     @Transactional
     @Test
     void testGetAllUsers() {
         userRepository.deleteAll();
-        List<UserDTO> userList = userController.listUsers(null);
-        assertThat(userList.size()).isEqualTo(8);
+        Page<UserDTO> userList = userController.listUsers(null, 1, 25);
+        assertThat(userList.getContent().size()).isEqualTo(8);
 
     }
 
@@ -101,7 +112,7 @@ class UserControllerIT {
     }
 
     @Test
-    void testUserNotFound(){
+    void testUserNotFound() {
         assertThrows(NotFoundException.class, () -> {
             userController.getUserById(UUID.randomUUID());
         });
@@ -110,7 +121,7 @@ class UserControllerIT {
     @Rollback
     @Transactional
     @Test
-    void testCreateUser(){
+    void testCreateUser() {
         UserDTO userDTO = UserDTO.builder()
                 .username("new test user")
                 .build();
@@ -130,9 +141,9 @@ class UserControllerIT {
     @Rollback
     @Transactional
     @Test
-    void testUpdateExistingUser(){
+    void testUpdateExistingUser() {
         UserEntity userEntity = userRepository.findAll().get(0);
-        UserDTO userDTO =  userMapper.userEntityToDto(userEntity);
+        UserDTO userDTO = userMapper.userEntityToDto(userEntity);
         final String updatedName = "updated user name";
         userDTO.setUsername(updatedName);
 
@@ -145,7 +156,7 @@ class UserControllerIT {
     }
 
     @Test
-    void testUpdateNotFound(){
+    void testUpdateNotFound() {
         assertThrows(NotFoundException.class, () -> {
             userController.putUser(UUID.randomUUID(), UserDTO.builder().build());
         });
@@ -154,7 +165,7 @@ class UserControllerIT {
     @Rollback
     @Transactional
     @Test
-    void testDeleteUser(){
+    void testDeleteUser() {
         UserEntity userEntity = userRepository.findAll().get(0);
 
         ResponseEntity response = userController.deleteUser(userEntity.getId());
@@ -166,7 +177,7 @@ class UserControllerIT {
     @Transactional
     @Rollback
     @Test
-    void testDeleteUserNotFound(){
+    void testDeleteUserNotFound() {
         assertThrows(NotFoundException.class, () -> {
             userController.deleteUser(UUID.randomUUID());
         });
@@ -175,7 +186,7 @@ class UserControllerIT {
     @Test
     void testListUsersByName() throws Exception {
         mockMvc.perform(get(UserController.USER_PATH)
-                .queryParam("userName", "John"))
+                        .queryParam("userName", "John"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()", is(100)));
     }
