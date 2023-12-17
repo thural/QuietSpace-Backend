@@ -27,11 +27,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDTO> getAll() {
-        return userRepository.findAll()
-                .stream()
+    public List<UserDTO> listUsers(String userName) {
+
+        List <UserEntity> userList;
+
+        if(StringUtils.hasText(userName)){
+            userList = listUsersByName(userName);
+        } else {
+            userList = userRepository.findAll();
+        }
+
+        return userList.stream()
                 .map(userMapper::userEntityToDto)
                 .collect(Collectors.toList());
+    }
+
+    public List<UserEntity> listUsersByName(String userName){
+        return userRepository.findAllByUsernameIsLikeIgnoreCase("%" + userName + "%");
     }
 
     @Override

@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -15,6 +17,12 @@ class UserRepositoryTest {
     @Autowired
     UserRepository userRepository;
 
+    @Test
+    void testGetUserListByName(){
+        List<UserEntity> list = userRepository.findAllByUsernameIsLikeIgnoreCase("%John%");
+
+        assertThat(list.size()).isEqualTo(33);
+    }
 
     @Test
     void testSavedUser(){

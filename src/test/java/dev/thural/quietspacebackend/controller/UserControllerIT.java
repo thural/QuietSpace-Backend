@@ -28,6 +28,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -85,7 +86,7 @@ class UserControllerIT {
     @Test
     void testGetAllUsers() {
         userRepository.deleteAll();
-        List<UserDTO> userList = userController.getAllUsers();
+        List<UserDTO> userList = userController.listUsers(null);
         assertThat(userList.size()).isEqualTo(8);
 
     }
@@ -169,6 +170,14 @@ class UserControllerIT {
         assertThrows(NotFoundException.class, () -> {
             userController.deleteUser(UUID.randomUUID());
         });
+    }
+
+    @Test
+    void testListUsersByName() throws Exception {
+        mockMvc.perform(get(UserController.USER_PATH)
+                .queryParam("userName", "John"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(100)));
     }
 
 }

@@ -27,8 +27,8 @@ public class UserController {
     }
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.GET)
-    List<UserDTO> getAllUsers() {
-        return userService.getAll();
+    List<UserDTO> listUsers(@RequestParam(required = false) String userName) {
+        return userService.listUsers(userName);
     }
 
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.GET)
@@ -59,7 +59,7 @@ public class UserController {
     }
 
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.PATCH)
-    ResponseEntity patchUser(@PathVariable("userId") UUID id, @RequestBody UserDTO user){
+    ResponseEntity patchUser(@PathVariable("userId") UUID id, @RequestBody UserDTO user) {
         userService.patchOne(id, user);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }

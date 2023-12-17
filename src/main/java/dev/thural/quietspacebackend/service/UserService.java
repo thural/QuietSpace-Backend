@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService {
-    List<UserDTO> getAll();
+    List<UserDTO> listUsers(String userName);
 
     UserDTO addOne(UserDTO user);
 

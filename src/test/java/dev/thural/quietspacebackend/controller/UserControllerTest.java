@@ -58,9 +58,9 @@ public class UserControllerTest {
 
     @Test
     void getAllUsers() throws Exception {
-        List<UserDTO> testUsers = userServiceImpl.getAll();
+        List<UserDTO> testUsers = userServiceImpl.listUsers(null);
 
-        given(userService.getAll()).willReturn(testUsers);
+        given(userService.listUsers(null)).willReturn(testUsers);
 
         mockMvc.perform(get(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON))
@@ -71,7 +71,7 @@ public class UserControllerTest {
 
     @Test
     void getUserById() throws Exception {
-        UserDTO testUser = userServiceImpl.getAll().get(0);
+        UserDTO testUser = userServiceImpl.listUsers(null).get(0);
 
         given(userService.getById(testUser.getId()))
                 .willReturn(Optional.of(testUser));
@@ -86,7 +86,7 @@ public class UserControllerTest {
 
     @Test
     void createUser() throws Exception {
-        List<UserDTO> testUsers = userServiceImpl.getAll();
+        List<UserDTO> testUsers = userServiceImpl.listUsers(null);
         UserDTO testUser = testUsers.get(0);
         testUser.setUsername("testUser");
         testUser.setPassword("testPassword");
@@ -103,7 +103,7 @@ public class UserControllerTest {
 
     @Test
     void updateUser() throws Exception {
-        List<UserDTO> testUsers = userServiceImpl.getAll();
+        List<UserDTO> testUsers = userServiceImpl.listUsers(null);
 
         UserDTO testUser = testUsers.get(0);
         testUser.setUsername("testUser");
@@ -122,7 +122,7 @@ public class UserControllerTest {
 
     @Test
     void deleteUser() throws Exception {
-        List<UserDTO> testUsers = userServiceImpl.getAll();
+        List<UserDTO> testUsers = userServiceImpl.listUsers(null);
         UserDTO testUser = testUsers.get(0);
 
         given(userService.deleteOne(any())).willReturn(true);
@@ -138,7 +138,7 @@ public class UserControllerTest {
 
     @Test
     void patchUser() throws Exception {
-        List<UserDTO> testUsers = userServiceImpl.getAll();
+        List<UserDTO> testUsers = userServiceImpl.listUsers(null);
 
         UserDTO testUser = testUsers.get(0);
         testUser.setUsername("testUser");
@@ -169,7 +169,7 @@ public class UserControllerTest {
     void createUserNullUserName() throws Exception {
         UserDTO userDTO = UserDTO.builder().build();
 
-        given(userService.addOne(any(UserDTO.class))).willReturn(userService.getAll().get(0));
+        given(userService.addOne(any(UserDTO.class))).willReturn(userService.listUsers(null).get(0));
 
         MvcResult result = mockMvc.perform(post(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
