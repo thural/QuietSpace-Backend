@@ -7,13 +7,13 @@ import dev.thural.quietspacebackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -56,7 +56,9 @@ public class UserServiceImpl implements UserService {
         if (pageSize == null) queryPageSize = DEFAULT_PAGE_SIZE;
         else queryPageSize = pageSize > 1000 ? 1000 : pageSize;
 
-        return PageRequest.of(queryPageNumber, queryPageSize);
+        Sort sort = Sort.by(Sort.Order.asc("userName"));
+
+        return PageRequest.of(queryPageNumber, queryPageSize, sort);
     }
 
     public Page<UserEntity> listUsersByName(String userName) {
