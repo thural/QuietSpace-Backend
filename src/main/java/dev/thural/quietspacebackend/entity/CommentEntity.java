@@ -1,6 +1,8 @@
 package dev.thural.quietspacebackend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -29,18 +31,24 @@ public class CommentEntity {
     @Version
     private Integer version;
 
+    @NotNull
     private String userId;
 
+    @NotNull
+    @NotBlank
     private String text;
 
+    @NotNull
     @ManyToOne
     private UserEntity user;
 
     @OneToMany(mappedBy = "comment")
     private List<CommentLikeEntity> likes;
 
+    @NotNull
     private OffsetDateTime createDate = OffsetDateTime.now();
 
+    @NotNull
     private OffsetDateTime updateDate = OffsetDateTime.now();
 
     @PrePersist

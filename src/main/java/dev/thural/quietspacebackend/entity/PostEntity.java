@@ -1,6 +1,8 @@
 package dev.thural.quietspacebackend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -28,10 +30,15 @@ public class PostEntity {
     @Version
     private Integer version;
 
+    @NotNull
+    @NotBlank
     private String username;
 
+    @NotNull
+    @NotBlank
     private String text;
 
+    @NotNull
     @ManyToOne
     private UserEntity user;
 
@@ -41,9 +48,11 @@ public class PostEntity {
     @OneToMany(mappedBy = "post")
     private List<CommentEntity> comments;
 
+    @NotNull
     @Column(updatable = false)
     private OffsetDateTime createDate;
 
+    @NotNull
     private OffsetDateTime updateDate;
 
     @PrePersist

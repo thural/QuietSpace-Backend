@@ -1,6 +1,7 @@
 package dev.thural.quietspacebackend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -33,9 +34,11 @@ public class PostLikeEntity {
     @ManyToOne
     private PostEntity post;
 
+    @NotNull
     @Column(updatable = false)
     private OffsetDateTime createDate;
 
+    @NotNull
     private OffsetDateTime updateDate;
 
     @PrePersist

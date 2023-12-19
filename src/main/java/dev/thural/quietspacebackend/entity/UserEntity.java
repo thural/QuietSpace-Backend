@@ -57,9 +57,11 @@ public class UserEntity {
     @OneToMany(mappedBy = "user")
     private List<CommentLikeEntity> commentLikes;
 
+    @NotNull
     @Column(updatable = false)
     private OffsetDateTime createDate;
 
+    @NotNull
     private OffsetDateTime updateDate;
 
     @PrePersist
