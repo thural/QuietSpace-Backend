@@ -1,7 +1,8 @@
 package dev.thural.quietspacebackend.model;
 
-import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.entity.*;
 import jakarta.persistence.Column;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,16 +26,20 @@ public class UserDTO {
 
     @NotNull
     @NotBlank
+    private String role;
+
+    @NotNull
+    @NotBlank
     private String username;
 
     @NotNull
     @NotBlank
     private String password;
 
-    private List<UserEntity> friendIds;
-
+    @NotNull
     private OffsetDateTime createDate;
 
+    @NotNull
     private OffsetDateTime updateDate;
 
 }
