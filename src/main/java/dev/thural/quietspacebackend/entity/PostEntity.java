@@ -32,10 +32,16 @@ public class PostEntity {
 
     private String text;
 
-//    private List<UserEntity> likes;
+    @ManyToOne
+    private UserEntity user;
 
-//    private List<CommentEntity> comments;
+    @OneToMany(mappedBy = "post")
+    private List<PostLikeEntity> likes;
 
+    @OneToMany(mappedBy = "post")
+    private List<CommentEntity> comments;
+
+    @Column(updatable = false)
     private OffsetDateTime createDate;
 
     private OffsetDateTime updateDate;

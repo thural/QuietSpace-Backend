@@ -6,9 +6,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -17,7 +15,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentEntity {
+public class PostLikeEntity {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -29,19 +27,16 @@ public class CommentEntity {
     @Version
     private Integer version;
 
-    private String userId;
-
-    private String text;
-
     @ManyToOne
     private UserEntity user;
 
-    @OneToMany(mappedBy = "comment")
-    private List<CommentLikeEntity> likes;
+    @ManyToOne
+    private PostEntity post;
 
-    private OffsetDateTime createDate = OffsetDateTime.now();
+    @Column(updatable = false)
+    private OffsetDateTime createDate;
 
-    private OffsetDateTime updateDate = OffsetDateTime.now();
+    private OffsetDateTime updateDate;
 
     @PrePersist
     private void onCreate() {

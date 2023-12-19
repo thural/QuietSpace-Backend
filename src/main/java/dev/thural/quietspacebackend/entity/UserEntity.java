@@ -33,6 +33,10 @@ public class UserEntity {
 
     @NotNull
     @NotBlank
+    private String role;
+
+    @NotNull
+    @NotBlank
     @Size(max = 32)
     @Column(length = 32)
     private String username;
@@ -41,8 +45,19 @@ public class UserEntity {
     @NotBlank
     private String password;
 
-//    private List<UserEntity> friendIds;
+    @OneToMany(mappedBy = "user")
+    private List<PostEntity> posts;
 
+    @OneToMany(mappedBy = "user")
+    private List<PostLikeEntity> postLikes;
+
+    @OneToMany(mappedBy = "user")
+    private List<CommentEntity> comments;
+
+    @OneToMany(mappedBy = "user")
+    private List<CommentLikeEntity> commentLikes;
+
+    @Column(updatable = false)
     private OffsetDateTime createDate;
 
     private OffsetDateTime updateDate;
