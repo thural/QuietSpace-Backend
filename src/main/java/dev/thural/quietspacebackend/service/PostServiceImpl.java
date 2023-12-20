@@ -50,8 +50,6 @@ public class PostServiceImpl implements PostService {
         PostDTO postDTO = postMapper.postEntityToDto(postEntity);
         postDTO.setUsername(post.getUsername());
         postDTO.setText(post.getText());
-        postDTO.setComments(post.getComments());
-        postDTO.setLikes(post.getLikes());
         postRepository.save(postMapper.postDtoToEntity(postDTO));
     }
 
@@ -68,10 +66,6 @@ public class PostServiceImpl implements PostService {
             postDTO.setUsername(post.getUsername());
         if (StringUtils.hasText(post.getText()))
             postDTO.setText(post.getText());
-        if (post.getComments() != null)
-            postDTO.setComments(post.getComments());
-        if (post.getLikes() != null)
-            postDTO.setLikes(post.getLikes());
         postRepository.save(postMapper.postDtoToEntity(postDTO));
     }
 

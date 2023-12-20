@@ -18,7 +18,6 @@ public class CommentController {
     public static final String COMMENT_PATH = "/api/v1/comments";
     public static final String COMMENT_PATH_ID = COMMENT_PATH + "/{commentId}";
 
-
     private final CommentService commentService;
 
     @Autowired

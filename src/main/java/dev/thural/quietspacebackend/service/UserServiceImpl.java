@@ -87,7 +87,6 @@ public class UserServiceImpl implements UserService {
             UserDTO userDTO = userMapper.userEntityToDto(foundUser);
             userDTO.setUsername(user.getUsername());
             userDTO.setPassword(user.getPassword());
-            userDTO.setFriendIds(user.getFriendIds());
 
             UserEntity updatedUser = userRepository.save(userMapper.userDtoToEntity(userDTO));
             atomicReference.set(Optional.of(userMapper.userEntityToDto(updatedUser)));
@@ -113,8 +112,6 @@ public class UserServiceImpl implements UserService {
             foundUser.setUsername(user.getUsername());
         if (StringUtils.hasText(user.getPassword()))
             foundUser.setPassword(user.getPassword());
-        if (user.getFriendIds() != null)
-            foundUser.setFriendIds(user.getFriendIds());
         userRepository.save(userMapper.userDtoToEntity(foundUser));
     }
 

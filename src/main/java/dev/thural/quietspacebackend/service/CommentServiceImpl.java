@@ -52,7 +52,6 @@ public class CommentServiceImpl implements CommentService {
         CommentDTO commentDTO = commentMapper.commentEntityToDto(commentEntity);
         commentDTO.setUserId(comment.getUserId());
         commentDTO.setText(comment.getText());
-        commentDTO.setLikes(comment.getLikes());
         commentRepository.save(commentMapper.commentDtoToEntity(commentDTO));
     }
 
@@ -69,8 +68,6 @@ public class CommentServiceImpl implements CommentService {
             commentDTO.setUserId(comment.getUserId());
         if (StringUtils.hasText(comment.getText()))
             commentDTO.setText(comment.getText());
-        if (comment.getLikes() != null)
-            commentDTO.setLikes(comment.getLikes());
         commentRepository.save(commentMapper.commentDtoToEntity(commentDTO));
     }
 
