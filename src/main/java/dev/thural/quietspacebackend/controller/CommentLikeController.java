@@ -24,25 +24,25 @@ public class CommentLikeController {
     }
 
     @RequestMapping(value = COMMENT_LIKE_PATH, method = RequestMethod.GET)
-    List<CommentLikeDTO> getAllPostLikes() {
+    List<CommentLikeDTO> getAllCommentLikes() {
         return commentLikeService.getAll();
     }
 
-    @RequestMapping(value = COMMENT_LIKE_PATH, method = RequestMethod.GET)
-    List<CommentLikeDTO > getCommentLikesByPost(@RequestBody CommentDTO comment) {
+    @RequestMapping(value = COMMENT_LIKE_PATH + "/get-by-comment", method = RequestMethod.GET)
+    List<CommentLikeDTO > getCommentLikesByComment(@RequestBody CommentDTO comment) {
         List<CommentLikeDTO> commentLikes = commentLikeService.getAllByComment(comment);
         return commentLikes;
     }
 
-    @RequestMapping(value = COMMENT_LIKE_PATH, method = RequestMethod.GET)
+    @RequestMapping(value = COMMENT_LIKE_PATH + "/get-by-user", method = RequestMethod.GET)
     List<CommentLikeDTO> getCommentLikesByUser(@RequestBody UserDTO user){
-        List<CommentLikeDTO> postLikes = commentLikeService.getAllByUser(user);
-        return postLikes;
+        List<CommentLikeDTO> commentLikes = commentLikeService.getAllByUser(user);
+        return commentLikes;
     }
 
     @RequestMapping(value = COMMENT_LIKE_PATH, method = RequestMethod.POST)
-    ResponseEntity togglePostLike(@RequestBody CommentLikeDTO postLike) {
-        commentLikeService.toggleCommentLike(postLike);
+    ResponseEntity toggleCommentLike(@RequestBody CommentLikeDTO commentLike) {
+        commentLikeService.toggleCommentLike(commentLike);
         return new ResponseEntity(HttpStatus.CREATED);
     }
 }

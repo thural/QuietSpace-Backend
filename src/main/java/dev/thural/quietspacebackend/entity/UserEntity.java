@@ -38,8 +38,14 @@ public class UserEntity {
     @NotNull
     @NotBlank
     @Size(max = 32)
-    @Column(length = 32)
+    @Column(length = 32, unique = true)
     private String username;
+
+    @NotNull
+    @NotBlank
+    @Size(max = 32)
+    @Column(length = 32, unique = true)
+    private String email;
 
     @NotNull
     @NotBlank

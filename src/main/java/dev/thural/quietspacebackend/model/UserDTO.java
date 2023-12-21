@@ -34,6 +34,10 @@ public class UserDTO {
 
     @NotNull
     @NotBlank
+    private String email;
+
+    @NotNull
+    @NotBlank
     private String password;
 
     @NotNull

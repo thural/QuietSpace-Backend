@@ -65,4 +65,12 @@ public class UserController {
         userService.patchOne(id, user);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
+
+    @RequestMapping(value = USER_PATH + "/search", method = RequestMethod.GET)
+    Page<UserDTO> listUsersByQuery(@RequestParam(name = "query") String query,
+                            @RequestParam(required = false) Integer pageNumber,
+                            @RequestParam(required = false) Integer pageSize) {
+        return userService.listUsersByQuery(query, pageNumber, pageSize);
+    }
+
 }

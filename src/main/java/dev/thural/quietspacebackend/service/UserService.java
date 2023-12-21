@@ -18,4 +18,6 @@ public interface UserService {
     Boolean deleteOne(UUID id);
 
     void patchOne(UUID id, UserDTO user);
+
+    Page<UserDTO> listUsersByQuery(String query, Integer pageNumber, Integer pageSize);
 }

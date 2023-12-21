@@ -32,15 +32,16 @@ public class CommentEntity {
     private Integer version;
 
     @NotNull
-    private String userId;
-
-    @NotNull
     @NotBlank
     private String text;
 
     @NotNull
     @ManyToOne
     private UserEntity user;
+
+    @NotNull
+    @ManyToOne
+    private PostEntity post;
 
     @OneToMany(mappedBy = "comment")
     private List<CommentLikeEntity> likes;

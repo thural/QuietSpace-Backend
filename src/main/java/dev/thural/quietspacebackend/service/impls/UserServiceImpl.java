@@ -116,4 +116,19 @@ public class UserServiceImpl implements UserService {
         userRepository.save(userMapper.userDtoToEntity(foundUser));
     }
 
+    @Override
+    public Page<UserDTO> listUsersByQuery(String query, Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize);
+
+        Page<UserEntity> userPage;
+
+        if (StringUtils.hasText(query)) {
+            userPage = userRepository.findAllByQuery(query, pageRequest);
+        } else {
+            userPage = Page.empty();
+        }
+
+        return userPage.map(userMapper::userEntityToDto);
+    }
+
 }

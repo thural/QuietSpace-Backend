@@ -27,14 +27,14 @@ public class PostLikeController {
         return postLikeService.getAll();
     }
 
-    @RequestMapping(value = POST_LIKE_PATH, method = RequestMethod.GET)
-    List<PostLikeDTO > getPostLikesByPost(@RequestBody PostDTO post) {
+    @RequestMapping(value = POST_LIKE_PATH + "/get-by-post", method = RequestMethod.GET)
+    List<PostLikeDTO> getPostLikesByPost(@RequestBody PostDTO post) {
         List<PostLikeDTO> postLikes = postLikeService.getAllByPost(post);
         return postLikes;
     }
 
-    @RequestMapping(value = POST_LIKE_PATH, method = RequestMethod.GET)
-    List<PostLikeDTO> getPostLikesByUser(@RequestBody UserDTO user){
+    @RequestMapping(value = POST_LIKE_PATH + "/get-by-user", method = RequestMethod.GET)
+    List<PostLikeDTO> getPostLikesByUser(@RequestBody UserDTO user) {
         List<PostLikeDTO> postLikes = postLikeService.getAllByUser(user);
         return postLikes;
     }
