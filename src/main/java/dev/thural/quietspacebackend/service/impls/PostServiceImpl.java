@@ -1,9 +1,10 @@
-package dev.thural.quietspacebackend.service;
+package dev.thural.quietspacebackend.service.impls;
 
 import dev.thural.quietspacebackend.entity.PostEntity;
 import dev.thural.quietspacebackend.mapper.PostMapper;
 import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.repository.PostRepository;
+import dev.thural.quietspacebackend.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;

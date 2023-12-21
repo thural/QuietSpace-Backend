@@ -1,9 +1,10 @@
-package dev.thural.quietspacebackend.service;
+package dev.thural.quietspacebackend.service.impls;
 
 import dev.thural.quietspacebackend.entity.CommentEntity;
 import dev.thural.quietspacebackend.mapper.CommentMapper;
 import dev.thural.quietspacebackend.model.CommentDTO;
 import dev.thural.quietspacebackend.repository.CommentRepository;
+import dev.thural.quietspacebackend.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspacebackend.model.CommentDTO;
 import dev.thural.quietspacebackend.repository.CommentRepository;
 import dev.thural.quietspacebackend.service.CommentService;
-import dev.thural.quietspacebackend.service.CommentServiceImpl;
+import dev.thural.quietspacebackend.service.impls.CommentServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

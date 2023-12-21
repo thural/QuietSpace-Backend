@@ -9,5 +9,4 @@ import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<UserEntity, UUID> {
     Page<UserEntity> findAllByUsernameIsLikeIgnoreCase(String userName, Pageable pageable);
-
 }

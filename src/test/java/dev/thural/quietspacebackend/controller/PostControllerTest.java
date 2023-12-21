@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.repository.PostRepository;
 import dev.thural.quietspacebackend.service.PostService;
-import dev.thural.quietspacebackend.service.PostServiceImpl;
+import dev.thural.quietspacebackend.service.impls.PostServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
