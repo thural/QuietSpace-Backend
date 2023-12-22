@@ -1,6 +1,7 @@
 package dev.thural.quietspacebackend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.thural.quietspacebackend.mapper.UserMapper;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.response.AuthResponse;
@@ -14,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MvcResult;
@@ -46,15 +49,15 @@ public class UserControllerTest {
 
     @Autowired
     UserRepository userRepository;
-
-    @MockBean
     UserService userService;
-
     UserService userServiceImpl;
+    UserDetailsService userDetailsService;
+    PasswordEncoder passwordEncoder;
+    UserMapper userMapper;
 
     @BeforeEach
     void setUp() {
-        userServiceImpl = new UserServiceImpl(userRepository);
+        userServiceImpl = new UserServiceImpl(passwordEncoder, userDetailsService, userMapper, userRepository );
     }
 
     @Test

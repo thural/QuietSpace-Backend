@@ -5,6 +5,7 @@ import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.UserMapper;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.UserRepository;
+import dev.thural.quietspacebackend.response.AuthResponse;
 import dev.thural.quietspacebackend.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,7 +70,9 @@ class UserControllerIT {
                 .username("a long text for username which should exceed 32 character limit")
                 .build();
 
-        given(userService.addOne(any(UserDTO.class))).willReturn(userService.getById(userId).orElse(null));
+        AuthResponse authResponse = new AuthResponse("tokenTokenToken", "user created", "7817398717");
+
+        given(userService.addOne(any(UserDTO.class))).willReturn(authResponse);
 
         MvcResult result = mockMvc.perform(post(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)

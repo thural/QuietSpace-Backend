@@ -5,6 +5,7 @@ import dev.thural.quietspacebackend.mapper.PostMapper;
 import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.repository.PostRepository;
 import dev.thural.quietspacebackend.service.PostService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -15,14 +16,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
-    PostMapper postMapper;
-    PostRepository postRepository;
 
-    @Autowired
-    public PostServiceImpl(PostRepository postRepository) {
-        this.postRepository = postRepository;
-    }
+    private final PostMapper postMapper;
+    private final PostRepository postRepository;
 
     @Override
     public List<PostDTO> getAll() {

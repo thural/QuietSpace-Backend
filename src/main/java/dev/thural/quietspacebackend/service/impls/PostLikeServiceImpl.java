@@ -11,6 +11,7 @@ import dev.thural.quietspacebackend.model.PostLikeDTO;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.PostLikeRepository;
 import dev.thural.quietspacebackend.service.PostLikeService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,11 +20,13 @@ import java.util.UUID;
 
 
 @Service
+@RequiredArgsConstructor
 public class PostLikeServiceImpl implements PostLikeService {
-    PostLikeMapper postLikeMapper;
-    UserMapper userMapper;
-    PostMapper postMapper;
-    PostLikeRepository postLikeRepository;
+
+    private final PostLikeMapper postLikeMapper;
+    private final UserMapper userMapper;
+    private final PostMapper postMapper;
+    private final PostLikeRepository postLikeRepository;
 
     @Override
     public List<PostLikeDTO> getAll() {

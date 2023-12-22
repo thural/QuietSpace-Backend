@@ -11,6 +11,7 @@ import dev.thural.quietspacebackend.model.CommentLikeDTO;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.CommentLikeRepository;
 import dev.thural.quietspacebackend.service.CommentLikeService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,11 +19,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class CommentLikeServiceImpl implements CommentLikeService {
-    CommentLikeMapper commentLikeMapper;
-    UserMapper userMapper;
-    CommentMapper commentMapper;
-    CommentLikeRepository commentLikeRepository;
+
+    private final CommentLikeMapper commentLikeMapper;
+    private final UserMapper userMapper;
+    private final CommentMapper commentMapper;
+    private final CommentLikeRepository commentLikeRepository;
 
     @Override
     public List<CommentLikeDTO> getAll() {

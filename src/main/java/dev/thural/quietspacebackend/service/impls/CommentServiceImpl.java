@@ -5,6 +5,7 @@ import dev.thural.quietspacebackend.mapper.CommentMapper;
 import dev.thural.quietspacebackend.model.CommentDTO;
 import dev.thural.quietspacebackend.repository.CommentRepository;
 import dev.thural.quietspacebackend.service.CommentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -15,15 +16,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
 
-    CommentMapper commentMapper;
-    CommentRepository commentRepository;
-
-    @Autowired
-    public CommentServiceImpl(CommentRepository commentRepository) {
-        this.commentRepository = commentRepository;
-    }
+    private final CommentMapper commentMapper;
+    private final CommentRepository commentRepository;
 
     @Override
     public List<CommentDTO> getAll() {

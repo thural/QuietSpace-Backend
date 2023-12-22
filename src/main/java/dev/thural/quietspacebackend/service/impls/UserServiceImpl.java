@@ -5,14 +5,18 @@ import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.UserMapper;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.UserRepository;
+import dev.thural.quietspacebackend.request.LoginRequest;
 import dev.thural.quietspacebackend.response.AuthResponse;
 import dev.thural.quietspacebackend.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -22,24 +26,16 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    PasswordEncoder passwordEncoder;
-    UserMapper userMapper;
-    UserRepository userRepository;
+
+    private final PasswordEncoder passwordEncoder;
+    private final UserDetailsService userDetailsService;
+    private final UserMapper userMapper;
+    private final UserRepository userRepository;
 
     private final static Integer DEFAULT_PAGE = 0;
     private final static Integer DEFAULT_PAGE_SIZE = 25;
-
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository,UserMapper userMapper, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-        this.passwordEncoder = passwordEncoder;
-    }
-
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     public Page<UserDTO> listUsers(String userName, Integer pageNumber, Integer pageSize) {
@@ -86,8 +82,31 @@ public class UserServiceImpl implements UserService {
         String token = JwtProvider.generatedToken(authentication);
         return new AuthResponse(token, "Register Success", savedUser.getId().toString());
     }
-    @Override
 
+    @Override
+    public AuthResponse getByLoginRequest(LoginRequest loginRequest) {
+        Optional<UserEntity> optionalUser = userRepository.findUserEntityByEmail(loginRequest.getEmail());
+        String userId = optionalUser.isPresent() ? optionalUser.get().getId().toString() : "1";
+        Authentication authentication = authenticate(loginRequest.getEmail(), loginRequest.getPassword());
+        String token = JwtProvider.generatedToken(authentication);
+        return new AuthResponse(token, "Register Success", userId);
+    }
+
+    Authentication authenticate(String email, String password) {
+
+        Optional<UserDetails> optionalUserDetails = Optional.of(userDetailsService.loadUserByUsername(email));
+        if (optionalUserDetails.isEmpty())
+            throw new BadCredentialsException("invalid username");
+        if (!passwordEncoder.matches(password, optionalUserDetails.get().getPassword()))
+            throw new BadCredentialsException("invalid password");
+
+        return new UsernamePasswordAuthenticationToken(
+                optionalUserDetails.get(),
+                null,
+                optionalUserDetails.get().getAuthorities());
+    }
+
+    @Override
     public Optional<UserDTO> getById(UUID id) {
         UserEntity userEntity = userRepository.findById(id).orElse(null);
         UserDTO userDTO = userMapper.userEntityToDto(userEntity);
