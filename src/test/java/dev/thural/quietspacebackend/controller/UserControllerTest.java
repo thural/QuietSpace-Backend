@@ -3,6 +3,7 @@ package dev.thural.quietspacebackend.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.UserRepository;
+import dev.thural.quietspacebackend.response.AuthResponse;
 import dev.thural.quietspacebackend.service.UserService;
 import dev.thural.quietspacebackend.service.impls.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -87,17 +88,14 @@ public class UserControllerTest {
 
     @Test
     void createUser() throws Exception {
-        Page<UserDTO> testUsers = userServiceImpl.listUsers(null, null, null);
-        UserDTO testUser = testUsers.getContent().get(0);
-        testUser.setUsername("testUser");
-        testUser.setPassword("testPassword");
+        AuthResponse authResponse = new AuthResponse("tokenTokenToken", "user created", "7817398717");
 
-        given(userService.addOne(any(UserDTO.class))).willReturn(testUsers.getContent().get(0));
+        given(userService.addOne(any(UserDTO.class))).willReturn(authResponse);
 
         mockMvc.perform(post(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testUser)))
+                        .content(objectMapper.writeValueAsString(authResponse)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"));
     }

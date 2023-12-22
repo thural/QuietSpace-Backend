@@ -40,10 +40,8 @@ public class UserDTO {
     @NotBlank
     private String password;
 
-    @NotNull
     private OffsetDateTime createDate;
 
-    @NotNull
     private OffsetDateTime updateDate;
 
 }

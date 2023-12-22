@@ -1,6 +1,7 @@
 package dev.thural.quietspacebackend.controller;
 
 import dev.thural.quietspacebackend.model.UserDTO;
+import dev.thural.quietspacebackend.response.AuthResponse;
 import dev.thural.quietspacebackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -42,10 +43,10 @@ public class UserController {
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.POST)
     ResponseEntity createUser(@Validated @RequestBody UserDTO user) {
-        UserDTO savedUser = userService.addOne(user);
+        AuthResponse authResponse = userService.addOne(user);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", USER_PATH + "/" + savedUser.getId());
-        return new ResponseEntity(headers, HttpStatus.CREATED);
+        headers.add("Location", UserController.USER_PATH + "/" + authResponse.getResourceId());
+        return new ResponseEntity(authResponse, headers, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.PUT)

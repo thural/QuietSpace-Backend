@@ -2,5 +2,5 @@ package dev.thural.quietspacebackend.config;
 
 public class JwtConstant {
     public static String JWT_HEADER = "Authorization";
-    public static String SECRET_KEY = "I'll keep it beneath my skies";
+    public static String SECRET_KEY = "I'll keep it beneath my skies, until the day it becomes one";
 }

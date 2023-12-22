@@ -22,7 +22,6 @@ import java.util.UUID;
 public class PostLikeServiceImpl implements PostLikeService {
     PostLikeMapper postLikeMapper;
     UserMapper userMapper;
-
     PostMapper postMapper;
     PostLikeRepository postLikeRepository;
 

@@ -1,6 +1,7 @@
 package dev.thural.quietspacebackend.service;
 
 import dev.thural.quietspacebackend.model.UserDTO;
+import dev.thural.quietspacebackend.response.AuthResponse;
 import org.springframework.data.domain.Page;
 
 import java.util.Optional;
@@ -9,7 +10,7 @@ import java.util.UUID;
 public interface UserService {
     Page<UserDTO> listUsers(String userName, Integer pageNumber, Integer pageSize);
 
-    UserDTO addOne(UserDTO user);
+    AuthResponse addOne(UserDTO user);
 
     Optional<UserDTO> getById(UUID id);
 

@@ -1,14 +1,19 @@
 package dev.thural.quietspacebackend.service.impls;
 
+import dev.thural.quietspacebackend.config.JwtProvider;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.UserMapper;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.UserRepository;
+import dev.thural.quietspacebackend.response.AuthResponse;
 import dev.thural.quietspacebackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -18,15 +23,20 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class UserServiceImpl implements UserService {
-
+    PasswordEncoder passwordEncoder;
     UserMapper userMapper;
-
     UserRepository userRepository;
 
     private final static Integer DEFAULT_PAGE = 0;
     private final static Integer DEFAULT_PAGE_SIZE = 25;
 
     @Autowired
+    public UserServiceImpl(UserRepository userRepository,UserMapper userMapper, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
+    }
+
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -67,12 +77,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO addOne(UserDTO user) {
+    public AuthResponse addOne(UserDTO user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         UserEntity userEntity = userMapper.userDtoToEntity(user);
-        return userMapper.userEntityToDto(userRepository.save(userEntity));
-    }
+        UserDTO savedUser = userMapper.userEntityToDto(userRepository.save(userEntity));
 
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
+        String token = JwtProvider.generatedToken(authentication);
+        return new AuthResponse(token, "Register Success", savedUser.getId().toString());
+    }
     @Override
+
     public Optional<UserDTO> getById(UUID id) {
         UserEntity userEntity = userRepository.findById(id).orElse(null);
         UserDTO userDTO = userMapper.userEntityToDto(userEntity);
