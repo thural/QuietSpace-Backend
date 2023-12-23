@@ -47,9 +47,11 @@ public class UserController {
         return new ResponseEntity(authResponse, headers, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = USER_PATH_ID, method = RequestMethod.PUT)
-    ResponseEntity putUser(@PathVariable("userId") UUID id, @RequestBody UserDTO user) {
-        userService.updateOne(id, user).orElseThrow(NotFoundException::new);
+    @RequestMapping(value = USER_PATH, method = RequestMethod.PUT)
+    ResponseEntity putUser(@RequestHeader("Authorization") String jwt, @RequestBody UserDTO user) {
+        UserDTO loggedUser = userService.findUserByJwt(jwt).orElse(null);
+        assert loggedUser != null;
+        userService.updateOne(loggedUser.getId(), user).orElseThrow(NotFoundException::new);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
@@ -67,13 +69,13 @@ public class UserController {
 
     @RequestMapping(value = USER_PATH + "/search", method = RequestMethod.GET)
     Page<UserDTO> listUsersByQuery(@RequestParam(name = "query") String query,
-                            @RequestParam(required = false) Integer pageNumber,
-                            @RequestParam(required = false) Integer pageSize) {
+                                   @RequestParam(required = false) Integer pageNumber,
+                                   @RequestParam(required = false) Integer pageSize) {
         return userService.listUsersByQuery(query, pageNumber, pageSize);
     }
 
     @RequestMapping(value = USER_PATH + "/profile", method = RequestMethod.GET)
-    public UserDTO getUserFromToken(@RequestHeader("Authorization") String jwt){
+    public UserDTO getUserFromToken(@RequestHeader("Authorization") String jwt) {
         return userService.findUserByJwt(jwt).orElse(null);
     }
 

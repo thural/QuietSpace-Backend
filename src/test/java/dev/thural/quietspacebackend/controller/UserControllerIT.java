@@ -150,7 +150,7 @@ class UserControllerIT {
         final String updatedName = "updated user name";
         userDTO.setUsername(updatedName);
 
-        ResponseEntity response = userController.putUser(userEntity.getId(), userDTO);
+        ResponseEntity response = userController.putUser(userEntity.getId().toString(), userDTO);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
 
         UserEntity updatedUser = userRepository.findById(userEntity.getId()).orElse(null);
@@ -161,7 +161,7 @@ class UserControllerIT {
     @Test
     void testUpdateNotFound() {
         assertThrows(NotFoundException.class, () -> {
-            userController.putUser(UUID.randomUUID(), UserDTO.builder().build());
+            userController.putUser(UUID.randomUUID().toString(), UserDTO.builder().build());
         });
     }
 
