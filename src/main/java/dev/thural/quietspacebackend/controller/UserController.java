@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -69,6 +70,11 @@ public class UserController {
                             @RequestParam(required = false) Integer pageNumber,
                             @RequestParam(required = false) Integer pageSize) {
         return userService.listUsersByQuery(query, pageNumber, pageSize);
+    }
+
+    @RequestMapping(value = USER_PATH + "/profile", method = RequestMethod.GET)
+    public UserDTO getUserFromToken(@RequestHeader("Authorization") String jwt){
+        return userService.findUserByJwt(jwt).orElse(null);
     }
 
 }

@@ -1,9 +1,11 @@
 package dev.thural.quietspacebackend.service;
 
+import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.request.LoginRequest;
 import dev.thural.quietspacebackend.response.AuthResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.userdetails.User;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -24,4 +26,6 @@ public interface UserService {
     Page<UserDTO> listUsersByQuery(String query, Integer pageNumber, Integer pageSize);
 
     AuthResponse getByLoginRequest(LoginRequest loginRequest);
+
+    Optional<UserDTO> findUserByJwt(String jwt);
 }

@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -91,6 +92,13 @@ public class UserServiceImpl implements UserService {
         Optional<UserEntity> optionalUser = userRepository.findUserEntityByEmail(loginRequest.getEmail());
         String userId = optionalUser.isPresent() ? optionalUser.get().getId().toString() : "null";
         return new AuthResponse(token, "login success", userId);
+    }
+
+    @Override
+    public Optional<UserDTO> findUserByJwt(String jwt) {
+        String email = JwtProvider.getEmailFromJwtToken(jwt);
+        UserEntity userEntity = userRepository.findUserEntityByEmail(email).orElse(null);
+        return Optional.of(userMapper.userEntityToDto(userEntity));
     }
 
     Authentication authenticate(String email, String password) {
