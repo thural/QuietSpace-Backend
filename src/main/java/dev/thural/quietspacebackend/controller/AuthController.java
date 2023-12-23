@@ -28,12 +28,12 @@ public class AuthController {
         return new ResponseEntity(authResponse, headers, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
     ResponseEntity signInUser(@RequestBody LoginRequest loginRequest) {
         AuthResponse authResponse = userService.getByLoginRequest(loginRequest);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", UserController.USER_PATH + "/" + authResponse.getResourceId());
-        return new ResponseEntity(authResponse,headers, HttpStatus.OK);
+        return new ResponseEntity(authResponse, headers, HttpStatus.OK);
     }
 
 }

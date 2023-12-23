@@ -3,6 +3,7 @@ package dev.thural.quietspacebackend.controller;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.response.AuthResponse;
 import dev.thural.quietspacebackend.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -15,17 +16,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 public class UserController {
 
     public static final String USER_PATH = "/api/v1/users";
     public static final String USER_PATH_ID = USER_PATH + "/{userId}";
 
     private final UserService userService;
-
-    @Autowired
-    UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.GET)
     Page<UserDTO> listUsers(@RequestParam(required = false) String userName,

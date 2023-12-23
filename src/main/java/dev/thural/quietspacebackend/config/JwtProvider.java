@@ -14,7 +14,7 @@ public class JwtProvider {
         return Jwts.builder()
                 .setIssuer("thural")
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + 936000))
+                .setExpiration(new Date(new Date().getTime() + 936000000))
                 .claim("email", auth.getName())
                 .signWith(key)
                 .compact();

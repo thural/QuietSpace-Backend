@@ -23,7 +23,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<UserEntity> optionalUser = userRepository.findUserEntityByEmail(username);
-        if(optionalUser.isEmpty()) throw new UsernameNotFoundException("user not found with the email");
+
+        optionalUser.orElseThrow(() -> new UsernameNotFoundException("user not found with the email"));
 
         UserEntity user = optionalUser.get();
 

@@ -80,30 +80,31 @@ public class UserServiceImpl implements UserService {
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
         String token = JwtProvider.generatedToken(authentication);
-        return new AuthResponse(token, "Register Success", savedUser.getId().toString());
+        return new AuthResponse(token, "register success", savedUser.getId().toString());
     }
 
     @Override
     public AuthResponse getByLoginRequest(LoginRequest loginRequest) {
-        Optional<UserEntity> optionalUser = userRepository.findUserEntityByEmail(loginRequest.getEmail());
-        String userId = optionalUser.isPresent() ? optionalUser.get().getId().toString() : "1";
         Authentication authentication = authenticate(loginRequest.getEmail(), loginRequest.getPassword());
         String token = JwtProvider.generatedToken(authentication);
-        return new AuthResponse(token, "Register Success", userId);
+
+        Optional<UserEntity> optionalUser = userRepository.findUserEntityByEmail(loginRequest.getEmail());
+        String userId = optionalUser.isPresent() ? optionalUser.get().getId().toString() : "null";
+        return new AuthResponse(token, "login success", userId);
     }
 
     Authentication authenticate(String email, String password) {
-
-        Optional<UserDetails> optionalUserDetails = Optional.of(userDetailsService.loadUserByUsername(email));
-        if (optionalUserDetails.isEmpty())
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        if (userDetails == null)
             throw new BadCredentialsException("invalid username");
-        if (!passwordEncoder.matches(password, optionalUserDetails.get().getPassword()))
+
+        if (!passwordEncoder.matches(password, userDetails.getPassword()))
             throw new BadCredentialsException("invalid password");
 
         return new UsernamePasswordAuthenticationToken(
-                optionalUserDetails.get(),
+                userDetails,
                 null,
-                optionalUserDetails.get().getAuthorities());
+                userDetails.getAuthorities());
     }
 
     @Override
