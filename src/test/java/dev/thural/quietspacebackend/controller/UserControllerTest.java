@@ -151,7 +151,7 @@ public class UserControllerTest {
                         .content(objectMapper.writeValueAsString(testUser)))
                 .andExpect(status().isNoContent());
 
-        verify(userService).patchOne(uuidArgumentCaptor.capture(), userArgumentCaptor.capture());
+        verify(userService).patchOne(uuidArgumentCaptor.capture(), userArgumentCaptor.capture(), );
 
         assertThat(testUser.getId()).isEqualTo(uuidArgumentCaptor.getValue());
         assertThat(testUser.getUsername()).isEqualTo(userArgumentCaptor.getValue().getUsername());

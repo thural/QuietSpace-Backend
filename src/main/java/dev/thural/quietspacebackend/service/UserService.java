@@ -19,7 +19,7 @@ public interface UserService {
 
     Boolean deleteOne(UUID userId, String jwtToken);
 
-    void patchOne(UUID id, UserDTO user);
+    void patchOne(UUID id, UserDTO user, String jwtToken);
 
     Page<UserDTO> listUsersByQuery(String query, Integer pageNumber, Integer pageSize);
 

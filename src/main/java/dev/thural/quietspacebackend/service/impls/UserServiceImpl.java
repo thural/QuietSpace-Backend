@@ -12,6 +12,7 @@ import dev.thural.quietspacebackend.utils.PageProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -130,14 +131,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void patchOne(UUID id, UserDTO user) {
-        UserEntity userEntity = userRepository.findById(id).orElse(null);
-        UserDTO foundUser = userMapper.userEntityToDto(userEntity);
+    public void patchOne(UUID id, UserDTO user, String jwtToken) {
+        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
+        UserEntity loggedUserEntity = userRepository.findUserEntityByEmail(loggedUserEmail)
+                .orElseThrow(() -> new AccessDeniedException("post author does not belong to current user"));
+
+        UserDTO loggedUserDTO = userMapper.userEntityToDto(loggedUserEntity);
         if (StringUtils.hasText(user.getUsername()))
-            foundUser.setUsername(user.getUsername());
+            loggedUserDTO.setUsername(user.getUsername());
         if (StringUtils.hasText(user.getPassword()))
-            foundUser.setPassword(user.getPassword());
-        userRepository.save(userMapper.userDtoToEntity(foundUser));
+            loggedUserDTO.setPassword(user.getPassword());
+        userRepository.save(userMapper.userDtoToEntity(loggedUserDTO));
     }
 
     @Override
