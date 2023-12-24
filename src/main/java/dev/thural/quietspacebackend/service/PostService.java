@@ -1,6 +1,7 @@
 package dev.thural.quietspacebackend.service;
 
 import dev.thural.quietspacebackend.model.PostDTO;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,4 +19,6 @@ public interface PostService {
     void deleteOne(UUID id, String jwtToken);
 
     void patchOne(String jwtToken, UUID id, PostDTO post);
+
+    Page<PostDTO> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize);
 }

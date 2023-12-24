@@ -23,7 +23,6 @@ public class PostController {
     public static final String POST_PATH_ID = POST_PATH + "/{postId}";
 
     private final PostService postService;
-    private final UserService userService;
 
     @RequestMapping(value = POST_PATH, method = RequestMethod.GET)
     List<PostDTO> getAllPosts() {

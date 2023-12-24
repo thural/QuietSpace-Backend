@@ -1,17 +1,15 @@
 package dev.thural.quietspacebackend.service;
 
-import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.request.LoginRequest;
 import dev.thural.quietspacebackend.response.AuthResponse;
 import org.springframework.data.domain.Page;
-import org.springframework.security.core.userdetails.User;
 
 import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService {
-    Page<UserDTO> listUsers(String userName, Integer pageNumber, Integer pageSize);
+    Page<UserDTO> listUsers(String username, Integer pageNumber, Integer pageSize);
 
     AuthResponse addOne(UserDTO user);
 

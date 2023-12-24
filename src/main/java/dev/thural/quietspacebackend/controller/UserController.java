@@ -1,15 +1,15 @@
 package dev.thural.quietspacebackend.controller;
 
+import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.response.AuthResponse;
+import dev.thural.quietspacebackend.service.PostService;
 import dev.thural.quietspacebackend.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,17 +24,18 @@ public class UserController {
     public static final String USER_PATH_ID = USER_PATH + "/{userId}";
 
     private final UserService userService;
+    private final PostService postService;
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.GET)
-    Page<UserDTO> listUsers(@RequestParam(required = false) String userName,
+    Page<UserDTO> listUsers(@RequestParam(required = false) String username,
                             @RequestParam(required = false) Integer pageNumber,
                             @RequestParam(required = false) Integer pageSize) {
-        return userService.listUsers(userName, pageNumber, pageSize);
+        return userService.listUsers(username, pageNumber, pageSize);
     }
 
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.GET)
-    UserDTO getUserById(@PathVariable("userId") UUID id) {
-        Optional<UserDTO> optionalUser = userService.getById(id);
+    UserDTO getUserById(@PathVariable("userId") UUID userId) {
+        Optional<UserDTO> optionalUser = userService.getById(userId);
         UserDTO foundUser = optionalUser.orElseThrow(NotFoundException::new);
         return foundUser;
     }
@@ -77,6 +78,13 @@ public class UserController {
     @RequestMapping(value = USER_PATH + "/profile", method = RequestMethod.GET)
     public UserDTO getUserFromToken(@RequestHeader("Authorization") String jwt) {
         return userService.findUserByJwt(jwt).orElse(null);
+    }
+
+    @RequestMapping(value = USER_PATH_ID + "/posts", method = RequestMethod.GET)
+    public Page<PostDTO> listUserPosts(@PathVariable("userId") UUID userId,
+                                       @RequestParam(required = false) Integer pageNumber,
+                                       @RequestParam(required = false) Integer pageSize) {
+        return postService.getPostsByUserId(userId, pageNumber, pageSize);
     }
 
 }

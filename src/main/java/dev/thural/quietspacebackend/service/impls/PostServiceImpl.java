@@ -8,7 +8,10 @@ import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.repository.PostRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.PostService;
+import dev.thural.quietspacebackend.utils.PageProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -40,6 +43,7 @@ public class PostServiceImpl implements PostService {
         PostEntity postEntity = postMapper.postDtoToEntity(post);
 
         postEntity.setUser(loggedUser);
+        postEntity.setUsername(loggedUser.getUsername());
         return postMapper.postEntityToDto(postRepository.save(postEntity));
     }
 
@@ -91,6 +95,21 @@ public class PostServiceImpl implements PostService {
             if (StringUtils.hasText(post.getText())) existingPostEntity.setText(post.getText());
             postRepository.save(existingPostEntity);
         } else throw new AccessDeniedException("post author does not belong to current user");
+    }
+
+    @Override
+    public Page<PostDTO> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = PageProvider.buildPageRequest(pageNumber, pageSize);
+
+        Page<PostEntity> postPage;
+
+        if (userId != null) {
+            postPage = postRepository.findAllByUserId(userId, pageRequest);
+        } else {
+            postPage = postRepository.findAll(pageRequest);
+        }
+
+        return postPage.map(postMapper::postEntityToDto);
     }
 
     private UserEntity getUserEntityByToken(String jwtToken) {

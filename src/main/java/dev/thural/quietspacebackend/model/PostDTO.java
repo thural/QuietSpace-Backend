@@ -28,6 +28,10 @@ public class PostDTO {
 
     @NotNull
     @NotBlank
+    String username;
+
+    @NotNull
+    @NotBlank
     private String text;
 
     @NotNull
