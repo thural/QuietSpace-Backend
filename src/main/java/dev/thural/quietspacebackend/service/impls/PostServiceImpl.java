@@ -1,10 +1,14 @@
 package dev.thural.quietspacebackend.service.impls;
 
+import dev.thural.quietspacebackend.config.JwtProvider;
 import dev.thural.quietspacebackend.entity.PostEntity;
+import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.PostMapper;
 import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.repository.PostRepository;
+import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.PostService;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,7 @@ public class PostServiceImpl implements PostService {
 
     private final PostMapper postMapper;
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     @Override
     public List<PostDTO> getAll() {
@@ -31,23 +36,26 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostDTO addOne(PostDTO post) {
+    public PostDTO addOne(PostDTO post, String token) {
+        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(token);
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(loggedUserEmail).orElse(null);
+
         PostEntity postEntity = postMapper.postDtoToEntity(post);
+        postEntity.setUser(loggedUser);
         return postMapper.postEntityToDto(postRepository.save(postEntity));
     }
 
     @Override
-    public Optional<PostDTO> getById(UUID id) {
-        PostEntity postEntity = postRepository.findById(id).orElse(null);
+    public Optional<PostDTO> getById(UUID postId) {
+        PostEntity postEntity = postRepository.findById(postId).orElse(null);
         PostDTO postDTO = postMapper.postEntityToDto(postEntity);
         return Optional.of(postDTO);
     }
 
     @Override
-    public void updateOne(UUID id, PostDTO post) {
-        PostEntity postEntity = postRepository.findById(id).orElse(null);
+    public void updateOne(UUID postId, PostDTO post) {
+        PostEntity postEntity = postRepository.findById(postId).orElse(null);
         PostDTO postDTO = postMapper.postEntityToDto(postEntity);
-        postDTO.setUsername(post.getUsername());
         postDTO.setText(post.getText());
         postRepository.save(postMapper.postDtoToEntity(postDTO));
     }
@@ -58,11 +66,9 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void patchOne(UUID id, PostDTO post) {
-        PostEntity postEntity = postRepository.findById(id).orElse(null);
+    public void patchOne(UUID postId, PostDTO post) {
+        PostEntity postEntity = postRepository.findById(postId).orElse(null);
         PostDTO postDTO = postMapper.postEntityToDto(postEntity);
-        if (StringUtils.hasText(post.getUsername()))
-            postDTO.setUsername(post.getUsername());
         if (StringUtils.hasText(post.getText()))
             postDTO.setText(post.getText());
         postRepository.save(postMapper.postDtoToEntity(postDTO));

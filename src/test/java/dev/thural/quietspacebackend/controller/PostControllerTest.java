@@ -1,8 +1,10 @@
 package dev.thural.quietspacebackend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.thural.quietspacebackend.mapper.PostMapper;
 import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.repository.PostRepository;
+import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.PostService;
 import dev.thural.quietspacebackend.service.impls.PostServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,9 +52,13 @@ public class PostControllerTest {
     @Autowired
     PostRepository postRepository;
 
+    UserRepository userRepository;
+
+    PostMapper postMapper;
+
     @BeforeEach
     void setUp() {
-        postServiceImpl = new PostServiceImpl(postRepository);
+        postServiceImpl = new PostServiceImpl(postMapper, postRepository, userRepository);
     }
 
     @Test

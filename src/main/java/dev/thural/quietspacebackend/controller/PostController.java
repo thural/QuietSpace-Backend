@@ -1,11 +1,14 @@
 package dev.thural.quietspacebackend.controller;
 
 import dev.thural.quietspacebackend.model.PostDTO;
+import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.service.PostService;
-import org.springframework.beans.factory.annotation.Autowired;
+import dev.thural.quietspacebackend.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,17 +16,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 public class PostController {
 
     public static final String POST_PATH = "/api/v1/posts";
     public static final String POST_PATH_ID = POST_PATH + "/{postId}";
 
     private final PostService postService;
-
-    @Autowired
-    PostController(PostService postService) {
-        this.postService = postService;
-    }
+    private final UserService userService;
 
     @RequestMapping(value = POST_PATH, method = RequestMethod.GET)
     List<PostDTO> getAllPosts() {
@@ -38,8 +38,9 @@ public class PostController {
     }
 
     @RequestMapping(value = POST_PATH, method = RequestMethod.POST)
-    ResponseEntity createPost(@RequestBody PostDTO post) {
-        PostDTO savedPost = postService.addOne(post);
+    ResponseEntity createPost(@RequestHeader("Authorization") String jwtToken, @RequestBody PostDTO post) {
+        UserDTO loggedUser = userService.findUserByJwt(jwtToken).orElse(null);
+        PostDTO savedPost = postService.addOne(post,jwtToken);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", POST_PATH + "/" + savedPost.getId());
         return new ResponseEntity(headers, HttpStatus.CREATED);

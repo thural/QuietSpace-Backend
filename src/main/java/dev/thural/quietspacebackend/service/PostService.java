@@ -9,7 +9,7 @@ import java.util.UUID;
 public interface PostService {
     List<PostDTO> getAll();
 
-    PostDTO addOne(PostDTO post);
+    PostDTO addOne(PostDTO post, String jwtToken);
 
     Optional<PostDTO> getById(UUID id);
 

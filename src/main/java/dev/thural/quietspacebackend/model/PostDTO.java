@@ -28,14 +28,7 @@ public class PostDTO {
 
     @NotNull
     @NotBlank
-    private String username;
-
-    @NotNull
-    @NotBlank
     private String text;
-
-    @NotNull
-    private UserEntity user;
 
     @NotNull
     private OffsetDateTime createDate;
