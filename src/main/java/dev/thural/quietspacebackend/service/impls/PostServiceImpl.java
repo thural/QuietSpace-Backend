@@ -59,20 +59,33 @@ public class PostServiceImpl implements PostService {
         PostEntity existingPostEntity = postRepository.findById(postId).orElse(null);
 
         assert existingPostEntity != null;
-        UUID postAuthorId = existingPostEntity.getUser().getId();
         assert loggedUser != null;
-        UUID loggedUserId = loggedUser.getId();
 
-        if ( postAuthorId.equals(loggedUserId)){
-            PostDTO postDTO = postMapper.postEntityToDto(existingPostEntity);
-            postDTO.setText(post.getText());
-            postRepository.save(postMapper.postDtoToEntity(postDTO));
+        boolean postExistsByLoggedUser = loggedUser.getPosts().stream()
+                .map(PostEntity::getId)
+                .anyMatch(uuid -> uuid.equals(postId));
+
+        if (postExistsByLoggedUser) {
+            existingPostEntity.setText(post.getText());
+            postRepository.save(existingPostEntity);
         } else throw new AccessDeniedException("post author does not belong to current user");
     }
 
     @Override
-    public void deleteOne(UUID id) {
-        postRepository.deleteById(id);
+    public void deleteOne(UUID postId, String jwtToken) {
+        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
+
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(loggedUserEmail).orElse(null);
+        assert loggedUser != null;
+
+        boolean postExistsByLoggedUser = loggedUser.getPosts().stream()
+                .map(PostEntity::getId)
+                .anyMatch(uuid -> uuid.equals(postId));
+
+        if (postExistsByLoggedUser)
+            postRepository.deleteById(postId);
+        else throw new AccessDeniedException("post author does not belong to current user");
+
     }
 
     @Override

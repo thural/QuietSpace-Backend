@@ -132,7 +132,7 @@ public class PostControllerTest {
 
         ArgumentCaptor<UUID> objectIdArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
 
-        verify(postService).deleteOne(objectIdArgumentCaptor.capture());
+        verify(postService).deleteOne(objectIdArgumentCaptor.capture(), jwtToken);
 
         assertThat(testPost.getId()).isEqualTo(objectIdArgumentCaptor.getValue());
     }

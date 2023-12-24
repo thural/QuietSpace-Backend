@@ -52,8 +52,8 @@ public class PostController {
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.DELETE)
-    ResponseEntity deletePost(@PathVariable("postId") UUID id) {
-        postService.deleteOne(id);
+    ResponseEntity deletePost(@RequestHeader("Authorization") String jwtToken, @PathVariable("postId") UUID id) {
+        postService.deleteOne(id, jwtToken);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 

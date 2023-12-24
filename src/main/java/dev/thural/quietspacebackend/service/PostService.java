@@ -15,7 +15,7 @@ public interface PostService {
 
     void updateOne(UUID id, PostDTO post, String jwtToken);
 
-    void deleteOne(UUID id);
+    void deleteOne(UUID id, String jwtToken);
 
     void patchOne(UUID id, PostDTO post);
 }
