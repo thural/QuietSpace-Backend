@@ -17,7 +17,7 @@ public interface UserService {
 
     Optional<UserDTO> updateOne(UUID id, UserDTO user);
 
-    Boolean deleteOne(UUID id);
+    Boolean deleteOne(UUID userId, String jwtToken);
 
     void patchOne(UUID id, UserDTO user);
 

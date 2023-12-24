@@ -57,8 +57,8 @@ public class UserController {
     }
 
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.DELETE)
-    ResponseEntity deleteUser(@PathVariable("userId") UUID id) {
-        if (!userService.deleteOne(id)) throw new NotFoundException();
+    ResponseEntity deleteUser(@RequestHeader("Authorization") String jwt, @PathVariable("userId") UUID id) {
+        if (!userService.deleteOne(id, jwt)) throw new NotFoundException();
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 

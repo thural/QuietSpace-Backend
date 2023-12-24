@@ -117,9 +117,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean deleteOne(UUID id) {
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
+    public Boolean deleteOne(UUID userId, String jwtToken) {
+
+        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(loggedUserEmail).orElse(null);
+
+        if (loggedUser != null) {
+            userRepository.deleteById(userId);
             return true;
         }
         return false;

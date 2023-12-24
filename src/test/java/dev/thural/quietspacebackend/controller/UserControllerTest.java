@@ -18,7 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Optional;
@@ -127,13 +126,13 @@ public class UserControllerTest {
         Page<UserDTO> testUsers = userServiceImpl.listUsers(null, null, null);
         UserDTO testUser = testUsers.getContent().get(0);
 
-        given(userService.deleteOne(any())).willReturn(true);
+        given(userService.deleteOne(any(), )).willReturn(true);
 
         mockMvc.perform(delete(UserController.USER_PATH + "/" + testUser.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        verify(userService).deleteOne(uuidArgumentCaptor.capture());
+        verify(userService).deleteOne(uuidArgumentCaptor.capture(), );
 
         assertThat(testUser.getId()).isEqualTo(uuidArgumentCaptor.getValue());
     }
