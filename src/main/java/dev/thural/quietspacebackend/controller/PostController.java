@@ -58,8 +58,8 @@ public class PostController {
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PATCH)
-    ResponseEntity patchPost(@PathVariable("postId") UUID id, @RequestBody PostDTO post) {
-        postService.patchOne(id, post);
+    ResponseEntity patchPost(@RequestHeader("Authorization") String jwtToken, @PathVariable("postId") UUID id, @RequestBody PostDTO post) {
+        postService.patchOne(jwtToken, id, post);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }

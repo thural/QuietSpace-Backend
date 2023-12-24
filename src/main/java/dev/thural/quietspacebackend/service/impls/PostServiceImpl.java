@@ -36,10 +36,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDTO addOne(PostDTO post, String token) {
-        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(token);
-        UserEntity loggedUser = userRepository.findUserEntityByEmail(loggedUserEmail).orElse(null);
-
+        UserEntity loggedUser = getUserEntityByToken(token);
         PostEntity postEntity = postMapper.postDtoToEntity(post);
+
         postEntity.setUser(loggedUser);
         return postMapper.postEntityToDto(postRepository.save(postEntity));
     }
@@ -53,17 +52,13 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void updateOne(UUID postId, PostDTO post, String jwtToken) {
-        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
-
-        UserEntity loggedUser = userRepository.findUserEntityByEmail(loggedUserEmail).orElse(null);
+        UserEntity loggedUser = getUserEntityByToken(jwtToken);
         PostEntity existingPostEntity = postRepository.findById(postId).orElse(null);
 
         assert existingPostEntity != null;
         assert loggedUser != null;
 
-        boolean postExistsByLoggedUser = loggedUser.getPosts().stream()
-                .map(PostEntity::getId)
-                .anyMatch(uuid -> uuid.equals(postId));
+        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(postId, loggedUser);
 
         if (postExistsByLoggedUser) {
             existingPostEntity.setText(post.getText());
@@ -73,28 +68,40 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void deleteOne(UUID postId, String jwtToken) {
-        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
-
-        UserEntity loggedUser = userRepository.findUserEntityByEmail(loggedUserEmail).orElse(null);
+        UserEntity loggedUser = getUserEntityByToken(jwtToken);
         assert loggedUser != null;
 
-        boolean postExistsByLoggedUser = loggedUser.getPosts().stream()
-                .map(PostEntity::getId)
-                .anyMatch(uuid -> uuid.equals(postId));
+        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(postId, loggedUser);
 
-        if (postExistsByLoggedUser)
-            postRepository.deleteById(postId);
+        if (postExistsByLoggedUser) postRepository.deleteById(postId);
         else throw new AccessDeniedException("post author does not belong to current user");
-
     }
 
     @Override
-    public void patchOne(UUID postId, PostDTO post) {
-        PostEntity postEntity = postRepository.findById(postId).orElse(null);
-        PostDTO postDTO = postMapper.postEntityToDto(postEntity);
-        if (StringUtils.hasText(post.getText()))
-            postDTO.setText(post.getText());
-        postRepository.save(postMapper.postDtoToEntity(postDTO));
+    public void patchOne(String jwtToken, UUID postId, PostDTO post) {
+        UserEntity loggedUser = getUserEntityByToken(jwtToken);
+        PostEntity existingPostEntity = postRepository.findById(postId).orElse(null);
+
+        assert loggedUser != null;
+        assert existingPostEntity != null;
+
+        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(postId, loggedUser);
+
+        if (postExistsByLoggedUser) {
+            if (StringUtils.hasText(post.getText())) existingPostEntity.setText(post.getText());
+            postRepository.save(existingPostEntity);
+        } else throw new AccessDeniedException("post author does not belong to current user");
+    }
+
+    private UserEntity getUserEntityByToken(String jwtToken) {
+        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
+        return userRepository.findUserEntityByEmail(loggedUserEmail).orElse(null);
+    }
+
+    private boolean isPostExistsByLoggedUser(UUID postId, UserEntity loggedUser) {
+        return loggedUser.getPosts().stream()
+                .map(PostEntity::getId)
+                .anyMatch(uuid -> uuid.equals(postId));
     }
 
 }

@@ -151,7 +151,7 @@ public class PostControllerTest {
                         .content(objectMapper.writeValueAsString(testPost)))
                 .andExpect(status().isNoContent());
 
-        verify(postService).patchOne(objectIdArgumentCaptor.capture(), postArgumentCaptor.capture());
+        verify(postService).patchOne(jwtToken, objectIdArgumentCaptor.capture(), postArgumentCaptor.capture());
 
         assertThat(testPost.getId()).isEqualTo(objectIdArgumentCaptor.getValue());
         assertThat(testPost.getUsername()).isEqualTo(postArgumentCaptor.getValue().getUsername());
