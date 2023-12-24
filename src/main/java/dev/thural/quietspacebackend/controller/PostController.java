@@ -39,7 +39,6 @@ public class PostController {
 
     @RequestMapping(value = POST_PATH, method = RequestMethod.POST)
     ResponseEntity createPost(@RequestHeader("Authorization") String jwtToken, @RequestBody PostDTO post) {
-        UserDTO loggedUser = userService.findUserByJwt(jwtToken).orElse(null);
         PostDTO savedPost = postService.addOne(post,jwtToken);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", POST_PATH + "/" + savedPost.getId());
@@ -47,8 +46,8 @@ public class PostController {
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PUT)
-    ResponseEntity putPost(@PathVariable("postId") UUID id, @RequestBody PostDTO post) {
-        postService.updateOne(id, post);
+    ResponseEntity putPost(@RequestHeader("Authorization") String jwtToken, @PathVariable("postId") UUID id, @RequestBody PostDTO post) {
+        postService.updateOne(id, post, jwtToken);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 

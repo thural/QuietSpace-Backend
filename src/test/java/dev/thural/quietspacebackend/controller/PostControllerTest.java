@@ -118,7 +118,7 @@ public class PostControllerTest {
                         .content(objectMapper.writeValueAsString(testPost)))
                 .andExpect(status().isNoContent());
 
-        verify(postService).updateOne(any(UUID.class), any(PostDTO.class));
+        verify(postService).updateOne(any(UUID.class), any(PostDTO.class), jwtToken);
     }
 
     @Test

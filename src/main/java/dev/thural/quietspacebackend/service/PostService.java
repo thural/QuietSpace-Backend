@@ -13,7 +13,7 @@ public interface PostService {
 
     Optional<PostDTO> getById(UUID id);
 
-    void updateOne(UUID id, PostDTO post);
+    void updateOne(UUID id, PostDTO post, String jwtToken);
 
     void deleteOne(UUID id);
 

@@ -8,9 +8,8 @@ import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.repository.PostRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.PostService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -53,11 +52,22 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void updateOne(UUID postId, PostDTO post) {
-        PostEntity postEntity = postRepository.findById(postId).orElse(null);
-        PostDTO postDTO = postMapper.postEntityToDto(postEntity);
-        postDTO.setText(post.getText());
-        postRepository.save(postMapper.postDtoToEntity(postDTO));
+    public void updateOne(UUID postId, PostDTO post, String jwtToken) {
+        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
+
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(loggedUserEmail).orElse(null);
+        PostEntity existingPostEntity = postRepository.findById(postId).orElse(null);
+
+        assert existingPostEntity != null;
+        UUID postAuthorId = existingPostEntity.getUser().getId();
+        assert loggedUser != null;
+        UUID loggedUserId = loggedUser.getId();
+
+        if ( postAuthorId.equals(loggedUserId)){
+            PostDTO postDTO = postMapper.postEntityToDto(existingPostEntity);
+            postDTO.setText(post.getText());
+            postRepository.save(postMapper.postDtoToEntity(postDTO));
+        } else throw new AccessDeniedException("post author does not belong to current user");
     }
 
     @Override
