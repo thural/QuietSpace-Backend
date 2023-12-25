@@ -1,5 +1,7 @@
 package dev.thural.quietspacebackend.config;
 
+import dev.thural.quietspacebackend.constant.JwtConstant;
+import dev.thural.quietspacebackend.utils.JwtProvider;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,7 +30,6 @@ public class JwtValidator extends OncePerRequestFilter {
         } catch (Exception e) {
             throw new BadCredentialsException("invalid token");
         }
-//        else throw new BadCredentialsException("please provide a valid token");
 
         filterChain.doFilter(request, response);
     }

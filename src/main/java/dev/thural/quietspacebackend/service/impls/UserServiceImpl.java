@@ -1,6 +1,6 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.config.JwtProvider;
+import dev.thural.quietspacebackend.utils.JwtProvider;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.UserMapper;
 import dev.thural.quietspacebackend.model.UserDTO;
@@ -43,7 +43,23 @@ public class UserServiceImpl implements UserService {
         Page<UserEntity> userPage;
 
         if (StringUtils.hasText(username)) {
-            userPage = userRepository.findAllByUsernameIsLikeIgnoreCase("%" + username + "%", null);
+            System.out.println("QUERY IS BEING PROCESSED");
+            userPage = userRepository.findAllByUsernameIsLikeIgnoreCase("%" + username + "%", pageRequest);
+        } else {
+            userPage = userRepository.findAll(pageRequest);
+        }
+
+        return userPage.map(userMapper::userEntityToDto);
+    }
+
+    @Override
+    public Page<UserDTO> listUsersByQuery(String query, Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = PageProvider.buildPageRequest(pageNumber, pageSize);
+
+        Page<UserEntity> userPage;
+
+        if (StringUtils.hasText(query)) {
+            userPage = userRepository.findAllByQuery(query, pageRequest);
         } else {
             userPage = userRepository.findAll(pageRequest);
         }
@@ -142,21 +158,6 @@ public class UserServiceImpl implements UserService {
         if (StringUtils.hasText(user.getPassword()))
             loggedUserDTO.setPassword(user.getPassword());
         userRepository.save(userMapper.userDtoToEntity(loggedUserDTO));
-    }
-
-    @Override
-    public Page<UserDTO> listUsersByQuery(String query, Integer pageNumber, Integer pageSize) {
-        PageRequest pageRequest = PageProvider.buildPageRequest(pageNumber, pageSize);
-
-        Page<UserEntity> userPage;
-
-        if (StringUtils.hasText(query)) {
-            userPage = userRepository.findAllByQuery(query, pageRequest);
-        } else {
-            userPage = Page.empty();
-        }
-
-        return userPage.map(userMapper::userEntityToDto);
     }
 
 }

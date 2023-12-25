@@ -1,5 +1,6 @@
-package dev.thural.quietspacebackend.config;
+package dev.thural.quietspacebackend.utils;
 
+import dev.thural.quietspacebackend.constant.JwtConstant;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

@@ -27,10 +27,17 @@ public class UserController {
     private final PostService postService;
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.GET)
-    Page<UserDTO> listUsers(@RequestParam(required = false) String username,
-                            @RequestParam(required = false) Integer pageNumber,
-                            @RequestParam(required = false) Integer pageSize) {
+    Page<UserDTO> listUsers(@RequestParam(name = "username", required = false) String username,
+                            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+                            @RequestParam(name = "page-size", required = false) Integer pageSize) {
         return userService.listUsers(username, pageNumber, pageSize);
+    }
+
+    @RequestMapping(value = USER_PATH + "/search", method = RequestMethod.GET)
+    Page<UserDTO> listUsersByQuery(@RequestParam(name = "query", required = false) String query,
+                                   @RequestParam(name = "page-number", required = false) Integer pageNumber,
+                                   @RequestParam(name = "page-size", required = false) Integer pageSize) {
+        return userService.listUsersByQuery(query, pageNumber, pageSize);
     }
 
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.GET)
@@ -57,7 +64,7 @@ public class UserController {
     }
 
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.DELETE)
-    ResponseEntity deleteUser(@RequestHeader("Authorization") String jwt,@PathVariable("userId") UUID id) {
+    ResponseEntity deleteUser(@RequestHeader("Authorization") String jwt, @PathVariable("userId") UUID id) {
         if (!userService.deleteOne(id, jwt)) throw new NotFoundException();
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -70,13 +77,6 @@ public class UserController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = USER_PATH + "/search", method = RequestMethod.GET)
-    Page<UserDTO> listUsersByQuery(@RequestParam(name = "query") String query,
-                                   @RequestParam(required = false) Integer pageNumber,
-                                   @RequestParam(required = false) Integer pageSize) {
-        return userService.listUsersByQuery(query, pageNumber, pageSize);
-    }
-
     @RequestMapping(value = USER_PATH + "/profile", method = RequestMethod.GET)
     public UserDTO getUserFromToken(@RequestHeader("Authorization") String jwt) {
         return userService.findUserByJwt(jwt).orElse(null);
@@ -84,8 +84,8 @@ public class UserController {
 
     @RequestMapping(value = USER_PATH_ID + "/posts", method = RequestMethod.GET)
     public Page<PostDTO> listUserPosts(@PathVariable("userId") UUID userId,
-                                       @RequestParam(required = false) Integer pageNumber,
-                                       @RequestParam(required = false) Integer pageSize) {
+                                       @RequestParam(name = "page-number", required = false) Integer pageNumber,
+                                       @RequestParam(name = "page-size", required = false) Integer pageSize) {
         return postService.getPostsByUserId(userId, pageNumber, pageSize);
     }
 

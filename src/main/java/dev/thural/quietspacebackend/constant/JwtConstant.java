@@ -1,4 +1,4 @@
-package dev.thural.quietspacebackend.config;
+package dev.thural.quietspacebackend.constant;
 
 public class JwtConstant {
     public static String JWT_HEADER = "Authorization";

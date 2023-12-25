@@ -1,6 +1,6 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.config.JwtProvider;
+import dev.thural.quietspacebackend.utils.JwtProvider;
 import dev.thural.quietspacebackend.entity.PostEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.PostMapper;
