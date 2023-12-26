@@ -9,7 +9,6 @@ import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.request.LoginRequest;
 import dev.thural.quietspacebackend.response.AuthResponse;
 import dev.thural.quietspacebackend.service.UserService;
-import dev.thural.quietspacebackend.utils.PageProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +24,8 @@ import org.springframework.util.StringUtils;
 import java.util.Optional;
 import java.util.UUID;
 
+import static dev.thural.quietspacebackend.utils.CustomPageProvider.buildCustomPageRequest;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -37,7 +38,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserDTO> listUsers(String username, Integer pageNumber, Integer pageSize) {
 
-        PageRequest pageRequest = PageProvider.buildPageRequest(pageNumber, pageSize);
+        PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
 
         Page<UserEntity> userPage;
 
@@ -52,7 +53,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<UserDTO> listUsersByQuery(String query, Integer pageNumber, Integer pageSize) {
-        PageRequest pageRequest = PageProvider.buildPageRequest(pageNumber, pageSize);
+        PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
 
         Page<UserEntity> userPage;
 

@@ -8,7 +8,6 @@ import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.repository.PostRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.PostService;
-import dev.thural.quietspacebackend.utils.PageProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,10 +15,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
+import static dev.thural.quietspacebackend.utils.CustomPageProvider.buildCustomPageRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -30,11 +29,9 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
 
     @Override
-    public List<PostDTO> getAll() {
-        return postRepository.findAll()
-                .stream()
-                .map(postMapper::postEntityToDto)
-                .collect(Collectors.toList());
+    public Page<PostDTO> getAll(Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
+        return postRepository.findAll(pageRequest).map(postMapper::postEntityToDto);
     }
 
     @Override
@@ -99,7 +96,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Page<PostDTO> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
-        PageRequest pageRequest = PageProvider.buildPageRequest(pageNumber, pageSize);
+        PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
 
         Page<PostEntity> postPage;
 

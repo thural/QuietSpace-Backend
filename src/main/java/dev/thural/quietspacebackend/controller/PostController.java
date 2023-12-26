@@ -1,14 +1,12 @@
 package dev.thural.quietspacebackend.controller;
 
 import dev.thural.quietspacebackend.model.PostDTO;
-import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.service.PostService;
-import dev.thural.quietspacebackend.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,8 +23,9 @@ public class PostController {
     private final PostService postService;
 
     @RequestMapping(value = POST_PATH, method = RequestMethod.GET)
-    List<PostDTO> getAllPosts() {
-        return postService.getAll();
+    Page<PostDTO> getAllPosts(@RequestParam(name = "page-number", required = false) Integer pageNumber,
+                              @RequestParam(name = "page-size", required = false) Integer pageSize) {
+        return postService.getAll(pageNumber, pageSize);
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.GET)

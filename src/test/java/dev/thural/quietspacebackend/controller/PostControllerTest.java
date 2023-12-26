@@ -63,9 +63,9 @@ public class PostControllerTest {
 
     @Test
     void getAllPosts() throws Exception {
-        List<PostDTO> testPosts = postServiceImpl.getAll();
+        List<PostDTO> testPosts = postServiceImpl.getAll(, );
 
-        given(postService.getAll()).willReturn(testPosts);
+        given(postService.getAll(, )).willReturn(testPosts);
 
         mockMvc.perform(get(PostController.POST_PATH)
                         .accept(MediaType.APPLICATION_JSON))
@@ -76,7 +76,7 @@ public class PostControllerTest {
 
     @Test
     void getPostById() throws Exception {
-        PostDTO testPost = postServiceImpl.getAll().get(1);
+        PostDTO testPost = postServiceImpl.getAll(, ).get(1);
 
         given(postService.getById(testPost.getId()))
                 .willReturn(Optional.of(testPost));
@@ -91,7 +91,7 @@ public class PostControllerTest {
 
     @Test
     void createPost() throws Exception {
-        List<PostDTO> testPosts = postServiceImpl.getAll();
+        List<PostDTO> testPosts = postServiceImpl.getAll(, );
         PostDTO testPost = testPosts.get(0);
         testPost.setText("testText");
 
@@ -108,7 +108,7 @@ public class PostControllerTest {
 
     @Test
     void updatePost() throws Exception {
-        List<PostDTO> testPosts = postServiceImpl.getAll();
+        List<PostDTO> testPosts = postServiceImpl.getAll(, );
         PostDTO testPost = testPosts.get(0);
         testPost.setText("testText");
 
@@ -123,7 +123,7 @@ public class PostControllerTest {
 
     @Test
     void deletePost() throws Exception {
-        List<PostDTO> testPosts = postServiceImpl.getAll();
+        List<PostDTO> testPosts = postServiceImpl.getAll(, );
         PostDTO testPost = testPosts.get(0);
 
         mockMvc.perform(delete(PostController.POST_PATH + "/" + testPost.getId())
@@ -139,7 +139,7 @@ public class PostControllerTest {
 
     @Test
     void patchPost() throws Exception {
-        List<PostDTO> testPosts = postServiceImpl.getAll();
+        List<PostDTO> testPosts = postServiceImpl.getAll(, );
 
         PostDTO testPost = testPosts.get(0);
         testPost.setUsername("testUser");
