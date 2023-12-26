@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CommentService {
-    Page<CommentDTO> getAll(Integer pageNumber, Integer pageSize);
+    Page<CommentDTO> getAllByPost(UUID postId, Integer pageNumber, Integer pageSize);
 
     CommentDTO addOne(CommentDTO comment, String jwtToken);
 

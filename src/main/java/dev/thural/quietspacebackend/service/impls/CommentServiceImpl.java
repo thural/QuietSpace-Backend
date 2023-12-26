@@ -33,9 +33,9 @@ public class CommentServiceImpl implements CommentService {
     private final UserDetailsServiceImpl userDetailsService;
 
     @Override
-    public Page<CommentDTO> getAll(Integer pageNumber, Integer pageSize) {
+    public Page<CommentDTO> getAllByPost(UUID postId, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
-        return commentRepository.findAll(pageRequest).map(commentMapper::commentEntityToDto);
+        return commentRepository.findAllByPostId(postId,pageRequest).map(commentMapper::commentEntityToDto);
     }
 
     @Override
