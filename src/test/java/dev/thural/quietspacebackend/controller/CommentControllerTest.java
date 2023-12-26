@@ -57,10 +57,10 @@ public class CommentControllerTest {
 
     @Test
     void getAllComments() throws Exception {
-        List<CommentDTO> testComments = commentServiceImpl.getAll();
+        List<CommentDTO> testComments = commentServiceImpl.getAll(, );
 
-        given(commentService.getAll())
-                .willReturn(commentServiceImpl.getAll());
+        given(commentService.getAll(, ))
+                .willReturn(commentServiceImpl.getAll(, ));
 
         mockMvc.perform(get(CommentController.COMMENT_PATH)
                         .accept(MediaType.APPLICATION_JSON))
@@ -71,7 +71,7 @@ public class CommentControllerTest {
 
     @Test
     void getCommentById() throws Exception {
-        CommentDTO testComment = commentServiceImpl.getAll().get(0);
+        CommentDTO testComment = commentServiceImpl.getAll(, ).get(0);
 
         given(commentService.getById(testComment.getId()))
                 .willReturn(Optional.of(testComment));
@@ -86,11 +86,11 @@ public class CommentControllerTest {
 
     @Test
     void createComment() throws Exception {
-        List<CommentDTO> testComments = commentServiceImpl.getAll();
+        List<CommentDTO> testComments = commentServiceImpl.getAll(, );
         CommentDTO testComment = testComments.get(0);
         testComment.setText("testText");
 
-        given(commentService.addOne(any(CommentDTO.class))).willReturn(testComments.get(1));
+        given(commentService.addOne(any(CommentDTO.class), )).willReturn(testComments.get(1));
 
         mockMvc.perform(post(CommentController.COMMENT_PATH)
                         .accept(MediaType.APPLICATION_JSON)
@@ -102,7 +102,7 @@ public class CommentControllerTest {
 
     @Test
     void updateComment() throws Exception {
-        List<CommentDTO> testComments = commentServiceImpl.getAll();
+        List<CommentDTO> testComments = commentServiceImpl.getAll(, );
         CommentDTO testComment = testComments.get(0);
         testComment.setText("testText");
 
@@ -117,7 +117,7 @@ public class CommentControllerTest {
 
     @Test
     void deleteComment() throws Exception {
-        List<CommentDTO> testComments = commentServiceImpl.getAll();
+        List<CommentDTO> testComments = commentServiceImpl.getAll(, );
 
         CommentDTO testComment = testComments.get(0);
 
@@ -134,7 +134,7 @@ public class CommentControllerTest {
 
     @Test
     void patchComment() throws Exception {
-        List<CommentDTO> testPosts = commentServiceImpl.getAll();
+        List<CommentDTO> testPosts = commentServiceImpl.getAll(, );
 
         CommentDTO testComment = testPosts.get(0);
         testComment.setText("testText");

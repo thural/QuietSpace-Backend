@@ -33,6 +33,10 @@ public class CommentEntity {
 
     @NotNull
     @NotBlank
+    private String username;
+
+    @NotNull
+    @NotBlank
     private String text;
 
     @NotNull

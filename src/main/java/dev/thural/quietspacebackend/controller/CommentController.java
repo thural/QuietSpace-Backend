@@ -3,6 +3,7 @@ package dev.thural.quietspacebackend.controller;
 import dev.thural.quietspacebackend.model.CommentDTO;
 import dev.thural.quietspacebackend.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,20 +27,21 @@ public class CommentController {
     }
 
     @RequestMapping(value = COMMENT_PATH, method = RequestMethod.GET)
-    List<CommentDTO> getAllComments() {
-        return commentService.getAll();
+    Page<CommentDTO> getAllComments(@RequestParam(name = "page-number", required = false) Integer pageNumber,
+                                    @RequestParam(name = "page-size", required = false) Integer pageSize) {
+        return commentService.getAll(pageNumber, pageSize);
     }
 
     @RequestMapping(COMMENT_PATH_ID)
     CommentDTO getCommentById(@PathVariable("commentId") UUID id) {
         Optional<CommentDTO> optionalComment = commentService.getById(id);
-        CommentDTO foundComment = optionalComment.orElseThrow(NotFoundException::new);
+        CommentDTO foundComment = optionalComment.orElse(null);
         return foundComment;
     }
 
     @RequestMapping(value = COMMENT_PATH, method = RequestMethod.POST)
-    ResponseEntity createComment(@RequestBody CommentDTO comment) {
-        CommentDTO savedComment = commentService.addOne(comment);
+    ResponseEntity createComment(@RequestHeader("Authorization") String jwtToken, @RequestBody CommentDTO comment) {
+        CommentDTO savedComment = commentService.addOne(comment, jwtToken);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", COMMENT_PATH + "/" + savedComment.getId());
         return new ResponseEntity(headers, HttpStatus.CREATED);
@@ -58,7 +60,7 @@ public class CommentController {
     }
 
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.PATCH)
-    ResponseEntity patchComment(@PathVariable("commentId") UUID id, @RequestBody CommentDTO comment){
+    ResponseEntity patchComment(@PathVariable("commentId") UUID id, @RequestBody CommentDTO comment) {
         commentService.patchOne(id, comment);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }

@@ -26,7 +26,8 @@ public class CommentDTO {
     private Integer version;
 
     @NotNull
-    private String userId;
+    @NotBlank
+    private String username;
 
     @NotNull
     @NotBlank
