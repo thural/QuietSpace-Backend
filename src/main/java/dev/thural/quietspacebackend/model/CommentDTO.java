@@ -34,9 +34,6 @@ public class CommentDTO {
     private String text;
 
     @NotNull
-    private UserEntity user;
-
-    @NotNull
     private OffsetDateTime createDate = OffsetDateTime.now();
 
     @NotNull

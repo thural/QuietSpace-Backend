@@ -13,9 +13,9 @@ public interface CommentService {
 
     Optional<CommentDTO> getById(UUID id);
 
-    void updateOne(UUID id, CommentDTO comment);
+    void updateOne(UUID commentId, CommentDTO comment, String jwtToken);
 
-    void deleteOne(UUID id);
+    void deleteOne(UUID id, String jwtToken);
 
-    void patchOne(UUID id, CommentDTO comment);
+    void patchOne(UUID id, CommentDTO comment, String jwtToken);
 }

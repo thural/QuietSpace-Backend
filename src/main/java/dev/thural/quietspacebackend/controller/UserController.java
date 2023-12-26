@@ -43,8 +43,7 @@ public class UserController {
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.GET)
     UserDTO getUserById(@PathVariable("userId") UUID userId) {
         Optional<UserDTO> optionalUser = userService.getById(userId);
-        UserDTO foundUser = optionalUser.orElse(null);
-        return foundUser;
+        return optionalUser.orElse(null);
     }
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.POST)

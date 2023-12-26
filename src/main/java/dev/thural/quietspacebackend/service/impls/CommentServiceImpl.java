@@ -6,10 +6,13 @@ import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.CommentMapper;
 import dev.thural.quietspacebackend.model.CommentDTO;
 import dev.thural.quietspacebackend.repository.CommentRepository;
+import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.CommentService;
+import dev.thural.quietspacebackend.utils.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -25,6 +28,7 @@ import static dev.thural.quietspacebackend.utils.JwtProvider.getEmailFromJwtToke
 public class CommentServiceImpl implements CommentService {
 
     private final CommentMapper commentMapper;
+    private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final UserDetailsServiceImpl userDetailsService;
 
@@ -46,35 +50,53 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Optional<CommentDTO> getById(UUID id) {
-        CommentEntity commentEntity = commentRepository.findById(id).orElseThrow(NotFoundException::new);
+    public Optional<CommentDTO> getById(UUID commentId) {
+        CommentEntity commentEntity = commentRepository.findById(commentId).orElseThrow(NotFoundException::new);
         CommentDTO commentDTO = commentMapper.commentEntityToDto(commentEntity);
         return Optional.of(commentDTO);
     }
 
     @Override
-    public void updateOne(UUID id, CommentDTO comment) {
-        CommentEntity commentEntity = commentRepository.findById(id).orElse(null);
-        CommentDTO commentDTO = commentMapper.commentEntityToDto(commentEntity);
-        commentDTO.setUserId(comment.getUserId());
-        commentDTO.setText(comment.getText());
-        commentRepository.save(commentMapper.commentDtoToEntity(commentDTO));
+    public void updateOne(UUID commentId, CommentDTO comment, String jwtToken) {
+        UserEntity loggedUserEntity = getUserEntityByToken(jwtToken);
+        CommentEntity existingCommentEntity = commentRepository.findById(commentId).orElseThrow(NotFoundException::new);
+
+        if (existingCommentEntity.getUser().equals(loggedUserEntity)){
+
+            existingCommentEntity.setUsername(comment.getUsername());
+            existingCommentEntity.setText(comment.getText());
+
+            commentRepository.save(existingCommentEntity);
+        } else throw new AccessDeniedException("comment author does not belong to current user");
+
     }
 
     @Override
-    public void deleteOne(UUID id) {
-        commentRepository.deleteById(id);
+    public void deleteOne(UUID commentId, String jwtToken) {
+        UserEntity loggedUserEntity = getUserEntityByToken(jwtToken);
+        CommentEntity existingCommentEntity = commentRepository.findById(commentId).orElseThrow(NotFoundException::new);
+
+        if (existingCommentEntity.getUser().equals(loggedUserEntity)){
+            commentRepository.deleteById(commentId);
+        } else throw new AccessDeniedException("comment author does not belong to current user");
     }
 
     @Override
-    public void patchOne(UUID id, CommentDTO comment) {
-        CommentEntity commentEntity = commentRepository.findById(id).orElse(null);
-        CommentDTO commentDTO = commentMapper.commentEntityToDto(commentEntity);
-        if (comment.getUserId() != null)
-            commentDTO.setUserId(comment.getUserId());
-        if (StringUtils.hasText(comment.getText()))
-            commentDTO.setText(comment.getText());
-        commentRepository.save(commentMapper.commentDtoToEntity(commentDTO));
+    public void patchOne(UUID commentId, CommentDTO comment, String jwtToken) {
+        UserEntity loggedUserEntity = getUserEntityByToken(jwtToken);
+        CommentEntity existingCommentEntity = commentRepository.findById(commentId).orElseThrow(NotFoundException::new);
+
+        if (existingCommentEntity.getUser().equals(loggedUserEntity)){
+            if (comment.getUsername() != null) existingCommentEntity.setUsername(comment.getUsername());
+            if (StringUtils.hasText(comment.getText())) existingCommentEntity.setText(comment.getText());
+            commentRepository.save(existingCommentEntity);
+        } else throw new AccessDeniedException("comment author does not belong to current user");
+
+    }
+
+    private UserEntity getUserEntityByToken(String jwtToken) {
+        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
+        return userRepository.findUserEntityByEmail(loggedUserEmail).orElseThrow(NotFoundException::new);
     }
 
 }

@@ -57,7 +57,7 @@ public class PostServiceImpl implements PostService {
         UserEntity loggedUser = getUserEntityByToken(jwtToken);
         PostEntity existingPostEntity = postRepository.findById(postId).orElseThrow(NotFoundException::new);
 
-        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(postId, loggedUser);
+        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUser);
 
         if (postExistsByLoggedUser) {
             existingPostEntity.setText(post.getText());
@@ -68,8 +68,9 @@ public class PostServiceImpl implements PostService {
     @Override
     public void deleteOne(UUID postId, String jwtToken) {
         UserEntity loggedUser = getUserEntityByToken(jwtToken);
+        PostEntity existingPostEntity = postRepository.findById(postId).orElseThrow(NotFoundException::new);
 
-        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(postId, loggedUser);
+        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUser);
 
         if (postExistsByLoggedUser) postRepository.deleteById(postId);
         else throw new AccessDeniedException("post author does not belong to current user");
@@ -80,7 +81,7 @@ public class PostServiceImpl implements PostService {
         UserEntity loggedUser = getUserEntityByToken(jwtToken);
         PostEntity existingPostEntity = postRepository.findById(postId).orElseThrow(NotFoundException::new);
 
-        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(postId, loggedUser);
+        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUser);
 
         if (postExistsByLoggedUser) {
             if (StringUtils.hasText(post.getText())) existingPostEntity.setText(post.getText());
@@ -108,10 +109,8 @@ public class PostServiceImpl implements PostService {
         return userRepository.findUserEntityByEmail(loggedUserEmail).orElseThrow(NotFoundException::new);
     }
 
-    private boolean isPostExistsByLoggedUser(UUID postId, UserEntity loggedUser) {
-        return loggedUser.getPosts().stream()
-                .map(PostEntity::getId)
-                .anyMatch(uuid -> uuid.equals(postId));
+    private boolean isPostExistsByLoggedUser(PostEntity existingPostEntity, UserEntity loggedUser) {
+        return existingPostEntity.getUser().equals(loggedUser);
     }
 
 }

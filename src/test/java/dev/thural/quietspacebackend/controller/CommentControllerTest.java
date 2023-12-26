@@ -112,7 +112,7 @@ public class CommentControllerTest {
                         .content(objectMapper.writeValueAsString(testComment)))
                 .andExpect(status().isNoContent());
 
-        verify(commentService).updateOne(any(UUID.class), any(CommentDTO.class));
+        verify(commentService).updateOne(any(UUID.class), any(CommentDTO.class), );
     }
 
     @Test
@@ -127,7 +127,7 @@ public class CommentControllerTest {
 
         ArgumentCaptor<UUID> objectIdArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
 
-        verify(commentService).deleteOne(objectIdArgumentCaptor.capture());
+        verify(commentService).deleteOne(objectIdArgumentCaptor.capture(), );
 
         assertThat(testComment.getId()).isEqualTo(objectIdArgumentCaptor.getValue());
     }
@@ -145,7 +145,7 @@ public class CommentControllerTest {
                         .content(objectMapper.writeValueAsString(testComment)))
                 .andExpect(status().isNoContent());
 
-        verify(commentService).patchOne(objectIdArgumentCaptor.capture(), commentArgumentCaptor.capture());
+        verify(commentService).patchOne(objectIdArgumentCaptor.capture(), commentArgumentCaptor.capture(), );
 
         assertThat(testComment.getId()).isEqualTo(objectIdArgumentCaptor.getValue());
         assertThat(testComment.getText()).isEqualTo(commentArgumentCaptor.getValue().getText());
