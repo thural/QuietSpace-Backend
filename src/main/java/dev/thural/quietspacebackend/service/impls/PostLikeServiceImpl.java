@@ -4,7 +4,6 @@ import dev.thural.quietspacebackend.controller.NotFoundException;
 import dev.thural.quietspacebackend.entity.PostEntity;
 import dev.thural.quietspacebackend.entity.PostLikeEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
-import dev.thural.quietspacebackend.mapper.PostLikeMapper;
 import dev.thural.quietspacebackend.model.PostLikeDTO;
 import dev.thural.quietspacebackend.repository.PostLikeRepository;
 import dev.thural.quietspacebackend.repository.PostRepository;
@@ -16,7 +15,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 
@@ -27,11 +25,6 @@ public class PostLikeServiceImpl implements PostLikeService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
-
-    @Override
-    public Optional<PostLikeDTO> getById(UUID id) {
-        return Optional.empty();
-    }
 
     @Override
     public List<PostLikeDTO> getAllByPostId(UUID postId) {
@@ -71,11 +64,6 @@ public class PostLikeServiceImpl implements PostLikeService {
     @Override
     public List<PostLikeDTO> getAllByUserId(UUID userId) {
         return postLikeRepository.findAllByUserId(userId);
-    }
-
-    @Override
-    public List<PostLikeDTO> getAllByPostIdAndUserId(UUID postId, UUID userId) {
-        return postLikeRepository.findAllByPostIdAndUserId(postId, userId);
     }
 
     private UserEntity getUserEntityByToken(String jwtToken) {

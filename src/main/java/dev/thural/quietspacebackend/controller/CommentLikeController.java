@@ -2,47 +2,36 @@ package dev.thural.quietspacebackend.controller;
 
 import dev.thural.quietspacebackend.model.*;
 import dev.thural.quietspacebackend.service.CommentLikeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 public class CommentLikeController {
 
     public static final String COMMENT_LIKE_PATH = "/api/v1/comment-like";
     private final CommentLikeService commentLikeService;
 
-    @Autowired
-    CommentLikeController(CommentLikeService commentLikeService) {
-        this.commentLikeService = commentLikeService;
+    @RequestMapping(value = COMMENT_LIKE_PATH + "/comments/{commentId}", method = RequestMethod.GET)
+    List<CommentLikeDTO> getAllCommentLikesByCommentId(@PathVariable("commentId") UUID commentId) {
+        return commentLikeService.getAllByCommentId(commentId);
     }
 
-    @RequestMapping(value = COMMENT_LIKE_PATH, method = RequestMethod.GET)
-    List<CommentLikeDTO> getAllCommentLikes() {
-        return commentLikeService.getAll();
-    }
-
-    @RequestMapping(value = COMMENT_LIKE_PATH + "/get-by-comment", method = RequestMethod.GET)
-    List<CommentLikeDTO > getCommentLikesByComment(@RequestBody CommentDTO comment) {
-        List<CommentLikeDTO> commentLikes = commentLikeService.getAllByComment(comment);
+    @RequestMapping(value = COMMENT_LIKE_PATH + "/users/{userId}", method = RequestMethod.GET)
+    List<CommentLikeDTO> getAllCommentLikesByUserId(@PathVariable("userId") UUID userId) {
+        List<CommentLikeDTO> commentLikes = commentLikeService.getAllByUserId(userId);
         return commentLikes;
     }
 
-    @RequestMapping(value = COMMENT_LIKE_PATH + "/get-by-user", method = RequestMethod.GET)
-    List<CommentLikeDTO> getCommentLikesByUser(@RequestBody UserDTO user){
-        List<CommentLikeDTO> commentLikes = commentLikeService.getAllByUser(user);
-        return commentLikes;
-    }
-
-    @RequestMapping(value = COMMENT_LIKE_PATH, method = RequestMethod.POST)
-    ResponseEntity toggleCommentLike(@RequestBody CommentLikeDTO commentLike) {
-        commentLikeService.toggleCommentLike(commentLike);
+    @RequestMapping(value = COMMENT_LIKE_PATH + "/toggle-like", method = RequestMethod.POST)
+    ResponseEntity toggleCommentLike(@RequestHeader("Authorization") String jwtToken,
+                                     @RequestBody CommentLikeDTO commentLikeDTO) {
+        commentLikeService.toggleCommentLike(jwtToken, commentLikeDTO);
         return new ResponseEntity(HttpStatus.CREATED);
     }
 }

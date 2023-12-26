@@ -30,13 +30,6 @@ public class PostLikeController {
         return postLikeService.getAllByUserId(userId);
     }
 
-    @RequestMapping(value = POST_LIKE_PATH + "/posts/{postId}" + "/users/{userId}", method = RequestMethod.GET)
-    List<PostLikeDTO> getAllPostLikesByPostIdAndUserId(
-            @PathVariable("postId")UUID postId,
-            @PathVariable("userId")UUID userId) {
-        return postLikeService.getAllByPostIdAndUserId(postId, userId);
-    }
-
     @RequestMapping(value = POST_LIKE_PATH + "/toggleLike", method = RequestMethod.POST)
     ResponseEntity togglePostLike(@RequestHeader("Authorization") String jwtToken,
                                   @RequestBody PostLikeDTO postLikeDTO) {

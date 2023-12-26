@@ -7,13 +7,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CommentLikeService {
-    List<CommentLikeDTO> getAll();
+    void toggleCommentLike(String jwtToken, CommentLikeDTO commentLike);
 
-    Optional<CommentLikeDTO> getById(UUID id);
+    List<CommentLikeDTO> getAllByCommentId(UUID commentId);
 
-    List<CommentLikeDTO> getAllByUser(UserDTO user);
-
-    List<CommentLikeDTO> getAllByComment(CommentDTO comment);
-
-    void toggleCommentLike(CommentLikeDTO commentLike);
+    List<CommentLikeDTO> getAllByUserId(UUID userId);
 }

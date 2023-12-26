@@ -24,6 +24,12 @@ public class CommentLikeDTO {
     private Integer version;
 
     @NotNull
+    UUID userId;
+
+    @NotNull
+    UUID commentId;
+
+    @NotNull
     private UserEntity user;
 
     @NotNull
