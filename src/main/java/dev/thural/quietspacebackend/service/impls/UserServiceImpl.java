@@ -1,5 +1,6 @@
 package dev.thural.quietspacebackend.service.impls;
 
+import dev.thural.quietspacebackend.controller.NotFoundException;
 import dev.thural.quietspacebackend.utils.JwtProvider;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.UserMapper;
@@ -12,7 +13,6 @@ import dev.thural.quietspacebackend.utils.PageProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,7 +24,6 @@ import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +42,6 @@ public class UserServiceImpl implements UserService {
         Page<UserEntity> userPage;
 
         if (StringUtils.hasText(username)) {
-            System.out.println("QUERY IS BEING PROCESSED");
             userPage = userRepository.findAllByUsernameIsLikeIgnoreCase("%" + username + "%", pageRequest);
         } else {
             userPage = userRepository.findAll(pageRequest);
@@ -91,7 +89,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<UserDTO> findUserByJwt(String jwt) {
         String email = JwtProvider.getEmailFromJwtToken(jwt);
-        UserEntity userEntity = userRepository.findUserEntityByEmail(email).orElse(null);
+        UserEntity userEntity = userRepository.findUserEntityByEmail(email).orElseThrow(NotFoundException::new);
         return Optional.of(userMapper.userEntityToDto(userEntity));
     }
 
@@ -111,38 +109,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserDTO> getById(UUID id) {
-        UserEntity userEntity = userRepository.findById(id).orElse(null);
+        UserEntity userEntity = userRepository.findById(id).orElseThrow(NotFoundException::new);
         UserDTO userDTO = userMapper.userEntityToDto(userEntity);
-        return Optional.ofNullable(userDTO);
+        return Optional.of(userDTO);
     }
 
     @Override
     public Optional<UserDTO> updateOne(UUID id, UserDTO user) {
-        AtomicReference<Optional<UserDTO>> atomicReference = new AtomicReference<>();
+        UserEntity foundUser = userRepository.findById(id).orElseThrow(NotFoundException::new);
 
-        userRepository.findById(id).ifPresentOrElse(foundUser -> {
+        UserDTO userDTO = userMapper.userEntityToDto(foundUser);
+        userDTO.setUsername(user.getUsername());
+        userDTO.setPassword(user.getPassword());
 
-            UserDTO userDTO = userMapper.userEntityToDto(foundUser);
-            userDTO.setUsername(user.getUsername());
-            userDTO.setPassword(user.getPassword());
+        UserEntity updatedUser = userRepository.save(userMapper.userDtoToEntity(userDTO));
 
-            UserEntity updatedUser = userRepository.save(userMapper.userDtoToEntity(userDTO));
-            atomicReference.set(Optional.of(userMapper.userEntityToDto(updatedUser)));
-        }, () -> atomicReference.set(Optional.empty()));
-
-        return atomicReference.get();
+        return Optional.of(userMapper.userEntityToDto(updatedUser));
     }
 
     @Override
     public Boolean deleteOne(UUID userId, String jwtToken) {
 
         String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
-        UserEntity loggedUser = userRepository.findUserEntityByEmail(loggedUserEmail).orElse(null);
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(loggedUserEmail)
+                .orElseThrow(NotFoundException::new);
 
         if (loggedUser != null) {
             userRepository.deleteById(userId);
             return true;
         }
+
         return false;
     }
 
@@ -150,7 +146,7 @@ public class UserServiceImpl implements UserService {
     public void patchOne(UUID id, UserDTO user, String jwtToken) {
         String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
         UserEntity loggedUserEntity = userRepository.findUserEntityByEmail(loggedUserEmail)
-                .orElseThrow(() -> new AccessDeniedException("post author does not belong to current user"));
+                .orElseThrow(NotFoundException::new);
 
         UserDTO loggedUserDTO = userMapper.userEntityToDto(loggedUserEntity);
         if (StringUtils.hasText(user.getUsername()))

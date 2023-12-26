@@ -43,7 +43,7 @@ public class UserController {
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.GET)
     UserDTO getUserById(@PathVariable("userId") UUID userId) {
         Optional<UserDTO> optionalUser = userService.getById(userId);
-        UserDTO foundUser = optionalUser.orElseThrow(NotFoundException::new);
+        UserDTO foundUser = optionalUser.orElse(null);
         return foundUser;
     }
 
@@ -57,15 +57,14 @@ public class UserController {
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.PUT)
     ResponseEntity putUser(@RequestHeader("Authorization") String jwt, @RequestBody UserDTO user) {
-        UserDTO loggedUser = userService.findUserByJwt(jwt).orElse(null);
-        assert loggedUser != null;
-        userService.updateOne(loggedUser.getId(), user).orElseThrow(NotFoundException::new);
+        userService.findUserByJwt(jwt).ifPresent(
+                (loggedUser) -> userService.updateOne(loggedUser.getId(), user));
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.DELETE)
     ResponseEntity deleteUser(@RequestHeader("Authorization") String jwt, @PathVariable("userId") UUID id) {
-        if (!userService.deleteOne(id, jwt)) throw new NotFoundException();
+        userService.deleteOne(id, jwt);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
