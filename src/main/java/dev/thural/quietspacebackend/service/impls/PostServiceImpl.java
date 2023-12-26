@@ -1,5 +1,6 @@
 package dev.thural.quietspacebackend.service.impls;
 
+import dev.thural.quietspacebackend.controller.NotFoundException;
 import dev.thural.quietspacebackend.utils.JwtProvider;
 import dev.thural.quietspacebackend.entity.PostEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
@@ -46,7 +47,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Optional<PostDTO> getById(UUID postId) {
-        PostEntity postEntity = postRepository.findById(postId).orElse(null);
+        PostEntity postEntity = postRepository.findById(postId).orElseThrow(NotFoundException::new);
         PostDTO postDTO = postMapper.postEntityToDto(postEntity);
         return Optional.of(postDTO);
     }
@@ -54,10 +55,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public void updateOne(UUID postId, PostDTO post, String jwtToken) {
         UserEntity loggedUser = getUserEntityByToken(jwtToken);
-        PostEntity existingPostEntity = postRepository.findById(postId).orElse(null);
-
-        assert existingPostEntity != null;
-        assert loggedUser != null;
+        PostEntity existingPostEntity = postRepository.findById(postId).orElseThrow(NotFoundException::new);
 
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(postId, loggedUser);
 
@@ -70,7 +68,6 @@ public class PostServiceImpl implements PostService {
     @Override
     public void deleteOne(UUID postId, String jwtToken) {
         UserEntity loggedUser = getUserEntityByToken(jwtToken);
-        assert loggedUser != null;
 
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(postId, loggedUser);
 
@@ -81,10 +78,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public void patchOne(String jwtToken, UUID postId, PostDTO post) {
         UserEntity loggedUser = getUserEntityByToken(jwtToken);
-        PostEntity existingPostEntity = postRepository.findById(postId).orElse(null);
-
-        assert loggedUser != null;
-        assert existingPostEntity != null;
+        PostEntity existingPostEntity = postRepository.findById(postId).orElseThrow(NotFoundException::new);
 
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(postId, loggedUser);
 
@@ -111,7 +105,7 @@ public class PostServiceImpl implements PostService {
 
     private UserEntity getUserEntityByToken(String jwtToken) {
         String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
-        return userRepository.findUserEntityByEmail(loggedUserEmail).orElse(null);
+        return userRepository.findUserEntityByEmail(loggedUserEmail).orElseThrow(NotFoundException::new);
     }
 
     private boolean isPostExistsByLoggedUser(UUID postId, UserEntity loggedUser) {
