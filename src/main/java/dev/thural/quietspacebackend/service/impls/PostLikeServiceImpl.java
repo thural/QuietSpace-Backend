@@ -1,17 +1,18 @@
 package dev.thural.quietspacebackend.service.impls;
 
+import dev.thural.quietspacebackend.controller.NotFoundException;
 import dev.thural.quietspacebackend.entity.PostEntity;
 import dev.thural.quietspacebackend.entity.PostLikeEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.PostLikeMapper;
-import dev.thural.quietspacebackend.mapper.PostMapper;
-import dev.thural.quietspacebackend.mapper.UserMapper;
-import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.model.PostLikeDTO;
-import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.PostLikeRepository;
+import dev.thural.quietspacebackend.repository.PostRepository;
+import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.PostLikeService;
+import dev.thural.quietspacebackend.utils.JwtProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,20 +24,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PostLikeServiceImpl implements PostLikeService {
 
-    private final PostLikeMapper postLikeMapper;
-    private final UserMapper userMapper;
-    private final PostMapper postMapper;
+    private final UserRepository userRepository;
+    private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
-
-    @Override
-    public List<PostLikeDTO> getAll() {
-        List<PostLikeEntity> postLikeEntities = postLikeRepository.findAll();
-        List<PostLikeDTO> postLikeDTOs = postLikeEntities.stream()
-                .map(postLikeMapper::postLikeEntityToDto)
-                .toList();
-
-        return postLikeDTOs;
-    }
 
     @Override
     public Optional<PostLikeDTO> getById(UUID id) {
@@ -44,31 +34,52 @@ public class PostLikeServiceImpl implements PostLikeService {
     }
 
     @Override
-    public List<PostLikeDTO> getAllByUser(UserDTO user) {
-        List<PostLikeEntity> postLikeEntities = postLikeRepository.getAllByUser(userMapper.userDtoToEntity(user));
-        List<PostLikeDTO> postLikeDTOs = postLikeEntities.stream()
-                .map(postLikeMapper::postLikeEntityToDto)
-                .toList();
-
-        return postLikeDTOs;
+    public List<PostLikeDTO> getAllByPostId(UUID postId) {
+        return postLikeRepository.findAllByPostId(postId);
     }
 
     @Override
-    public List<PostLikeDTO> getAllByPost(PostDTO post) {
-        List<PostLikeEntity> postLikeEntities = postLikeRepository.getAllByPost(postMapper.postDtoToEntity(post));
-        List<PostLikeDTO> postLikeDTOs = postLikeEntities.stream()
-                .map(postLikeMapper::postLikeEntityToDto)
-                .toList();
-        return postLikeDTOs;
+    public void togglePostLike(String jwtToken, PostLikeDTO postLikeDTO) {
+        UserEntity loggedUser = getUserEntityByToken(jwtToken);
+
+        if (!postLikeDTO.getUserId().equals(loggedUser.getId()))
+            throw new AccessDeniedException("post like does not belong to logged user");
+
+        UUID likeUserId = postLikeDTO.getUserId();
+        UUID likePostId = postLikeDTO.getPostId();
+
+        boolean isPostLikeExists = postLikeRepository.existsByPostIdAndUserId(likePostId, likeUserId);
+
+        if (isPostLikeExists) {
+            postLikeRepository.deleteById(postLikeDTO.getId());
+        } else {
+            UserEntity userEntity = userRepository.findById(likeUserId).orElseThrow(NotFoundException::new);
+            PostEntity postEntity = postRepository.findById(likePostId).orElseThrow(NotFoundException::new);
+
+            PostLikeEntity postLikeEntity = new PostLikeEntity();
+
+            postLikeEntity.setPostId(likePostId);
+            postLikeEntity.setUserId(likeUserId);
+            postLikeEntity.setUser(userEntity);
+            postLikeEntity.setPost(postEntity);
+
+            postLikeRepository.save(postLikeEntity);
+        }
+
     }
 
     @Override
-    public void togglePostLike(PostLikeDTO postLikeDTO) {
-        UserEntity user = postLikeDTO.getUser();
-        PostEntity post = postLikeDTO.getPost();
-        UUID id = postLikeDTO.getId();
-        if (postLikeRepository.existsByUserAndPost(user, post))
-            postLikeRepository.deleteById(id);
-        else postLikeRepository.save(postLikeMapper.postLikeDtoToEntity(postLikeDTO));
+    public List<PostLikeDTO> getAllByUserId(UUID userId) {
+        return postLikeRepository.findAllByUserId(userId);
+    }
+
+    @Override
+    public List<PostLikeDTO> getAllByPostIdAndUserId(UUID postId, UUID userId) {
+        return postLikeRepository.findAllByPostIdAndUserId(postId, userId);
+    }
+
+    private UserEntity getUserEntityByToken(String jwtToken) {
+        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
+        return userRepository.findUserEntityByEmail(loggedUserEmail).orElseThrow(NotFoundException::new);
     }
 }

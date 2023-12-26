@@ -24,10 +24,10 @@ public class PostLikeDTO {
     private Integer version;
 
     @NotNull
-    private UserEntity user;
+    UUID userId;
 
     @NotNull
-    private PostEntity post;
+    UUID postId;
 
     @NotNull
     private OffsetDateTime createDate;
