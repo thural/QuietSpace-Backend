@@ -70,9 +70,9 @@ public class UserServiceImpl implements UserService {
     public AuthResponse addOne(UserDTO userDTO) {
         userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         UserEntity userEntity = userMapper.userDtoToEntity(userDTO);
-        UserDTO savedUser = userMapper.userEntityToDto(userRepository.save(userEntity));
+        UserEntity savedUser = userRepository.save(userEntity);
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(savedUser.getEmail(), savedUser.getPassword());
         String token = JwtProvider.generatedToken(authentication);
         return new AuthResponse(token, "register success", savedUser.getId().toString());
     }
@@ -136,11 +136,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean deleteOne(UUID userId, String jwtToken) {
 
-        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
-        UserEntity loggedUser = userRepository.findUserEntityByEmail(loggedUserEmail)
-                .orElseThrow(NotFoundException::new);
+        UserEntity loggedUser = findUserByJwt(jwtToken).orElseThrow(NotFoundException::new);
 
-        if (loggedUser != null) {
+        if (loggedUser.getRole().equals("admin")){
+            userRepository.deleteById(userId);
+            return true;
+        }
+
+        if (loggedUser.getId().equals(userId)) {
             userRepository.deleteById(userId);
             return true;
         }
