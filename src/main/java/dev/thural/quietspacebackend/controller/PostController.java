@@ -7,9 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,15 +36,17 @@ public class PostController {
     }
 
     @RequestMapping(value = POST_PATH, method = RequestMethod.POST)
-    ResponseEntity createPost(@RequestHeader("Authorization") String jwtToken, @RequestBody PostDTO post) {
-        PostDTO savedPost = postService.addOne(post,jwtToken);
+    ResponseEntity createPost(@RequestHeader("Authorization") String jwtToken, @RequestBody @Validated PostDTO post) {
+        PostDTO savedPost = postService.addOne(post, jwtToken);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", POST_PATH + "/" + savedPost.getId());
         return new ResponseEntity(headers, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PUT)
-    ResponseEntity putPost(@RequestHeader("Authorization") String jwtToken, @PathVariable("postId") UUID id, @RequestBody PostDTO post) {
+    ResponseEntity putPost(@RequestHeader("Authorization") String jwtToken,
+                           @PathVariable("postId") UUID id,
+                           @RequestBody @Validated PostDTO post) {
         postService.updateOne(id, post, jwtToken);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }

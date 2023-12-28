@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,18 +22,18 @@ public class PostLikeController {
     private final PostLikeService postLikeService;
 
     @RequestMapping(value = POST_LIKE_PATH + "/posts/{postId}", method = RequestMethod.GET)
-    List<PostLikeDTO> getAllPostLikesByPostId(@PathVariable("postId")UUID postId) {
+    List<PostLikeDTO> getAllPostLikesByPostId(@PathVariable("postId") UUID postId) {
         return postLikeService.getAllByPostId(postId);
     }
 
     @RequestMapping(value = POST_LIKE_PATH + "/users/{userId}", method = RequestMethod.GET)
-    List<PostLikeDTO> getAllPostLikesByUserId(@PathVariable("userId")UUID userId) {
+    List<PostLikeDTO> getAllPostLikesByUserId(@PathVariable("userId") UUID userId) {
         return postLikeService.getAllByUserId(userId);
     }
 
     @RequestMapping(value = POST_LIKE_PATH + "/toggleLike", method = RequestMethod.POST)
     ResponseEntity togglePostLike(@RequestHeader("Authorization") String jwtToken,
-                                  @RequestBody PostLikeDTO postLikeDTO) {
+                                  @RequestBody @Validated PostLikeDTO postLikeDTO) {
         postLikeService.togglePostLike(jwtToken, postLikeDTO);
         return new ResponseEntity(HttpStatus.CREATED);
     }

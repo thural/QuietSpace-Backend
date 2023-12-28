@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -36,7 +37,8 @@ public class CommentController {
     }
 
     @RequestMapping(value = COMMENT_PATH, method = RequestMethod.POST)
-    ResponseEntity createComment(@RequestHeader("Authorization") String jwtToken, @RequestBody CommentDTO comment) {
+    ResponseEntity createComment(@RequestHeader("Authorization") String jwtToken,
+                                 @RequestBody @Validated CommentDTO comment) {
         CommentDTO savedComment = commentService.addOne(comment, jwtToken);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", COMMENT_PATH + "/" + savedComment.getId());
@@ -46,7 +48,7 @@ public class CommentController {
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.PUT)
     ResponseEntity putComment(@RequestHeader("Authorization") String jwtToken,
                               @PathVariable("commentId") UUID commentId,
-                              @RequestBody CommentDTO comment) {
+                              @RequestBody @Validated CommentDTO comment) {
         commentService.updateOne(commentId, comment, jwtToken);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }

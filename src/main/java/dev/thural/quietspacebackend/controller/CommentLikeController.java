@@ -5,6 +5,7 @@ import dev.thural.quietspacebackend.service.CommentLikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public class CommentLikeController {
 
     @RequestMapping(value = COMMENT_LIKE_PATH + "/toggle-like", method = RequestMethod.POST)
     ResponseEntity toggleCommentLike(@RequestHeader("Authorization") String jwtToken,
-                                     @RequestBody CommentLikeDTO commentLikeDTO) {
+                                     @RequestBody @Validated CommentLikeDTO commentLikeDTO) {
         commentLikeService.toggleCommentLike(jwtToken, commentLikeDTO);
         return new ResponseEntity(HttpStatus.CREATED);
     }

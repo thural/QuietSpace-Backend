@@ -25,9 +25,6 @@ public class PostDTO {
 
     private UUID id;
 
-    @NotNull
-    @NotBlank
-    @Size(min = 1, max = 32)
     String username;
 
     @NotNull
@@ -35,17 +32,14 @@ public class PostDTO {
     @Size(min = 1, max = 255)
     private String text;
 
-    @Size(max = 36)
     UUID userId;
 
     private List<PostLikeEntity> likes;
 
     private List<CommentEntity> comments;
 
-    @NotNull
     private OffsetDateTime createDate;
 
-    @NotNull
     private OffsetDateTime updateDate;
 
 }
