@@ -44,7 +44,6 @@ public class CommentServiceImpl implements CommentService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(loggedUserEmail);
         CommentEntity commentEntity = commentMapper.commentDtoToEntity(comment);
 
-        commentEntity.setUsername(userDetails.getUsername());
         commentEntity.setText(comment.getText());
         return commentMapper.commentEntityToDto(commentRepository.save(commentEntity));
     }
@@ -63,7 +62,6 @@ public class CommentServiceImpl implements CommentService {
 
         if (existingCommentEntity.getUser().equals(loggedUserEntity)){
 
-            existingCommentEntity.setUsername(comment.getUsername());
             existingCommentEntity.setText(comment.getText());
 
             commentRepository.save(existingCommentEntity);
@@ -87,7 +85,6 @@ public class CommentServiceImpl implements CommentService {
         CommentEntity existingCommentEntity = commentRepository.findById(commentId).orElseThrow(NotFoundException::new);
 
         if (existingCommentEntity.getUser().equals(loggedUserEntity)){
-            if (comment.getUsername() != null) existingCommentEntity.setUsername(comment.getUsername());
             if (StringUtils.hasText(comment.getText())) existingCommentEntity.setText(comment.getText());
             commentRepository.save(existingCommentEntity);
         } else throw new AccessDeniedException("comment author does not belong to current user");

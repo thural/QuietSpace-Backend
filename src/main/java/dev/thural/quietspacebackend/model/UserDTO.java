@@ -26,14 +26,17 @@ public class UserDTO {
 
     @NotNull
     @NotBlank
+    @Size(min = 1, max = 16)
     private String role;
 
     @NotNull
     @NotBlank
+    @Size(min = 1, max = 32)
     private String username;
 
     @NotNull
     @NotBlank
+    @Size(min = 1, max = 32)
     private String email;
 
     @NotNull

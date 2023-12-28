@@ -45,8 +45,6 @@ public class CommentLikeServiceImpl implements CommentLikeService {
 
             CommentLikeEntity commentLikeEntity = new CommentLikeEntity();
 
-            commentLikeEntity.setUserId(likeUserId);
-            commentLikeEntity.setCommentId(likeCommentId);
             commentLikeEntity.setUser(userEntity);
             commentLikeEntity.setComment(commentEntity);
 

@@ -9,6 +9,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.OffsetDateTime;
@@ -28,11 +29,16 @@ public class PostDTO {
 
     @NotNull
     @NotBlank
+    @Size(min = 1, max = 32)
     String username;
 
     @NotNull
     @NotBlank
+    @Size(min = 1, max = 255)
     private String text;
+
+    @Size(max = 36)
+    UUID userId;
 
     @NotNull
     private OffsetDateTime createDate;

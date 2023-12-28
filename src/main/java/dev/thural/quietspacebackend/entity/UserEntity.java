@@ -33,17 +33,16 @@ public class UserEntity {
 
     @NotNull
     @NotBlank
+    @Column(length = 16)
     private String role;
 
     @NotNull
     @NotBlank
-    @Size(max = 32)
     @Column(length = 32, unique = true)
     private String username;
 
     @NotNull
     @NotBlank
-    @Size(max = 32)
     @Column(length = 32, unique = true)
     private String email;
 

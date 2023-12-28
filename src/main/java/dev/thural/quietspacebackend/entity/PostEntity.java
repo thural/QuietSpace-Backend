@@ -32,10 +32,6 @@ public class PostEntity {
 
     @NotNull
     @NotBlank
-    String username;
-
-    @NotNull
-    @NotBlank
     private String text;
 
     @NotNull

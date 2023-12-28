@@ -51,8 +51,6 @@ public class PostLikeServiceImpl implements PostLikeService {
 
             PostLikeEntity postLikeEntity = new PostLikeEntity();
 
-            postLikeEntity.setPostId(likePostId);
-            postLikeEntity.setUserId(likeUserId);
             postLikeEntity.setUser(userEntity);
             postLikeEntity.setPost(postEntity);
 

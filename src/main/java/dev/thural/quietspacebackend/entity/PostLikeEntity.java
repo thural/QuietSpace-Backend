@@ -28,12 +28,6 @@ public class PostLikeEntity {
     @Version
     private Integer version;
 
-    @NotNull
-    UUID userId;
-
-    @NotNull
-    UUID postId;
-
     @ManyToOne
     private UserEntity user;
 

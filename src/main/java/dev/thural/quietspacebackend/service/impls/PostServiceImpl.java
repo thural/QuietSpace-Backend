@@ -41,7 +41,7 @@ public class PostServiceImpl implements PostService {
         PostEntity postEntity = postMapper.postDtoToEntity(post);
 
         postEntity.setUser(loggedUser);
-        postEntity.setUsername(loggedUser.getUsername());
+        postEntity.setUser(loggedUser);
         return postMapper.postEntityToDto(postRepository.save(postEntity));
     }
 

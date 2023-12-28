@@ -3,6 +3,7 @@ package dev.thural.quietspacebackend.model;
 import dev.thural.quietspacebackend.entity.CommentEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -30,10 +31,8 @@ public class CommentLikeDTO {
     UUID commentId;
 
     @NotNull
-    private UserEntity user;
-
-    @NotNull
-    private CommentEntity comment;
+    @NotBlank
+    String username;
 
     @NotNull
     private OffsetDateTime createDate;

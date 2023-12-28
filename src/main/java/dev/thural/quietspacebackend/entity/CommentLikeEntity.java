@@ -29,12 +29,6 @@ public class CommentLikeEntity {
     private Integer version;
 
     @NotNull
-    UUID userId;
-
-    @NotNull
-    UUID commentId;
-
-    @NotNull
     @ManyToOne
     private UserEntity user;
 

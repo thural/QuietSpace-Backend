@@ -26,6 +26,12 @@ public class CommentDTO {
     private Integer version;
 
     @NotNull
+    UUID userId;
+
+    @NotNull
+    UUID postId;
+
+    @NotNull
     @NotBlank
     private String username;
 
