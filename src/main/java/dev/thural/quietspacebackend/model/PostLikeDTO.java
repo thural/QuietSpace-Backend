@@ -19,10 +19,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostLikeDTO {
-
     private UUID id;
-
-    private Integer version;
 
     @NotNull
     @NotBlank
@@ -39,5 +36,4 @@ public class PostLikeDTO {
 
     @NotNull
     private OffsetDateTime updateDate;
-
 }

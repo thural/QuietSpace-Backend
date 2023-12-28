@@ -25,8 +25,6 @@ public class PostDTO {
 
     private UUID id;
 
-    private Integer version;
-
     @NotNull
     @NotBlank
     @Size(min = 1, max = 32)
@@ -39,6 +37,10 @@ public class PostDTO {
 
     @Size(max = 36)
     UUID userId;
+
+    private List<PostLikeEntity> likes;
+
+    private List<CommentEntity> comments;
 
     @NotNull
     private OffsetDateTime createDate;

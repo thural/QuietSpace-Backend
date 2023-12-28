@@ -22,8 +22,6 @@ public class CommentLikeDTO {
 
     private UUID id;
 
-    private Integer version;
-
     @NotNull
     UUID userId;
 

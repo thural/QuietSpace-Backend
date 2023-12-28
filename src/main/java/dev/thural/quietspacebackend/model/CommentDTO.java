@@ -23,8 +23,6 @@ public class CommentDTO {
 
     private UUID id;
 
-    private Integer version;
-
     @NotNull
     UUID userId;
 
@@ -38,6 +36,8 @@ public class CommentDTO {
     @NotNull
     @NotBlank
     private String text;
+
+    private List<CommentLikeEntity> likes;
 
     @NotNull
     private OffsetDateTime createDate = OffsetDateTime.now();

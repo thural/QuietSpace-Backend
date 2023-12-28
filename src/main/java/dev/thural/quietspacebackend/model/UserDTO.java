@@ -22,8 +22,6 @@ public class UserDTO {
 
     private UUID id;
 
-    private Integer version;
-
     @NotNull
     @NotBlank
     @Size(min = 1, max = 16)
