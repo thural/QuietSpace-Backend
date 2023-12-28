@@ -149,17 +149,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void patchOne(UUID id, UserDTO user, String jwtToken) {
-        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
-        UserEntity loggedUserEntity = userRepository.findUserEntityByEmail(loggedUserEmail)
-                .orElseThrow(NotFoundException::new);
+    public void patchOne(UserDTO userDTO, String jwtToken) {
+        UserEntity loggedUserEntity = findUserByJwt(jwtToken).orElseThrow(NotFoundException::new);
 
-        UserDTO loggedUserDTO = userMapper.userEntityToDto(loggedUserEntity);
-        if (StringUtils.hasText(user.getUsername()))
-            loggedUserDTO.setUsername(user.getUsername());
-        if (StringUtils.hasText(user.getPassword()))
-            loggedUserDTO.setPassword(user.getPassword());
-        userRepository.save(userMapper.userDtoToEntity(loggedUserDTO));
+        if (StringUtils.hasText(userDTO.getUsername()))
+            loggedUserEntity.setUsername(userDTO.getUsername());
+        if (StringUtils.hasText(userDTO.getEmail()))
+            loggedUserEntity.setEmail(userDTO.getEmail());
+        if (StringUtils.hasText(userDTO.getPassword()))
+            loggedUserEntity.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+
+        userRepository.save(loggedUserEntity);
     }
 
 }

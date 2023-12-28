@@ -67,11 +67,10 @@ public class UserController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = USER_PATH_ID, method = RequestMethod.PATCH)
+    @RequestMapping(value = USER_PATH, method = RequestMethod.PATCH)
     ResponseEntity patchUser(@RequestHeader("Authorization") String jwt,
-                             @PathVariable("userId") UUID id,
-                             @RequestBody UserDTO user) {
-        userService.patchOne(id, user, jwt);
+                             @RequestBody UserDTO userDTO) {
+        userService.patchOne(userDTO, jwt);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
