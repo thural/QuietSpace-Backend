@@ -55,9 +55,9 @@ public class UserController {
     }
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.PUT)
-    ResponseEntity putUser(@RequestHeader("Authorization") String jwt, @RequestBody @Validated UserDTO user) {
+    ResponseEntity putUser(@RequestHeader("Authorization") String jwt, @RequestBody @Validated UserDTO userDTO) {
         userService.findUserByJwt(jwt).ifPresent(
-                (loggedUser) -> userService.updateOne(loggedUser.getId(), user));
+                (loggedUser) -> userService.updateOne(loggedUser, userDTO));
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
@@ -70,14 +70,14 @@ public class UserController {
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.PATCH)
     ResponseEntity patchUser(@RequestHeader("Authorization") String jwt,
                              @PathVariable("userId") UUID id,
-                             @RequestBody @Validated UserDTO user) {
+                             @RequestBody UserDTO user) {
         userService.patchOne(id, user, jwt);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = USER_PATH + "/profile", method = RequestMethod.GET)
     public UserDTO getUserFromToken(@RequestHeader("Authorization") String jwt) {
-        return userService.findUserByJwt(jwt).orElse(null);
+        return userService.findUserDtoByJwt(jwt).orElse(null);
     }
 
     @RequestMapping(value = USER_PATH_ID + "/posts", method = RequestMethod.GET)

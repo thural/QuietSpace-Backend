@@ -67,12 +67,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public AuthResponse addOne(UserDTO user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        UserEntity userEntity = userMapper.userDtoToEntity(user);
+    public AuthResponse addOne(UserDTO userDTO) {
+        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        UserEntity userEntity = userMapper.userDtoToEntity(userDTO);
         UserDTO savedUser = userMapper.userEntityToDto(userRepository.save(userEntity));
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword());
         String token = JwtProvider.generatedToken(authentication);
         return new AuthResponse(token, "register success", savedUser.getId().toString());
     }
@@ -88,10 +88,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserDTO> findUserByJwt(String jwt) {
+    public Optional<UserEntity> findUserByJwt(String jwt) {
         String email = JwtProvider.getEmailFromJwtToken(jwt);
         UserEntity userEntity = userRepository.findUserEntityByEmail(email).orElseThrow(NotFoundException::new);
-        return Optional.of(userMapper.userEntityToDto(userEntity));
+        return Optional.of(userEntity);
+    }
+
+    @Override
+    public Optional<UserDTO> findUserDtoByJwt(String jwt) {
+        UserEntity founUserEntity = findUserByJwt(jwt).orElseThrow(NotFoundException::new);
+        return Optional.of(userMapper.userEntityToDto(founUserEntity));
     }
 
     Authentication authenticate(String email, String password) {
@@ -116,14 +122,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserDTO> updateOne(UUID id, UserDTO user) {
-        UserEntity foundUser = userRepository.findById(id).orElseThrow(NotFoundException::new);
+    public Optional<UserDTO> updateOne(UserEntity loggedUser, UserDTO userDTO) {
 
-        UserDTO userDTO = userMapper.userEntityToDto(foundUser);
-        userDTO.setUsername(user.getUsername());
-        userDTO.setPassword(user.getPassword());
+        loggedUser.setUsername(userDTO.getUsername());
+        loggedUser.setEmail(userDTO.getEmail());
+        loggedUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
-        UserEntity updatedUser = userRepository.save(userMapper.userDtoToEntity(userDTO));
+        UserEntity updatedUser = userRepository.save(loggedUser);
 
         return Optional.of(userMapper.userEntityToDto(updatedUser));
     }

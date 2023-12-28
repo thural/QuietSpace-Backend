@@ -1,5 +1,6 @@
 package dev.thural.quietspacebackend.service;
 
+import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.request.LoginRequest;
 import dev.thural.quietspacebackend.response.AuthResponse;
@@ -15,7 +16,7 @@ public interface UserService {
 
     Optional<UserDTO> getById(UUID id);
 
-    Optional<UserDTO> updateOne(UUID id, UserDTO user);
+    Optional<UserDTO> updateOne(UserEntity loggedUser, UserDTO user);
 
     Boolean deleteOne(UUID userId, String jwtToken);
 
@@ -25,5 +26,7 @@ public interface UserService {
 
     AuthResponse getByLoginRequest(LoginRequest loginRequest);
 
-    Optional<UserDTO> findUserByJwt(String jwt);
+    Optional<UserEntity> findUserByJwt(String jwt);
+
+    Optional<UserDTO> findUserDtoByJwt(String jwt);
 }
