@@ -3,25 +3,25 @@ package dev.thural.quietspacebackend.controller;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.request.LoginRequest;
 import dev.thural.quietspacebackend.response.AuthResponse;
+import dev.thural.quietspacebackend.service.TokenBlackList;
 import dev.thural.quietspacebackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.token.TokenService;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
 public class AuthController {
     private final UserService userService;
+    private final TokenBlackList tokenBlackList;
 
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
-    ResponseEntity signUpUser(@Validated @RequestBody UserDTO user) {
+    ResponseEntity signupUser(@Validated @RequestBody UserDTO user) {
         AuthResponse authResponse = userService.addOne(user);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", UserController.USER_PATH + "/" + authResponse.getResourceId());
@@ -29,11 +29,17 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    ResponseEntity signInUser(@RequestBody LoginRequest loginRequest) {
+    ResponseEntity loginUser(@RequestBody LoginRequest loginRequest) {
         AuthResponse authResponse = userService.getByLoginRequest(loginRequest);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", UserController.USER_PATH + "/" + authResponse.getResourceId());
         return new ResponseEntity(authResponse, headers, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/logout", method = RequestMethod.POST)
+    ResponseEntity logoutUser(@RequestHeader("Authorization") String jwt) {
+        tokenBlackList.addToBlacklist(jwt);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
 }

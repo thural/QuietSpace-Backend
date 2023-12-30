@@ -1,5 +1,7 @@
 package dev.thural.quietspacebackend.config;
 
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,18 +12,23 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 
 @Configuration
 @EnableWebSecurity
+@Component
+@RequiredArgsConstructor
 public class AppConfig {
+    private final JwtValidator jwtValidator;
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(Authorize -> Authorize.requestMatchers("/api/v1/**")
                         .authenticated().anyRequest().permitAll())
-                .addFilterBefore(new JwtValidator(), BasicAuthenticationFilter.class)
+                .addFilterBefore(jwtValidator, BasicAuthenticationFilter.class)
                 .csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
