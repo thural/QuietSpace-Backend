@@ -4,6 +4,7 @@ import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.response.AuthResponse;
 import dev.thural.quietspacebackend.service.PostService;
+import dev.thural.quietspacebackend.service.TokenBlackList;
 import dev.thural.quietspacebackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ public class UserController {
 
     private final UserService userService;
     private final PostService postService;
+    private final TokenBlackList tokenBlackList;
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.GET)
     Page<UserDTO> listUsers(@RequestParam(name = "username", required = false) String username,
@@ -64,6 +66,7 @@ public class UserController {
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.DELETE)
     ResponseEntity deleteUser(@RequestHeader("Authorization") String jwt, @PathVariable("userId") UUID id) {
         userService.deleteOne(id, jwt);
+        tokenBlackList.addToBlacklist(jwt);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
