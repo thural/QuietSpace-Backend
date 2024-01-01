@@ -8,8 +8,10 @@ import dev.thural.quietspacebackend.model.MessageDTO;
 import dev.thural.quietspacebackend.repository.MessageRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.MessageService;
+import dev.thural.quietspacebackend.utils.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -50,12 +52,23 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void deleteOne(UUID id, String jwtToken) {
+    public void deleteOne(UUID messageId, String jwtToken) {
+        UserEntity loggedUserEntity = getUserEntityByToken(jwtToken);
 
+        MessageEntity existingMessage = messageRepository.findById(messageId).orElseThrow(NotFoundException::new);
+
+        if (existingMessage.getSender().getId().equals(loggedUserEntity.getId())) {
+            messageRepository.deleteById(messageId);
+        } else throw new AccessDeniedException("message does not belong to current user");
     }
 
     @Override
     public void patchOne(UUID messageId, MessageDTO messageDTO, String jwtToken) {
 
+    }
+
+    private UserEntity getUserEntityByToken(String jwtToken) {
+        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
+        return userRepository.findUserEntityByEmail(loggedUserEmail).orElseThrow(NotFoundException::new);
     }
 }

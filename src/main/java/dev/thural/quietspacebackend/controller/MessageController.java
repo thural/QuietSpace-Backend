@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
 
 
 @RestController
@@ -30,6 +31,13 @@ public class MessageController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", MESSAGE_PATH + "/" + savedMessage.getId());
         return new ResponseEntity(headers, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = MESSAGE_PATH_ID, method = RequestMethod.DELETE)
+    ResponseEntity deleteComment(@RequestHeader("Authorization") String jwtToken,
+                                 @PathVariable("messageId") UUID messageId) {
+        messageService.deleteOne(messageId, jwtToken);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
 }
