@@ -25,7 +25,7 @@ public class AppConfig {
         http
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(Authorize -> Authorize.requestMatchers("/api/v1/**")
-                        .authenticated().anyRequest().permitAll())
+                        .authenticated().anyRequest().permitAll()) //TODO: implement specific roles
                 .addFilterBefore(jwtValidator, BasicAuthenticationFilter.class)
                 .csrf(AbstractHttpConfigurer::disable);
 

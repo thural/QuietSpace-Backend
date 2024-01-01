@@ -1,15 +1,14 @@
 package dev.thural.quietspacebackend.controller;
 
 import dev.thural.quietspacebackend.model.UserDTO;
-import dev.thural.quietspacebackend.request.LoginRequest;
-import dev.thural.quietspacebackend.response.AuthResponse;
+import dev.thural.quietspacebackend.model.request.LoginRequest;
+import dev.thural.quietspacebackend.model.response.AuthResponse;
 import dev.thural.quietspacebackend.service.TokenBlackList;
 import dev.thural.quietspacebackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.token.TokenService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 

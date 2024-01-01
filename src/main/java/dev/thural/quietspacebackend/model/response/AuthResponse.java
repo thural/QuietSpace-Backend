@@ -1,4 +1,4 @@
-package dev.thural.quietspacebackend.response;
+package dev.thural.quietspacebackend.model.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

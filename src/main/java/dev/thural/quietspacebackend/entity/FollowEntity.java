@@ -3,7 +3,6 @@ package dev.thural.quietspacebackend.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -19,7 +18,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserEntity {
+public class FollowEntity {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -32,48 +31,18 @@ public class UserEntity {
     private Integer version;
 
     @NotNull
-    @NotBlank
-    @Column(length = 16)
-    private String role;
+    @ManyToOne
+    private UserEntity following;
 
     @NotNull
-    @NotBlank
-    @Column(length = 32, unique = true)
-    private String username;
+    @ManyToOne
+    private UserEntity follower;
 
     @NotNull
-    @NotBlank
-    @Column(length = 32, unique = true)
-    private String email;
+    private OffsetDateTime createDate = OffsetDateTime.now();
 
     @NotNull
-    @NotBlank
-    private String password;
-
-    @OneToMany(mappedBy = "user")
-    private List<PostEntity> posts;
-
-    @OneToMany(mappedBy = "user")
-    private List<PostLikeEntity> postLikes;
-
-    @OneToMany(mappedBy = "user")
-    private List<CommentEntity> comments;
-
-    @OneToMany(mappedBy = "user")
-    private List<CommentLikeEntity> commentLikes;
-
-    @OneToMany(mappedBy = "following")
-    private List<FollowEntity> followings;
-
-    @OneToMany(mappedBy = "follower")
-    private List<FollowEntity> followers;
-
-    @NotNull
-    @Column(updatable = false)
-    private OffsetDateTime createDate;
-
-    @NotNull
-    private OffsetDateTime updateDate;
+    private OffsetDateTime updateDate = OffsetDateTime.now();
 
     @PrePersist
     private void onCreate() {

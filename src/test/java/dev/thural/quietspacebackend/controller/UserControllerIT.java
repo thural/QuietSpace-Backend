@@ -5,7 +5,7 @@ import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.UserMapper;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.UserRepository;
-import dev.thural.quietspacebackend.response.AuthResponse;
+import dev.thural.quietspacebackend.model.response.AuthResponse;
 import dev.thural.quietspacebackend.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,15 +1,26 @@
 package dev.thural.quietspacebackend.utils;
 
 import dev.thural.quietspacebackend.constant.JwtConstant;
+import dev.thural.quietspacebackend.controller.NotFoundException;
+import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.Optional;
 
+@Component
+@RequiredArgsConstructor
 public class JwtProvider {
+    private final UserRepository userRepository;
     private static final SecretKey key = Keys.hmacShaKeyFor(JwtConstant.SECRET_KEY.getBytes());
     public static String generatedToken(Authentication auth){
         return Jwts.builder()
@@ -32,5 +43,11 @@ public class JwtProvider {
                 .getBody();
 
         return String.valueOf(claims.get("email"));
+    }
+
+    public Optional<UserEntity> findUserByJwt(String jwt) {
+        String email = JwtProvider.getEmailFromJwtToken(jwt);
+        UserEntity userEntity = userRepository.findUserEntityByEmail(email).orElseThrow(NotFoundException::new);
+        return Optional.of(userEntity);
     }
 }

@@ -2,7 +2,7 @@ package dev.thural.quietspacebackend.controller;
 
 import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.model.UserDTO;
-import dev.thural.quietspacebackend.response.AuthResponse;
+import dev.thural.quietspacebackend.model.response.AuthResponse;
 import dev.thural.quietspacebackend.service.PostService;
 import dev.thural.quietspacebackend.service.TokenBlackList;
 import dev.thural.quietspacebackend.service.UserService;

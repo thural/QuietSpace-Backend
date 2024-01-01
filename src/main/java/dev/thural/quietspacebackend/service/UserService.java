@@ -2,8 +2,8 @@ package dev.thural.quietspacebackend.service;
 
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.model.UserDTO;
-import dev.thural.quietspacebackend.request.LoginRequest;
-import dev.thural.quietspacebackend.response.AuthResponse;
+import dev.thural.quietspacebackend.model.request.LoginRequest;
+import dev.thural.quietspacebackend.model.response.AuthResponse;
 import org.springframework.data.domain.Page;
 
 import java.util.Optional;

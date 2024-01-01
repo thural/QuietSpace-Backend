@@ -1,4 +1,4 @@
-package dev.thural.quietspacebackend.request;
+package dev.thural.quietspacebackend.model.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
