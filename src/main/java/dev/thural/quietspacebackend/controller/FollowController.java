@@ -1,5 +1,6 @@
 package dev.thural.quietspacebackend.controller;
 
+import dev.thural.quietspacebackend.model.FollowDTO;
 import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.model.response.AuthResponse;
@@ -39,5 +40,22 @@ public class FollowController {
 
         return new ResponseEntity(HttpStatus.OK);
     }
+
+    @RequestMapping(value = FOLLOW_PATH_ID + "/followings", method = RequestMethod.GET)
+    Page<FollowDTO> listFollowings(@RequestHeader("Authorization") String jwt,
+                                   @PathVariable("userId") UUID userId,
+                                   @RequestParam(name = "page-number", required = false) Integer pageNumber,
+                                   @RequestParam(name = "page-size", required = false) Integer pageSize) {
+        return followService.listFollowings(userId, jwt, pageNumber, pageSize);
+    }
+
+    @RequestMapping(value = FOLLOW_PATH_ID + "/followers", method = RequestMethod.GET)
+    Page<FollowDTO> listFollowers(@RequestHeader("Authorization") String jwt,
+                                  @PathVariable("userId") UUID userId,
+                                  @RequestParam(name = "page-number", required = false) Integer pageNumber,
+                                  @RequestParam(name = "page-size", required = false) Integer pageSize) {
+        return followService.listFollowers(userId, jwt, pageNumber, pageSize);
+    }
+
 
 }
