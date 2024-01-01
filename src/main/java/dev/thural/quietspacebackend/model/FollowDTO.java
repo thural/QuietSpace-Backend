@@ -4,9 +4,6 @@ import dev.thural.quietspacebackend.entity.UserEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -30,9 +27,9 @@ public class FollowDTO {
     private UserEntity follower;
 
     @NotNull
-    private OffsetDateTime createDate = OffsetDateTime.now();
+    private OffsetDateTime createDate;
 
     @NotNull
-    private OffsetDateTime updateDate = OffsetDateTime.now();
+    private OffsetDateTime updateDate;
 
 }

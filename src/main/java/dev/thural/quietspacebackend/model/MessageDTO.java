@@ -9,22 +9,28 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentLikeDTO {
+@Builder
+public class MessageDTO {
 
     private UUID id;
 
     @NotNull
-    UUID userId;
-
-    @NotNull
-    UUID commentId;
-
-    @NotNull
     @NotBlank
-    String username;
+    private String text;
+
+    @NotNull
+    private UUID senderId;
+
+    @NotNull
+    private UUID receiverId;
+
+    @NotNull
+    boolean delivered;
+
+    @NotNull
+    boolean seen;
 
     @NotNull
     private OffsetDateTime createDate;

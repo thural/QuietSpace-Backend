@@ -1,8 +1,6 @@
 package dev.thural.quietspacebackend.repository;
 
-import dev.thural.quietspacebackend.entity.PostEntity;
 import dev.thural.quietspacebackend.entity.PostLikeEntity;
-import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.model.PostLikeDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 

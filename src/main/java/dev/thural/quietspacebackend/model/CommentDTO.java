@@ -1,14 +1,9 @@
 package dev.thural.quietspacebackend.model;
 
 import dev.thural.quietspacebackend.entity.CommentLikeEntity;
-import dev.thural.quietspacebackend.entity.UserEntity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.apache.catalina.User;
 
 import java.time.OffsetDateTime;
 import java.util.List;

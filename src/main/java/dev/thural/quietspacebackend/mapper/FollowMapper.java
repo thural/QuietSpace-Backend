@@ -1,9 +1,7 @@
 package dev.thural.quietspacebackend.mapper;
 
 import dev.thural.quietspacebackend.entity.FollowEntity;
-import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.model.FollowDTO;
-import dev.thural.quietspacebackend.model.UserDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
