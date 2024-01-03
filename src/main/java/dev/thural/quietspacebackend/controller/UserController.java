@@ -52,7 +52,7 @@ public class UserController {
     ResponseEntity createUser(@Validated @RequestBody UserDTO user) {
         AuthResponse authResponse = userService.addOne(user);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", UserController.USER_PATH + "/" + authResponse.getResourceId());
+        headers.add("Location", UserController.USER_PATH + "/" + authResponse.getUserId());
         return new ResponseEntity(authResponse, headers, HttpStatus.CREATED);
     }
 

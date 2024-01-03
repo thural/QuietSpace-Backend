@@ -23,7 +23,7 @@ public class AuthController {
     ResponseEntity signupUser(@Validated @RequestBody UserDTO user) {
         AuthResponse authResponse = userService.addOne(user);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", UserController.USER_PATH + "/" + authResponse.getResourceId());
+        headers.add("Location", UserController.USER_PATH + "/" + authResponse.getUserId());
         return new ResponseEntity(authResponse, headers, HttpStatus.CREATED);
     }
 
@@ -31,7 +31,7 @@ public class AuthController {
     ResponseEntity loginUser(@RequestBody LoginRequest loginRequest) {
         AuthResponse authResponse = userService.getByLoginRequest(loginRequest);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", UserController.USER_PATH + "/" + authResponse.getResourceId());
+        headers.add("Location", UserController.USER_PATH + "/" + authResponse.getUserId());
         return new ResponseEntity(authResponse, headers, HttpStatus.OK);
     }
 

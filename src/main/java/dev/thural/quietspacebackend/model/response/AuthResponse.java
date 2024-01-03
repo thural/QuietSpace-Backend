@@ -9,6 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class AuthResponse {
     private String token;
+    private String userId;
     private String message;
-    private String resourceId;
 }

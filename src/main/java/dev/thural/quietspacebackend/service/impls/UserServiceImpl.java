@@ -74,7 +74,8 @@ public class UserServiceImpl implements UserService {
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(savedUser.getEmail(), savedUser.getPassword());
         String token = JwtProvider.generatedToken(authentication);
-        return new AuthResponse(token, "register success", savedUser.getId().toString());
+        String userId = savedUser.getId().toString();
+        return new AuthResponse(token, userId, "register success");
     }
 
     @Override
@@ -84,7 +85,7 @@ public class UserServiceImpl implements UserService {
 
         Optional<UserEntity> optionalUser = userRepository.findUserEntityByEmail(loginRequest.getEmail());
         String userId = optionalUser.isPresent() ? optionalUser.get().getId().toString() : "null";
-        return new AuthResponse(token, "login success", userId);
+        return new AuthResponse(token, userId, "login success");
     }
 
     @Override

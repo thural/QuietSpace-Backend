@@ -39,7 +39,6 @@ public class PostServiceImpl implements PostService {
     public PostDTO addOne(PostDTO post, String token) {
         UserEntity loggedUser = getUserEntityByToken(token);
         PostEntity postEntity = postMapper.postDtoToEntity(post);
-        postEntity.setUser(loggedUser);
 
         postEntity.setUser(loggedUser);
         return postMapper.postEntityToDto(postRepository.save(postEntity));
