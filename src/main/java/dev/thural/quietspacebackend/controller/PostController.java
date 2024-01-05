@@ -44,7 +44,6 @@ public class PostController {
         return new ResponseEntity(savedPost, headers, HttpStatus.OK);
     }
 
-    @CrossOrigin
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PUT)
     ResponseEntity putPost(@RequestHeader("Authorization") String jwtToken,
                            @PathVariable("postId") UUID id,
