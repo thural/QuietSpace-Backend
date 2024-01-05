@@ -10,5 +10,6 @@ public interface CommentMapper {
     @Mapping(target = "id", ignore = true)
     CommentEntity commentDtoToEntity(CommentDTO commentDTO);
 
+    @Mapping(target = "username", source = "user.username")
     CommentDTO commentEntityToDto(CommentEntity commentEntity);
 }

@@ -24,8 +24,6 @@ public class CommentDTO {
     @NotNull
     UUID postId;
 
-    @NotNull
-    @NotBlank
     private String username;
 
     @NotNull
@@ -34,10 +32,8 @@ public class CommentDTO {
 
     private List<CommentLikeEntity> likes;
 
-    @NotNull
     private OffsetDateTime createDate = OffsetDateTime.now();
 
-    @NotNull
     private OffsetDateTime updateDate = OffsetDateTime.now();
 
 }

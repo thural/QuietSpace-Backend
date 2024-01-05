@@ -1,5 +1,6 @@
 package dev.thural.quietspacebackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -56,6 +57,7 @@ public class UserEntity {
     @OneToMany(mappedBy = "user")
     private List<PostLikeEntity> postLikes;
 
+    @JsonManagedReference("commentToUserReference")
     @OneToMany(mappedBy = "user")
     private List<CommentEntity> comments;
 

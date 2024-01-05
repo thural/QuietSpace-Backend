@@ -2,10 +2,12 @@ package dev.thural.quietspacebackend.service.impls;
 
 import dev.thural.quietspacebackend.controller.NotFoundException;
 import dev.thural.quietspacebackend.entity.CommentEntity;
+import dev.thural.quietspacebackend.entity.PostEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.CommentMapper;
 import dev.thural.quietspacebackend.model.CommentDTO;
 import dev.thural.quietspacebackend.repository.CommentRepository;
+import dev.thural.quietspacebackend.repository.PostRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.CommentService;
 import dev.thural.quietspacebackend.utils.JwtProvider;
@@ -30,6 +32,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentMapper commentMapper;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final PostRepository postRepository;
     private final UserDetailsServiceImpl userDetailsService;
 
     @Override
@@ -40,11 +43,17 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDTO addOne(CommentDTO comment, String jwtToken) {
-        String loggedUserEmail = getEmailFromJwtToken(jwtToken);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(loggedUserEmail);
-        CommentEntity commentEntity = commentMapper.commentDtoToEntity(comment);
+        UserEntity foundUser = getUserEntityByToken(jwtToken);
+        Optional<PostEntity> foundPost = postRepository.findById(comment.getPostId());
 
-        commentEntity.setText(comment.getText());
+        if(!foundUser.getId().equals(comment.getUserId()))
+            throw new AccessDeniedException("resource does not belong to current user");
+        if(foundPost.isEmpty())
+            throw new NotFoundException("post does not exist");
+
+        CommentEntity commentEntity = commentMapper.commentDtoToEntity(comment);
+        commentEntity.setUser(foundUser);
+        commentEntity.setPost(foundPost.orElse(null));
         return commentMapper.commentEntityToDto(commentRepository.save(commentEntity));
     }
 

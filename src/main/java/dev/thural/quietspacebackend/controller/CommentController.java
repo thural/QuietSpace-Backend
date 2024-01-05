@@ -42,7 +42,7 @@ public class CommentController {
         CommentDTO savedComment = commentService.addOne(comment, jwtToken);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", COMMENT_PATH + "/" + savedComment.getId());
-        return new ResponseEntity(headers, HttpStatus.CREATED);
+        return new ResponseEntity(savedComment, headers, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.PUT)
