@@ -40,9 +40,11 @@ public class PostController {
         PostDTO savedPost = postService.addOne(post, jwtToken);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", POST_PATH + "/" + savedPost.getId());
-        return new ResponseEntity(headers, HttpStatus.CREATED);
+        System.out.println("post resource location" + headers.get("Location"));
+        return new ResponseEntity(savedPost, headers, HttpStatus.OK);
     }
 
+    @CrossOrigin
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PUT)
     ResponseEntity putPost(@RequestHeader("Authorization") String jwtToken,
                            @PathVariable("postId") UUID id,
