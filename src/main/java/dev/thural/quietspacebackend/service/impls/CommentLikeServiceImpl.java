@@ -38,7 +38,8 @@ public class CommentLikeServiceImpl implements CommentLikeService {
         boolean isCommentLikeExists = commentLikeRepository.existsByCommentIdAndUserId(likeCommentId, likeUserId);
 
         if (isCommentLikeExists){
-            commentLikeRepository.deleteById(commentLike.getId());
+            CommentLikeEntity foundLike = commentLikeRepository.findByCommentIdAndUserId(likeCommentId, likeUserId);
+            commentLikeRepository.deleteById(foundLike.getId());
         } else {
             UserEntity userEntity = userRepository.findById(likeUserId).orElseThrow(NotFoundException::new);
             CommentEntity commentEntity = commentRepository.findById(likeCommentId).orElseThrow(NotFoundException::new);

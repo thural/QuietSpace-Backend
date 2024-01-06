@@ -1,5 +1,6 @@
 package dev.thural.quietspacebackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.thural.quietspacebackend.entity.CommentEntity;
 import dev.thural.quietspacebackend.entity.PostLikeEntity;
 import jakarta.validation.constraints.NotBlank;
@@ -31,6 +32,7 @@ public class PostDTO {
 
     private List<PostLikeEntity> likes;
 
+    @JsonIgnore
     private List<CommentEntity> comments;
 
     private OffsetDateTime createDate;

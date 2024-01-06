@@ -22,4 +22,6 @@ public interface CommentLikeRepository extends JpaRepository<CommentLikeEntity, 
     List<CommentLikeDTO> findAllByCommentId(UUID commentId);
 
     List<CommentLikeDTO> findAllByUserId(UUID userId);
+
+    CommentLikeEntity findByCommentIdAndUserId(UUID likeCommentId, UUID likeUserId);
 }

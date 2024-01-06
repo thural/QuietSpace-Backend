@@ -1,5 +1,6 @@
 package dev.thural.quietspacebackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -25,21 +26,25 @@ public class CommentLikeEntity {
     @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false)
     private UUID id;
 
+    @JsonIgnore
     @Version
     private Integer version;
 
     @NotNull
     @ManyToOne
+    @JsonIgnore
     private UserEntity user;
 
     @NotNull
     @ManyToOne
+    @JsonIgnore
     private CommentEntity comment;
 
     @NotNull
     @Column(updatable = false)
     private OffsetDateTime createDate;
 
+    @JsonIgnore
     @NotNull
     private OffsetDateTime updateDate;
 

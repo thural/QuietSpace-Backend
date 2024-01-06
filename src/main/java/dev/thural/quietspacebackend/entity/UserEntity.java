@@ -57,7 +57,6 @@ public class UserEntity {
     @OneToMany(mappedBy = "user")
     private List<PostLikeEntity> postLikes;
 
-    @JsonManagedReference("commentToUserReference")
     @OneToMany(mappedBy = "user")
     private List<CommentEntity> comments;
 

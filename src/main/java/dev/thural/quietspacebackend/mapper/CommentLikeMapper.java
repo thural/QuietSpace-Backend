@@ -13,5 +13,9 @@ public interface CommentLikeMapper {
     @Mapping(target = "updateDate", ignore = true)
     CommentLikeEntity commentLikeDtoToEntity(CommentLikeDTO commentLikeDTO);
 
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "commentId", source = "comment.id")
+    @Mapping(target = "createDate", ignore = true)
+    @Mapping(target = "updateDate", ignore = true)
     CommentLikeDTO commentLikeEntityToDto(CommentLikeEntity commentLikeEntity);
 }

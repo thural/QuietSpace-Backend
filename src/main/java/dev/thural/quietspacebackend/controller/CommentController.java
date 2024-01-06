@@ -24,7 +24,7 @@ public class CommentController {
 
 
     @RequestMapping(value = COMMENT_PATH + "/post/{postId}", method = RequestMethod.GET)
-    Page<CommentDTO> getAllCommentsByPost(@PathVariable("postId") UUID postId,
+    Page<CommentDTO> getAllCommentsByPostId(@PathVariable("postId") UUID postId,
                                           @RequestParam(name = "page-number", required = false) Integer pageNumber,
                                           @RequestParam(name = "page-size", required = false) Integer pageSize) {
         return commentService.getAllByPost(postId, pageNumber, pageSize);

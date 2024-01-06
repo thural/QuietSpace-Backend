@@ -1,5 +1,6 @@
 package dev.thural.quietspacebackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -22,14 +23,12 @@ public class CommentLikeDTO {
     @NotNull
     UUID commentId;
 
-    @NotNull
-    @NotBlank
     String username;
 
-    @NotNull
+    @JsonIgnore
     private OffsetDateTime createDate;
 
-    @NotNull
+    @JsonIgnore
     private OffsetDateTime updateDate;
 
 }

@@ -1,6 +1,7 @@
 package dev.thural.quietspacebackend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -38,12 +39,12 @@ public class CommentEntity {
 
     @NotNull
     @ManyToOne
-    @JsonBackReference("commentToUserReference")
+    @JsonIgnore
     private UserEntity user;
 
     @NotNull
     @ManyToOne
-    @JsonBackReference("commentToPostReference")
+    @JsonIgnore
     private PostEntity post;
 
     @OneToMany(mappedBy = "comment")

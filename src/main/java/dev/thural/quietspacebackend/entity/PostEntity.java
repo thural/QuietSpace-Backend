@@ -1,5 +1,6 @@
 package dev.thural.quietspacebackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -39,11 +40,11 @@ public class PostEntity {
     @ManyToOne
     private UserEntity user;
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostLikeEntity> likes;
 
-    @JsonManagedReference("commentToPostReference")
-    @OneToMany(mappedBy = "post")
+    @JsonIgnore
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentEntity> comments;
 
     @NotNull
