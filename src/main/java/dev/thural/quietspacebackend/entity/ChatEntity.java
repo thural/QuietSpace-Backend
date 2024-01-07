@@ -1,7 +1,6 @@
 package dev.thural.quietspacebackend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -18,7 +17,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MessageEntity {
+public class ChatEntity {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -32,21 +31,14 @@ public class MessageEntity {
 
     @NotNull
     @ManyToOne
-    private ChatEntity chat;
+    private UserEntity owner;
 
     @NotNull
-    @ManyToOne
-    private UserEntity sender;
+    private List<UserEntity> participants;
 
     @NotNull
-    List<UserEntity> deliveredTo;
-
-    @NotNull
-    List<UserEntity> seenBy;
-
-    @NotNull
-    @NotBlank
-    private String text;
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MessageEntity> messages;
 
     @NotNull
     @Column(updatable = false)

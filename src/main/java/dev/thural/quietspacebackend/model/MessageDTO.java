@@ -1,10 +1,12 @@
 package dev.thural.quietspacebackend.model;
 
+import dev.thural.quietspacebackend.entity.ChatEntity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -21,21 +23,17 @@ public class MessageDTO {
     private String text;
 
     @NotNull
+    private UUID chatId;
+
+    @NotNull
     private UUID senderId;
 
-    @NotNull
-    private UUID receiverId;
+    List<UUID> deliveredTo;
 
-    @NotNull
-    boolean delivered;
+    List<UUID> seenBy;
 
-    @NotNull
-    boolean seen;
-
-    @NotNull
     private OffsetDateTime createDate;
 
-    @NotNull
     private OffsetDateTime updateDate;
 
 }
