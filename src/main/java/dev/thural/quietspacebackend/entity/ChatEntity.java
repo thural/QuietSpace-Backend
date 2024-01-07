@@ -30,11 +30,14 @@ public class ChatEntity {
     private Integer version;
 
     @NotNull
+    boolean isGroupChat;
+
+    @NotNull
     @ManyToOne
     private UserEntity owner;
 
     @NotNull
-    private List<UserEntity> participants;
+    private List<UserEntity> members;
 
     @NotNull
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)

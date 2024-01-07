@@ -26,6 +26,9 @@ public class ChatDTO {
     private Integer version;
 
     @NotNull
+    boolean isGroupChat;
+
+    @NotNull
     private UserEntity owner;
 
     private List<UserEntity> participants;
