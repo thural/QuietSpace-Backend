@@ -83,7 +83,7 @@ public class CommentServiceImpl implements CommentService {
         UserEntity loggedUserEntity = getUserEntityByToken(jwtToken);
         CommentEntity existingCommentEntity = commentRepository.findById(commentId).orElseThrow(NotFoundException::new);
 
-        if (existingCommentEntity.getUser().equals(loggedUserEntity)){
+        if (existingCommentEntity.getUser().getId().equals(loggedUserEntity.getId())){
             commentRepository.deleteById(commentId);
         } else throw new AccessDeniedException("comment author does not belong to current user");
     }
