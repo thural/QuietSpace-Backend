@@ -37,6 +37,7 @@ public class ChatEntity {
     private UserEntity owner;
 
     @NotNull
+    @OneToMany
     private List<UserEntity> members;
 
     @NotNull

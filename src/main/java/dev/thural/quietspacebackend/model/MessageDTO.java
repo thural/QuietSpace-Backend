@@ -1,6 +1,5 @@
 package dev.thural.quietspacebackend.model;
 
-import dev.thural.quietspacebackend.entity.ChatEntity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -28,9 +27,9 @@ public class MessageDTO {
     @NotNull
     private UUID senderId;
 
-    List<UUID> deliveredTo;
+    List<UserDTO> deliveredTo;
 
-    List<UUID> seenBy;
+    List<UserDTO> seenBy;
 
     private OffsetDateTime createDate;
 

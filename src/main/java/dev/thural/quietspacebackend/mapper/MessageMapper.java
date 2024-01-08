@@ -11,6 +11,5 @@ public interface MessageMapper {
     MessageEntity messageDtoToEntity(MessageDTO messageDTO);
 
     @Mapping(target = "senderId", source ="sender.id")
-    @Mapping(target = "receiverId", source ="receiver.id")
     MessageDTO messageEntityToDto(MessageEntity messageEntity);
 }

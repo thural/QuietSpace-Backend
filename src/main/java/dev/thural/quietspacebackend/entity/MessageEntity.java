@@ -39,9 +39,11 @@ public class MessageEntity {
     private UserEntity sender;
 
     @NotNull
+    @OneToMany
     List<UserEntity> deliveredTo;
 
     @NotNull
+    @OneToMany
     List<UserEntity> seenBy;
 
     @NotNull
