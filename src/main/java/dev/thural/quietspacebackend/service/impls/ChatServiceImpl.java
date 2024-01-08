@@ -34,7 +34,7 @@ public class ChatServiceImpl implements ChatService {
         if (!loggedUser.getId().equals(ownerId))
             throw new AccessDeniedException("user mismatch with the chat owner");
 
-        return chatRepository.findChatsByOwnerId(ownerId);
+        return chatRepository.findAllByOwnerId(ownerId);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class ChatServiceImpl implements ChatService {
         if (!loggedUser.getId().equals(memberId))
             throw new AccessDeniedException("user mismatch with the chat member");
 
-        return chatRepository.findChatsWhereUserExistsInMembers(loggedUser);
+        return chatRepository.findAllByMembersId(memberId);
     }
 
     @Override

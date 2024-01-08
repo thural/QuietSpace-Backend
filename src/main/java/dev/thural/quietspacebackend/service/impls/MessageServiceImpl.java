@@ -31,12 +31,11 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public MessageDTO addOne(MessageDTO messageDTO, String jwtToken) {
-        UserEntity sender = userRepository.findById(messageDTO.getSenderId()).orElseThrow(NotFoundException::new);
-        UserEntity receiver = userRepository.findById(messageDTO.getReceiverId()).orElseThrow(NotFoundException::new);
+        UserEntity sender = userRepository.findById(messageDTO.getSenderId())
+                .orElseThrow(NotFoundException::new);
 
         MessageEntity newMessage = messageMapper.messageDtoToEntity(messageDTO);
         newMessage.setSender(sender);
-        newMessage.setReceiver(receiver);
 
         return messageMapper.messageEntityToDto(messageRepository.save(newMessage));
     }
