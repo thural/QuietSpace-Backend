@@ -28,10 +28,11 @@ public class ChatDTO {
     @NotNull
     boolean isGroupChat;
 
-    @NotNull
     private UserEntity owner;
 
-    private List<UserEntity> participants;
+    private UUID ownerId;
+
+    private List<UserEntity> members;
 
     private List<MessageEntity> messages;
 

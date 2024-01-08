@@ -32,7 +32,7 @@ public class AppConfig {
         http
                 .cors().and().csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(Authorize -> Authorize.requestMatchers("/api/v1/**")
+                .authorizeHttpRequests(Authorize -> Authorize.requestMatchers("/auth")
                         .authenticated().anyRequest().permitAll()) //TODO: implement specific roles
                 .addFilterBefore(jwtValidator, BasicAuthenticationFilter.class);
 

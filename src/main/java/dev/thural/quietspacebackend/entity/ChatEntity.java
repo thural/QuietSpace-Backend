@@ -36,11 +36,9 @@ public class ChatEntity {
     @ManyToOne
     private UserEntity owner;
 
-    @NotNull
     @OneToMany
     private List<UserEntity> members;
 
-    @NotNull
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MessageEntity> messages;
 

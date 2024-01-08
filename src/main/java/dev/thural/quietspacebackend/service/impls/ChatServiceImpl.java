@@ -3,6 +3,7 @@ package dev.thural.quietspacebackend.service.impls;
 import dev.thural.quietspacebackend.controller.NotFoundException;
 import dev.thural.quietspacebackend.entity.ChatEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.mapper.ChatMapper;
 import dev.thural.quietspacebackend.model.ChatDTO;
 import dev.thural.quietspacebackend.repository.ChatRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
@@ -21,6 +22,7 @@ public class ChatServiceImpl implements ChatService {
 
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
+    private final ChatMapper chatMapper;
     private final JwtProvider jwtProvider;
 
     @Override
@@ -110,6 +112,24 @@ public class ChatServiceImpl implements ChatService {
         foundChat.setMembers(members);
 
         chatRepository.save(foundChat);
+
+    }
+
+    @Override
+    public void createChat(ChatDTO chatDTO, String jwtToken) {
+
+        UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken)
+                .orElseThrow(NotFoundException::new);
+        UserEntity foundUser = userRepository.findById(chatDTO.getOwnerId())
+                .orElseThrow(NotFoundException::new);
+
+        if (!loggedUser.equals(foundUser))
+            throw new AccessDeniedException("logged user is not the owner of the chat");
+
+        ChatEntity newChat = chatMapper.chatDtoToEntity(chatDTO);
+        newChat.setOwner(foundUser);
+
+        chatRepository.save(newChat);
 
     }
 

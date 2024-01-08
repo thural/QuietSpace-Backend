@@ -14,7 +14,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ChatController {
 
-    public static final String CHAT_PATH = "/api/v1/chat";
+    public static final String CHAT_PATH = "/api/v1/chats";
 
     private final ChatService chatService;
 
@@ -28,6 +28,13 @@ public class ChatController {
     List<ChatDTO> getAllChatsByMemberId(@RequestHeader("Authorization") String jwtToken,
                                         @PathVariable("userId") UUID userId) {
         return chatService.getChatsByMemberId(userId, jwtToken);
+    }
+
+    @RequestMapping(value = CHAT_PATH, method = RequestMethod.POST)
+    ResponseEntity createChat(@RequestHeader("Authorization") String jwtToken,
+                                  @RequestBody ChatDTO chatDTO) {
+        chatService.createChat(chatDTO, jwtToken);
+        return new ResponseEntity(HttpStatus.CREATED);
     }
 
     @RequestMapping(value = CHAT_PATH + "/{chatId}/member/add/{userId}", method = RequestMethod.POST)
