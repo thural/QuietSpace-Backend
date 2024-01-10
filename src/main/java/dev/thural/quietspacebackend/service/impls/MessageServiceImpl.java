@@ -1,10 +1,12 @@
 package dev.thural.quietspacebackend.service.impls;
 
 import dev.thural.quietspacebackend.controller.NotFoundException;
+import dev.thural.quietspacebackend.entity.ChatEntity;
 import dev.thural.quietspacebackend.entity.MessageEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.MessageMapper;
 import dev.thural.quietspacebackend.model.MessageDTO;
+import dev.thural.quietspacebackend.repository.ChatRepository;
 import dev.thural.quietspacebackend.repository.MessageRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.MessageService;
@@ -23,6 +25,7 @@ public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
     private final MessageMapper messageMapper;
     private final UserRepository userRepository;
+    private final ChatRepository chatRepository;
 
     @Override
     public Page<MessageDTO> getChat(UUID firstUserId, UUID secondUserId, Integer pageNumber, Integer pageSize) {
@@ -34,8 +37,15 @@ public class MessageServiceImpl implements MessageService {
         UserEntity sender = userRepository.findById(messageDTO.getSenderId())
                 .orElseThrow(NotFoundException::new);
 
+        ChatEntity parentChat = chatRepository.findById(messageDTO.getChatId())
+                .orElseThrow(NotFoundException::new);
+
         MessageEntity newMessage = messageMapper.messageDtoToEntity(messageDTO);
         newMessage.setSender(sender);
+
+        newMessage.setChat(parentChat);
+
+        System.out.println("message entity: " + newMessage );
 
         return messageMapper.messageEntityToDto(messageRepository.save(newMessage));
     }

@@ -27,7 +27,7 @@ public class ChatController {
     @RequestMapping(value = CHAT_PATH + "/member/{userId}", method = RequestMethod.GET)
     List<ChatDTO> getAllChatsByMemberId(@RequestHeader("Authorization") String jwtToken,
                                         @PathVariable("userId") UUID userId) {
-        return chatService.getChatsByMemberId(userId, jwtToken);
+        return chatService.getChatsByUserId(userId, jwtToken);
     }
 
     @RequestMapping(value = CHAT_PATH, method = RequestMethod.POST)
@@ -45,7 +45,7 @@ public class ChatController {
         return new ResponseEntity(HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = CHAT_PATH + "/member/remove/{userId}", method = RequestMethod.PATCH)
+    @RequestMapping(value = CHAT_PATH + "/{chatId}/member/remove/{userId}", method = RequestMethod.PATCH)
     ResponseEntity removeMemberWithId(@RequestHeader("Authorization") String jwtToken,
                                       @PathVariable("chatId") UUID chatId,
                                       @PathVariable("userId") UUID userId) {

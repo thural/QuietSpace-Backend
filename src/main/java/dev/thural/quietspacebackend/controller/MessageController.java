@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-
 @RestController
 @RequiredArgsConstructor
 public class MessageController {
@@ -23,7 +22,7 @@ public class MessageController {
 
 
     @RequestMapping(value = MESSAGE_PATH, method = RequestMethod.POST)
-    ResponseEntity createComment(@RequestHeader("Authorization") String jwtToken,
+    ResponseEntity createMessage(@RequestHeader("Authorization") String jwtToken,
                                  @RequestBody @Validated MessageDTO messageDTO) {
 
         MessageDTO savedMessage = messageService.addOne(messageDTO, jwtToken);
@@ -34,7 +33,7 @@ public class MessageController {
     }
 
     @RequestMapping(value = MESSAGE_PATH_ID, method = RequestMethod.DELETE)
-    ResponseEntity deleteComment(@RequestHeader("Authorization") String jwtToken,
+    ResponseEntity deleteMessage(@RequestHeader("Authorization") String jwtToken,
                                  @PathVariable("messageId") UUID messageId) {
         messageService.deleteOne(messageId, jwtToken);
         return new ResponseEntity(HttpStatus.NO_CONTENT);

@@ -11,7 +11,7 @@ import java.util.UUID;
 public interface ChatRepository extends JpaRepository<ChatEntity, UUID> {
     List<ChatEntity> findAllByOwnerId(UUID ownerId);
 
-    List<ChatEntity> findAllByMembersId(UUID memberId);
+    List<ChatEntity> findAllByUsersId(UUID userId);
 
     @Query("SELECT c FROM ChatEntity c WHERE c.owner = :owner")
     List<ChatEntity> findAllByOwner(UserEntity owner);

@@ -42,7 +42,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<ChatDTO> getChatsByMemberId(UUID memberId, String jwtToken) {
+    public List<ChatDTO> getChatsByUserId(UUID memberId, String jwtToken) {
 
         UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken).orElse(null);
 
@@ -52,7 +52,7 @@ public class ChatServiceImpl implements ChatService {
         if (!loggedUser.getId().equals(memberId))
             throw new AccessDeniedException("user mismatch with the chat member");
 
-        return chatRepository.findAllByMembersId(memberId)
+        return chatRepository.findAllByUsersId(memberId)
                 .stream()
                 .map(chatMapper::chatEntityToDto).toList();
     }
@@ -89,9 +89,9 @@ public class ChatServiceImpl implements ChatService {
         if (!foundChat.getOwner().equals(loggedUser))
             throw new AccessDeniedException("logged user is not the owner of the chat");
 
-        List<UserEntity> members = foundChat.getMembers();
+        List<UserEntity> members = foundChat.getUsers();
         members.add(foundMember);
-        foundChat.setMembers(members);
+        foundChat.setUsers(members);
 
         chatRepository.save(foundChat);
 
@@ -111,9 +111,9 @@ public class ChatServiceImpl implements ChatService {
         if (!foundChat.getOwner().equals(loggedUser))
             throw new AccessDeniedException("logged user is not the owner of the chat");
 
-        List<UserEntity> members = foundChat.getMembers();
+        List<UserEntity> members = foundChat.getUsers();
         members.remove(foundMember);
-        foundChat.setMembers(members);
+        foundChat.setUsers(members);
 
         chatRepository.save(foundChat);
 

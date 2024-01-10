@@ -9,7 +9,7 @@ public interface ChatService {
 
     List<ChatDTO> getChatsByOwnerId(UUID ownerId, String jwtToken);
 
-    List<ChatDTO> getChatsByMemberId(UUID ownerId, String jwtToken);
+    List<ChatDTO> getChatsByUserId(UUID userId, String jwtToken);
 
     void deleteChatById(UUID chatId, String jwtToken);
 
