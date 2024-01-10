@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -26,10 +25,6 @@ public class MessageDTO {
 
     @NotNull
     private UUID senderId;
-
-    List<UserDTO> deliveredTo;
-
-    List<UserDTO> seenBy;
 
     private OffsetDateTime createDate;
 

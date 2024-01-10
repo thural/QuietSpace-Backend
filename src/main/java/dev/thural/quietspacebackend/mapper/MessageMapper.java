@@ -10,6 +10,6 @@ public interface MessageMapper {
     @Mapping(target = "id", ignore = true)
     MessageEntity messageDtoToEntity(MessageDTO messageDTO);
 
-    @Mapping(target = "senderId", source ="sender.id")
+    @Mapping(target = "senderId", source = "sender.id")
     MessageDTO messageEntityToDto(MessageEntity messageEntity);
 }

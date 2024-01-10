@@ -1,5 +1,6 @@
 package dev.thural.quietspacebackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,21 +31,14 @@ public class MessageEntity {
     @Version
     private Integer version;
 
-    @NotNull
     @ManyToOne
+    @JsonIgnore
     private ChatEntity chat;
 
     @NotNull
     @ManyToOne
+    @JsonIgnore
     private UserEntity sender;
-
-    @NotNull
-    @OneToMany
-    List<UserEntity> deliveredTo;
-
-    @NotNull
-    @OneToMany
-    List<UserEntity> seenBy;
 
     @NotNull
     @NotBlank

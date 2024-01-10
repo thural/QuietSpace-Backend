@@ -40,8 +40,12 @@ public class ChatEntity {
     @ManyToOne
     private UserEntity owner;
 
-    @OneToMany
-    private List<UserEntity> members;
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "user_chat",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "chat_id",
+                    referencedColumnName = "id"))
+    private List<UserEntity> users;
 
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MessageEntity> messages;
