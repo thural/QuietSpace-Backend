@@ -65,8 +65,8 @@ public class UserController {
 
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.DELETE)
     ResponseEntity deleteUser(@RequestHeader("Authorization") String jwt, @PathVariable("userId") UUID id) {
-        userService.deleteOne(id, jwt);
-        tokenBlackList.addToBlacklist(jwt);
+        boolean isDeleted = userService.deleteOne(id, jwt);
+        if (isDeleted) tokenBlackList.addToBlacklist(jwt);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
