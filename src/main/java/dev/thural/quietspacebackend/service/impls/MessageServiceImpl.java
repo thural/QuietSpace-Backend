@@ -26,6 +26,7 @@ public class MessageServiceImpl implements MessageService {
     private final MessageMapper messageMapper;
     private final UserRepository userRepository;
     private final ChatRepository chatRepository;
+    private final JwtProvider jwtProvider;
 
     @Override
     public Page<MessageDTO> getChat(UUID firstUserId, UUID secondUserId, Integer pageNumber, Integer pageSize) {
@@ -34,18 +35,17 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public MessageDTO addOne(MessageDTO messageDTO, String jwtToken) {
-        UserEntity sender = userRepository.findById(messageDTO.getSenderId())
+
+        UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken)
                 .orElseThrow(NotFoundException::new);
 
         ChatEntity parentChat = chatRepository.findById(messageDTO.getChatId())
                 .orElseThrow(NotFoundException::new);
 
         MessageEntity newMessage = messageMapper.messageDtoToEntity(messageDTO);
-        newMessage.setSender(sender);
+        newMessage.setSender(loggedUser);
 
         newMessage.setChat(parentChat);
-
-        System.out.println("message entity: " + newMessage );
 
         return messageMapper.messageEntityToDto(messageRepository.save(newMessage));
     }

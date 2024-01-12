@@ -26,6 +26,8 @@ public class MessageDTO {
     @NotNull
     private UUID senderId;
 
+    private String username;
+
     private OffsetDateTime createDate;
 
     private OffsetDateTime updateDate;

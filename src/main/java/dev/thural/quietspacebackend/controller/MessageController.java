@@ -29,7 +29,7 @@ public class MessageController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", MESSAGE_PATH + "/" + savedMessage.getId());
-        return new ResponseEntity(headers, HttpStatus.CREATED);
+        return new ResponseEntity(savedMessage, headers, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = MESSAGE_PATH_ID, method = RequestMethod.DELETE)
