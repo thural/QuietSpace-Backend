@@ -33,8 +33,8 @@ public class ChatController {
     @RequestMapping(value = CHAT_PATH, method = RequestMethod.POST)
     ResponseEntity createChat(@RequestHeader("Authorization") String jwtToken,
                                   @RequestBody ChatDTO chatDTO) {
-        chatService.createChat(chatDTO, jwtToken);
-        return new ResponseEntity(HttpStatus.CREATED);
+        ChatDTO createdChatDTO = chatService.createChat(chatDTO, jwtToken);
+        return new ResponseEntity(createdChatDTO, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = CHAT_PATH + "/{chatId}/member/add/{userId}", method = RequestMethod.PATCH)

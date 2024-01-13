@@ -120,7 +120,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void createChat(ChatDTO chatDTO, String jwtToken) {
+    public ChatDTO createChat(ChatDTO chatDTO, String jwtToken) {
 
         UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken)
                 .orElseThrow(NotFoundException::new);
@@ -133,7 +133,7 @@ public class ChatServiceImpl implements ChatService {
         ChatEntity newChat = chatMapper.chatDtoToEntity(chatDTO);
         newChat.setOwner(foundUser);
 
-        chatRepository.save(newChat);
+        return chatMapper.chatEntityToDto(chatRepository.save(newChat));
 
     }
 
