@@ -137,4 +137,19 @@ public class ChatServiceImpl implements ChatService {
 
     }
 
+    @Override
+    public ChatDTO getChatById(UUID chatId, String jwtToken) {
+        UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken).orElse(null);
+
+        if(loggedUser == null)
+            throw new NotFoundException("user not found");
+
+        ChatEntity foundChatEntity = chatRepository.findById(chatId).orElseThrow(NotFoundException::new);
+
+        if (!loggedUser.getId().equals(foundChatEntity.getOwner().getId()))
+            throw new AccessDeniedException("user mismatch with requested chat owner");
+
+        return chatMapper.chatEntityToDto(foundChatEntity);
+    }
+
 }

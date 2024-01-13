@@ -18,4 +18,6 @@ public interface ChatService {
     void removeMemberWithId(UUID memberId, UUID chatId, String jwtToken);
 
     ChatDTO createChat(ChatDTO chatDTO, String jwtToken);
+
+    ChatDTO getChatById(UUID chatId, String jwtToken);
 }

@@ -23,6 +23,12 @@ public class ChatController {
                                        @PathVariable("userId") UUID userId) {
         return chatService.getChatsByOwnerId(userId, jwtToken);
     }
+    @RequestMapping(value = CHAT_PATH + "/{chatId}", method = RequestMethod.GET)
+    ChatDTO getSingleChatById(@RequestHeader("Authorization") String jwtToken,
+                              @PathVariable("chatId") UUID chatId){
+
+        return chatService.getChatById(chatId, jwtToken);
+    }
 
     @RequestMapping(value = CHAT_PATH + "/member/{userId}", method = RequestMethod.GET)
     List<ChatDTO> getAllChatsByMemberId(@RequestHeader("Authorization") String jwtToken,
