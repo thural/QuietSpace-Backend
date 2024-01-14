@@ -25,21 +25,6 @@ public class ChatServiceImpl implements ChatService {
     private final ChatMapper chatMapper;
     private final JwtProvider jwtProvider;
 
-    @Override
-    public List<ChatDTO> getChatsByOwnerId(UUID ownerId, String jwtToken) {
-
-        UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken).orElse(null);
-
-        if(loggedUser == null)
-            throw new NotFoundException("user not found");
-
-        if (!loggedUser.getId().equals(ownerId))
-            throw new AccessDeniedException("user mismatch with the chat owner");
-
-        return chatRepository.findAllByOwnerId(ownerId)
-                .stream()
-                .map(chatMapper::chatEntityToDto).toList();
-    }
 
     @Override
     public List<ChatDTO> getChatsByUserId(UUID memberId, String jwtToken) {
@@ -68,8 +53,8 @@ public class ChatServiceImpl implements ChatService {
         ChatEntity foundChat = chatRepository.findById(chatId)
                 .orElseThrow(NotFoundException::new);
 
-        if (!loggedUser.equals(foundChat.getOwner()))
-            throw new AccessDeniedException("user mismatch with the chat owner");
+        if (!foundChat.getUsers().contains(loggedUser))
+            throw new AccessDeniedException("chat does not belong to logged user");
 
         if (chatRepository.existsById(chatId)) chatRepository.deleteById(chatId);
 
@@ -86,8 +71,9 @@ public class ChatServiceImpl implements ChatService {
         ChatEntity foundChat = chatRepository.findById(chatId)
                 .orElseThrow(NotFoundException::new);
 
-        if (!foundChat.getOwner().equals(loggedUser))
-            throw new AccessDeniedException("logged user is not the owner of the chat");
+
+        if (!foundChat.getUsers().contains(loggedUser))
+            throw new AccessDeniedException("chat does not belong to logged user");
 
         List<UserEntity> members = foundChat.getUsers();
         members.add(foundMember);
@@ -108,8 +94,8 @@ public class ChatServiceImpl implements ChatService {
         ChatEntity foundChat = chatRepository.findById(chatId)
                 .orElseThrow(NotFoundException::new);
 
-        if (!foundChat.getOwner().equals(loggedUser))
-            throw new AccessDeniedException("logged user is not the owner of the chat");
+        if (!foundChat.getUsers().contains(loggedUser))
+            throw new AccessDeniedException("chat does not belong to logged user");
 
         List<UserEntity> members = foundChat.getUsers();
         members.remove(foundMember);
@@ -121,20 +107,23 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatDTO createChat(ChatDTO chatDTO, String jwtToken) {
-
         UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken)
                 .orElseThrow(NotFoundException::new);
-        UserEntity foundUser = userRepository.findById(chatDTO.getOwnerId())
-                .orElseThrow(NotFoundException::new);
 
-        if (!loggedUser.equals(foundUser))
-            throw new AccessDeniedException("logged user is not the owner of the chat");
+        chatDTO.getUsers().forEach(user -> userRepository.findById(user.getId())
+                .orElseThrow(NotFoundException::new));
+
+        if (!chatDTO.getUsers().contains(loggedUser))
+            throw new AccessDeniedException("logged user is not a member of requested chat");
+
+        boolean isChatDuplicate = chatRepository.findAllByUsers(chatDTO.getUsers().get(0))
+                .stream().anyMatch(chat -> chat.getUsers().contains(chatDTO.getUsers().get(0)));
+
+        if (isChatDuplicate) throw new RuntimeException("a chat with same members already exists");
 
         ChatEntity newChat = chatMapper.chatDtoToEntity(chatDTO);
-        newChat.setOwner(foundUser);
 
         return chatMapper.chatEntityToDto(chatRepository.save(newChat));
-
     }
 
     @Override
@@ -146,8 +135,8 @@ public class ChatServiceImpl implements ChatService {
 
         ChatEntity foundChatEntity = chatRepository.findById(chatId).orElseThrow(NotFoundException::new);
 
-        if (!loggedUser.getId().equals(foundChatEntity.getOwner().getId()))
-            throw new AccessDeniedException("user mismatch with requested chat owner");
+        if (!foundChatEntity.getUsers().contains(loggedUser))
+            throw new AccessDeniedException("chat does not belong to logged user");
 
         return chatMapper.chatEntityToDto(foundChatEntity);
     }

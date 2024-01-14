@@ -1,6 +1,5 @@
 package dev.thural.quietspacebackend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.thural.quietspacebackend.entity.MessageEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import jakarta.persistence.*;
@@ -24,13 +23,6 @@ public class ChatDTO {
     private Integer version;
 
     @NotNull
-    boolean isGroupChat;
-
-    @JsonIgnore
-    private UserEntity owner;
-
-    private UUID ownerId;
-
     private List<UserEntity> users;
 
     private List<MessageEntity> messages;

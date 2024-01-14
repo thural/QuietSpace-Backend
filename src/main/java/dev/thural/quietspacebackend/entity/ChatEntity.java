@@ -33,13 +33,6 @@ public class ChatEntity {
     @Version
     private Integer version;
 
-    @NotNull
-    boolean isGroupChat;
-
-    @NotNull
-    @ManyToOne
-    private UserEntity owner;
-
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "user_chat",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),

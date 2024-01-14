@@ -10,6 +10,5 @@ public interface ChatMapper {
     @Mapping(target = "id", ignore = true)
     ChatEntity chatDtoToEntity(ChatDTO chatDTO);
 
-    @Mapping(target = "ownerId", source = "owner.id")
     ChatDTO chatEntityToDto(ChatEntity chatEntity);
 }
