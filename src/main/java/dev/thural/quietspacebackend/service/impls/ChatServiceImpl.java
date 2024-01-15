@@ -4,6 +4,7 @@ import dev.thural.quietspacebackend.controller.NotFoundException;
 import dev.thural.quietspacebackend.entity.ChatEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.ChatMapper;
+import dev.thural.quietspacebackend.mapper.UserMapper;
 import dev.thural.quietspacebackend.model.ChatDTO;
 import dev.thural.quietspacebackend.repository.ChatRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
@@ -22,6 +23,7 @@ public class ChatServiceImpl implements ChatService {
 
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
     private final ChatMapper chatMapper;
     private final JwtProvider jwtProvider;
 
@@ -107,21 +109,27 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatDTO createChat(ChatDTO chatDTO, String jwtToken) {
+        List<UserEntity> userList = chatDTO.getUsers().stream()
+                .map(user -> userRepository.findById(user.getId())
+                        .orElseThrow(NotFoundException::new))
+                .toList();
+
         UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken)
                 .orElseThrow(NotFoundException::new);
 
-        chatDTO.getUsers().forEach(user -> userRepository.findById(user.getId())
-                .orElseThrow(NotFoundException::new));
+        System.out.println("logged user: " + loggedUser);
+        System.out.println("chat user list: " + userList);
 
-        if (!chatDTO.getUsers().contains(loggedUser))
+        if (!userList.contains(loggedUser))
             throw new AccessDeniedException("logged user is not a member of requested chat");
 
-        boolean isChatDuplicate = chatRepository.findAllByUsers(chatDTO.getUsers().get(0))
-                .stream().anyMatch(chat -> chat.getUsers().contains(chatDTO.getUsers().get(0)));
+        boolean isChatDuplicate = chatRepository.findAllByUsers(userList.get(0))
+                .stream().anyMatch(chat -> chat.getUsers().contains(userList.get(0)));
 
         if (isChatDuplicate) throw new RuntimeException("a chat with same members already exists");
 
         ChatEntity newChat = chatMapper.chatDtoToEntity(chatDTO);
+        newChat.setUsers(userList);
 
         return chatMapper.chatEntityToDto(chatRepository.save(newChat));
     }

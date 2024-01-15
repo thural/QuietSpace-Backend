@@ -23,9 +23,9 @@ public class ChatDTO {
     private Integer version;
 
     @NotNull
-    private List<UserEntity> users;
+    private List<UserDTO> users;
 
-    private List<MessageEntity> messages;
+    private List<MessageDTO> messages;
 
     private OffsetDateTime createDate;
 
