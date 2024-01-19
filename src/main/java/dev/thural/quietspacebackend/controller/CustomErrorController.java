@@ -19,10 +19,9 @@ public class CustomErrorController {
     ResponseEntity handleJPAViolations(TransactionSystemException exception) {
         ResponseEntity.BodyBuilder responseEntity = ResponseEntity.badRequest();
 
-        if (exception.getCause().getCause() instanceof ConstraintViolationException) {
-            ConstraintViolationException violationException = (ConstraintViolationException) exception.getCause().getCause();
+        if (exception.getCause().getCause() instanceof ConstraintViolationException violationException) {
 
-            List errors = violationException.getConstraintViolations().stream()
+            List<Map<String, String>> errors = violationException.getConstraintViolations().stream()
                     .map(constraintViolation -> {
                         Map<String, String> errorMap = new HashMap<>();
                         errorMap.put(constraintViolation.getPropertyPath().toString(),
@@ -38,7 +37,7 @@ public class CustomErrorController {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity handleBindErrors(MethodArgumentNotValidException exception) {
-        List errorList = exception.getFieldErrors().stream()
+        List<Map<String, String>> errorList = exception.getFieldErrors().stream()
                 .map(fieldError -> {
                     Map<String, String> errorMap = new HashMap<>();
                     errorMap.put(fieldError.getField(), fieldError.getDefaultMessage());

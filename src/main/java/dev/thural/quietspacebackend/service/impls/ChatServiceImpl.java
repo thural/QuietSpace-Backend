@@ -4,16 +4,17 @@ import dev.thural.quietspacebackend.controller.NotFoundException;
 import dev.thural.quietspacebackend.entity.ChatEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.ChatMapper;
-import dev.thural.quietspacebackend.mapper.UserMapper;
 import dev.thural.quietspacebackend.model.ChatDTO;
 import dev.thural.quietspacebackend.repository.ChatRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.ChatService;
 import dev.thural.quietspacebackend.utils.JwtProvider;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,9 +24,8 @@ public class ChatServiceImpl implements ChatService {
 
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
-    private final ChatMapper chatMapper;
     private final JwtProvider jwtProvider;
+    private final ChatMapper chatMapper;
 
 
     @Override
@@ -109,22 +109,19 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatDTO createChat(ChatDTO chatDTO, String jwtToken) {
-        List<UserEntity> userList = chatDTO.getUsers().stream()
-                .map(user -> userRepository.findById(user.getId())
+        List<UserEntity> userList = chatDTO.getUserIds().stream()
+                .map(userId -> userRepository.findById(userId)
                         .orElseThrow(NotFoundException::new))
                 .toList();
 
         UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken)
                 .orElseThrow(NotFoundException::new);
 
-        System.out.println("logged user: " + loggedUser);
-        System.out.println("chat user list: " + userList);
-
         if (!userList.contains(loggedUser))
             throw new AccessDeniedException("logged user is not a member of requested chat");
 
-        boolean isChatDuplicate = chatRepository.findAllByUsers(userList.get(0))
-                .stream().anyMatch(chat -> chat.getUsers().contains(userList.get(0)));
+        boolean isChatDuplicate = chatRepository.findAllByUsersIn(userList)
+                .stream().anyMatch(chat -> new HashSet<>(chat.getUsers()).containsAll(userList));
 
         if (isChatDuplicate) throw new RuntimeException("a chat with same members already exists");
 

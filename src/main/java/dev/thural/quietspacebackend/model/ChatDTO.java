@@ -1,7 +1,5 @@
 package dev.thural.quietspacebackend.model;
 
-import dev.thural.quietspacebackend.entity.MessageEntity;
-import dev.thural.quietspacebackend.entity.UserEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -24,6 +22,8 @@ public class ChatDTO {
 
     @NotNull
     private List<UserDTO> users;
+
+    private List<UUID> userIds;
 
     private List<MessageDTO> messages;
 
