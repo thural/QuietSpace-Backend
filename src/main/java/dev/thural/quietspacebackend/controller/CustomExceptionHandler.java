@@ -1,10 +1,8 @@
 package dev.thural.quietspacebackend.controller;
 
 import dev.thural.quietspacebackend.error.ErrorResponse;
-import dev.thural.quietspacebackend.exception.CustomDataNotFoundException;
-import dev.thural.quietspacebackend.exception.CustomErrorException;
-import dev.thural.quietspacebackend.exception.CustomParameterConstraintException;
-import dev.thural.quietspacebackend.exception.NotFoundException;
+import dev.thural.quietspacebackend.exception.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +21,7 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class CustomExceptionHandler {
 
-    @ExceptionHandler(NotFoundException.class)
+    @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity handleNotFoundException() {
         return ResponseEntity.notFound().build();
     }
@@ -70,14 +68,35 @@ public class CustomExceptionHandler {
         e.printStackTrace(printWriter);
         String stackTrace = stringWriter.toString();
 
-        return new ResponseEntity<>(new ErrorResponse(status, e.getMessage(), stackTrace), status);
+        return new ResponseEntity<>(ErrorResponse.builder()
+                .status(status.toString())
+                .message(e.getMessage())
+                .stackTrace(stackTrace)
+                .build(), status);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFoundExceptions(Exception e) {
+        ResponseEntity.BodyBuilder responseEntity = ResponseEntity.badRequest();// 404
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .message(e.getMessage())
+                .code(404)
+                .build();
+
+        responseEntity.body(errorResponse);
+        return responseEntity.build();
     }
 
     @ExceptionHandler(CustomParameterConstraintException.class)
     public ResponseEntity<ErrorResponse> handleCustomParameterConstraintExceptions(Exception e) {
         HttpStatus status = HttpStatus.BAD_REQUEST; // 400
-
-        return new ResponseEntity<>(new ErrorResponse(status, e.getMessage()), status);
+        return new ResponseEntity<>(
+                ErrorResponse.builder()
+                        .status(status.toString())
+                        .message(e.getMessage())
+                        .build(),
+                status);
     }
 
     @ExceptionHandler(CustomErrorException.class)
@@ -94,10 +113,12 @@ public class CustomExceptionHandler {
         String stackTrace = stringWriter.toString();
 
         return new ResponseEntity<>(
-                new ErrorResponse(status,
-                        customErrorException.getMessage(),
-                        stackTrace,
-                        customErrorException.getData()), status
+                ErrorResponse.builder()
+                        .message(customErrorException.getMessage())
+                        .stackTrace(stackTrace)
+                        .data(customErrorException.getData())
+                        .build(),
+                status
         );
     }
 
@@ -114,11 +135,13 @@ public class CustomExceptionHandler {
         String stackTrace = stringWriter.toString();
 
         return new ResponseEntity<>(
-                new ErrorResponse(
-                        status,
-                        e.getMessage(),
-                        stackTrace // specifying the stack trace in case of 500
-                ), status
+                ErrorResponse.builder()
+                        .code(500)
+                        .status(status.toString())
+                        .message(e.getMessage())
+                        .stackTrace(stackTrace)
+                        .build(),
+                status
         );
     }
 }

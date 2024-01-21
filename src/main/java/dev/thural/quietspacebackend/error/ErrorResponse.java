@@ -1,10 +1,12 @@
 package dev.thural.quietspacebackend.error;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Builder;
 import org.springframework.http.HttpStatus;
 
 import java.util.Date;
 
+@Builder
 public class ErrorResponse {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
@@ -19,25 +21,4 @@ public class ErrorResponse {
     private String stackTrace;
 
     private Object data;
-
-    public ErrorResponse() {
-        timestamp = new Date();
-    }
-
-    public ErrorResponse(HttpStatus httpStatus, String message) {
-        this();
-        this.code = httpStatus.value();
-        this.status = httpStatus.name();
-        this.message = message;
-    }
-
-    public ErrorResponse(HttpStatus httpStatus, String message, String stackTrace) {
-        this(httpStatus, message);
-        this.stackTrace = stackTrace;
-    }
-
-    public ErrorResponse(HttpStatus httpStatus, String message, String stackTrace, Object data) {
-        this(httpStatus, message, stackTrace);
-        this.data = data;
-    }
 }
