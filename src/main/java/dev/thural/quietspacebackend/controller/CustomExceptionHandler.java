@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -20,14 +21,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
-public class ExceptionHandler {
+public class CustomExceptionHandler {
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(NotFoundException.class)
+    @ExceptionHandler(NotFoundException.class)
     public ResponseEntity handleNotFoundException() {
         return ResponseEntity.notFound().build();
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler
+    @ExceptionHandler
     ResponseEntity handleJPAViolations(TransactionSystemException exception) {
         ResponseEntity.BodyBuilder responseEntity = ResponseEntity.badRequest();
 
@@ -47,7 +48,7 @@ public class ExceptionHandler {
         return responseEntity.build();
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity handleBindErrors(MethodArgumentNotValidException exception) {
         List<Map<String, String>> errorList = exception.getFieldErrors().stream()
                 .map(fieldError -> {
@@ -59,7 +60,7 @@ public class ExceptionHandler {
     }
 
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(CustomDataNotFoundException.class)
+    @ExceptionHandler(CustomDataNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCustomDataNotFoundExceptions(Exception e) {
         HttpStatus status = HttpStatus.NOT_FOUND; // 404
 
@@ -72,14 +73,14 @@ public class ExceptionHandler {
         return new ResponseEntity<>(new ErrorResponse(status, e.getMessage(), stackTrace), status);
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(CustomParameterConstraintException.class)
+    @ExceptionHandler(CustomParameterConstraintException.class)
     public ResponseEntity<ErrorResponse> handleCustomParameterConstraintExceptions(Exception e) {
         HttpStatus status = HttpStatus.BAD_REQUEST; // 400
 
         return new ResponseEntity<>(new ErrorResponse(status, e.getMessage()), status);
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(CustomErrorException.class)
+    @ExceptionHandler(CustomErrorException.class)
     public ResponseEntity<ErrorResponse> handleCustomErrorExceptions(Exception e) {
         // casting the generic Exception e to CustomErrorException
         CustomErrorException customErrorException = (CustomErrorException) e;
@@ -101,9 +102,8 @@ public class ExceptionHandler {
     }
 
     // fallback method
-    @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class) // exception handled
+    @ExceptionHandler(Exception.class) // exception handled
     public ResponseEntity handleExceptions(Exception e) {
-        // ... potential custom logic
 
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR; // 500
 
