@@ -1,9 +1,9 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.exception.NotFoundException;
 import dev.thural.quietspacebackend.entity.ChatEntity;
 import dev.thural.quietspacebackend.entity.MessageEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.mapper.MessageMapper;
 import dev.thural.quietspacebackend.model.MessageDTO;
 import dev.thural.quietspacebackend.repository.ChatRepository;
@@ -11,6 +11,7 @@ import dev.thural.quietspacebackend.repository.MessageRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.MessageService;
 import dev.thural.quietspacebackend.utils.JwtProvider;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
@@ -37,10 +38,10 @@ public class MessageServiceImpl implements MessageService {
     public MessageDTO addOne(MessageDTO messageDTO, String jwtToken) {
 
         UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         ChatEntity parentChat = chatRepository.findById(messageDTO.getChatId())
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(EntityNotFoundException::new);
 
         MessageEntity newMessage = messageMapper.messageDtoToEntity(messageDTO);
         newMessage.setSender(loggedUser);
@@ -52,7 +53,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public Optional<MessageDTO> getById(UUID messageId) {
-        return null;
+        return Optional.empty();
     }
 
     @Override
@@ -64,7 +65,8 @@ public class MessageServiceImpl implements MessageService {
     public void deleteOne(UUID messageId, String jwtToken) {
         UserEntity loggedUserEntity = getUserEntityByToken(jwtToken);
 
-        MessageEntity existingMessage = messageRepository.findById(messageId).orElseThrow(NotFoundException::new);
+        MessageEntity existingMessage = messageRepository.findById(messageId)
+                .orElseThrow(EntityNotFoundException::new);
 
         if (existingMessage.getSender().getId().equals(loggedUserEntity.getId())) {
             messageRepository.deleteById(messageId);
@@ -78,6 +80,7 @@ public class MessageServiceImpl implements MessageService {
 
     private UserEntity getUserEntityByToken(String jwtToken) {
         String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
-        return userRepository.findUserEntityByEmail(loggedUserEmail).orElseThrow(NotFoundException::new);
+        return userRepository.findUserEntityByEmail(loggedUserEmail)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
     }
 }

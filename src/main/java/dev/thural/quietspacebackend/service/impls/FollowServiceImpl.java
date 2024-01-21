@@ -1,8 +1,8 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.exception.NotFoundException;
 import dev.thural.quietspacebackend.entity.FollowEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.mapper.FollowMapper;
 import dev.thural.quietspacebackend.model.FollowDTO;
 import dev.thural.quietspacebackend.repository.FollowRepository;
@@ -72,8 +72,10 @@ public class FollowServiceImpl implements FollowService {
             followRepository.deleteByFollowerIdAndFollowingId(followingUserId, followingUserId);
         } else {
 
-            UserEntity followingUser = userRepository.findById(followingUserId).orElseThrow(NotFoundException::new);
-            UserEntity followedUser = userRepository.findById(followingUserId).orElseThrow(NotFoundException::new);
+            UserEntity followingUser = userRepository.findById(followingUserId)
+                    .orElseThrow(() -> new UserNotFoundException("user not found"));
+            UserEntity followedUser = userRepository.findById(followingUserId)
+                    .orElseThrow(() -> new UserNotFoundException("user not found"));
             FollowEntity newFollowEntity = FollowEntity.builder().follower(followingUser).following(followedUser).build();
 
             followRepository.save(newFollowEntity);

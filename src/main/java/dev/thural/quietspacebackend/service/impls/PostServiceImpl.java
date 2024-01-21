@@ -1,6 +1,6 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.exception.NotFoundException;
+import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.utils.JwtProvider;
 import dev.thural.quietspacebackend.entity.PostEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
@@ -9,6 +9,7 @@ import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.repository.PostRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.PostService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -46,7 +47,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Optional<PostDTO> getById(UUID postId) {
-        PostEntity postEntity = postRepository.findById(postId).orElseThrow(NotFoundException::new);
+        PostEntity postEntity = postRepository.findById(postId)
+                .orElseThrow(EntityNotFoundException::new);
         PostDTO postDTO = postMapper.postEntityToDto(postEntity);
         return Optional.of(postDTO);
     }
@@ -54,7 +56,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public void updateOne(UUID postId, PostDTO post, String jwtToken) {
         UserEntity loggedUser = getUserEntityByToken(jwtToken);
-        PostEntity existingPostEntity = postRepository.findById(postId).orElseThrow(NotFoundException::new);
+        PostEntity existingPostEntity = postRepository.findById(postId)
+                .orElseThrow(EntityNotFoundException::new);
 
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUser);
 
@@ -67,7 +70,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public void deleteOne(UUID postId, String jwtToken) {
         UserEntity loggedUser = getUserEntityByToken(jwtToken);
-        PostEntity existingPostEntity = postRepository.findById(postId).orElseThrow(NotFoundException::new);
+        PostEntity existingPostEntity = postRepository.findById(postId)
+                .orElseThrow(EntityNotFoundException::new);
 
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUser);
 
@@ -78,7 +82,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public void patchOne(String jwtToken, UUID postId, PostDTO post) {
         UserEntity loggedUser = getUserEntityByToken(jwtToken);
-        PostEntity existingPostEntity = postRepository.findById(postId).orElseThrow(NotFoundException::new);
+        PostEntity existingPostEntity = postRepository.findById(postId)
+                .orElseThrow(EntityNotFoundException::new);
 
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUser);
 
@@ -105,7 +110,8 @@ public class PostServiceImpl implements PostService {
 
     private UserEntity getUserEntityByToken(String jwtToken) {
         String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
-        return userRepository.findUserEntityByEmail(loggedUserEmail).orElseThrow(NotFoundException::new);
+        return userRepository.findUserEntityByEmail(loggedUserEmail)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
     }
 
     private boolean isPostExistsByLoggedUser(PostEntity existingPostEntity, UserEntity loggedUser) {

@@ -1,15 +1,16 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.exception.NotFoundException;
 import dev.thural.quietspacebackend.entity.CommentEntity;
 import dev.thural.quietspacebackend.entity.CommentLikeEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.model.CommentLikeDTO;
 import dev.thural.quietspacebackend.repository.CommentLikeRepository;
 import dev.thural.quietspacebackend.repository.CommentRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.CommentLikeService;
 import dev.thural.quietspacebackend.utils.JwtProvider;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class CommentLikeServiceImpl implements CommentLikeService {
     @Override
     public void toggleCommentLike(String jwtToken, CommentLikeDTO commentLike) {
         UserEntity loggedUser = getUserEntityByToken(jwtToken);
+        if(loggedUser == null) throw new UserNotFoundException("user not found");
 
         if(!commentLike.getUserId().equals(loggedUser.getId()))
             throw new AccessDeniedException("comment like does not belong to logged user");
@@ -41,8 +43,11 @@ public class CommentLikeServiceImpl implements CommentLikeService {
             CommentLikeEntity foundLike = commentLikeRepository.findByCommentIdAndUserId(likeCommentId, likeUserId);
             commentLikeRepository.deleteById(foundLike.getId());
         } else {
-            UserEntity userEntity = userRepository.findById(likeUserId).orElseThrow(NotFoundException::new);
-            CommentEntity commentEntity = commentRepository.findById(likeCommentId).orElseThrow(NotFoundException::new);
+            UserEntity userEntity = userRepository.findById(likeUserId)
+                    .orElseThrow(() -> new UserNotFoundException("user not found"));
+
+            CommentEntity commentEntity = commentRepository.findById(likeCommentId)
+                    .orElseThrow(EntityNotFoundException::new);
 
             CommentLikeEntity commentLikeEntity = new CommentLikeEntity();
 
@@ -66,6 +71,7 @@ public class CommentLikeServiceImpl implements CommentLikeService {
 
     private UserEntity getUserEntityByToken(String jwtToken) {
         String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
-        return userRepository.findUserEntityByEmail(loggedUserEmail).orElseThrow(NotFoundException::new);
+        return userRepository.findUserEntityByEmail(loggedUserEmail)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
     }
 }

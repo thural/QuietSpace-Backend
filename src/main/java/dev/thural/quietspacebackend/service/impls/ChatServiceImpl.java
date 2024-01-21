@@ -1,14 +1,15 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.exception.NotFoundException;
 import dev.thural.quietspacebackend.entity.ChatEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.mapper.ChatMapper;
 import dev.thural.quietspacebackend.model.ChatDTO;
 import dev.thural.quietspacebackend.repository.ChatRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.ChatService;
 import dev.thural.quietspacebackend.utils.JwtProvider;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class ChatServiceImpl implements ChatService {
         UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken).orElse(null);
 
         if(loggedUser == null)
-            throw new NotFoundException("user not found");
+            throw new UserNotFoundException("user not found");
 
         if (!loggedUser.getId().equals(memberId))
             throw new AccessDeniedException("user mismatch with the chat member");
@@ -49,10 +50,10 @@ public class ChatServiceImpl implements ChatService {
         UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken).orElse(null);
 
         if(loggedUser == null)
-            throw new NotFoundException("user not found");
+            throw new UserNotFoundException("user not found");
 
         ChatEntity foundChat = chatRepository.findById(chatId)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(EntityNotFoundException::new);
 
         if (!foundChat.getUsers().contains(loggedUser))
             throw new AccessDeniedException("chat does not belong to logged user");
@@ -67,10 +68,10 @@ public class ChatServiceImpl implements ChatService {
         UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken).orElse(null);
 
         UserEntity foundMember = userRepository.findById(memberId)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         ChatEntity foundChat = chatRepository.findById(chatId)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(EntityNotFoundException::new);
 
         if (!foundChat.getUsers().contains(loggedUser))
             throw new AccessDeniedException("chat does not belong to logged user");
@@ -89,10 +90,10 @@ public class ChatServiceImpl implements ChatService {
         UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken).orElse(null);
 
         UserEntity foundMember = userRepository.findById(memberId)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         ChatEntity foundChat = chatRepository.findById(chatId)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(EntityNotFoundException::new);
 
         if (!foundChat.getUsers().contains(loggedUser))
             throw new AccessDeniedException("chat does not belong to logged user");
@@ -109,11 +110,11 @@ public class ChatServiceImpl implements ChatService {
     public ChatDTO createChat(ChatDTO chatDTO, String jwtToken) {
         List<UserEntity> userList = chatDTO.getUserIds().stream()
                 .map(userId -> userRepository.findById(userId)
-                        .orElseThrow(NotFoundException::new))
+                        .orElseThrow(() -> new UserNotFoundException("user not found")))
                 .toList();
 
         UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         if (!userList.contains(loggedUser))
             throw new AccessDeniedException("logged user is not a member of requested chat");
@@ -134,9 +135,10 @@ public class ChatServiceImpl implements ChatService {
         UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken).orElse(null);
 
         if(loggedUser == null)
-            throw new NotFoundException("user not found");
+            throw new UserNotFoundException("user not found");
 
-        ChatEntity foundChatEntity = chatRepository.findById(chatId).orElseThrow(NotFoundException::new);
+        ChatEntity foundChatEntity = chatRepository.findById(chatId)
+                .orElseThrow(EntityNotFoundException::new);
 
         if (!foundChatEntity.getUsers().contains(loggedUser))
             throw new AccessDeniedException("chat does not belong to logged user");

@@ -1,9 +1,9 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.exception.NotFoundException;
 import dev.thural.quietspacebackend.entity.PostEntity;
 import dev.thural.quietspacebackend.entity.PostLikeEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.model.PostLikeDTO;
 import dev.thural.quietspacebackend.repository.PostLikeRepository;
 import dev.thural.quietspacebackend.repository.PostRepository;
@@ -46,8 +46,10 @@ public class PostLikeServiceImpl implements PostLikeService {
         if (isPostLikeExists) {
             postLikeRepository.deleteById(postLikeDTO.getId());
         } else {
-            UserEntity userEntity = userRepository.findById(likeUserId).orElseThrow(NotFoundException::new);
-            PostEntity postEntity = postRepository.findById(likePostId).orElseThrow(NotFoundException::new);
+            UserEntity userEntity = userRepository.findById(likeUserId)
+                    .orElseThrow(() -> new UserNotFoundException("user not found"));
+            PostEntity postEntity = postRepository.findById(likePostId)
+                    .orElseThrow(() -> new UserNotFoundException("user not found"));
 
             PostLikeEntity postLikeEntity = new PostLikeEntity();
 
@@ -66,6 +68,7 @@ public class PostLikeServiceImpl implements PostLikeService {
 
     private UserEntity getUserEntityByToken(String jwtToken) {
         String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
-        return userRepository.findUserEntityByEmail(loggedUserEmail).orElseThrow(NotFoundException::new);
+        return userRepository.findUserEntityByEmail(loggedUserEmail)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
     }
 }

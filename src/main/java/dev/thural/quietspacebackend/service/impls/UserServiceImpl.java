@@ -1,6 +1,6 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.exception.NotFoundException;
+import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.utils.JwtProvider;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.UserMapper;
@@ -91,13 +91,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<UserEntity> findUserByJwt(String jwt) {
         String email = JwtProvider.getEmailFromJwtToken(jwt);
-        UserEntity userEntity = userRepository.findUserEntityByEmail(email).orElseThrow(NotFoundException::new);
+        UserEntity userEntity = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
         return Optional.of(userEntity);
     }
 
     @Override
     public Optional<UserDTO> findUserDtoByJwt(String jwt) {
-        UserEntity founUserEntity = findUserByJwt(jwt).orElseThrow(NotFoundException::new);
+        UserEntity founUserEntity = findUserByJwt(jwt)
+                .orElseThrow(() -> new UserNotFoundException("user does not exist"));
         return Optional.of(userMapper.userEntityToDto(founUserEntity));
     }
 
@@ -117,7 +119,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserDTO> getById(UUID id) {
-        UserEntity userEntity = userRepository.findById(id).orElseThrow(NotFoundException::new);
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
         UserDTO userDTO = userMapper.userEntityToDto(userEntity);
         return Optional.of(userDTO);
     }
@@ -137,7 +140,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean deleteOne(UUID userId, String jwtToken) {
 
-        UserEntity loggedUser = findUserByJwt(jwtToken).orElseThrow(NotFoundException::new);
+        UserEntity loggedUser = findUserByJwt(jwtToken)
+                .orElseThrow(() -> new UserNotFoundException("user does not exist"));
 
         if (loggedUser.getRole().equals("admin")){
             userRepository.deleteById(userId);
@@ -154,7 +158,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void patchOne(UserDTO userDTO, String jwtToken) {
-        UserEntity loggedUserEntity = findUserByJwt(jwtToken).orElseThrow(NotFoundException::new);
+        UserEntity loggedUserEntity = findUserByJwt(jwtToken)
+                .orElseThrow(() -> new UserNotFoundException("user does not exist"));
 
         if (StringUtils.hasText(userDTO.getUsername()))
             loggedUserEntity.setUsername(userDTO.getUsername());

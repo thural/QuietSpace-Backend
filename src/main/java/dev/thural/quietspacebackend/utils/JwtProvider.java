@@ -1,7 +1,6 @@
 package dev.thural.quietspacebackend.utils;
 
 import dev.thural.quietspacebackend.constant.JwtConstant;
-import dev.thural.quietspacebackend.exception.NotFoundException;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import io.jsonwebtoken.Claims;
@@ -9,6 +8,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -45,7 +45,8 @@ public class JwtProvider {
 
     public Optional<UserEntity> findUserByJwt(String jwt) {
         String email = JwtProvider.getEmailFromJwtToken(jwt);
-        UserEntity userEntity = userRepository.findUserEntityByEmail(email).orElseThrow(NotFoundException::new);
+        UserEntity userEntity = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("user with this email not found"));
         return Optional.of(userEntity);
     }
 }
