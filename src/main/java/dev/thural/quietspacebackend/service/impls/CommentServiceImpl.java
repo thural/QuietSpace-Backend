@@ -1,6 +1,6 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.controller.NotFoundException;
+import dev.thural.quietspacebackend.exception.NotFoundException;
 import dev.thural.quietspacebackend.entity.CommentEntity;
 import dev.thural.quietspacebackend.entity.PostEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -23,7 +22,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static dev.thural.quietspacebackend.utils.CustomPageProvider.buildCustomPageRequest;
-import static dev.thural.quietspacebackend.utils.JwtProvider.getEmailFromJwtToken;
 
 @Service
 @RequiredArgsConstructor

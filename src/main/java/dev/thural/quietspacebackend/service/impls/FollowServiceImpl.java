@@ -1,6 +1,6 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.controller.NotFoundException;
+import dev.thural.quietspacebackend.exception.NotFoundException;
 import dev.thural.quietspacebackend.entity.FollowEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.FollowMapper;

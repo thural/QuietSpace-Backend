@@ -1,15 +1,13 @@
 package dev.thural.quietspacebackend.utils;
 
 import dev.thural.quietspacebackend.constant.JwtConstant;
-import dev.thural.quietspacebackend.controller.NotFoundException;
+import dev.thural.quietspacebackend.exception.NotFoundException;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 

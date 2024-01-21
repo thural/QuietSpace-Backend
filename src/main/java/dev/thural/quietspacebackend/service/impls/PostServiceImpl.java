@@ -1,6 +1,6 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.controller.NotFoundException;
+import dev.thural.quietspacebackend.exception.NotFoundException;
 import dev.thural.quietspacebackend.utils.JwtProvider;
 import dev.thural.quietspacebackend.entity.PostEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;

@@ -1,6 +1,6 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.controller.NotFoundException;
+import dev.thural.quietspacebackend.exception.NotFoundException;
 import dev.thural.quietspacebackend.entity.ChatEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.ChatMapper;
@@ -10,7 +10,6 @@ import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.ChatService;
 import dev.thural.quietspacebackend.utils.JwtProvider;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -72,7 +71,6 @@ public class ChatServiceImpl implements ChatService {
 
         ChatEntity foundChat = chatRepository.findById(chatId)
                 .orElseThrow(NotFoundException::new);
-
 
         if (!foundChat.getUsers().contains(loggedUser))
             throw new AccessDeniedException("chat does not belong to logged user");
