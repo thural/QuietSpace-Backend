@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,15 +78,15 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundExceptions(Exception e) {
-        ResponseEntity.BodyBuilder responseEntity = ResponseEntity.badRequest();// 404
+        HttpStatus status = HttpStatus.NOT_FOUND; // 404
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .message(e.getMessage())
-                .code(404)
-                .build();
-
-        responseEntity.body(errorResponse);
-        return responseEntity.build();
+        return new ResponseEntity<>(
+                ErrorResponse.builder()
+                        .status(status.name())
+                        .message(e.getMessage())
+                        .code(404)
+                        .timestamp(new Date())
+                        .build(), status);
     }
 
     @ExceptionHandler(CustomParameterConstraintException.class)
