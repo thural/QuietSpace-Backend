@@ -7,9 +7,11 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.TransactionSystemException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -58,21 +60,14 @@ public class CustomExceptionHandler {
         return ResponseEntity.badRequest().body(errorList);
     }
 
-
     @ExceptionHandler(CustomDataNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCustomDataNotFoundExceptions(Exception e) {
         HttpStatus status = HttpStatus.NOT_FOUND;
 
-        // converting the stack trace to String
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(stringWriter);
-        e.printStackTrace(printWriter);
-        String stackTrace = stringWriter.toString();
-
         return new ResponseEntity<>(ErrorResponse.builder()
-                .status(status.toString())
+                .code(404)
+                .status(status.name())
                 .message(e.getMessage())
-                .stackTrace(stackTrace)
                 .build(), status);
     }
 
@@ -83,7 +78,7 @@ public class CustomExceptionHandler {
         return new ResponseEntity<>(
                 ErrorResponse.builder()
                         .status(status.name())
-                        .message(e.getMessage())
+                        .message("the requested resource not found: " + e.getMessage())
                         .code(404)
                         .timestamp(new Date())
                         .build(), status);
@@ -92,57 +87,48 @@ public class CustomExceptionHandler {
     @ExceptionHandler(CustomParameterConstraintException.class)
     public ResponseEntity<ErrorResponse> handleCustomParameterConstraintExceptions(Exception e) {
         HttpStatus status = HttpStatus.BAD_REQUEST; // 400
+
         return new ResponseEntity<>(
                 ErrorResponse.builder()
-                        .status(status.toString())
-                        .message(e.getMessage())
+                        .code(400)
+                        .message("A parameter constraint error occurred: " + e.getMessage())
+                        .status(status.name())
                         .build(),
                 status);
     }
 
     @ExceptionHandler(CustomErrorException.class)
     public ResponseEntity<ErrorResponse> handleCustomErrorExceptions(Exception e) {
-        // casting the generic Exception e to CustomErrorException
         CustomErrorException customErrorException = (CustomErrorException) e;
 
         HttpStatus status = customErrorException.getStatus();
 
-        // converting the stack trace to String
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(stringWriter);
-        customErrorException.printStackTrace(printWriter);
-        String stackTrace = stringWriter.toString();
-
-        return new ResponseEntity<>(
-                ErrorResponse.builder()
-                        .message(customErrorException.getMessage())
-                        .stackTrace(stackTrace)
-                        .data(customErrorException.getData())
-                        .build(),
-                status
-        );
+        return ResponseEntity.internalServerError()
+                .body(ErrorResponse.builder()
+                        .code(500)
+                        .status(status.name())
+                        .message("An unexpected error occurred: " + e.getMessage())
+                        .timestamp(new Date())
+                        .build()
+                );
     }
 
     // fallback method
     @ExceptionHandler(Exception.class) // exception handled
-    public ResponseEntity handleExceptions(Exception e) {
+    public ResponseEntity handleExceptions(Exception exception) {
 
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR; // 500
 
-        // converting the stack trace to String
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(stringWriter);
-        e.printStackTrace(printWriter);
-        String stackTrace = stringWriter.toString();
-
-        return new ResponseEntity<>(
-                ErrorResponse.builder()
+        return ResponseEntity.internalServerError()
+                .body(ErrorResponse.builder()
                         .code(500)
-                        .status(status.toString())
-                        .message(e.getMessage())
-                        .stackTrace(stackTrace)
-                        .build(),
-                status
-        );
+                        .status(status.name())
+                        .message("An unexpected error occurred: " + exception.getMessage())
+                        .timestamp(new Date())
+                        .build()
+                );
     }
+
+
+
 }
