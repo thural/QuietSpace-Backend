@@ -1,5 +1,9 @@
 package dev.thural.quietspacebackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -16,6 +20,9 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class PostLikeEntity {
 
     @Id
@@ -28,9 +35,11 @@ public class PostLikeEntity {
     @Version
     private Integer version;
 
+    @JsonIgnore
     @ManyToOne
     private UserEntity user;
 
+    @JsonIgnore
     @ManyToOne
     private PostEntity post;
 
