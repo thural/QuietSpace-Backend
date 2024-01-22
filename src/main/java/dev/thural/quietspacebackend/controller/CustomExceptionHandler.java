@@ -61,7 +61,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(CustomDataNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCustomDataNotFoundExceptions(Exception e) {
-        HttpStatus status = HttpStatus.NOT_FOUND; // 404
+        HttpStatus status = HttpStatus.NOT_FOUND;
 
         // converting the stack trace to String
         StringWriter stringWriter = new StringWriter();

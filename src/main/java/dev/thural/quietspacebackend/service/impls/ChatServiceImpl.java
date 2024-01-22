@@ -87,7 +87,8 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void removeMemberWithId(UUID memberId, UUID chatId, String jwtToken) {
 
-        UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken).orElse(null);
+        UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken)
+                .orElseThrow(() -> new AccessDeniedException("logged user does not exist"));
 
         UserEntity foundMember = userRepository.findById(memberId)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
