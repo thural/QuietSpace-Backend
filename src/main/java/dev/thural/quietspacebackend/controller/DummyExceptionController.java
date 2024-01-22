@@ -44,4 +44,9 @@ public class DummyExceptionController {
         // simulating a generic error
         throw new RuntimeException("Generic Exception");
     }
+
+    @GetMapping("admin-page")
+    public ResponseEntity adminAccessTest(){
+        return new ResponseEntity("access has been granted", HttpStatus.OK);
+    }
 }
