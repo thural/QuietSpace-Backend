@@ -1,21 +1,18 @@
 package dev.thural.quietspacebackend.controller;
 
-import dev.thural.quietspacebackend.error.ErrorResponse;
+import dev.thural.quietspacebackend.model.response.ErrorResponse;
 import dev.thural.quietspacebackend.exception.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.TransactionSystemException;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +59,18 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentialsExcpetion(BadCredentialsException e){
+    public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException e){
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+
+        return new ResponseEntity<>(ErrorResponse.builder()
+                .code(401)
+                .status(status.name())
+                .message(e.getMessage())
+                .build(), status);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentialsException(UsernameNotFoundException e){
         HttpStatus status = HttpStatus.UNAUTHORIZED;
 
         return new ResponseEntity<>(ErrorResponse.builder()
@@ -84,7 +92,7 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFoundExceptions(Exception e) {
+    public ResponseEntity<ErrorResponse> handleUserNotFoundExceptions(UserNotFoundException e) {
         HttpStatus status = HttpStatus.NOT_FOUND; // 404
 
         return new ResponseEntity<>(
