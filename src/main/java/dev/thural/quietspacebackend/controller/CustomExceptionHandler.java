@@ -6,6 +6,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -58,6 +59,17 @@ public class CustomExceptionHandler {
                     return errorMap;
                 }).collect(Collectors.toList());
         return ResponseEntity.badRequest().body(errorList);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentialsExcpetion(BadCredentialsException e){
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+
+        return new ResponseEntity<>(ErrorResponse.builder()
+                .code(401)
+                .status(status.name())
+                .message(e.getMessage())
+                .build(), status);
     }
 
     @ExceptionHandler(CustomDataNotFoundException.class)
