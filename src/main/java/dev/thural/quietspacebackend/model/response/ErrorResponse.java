@@ -1,4 +1,4 @@
-package dev.thural.quietspacebackend.error;
+package dev.thural.quietspacebackend.model.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;

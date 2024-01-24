@@ -17,4 +17,6 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
 
     @Query("SELECT u FROM UserEntity u WHERE u.username LIKE %:query% OR u.email LIKE %:query%")
     Page<UserEntity> findAllByQuery(String query, PageRequest pageRequest);
+
+    Optional<UserEntity> findUserByUsername(String username);
 }
