@@ -16,6 +16,8 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@RequiredArgsConstructor
+@Table(name = "token")
 public class TokenEntity {
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)

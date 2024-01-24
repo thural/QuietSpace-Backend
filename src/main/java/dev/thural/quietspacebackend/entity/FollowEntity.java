@@ -16,6 +16,8 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@RequiredArgsConstructor
+@Table(name = "follow")
 public class FollowEntity {
 
     @Id

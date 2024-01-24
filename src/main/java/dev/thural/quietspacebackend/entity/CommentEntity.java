@@ -20,6 +20,8 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@RequiredArgsConstructor
+@Table(name = "comment")
 public class CommentEntity {
 
     @Id

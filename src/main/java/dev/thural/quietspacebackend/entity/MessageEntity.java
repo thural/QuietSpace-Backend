@@ -18,6 +18,8 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@RequiredArgsConstructor
+@Table(name = "message")
 public class MessageEntity {
 
     @Id
@@ -31,7 +33,6 @@ public class MessageEntity {
     private Integer version;
 
     @ManyToOne
-    @JsonIgnore
     private ChatEntity chat;
 
     @NotNull

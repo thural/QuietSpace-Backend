@@ -17,6 +17,8 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@RequiredArgsConstructor
+@Table(name = "comment_like")
 public class CommentLikeEntity {
 
     @Id
