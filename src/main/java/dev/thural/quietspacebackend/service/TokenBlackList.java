@@ -1,6 +1,6 @@
 package dev.thural.quietspacebackend.service;
 
 public interface TokenBlackList {
-    void addToBlacklist(String token);
-    boolean isBlacklisted(String token);
+    void addToBlacklist(String authHeader);
+    boolean isBlacklisted(String authHeader);
 }

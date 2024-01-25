@@ -27,8 +27,8 @@ public class CommentLikeServiceImpl implements CommentLikeService {
     private final CommentLikeRepository commentLikeRepository;
 
     @Override
-    public void toggleCommentLike(String jwtToken, CommentLikeDTO commentLike) {
-        UserEntity loggedUser = getUserEntityByToken(jwtToken);
+    public void toggleCommentLike(String authHeader, CommentLikeDTO commentLike) {
+        UserEntity loggedUser = getUserEntityByToken(authHeader);
         if(loggedUser == null) throw new UserNotFoundException("user not found");
 
         if(!commentLike.getUserId().equals(loggedUser.getId()))
@@ -70,7 +70,7 @@ public class CommentLikeServiceImpl implements CommentLikeService {
     }
 
     private UserEntity getUserEntityByToken(String jwtToken) {
-        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
+        String loggedUserEmail = JwtProvider.extractEmailFromHeaderToken(jwtToken);
         return userRepository.findUserEntityByEmail(loggedUserEmail)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
     }

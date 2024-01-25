@@ -13,13 +13,15 @@ public class TokenBlackListImpl implements TokenBlackList {
     private final TokenRepository tokenRepository;
 
     @Override
-    public void addToBlacklist(String token) {
+    public void addToBlacklist(String authHeader) {
+        String token = authHeader.substring(7);
         boolean isBlacklisted = tokenRepository.existsByJwtToken(token);
         if (!isBlacklisted) tokenRepository.save(TokenEntity.builder().jwtToken(token).build());
     }
 
     @Override
-    public boolean isBlacklisted(String token) {
+    public boolean isBlacklisted(String authHeader) {
+        String token = authHeader.substring(7);
         return tokenRepository.existsByJwtToken(token);
     }
 }

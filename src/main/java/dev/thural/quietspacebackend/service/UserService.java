@@ -18,16 +18,16 @@ public interface UserService {
 
     Optional<UserDTO> updateOne(UserEntity loggedUser, UserDTO user);
 
-    Boolean deleteOne(UUID userId, String jwtToken);
+    Boolean deleteOne(UUID userId, String authHeader);
 
-    void patchOne(UserDTO userDTO, String jwtToken);
+    void patchOne(UserDTO userDTO, String authHeader);
 
     Page<UserDTO> listUsersByQuery(String query, Integer pageNumber, Integer pageSize);
 
     AuthResponse getByLoginRequest(LoginRequest loginRequest);
 
-    Optional<UserEntity> findUserByJwt(String jwt);
+    Optional<UserEntity> findUserByJwt(String authHeader);
 
-    Optional<UserDTO> findUserDtoByJwt(String jwt);
+    Optional<UserDTO> findUserDtoByJwt(String authHeader);
 
 }

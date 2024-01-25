@@ -24,29 +24,29 @@ public class FollowController {
 
 
     @RequestMapping(value = FOLLOW_USER_TOGGLE, method = RequestMethod.POST)
-    ResponseEntity<?> toggleFollow(@RequestHeader("Authorization") String jwt,
+    ResponseEntity<?> toggleFollow(@RequestHeader("Authorization") String authHeader,
                                    @PathVariable("userId") UUID followedUserId) {
 
-        userService.findUserByJwt(jwt).ifPresent(
-                (loggedUser) -> followService.toggleFollow(loggedUser.getId(), followedUserId, jwt));
+        userService.findUserByJwt(authHeader).ifPresent(
+                (loggedUser) -> followService.toggleFollow(loggedUser.getId(), followedUserId, authHeader));
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = FOLLOW_PATH_ID + "/followings", method = RequestMethod.GET)
-    Page<FollowDTO> listFollowings(@RequestHeader("Authorization") String jwt,
+    Page<FollowDTO> listFollowings(@RequestHeader("Authorization") String authHeader,
                                    @PathVariable("userId") UUID userId,
                                    @RequestParam(name = "page-number", required = false) Integer pageNumber,
                                    @RequestParam(name = "page-size", required = false) Integer pageSize) {
-        return followService.listFollowings(userId, jwt, pageNumber, pageSize);
+        return followService.listFollowings(userId, authHeader, pageNumber, pageSize);
     }
 
     @RequestMapping(value = FOLLOW_PATH_ID + "/followers", method = RequestMethod.GET)
-    Page<FollowDTO> listFollowers(@RequestHeader("Authorization") String jwt,
+    Page<FollowDTO> listFollowers(@RequestHeader("Authorization") String authHeader,
                                   @PathVariable("userId") UUID userId,
                                   @RequestParam(name = "page-number", required = false) Integer pageNumber,
                                   @RequestParam(name = "page-size", required = false) Integer pageSize) {
-        return followService.listFollowers(userId, jwt, pageNumber, pageSize);
+        return followService.listFollowers(userId, authHeader, pageNumber, pageSize);
     }
 
 

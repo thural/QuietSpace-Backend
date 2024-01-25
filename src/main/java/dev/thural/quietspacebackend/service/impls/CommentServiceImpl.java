@@ -40,8 +40,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDTO addOne(CommentDTO comment, String jwtToken) {
-        UserEntity foundUser = getUserEntityByToken(jwtToken);
+    public CommentDTO addOne(CommentDTO comment, String authHeader) {
+        UserEntity foundUser = getUserEntityByToken(authHeader);
         Optional<PostEntity> foundPost = postRepository.findById(comment.getPostId());
 
         if(!foundUser.getId().equals(comment.getUserId()))
@@ -64,8 +64,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void updateOne(UUID commentId, CommentDTO comment, String jwtToken) {
-        UserEntity loggedUserEntity = getUserEntityByToken(jwtToken);
+    public void updateOne(UUID commentId, CommentDTO comment, String authHeader) {
+        UserEntity loggedUserEntity = getUserEntityByToken(authHeader);
         CommentEntity existingCommentEntity = commentRepository.findById(commentId)
                 .orElseThrow(EntityNotFoundException::new);
 
@@ -79,8 +79,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void deleteOne(UUID commentId, String jwtToken) {
-        UserEntity loggedUserEntity = getUserEntityByToken(jwtToken);
+    public void deleteOne(UUID commentId, String authHeader) {
+        UserEntity loggedUserEntity = getUserEntityByToken(authHeader);
         CommentEntity existingCommentEntity = commentRepository.findById(commentId)
                 .orElseThrow(EntityNotFoundException::new);
 
@@ -90,8 +90,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void patchOne(UUID commentId, CommentDTO comment, String jwtToken) {
-        UserEntity loggedUserEntity = getUserEntityByToken(jwtToken);
+    public void patchOne(UUID commentId, CommentDTO comment, String authHeader) {
+        UserEntity loggedUserEntity = getUserEntityByToken(authHeader);
         CommentEntity existingCommentEntity = commentRepository.findById(commentId)
                 .orElseThrow(EntityNotFoundException::new);
 
@@ -103,7 +103,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private UserEntity getUserEntityByToken(String jwtToken) {
-        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
+        String loggedUserEmail = JwtProvider.extractEmailFromHeaderToken(jwtToken);
         return userRepository.findUserEntityByEmail(loggedUserEmail)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
     }

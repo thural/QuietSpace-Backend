@@ -6,15 +6,15 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ChatService {
-    List<ChatDTO> getChatsByUserId(UUID userId, String jwtToken);
+    List<ChatDTO> getChatsByUserId(UUID userId, String authHeader);
 
-    void deleteChatById(UUID chatId, String jwtToken);
+    void deleteChatById(UUID chatId, String authHeader);
 
-    void addMemberWithId(UUID memberId, UUID chatId, String jwtToken);
+    void addMemberWithId(UUID memberId, UUID chatId, String authHeader);
 
-    void removeMemberWithId(UUID memberId, UUID chatId, String jwtToken);
+    void removeMemberWithId(UUID memberId, UUID chatId, String authHeader);
 
-    ChatDTO createChat(ChatDTO chatDTO, String jwtToken);
+    ChatDTO createChat(ChatDTO chatDTO, String authHeader);
 
-    ChatDTO getChatById(UUID chatId, String jwtToken);
+    ChatDTO getChatById(UUID chatId, String authHeader);
 }

@@ -32,8 +32,8 @@ public class PostLikeServiceImpl implements PostLikeService {
     }
 
     @Override
-    public void togglePostLike(String jwtToken, PostLikeDTO postLikeDTO) {
-        UserEntity loggedUser = getUserEntityByToken(jwtToken);
+    public void togglePostLike(String authHeader, PostLikeDTO postLikeDTO) {
+        UserEntity loggedUser = getUserEntityByToken(authHeader);
 
         if (!postLikeDTO.getUserId().equals(loggedUser.getId()))
             throw new AccessDeniedException("post like does not belong to logged user");
@@ -67,7 +67,7 @@ public class PostLikeServiceImpl implements PostLikeService {
     }
 
     private UserEntity getUserEntityByToken(String jwtToken) {
-        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
+        String loggedUserEmail = JwtProvider.extractEmailFromHeaderToken(jwtToken);
         return userRepository.findUserEntityByEmail(loggedUserEmail)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
     }

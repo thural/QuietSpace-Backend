@@ -29,9 +29,9 @@ public class ChatServiceImpl implements ChatService {
 
 
     @Override
-    public List<ChatDTO> getChatsByUserId(UUID memberId, String jwtToken) {
+    public List<ChatDTO> getChatsByUserId(UUID memberId, String authHeader) {
 
-        UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken).orElse(null);
+        UserEntity loggedUser = jwtProvider.findUserByJwt(authHeader).orElse(null);
 
         if(loggedUser == null)
             throw new UserNotFoundException("user not found");
@@ -45,9 +45,9 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void deleteChatById(UUID chatId, String jwtToken) {
+    public void deleteChatById(UUID chatId, String authHeader) {
 
-        UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken).orElse(null);
+        UserEntity loggedUser = jwtProvider.findUserByJwt(authHeader).orElse(null);
 
         if(loggedUser == null)
             throw new UserNotFoundException("user not found");
@@ -63,9 +63,9 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void addMemberWithId(UUID memberId, UUID chatId, String jwtToken) {
+    public void addMemberWithId(UUID memberId, UUID chatId, String authHeader) {
 
-        UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken).orElse(null);
+        UserEntity loggedUser = jwtProvider.findUserByJwt(authHeader).orElse(null);
 
         UserEntity foundMember = userRepository.findById(memberId)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
@@ -85,9 +85,9 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void removeMemberWithId(UUID memberId, UUID chatId, String jwtToken) {
+    public void removeMemberWithId(UUID memberId, UUID chatId, String authHeader) {
 
-        UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken)
+        UserEntity loggedUser = jwtProvider.findUserByJwt(authHeader)
                 .orElseThrow(() -> new AccessDeniedException("logged user does not exist"));
 
         UserEntity foundMember = userRepository.findById(memberId)
@@ -108,13 +108,13 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatDTO createChat(ChatDTO chatDTO, String jwtToken) {
+    public ChatDTO createChat(ChatDTO chatDTO, String authHeader) {
         List<UserEntity> userList = chatDTO.getUserIds().stream()
                 .map(userId -> userRepository.findById(userId)
                         .orElseThrow(() -> new UserNotFoundException("user not found")))
                 .toList();
 
-        UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken)
+        UserEntity loggedUser = jwtProvider.findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         if (!userList.contains(loggedUser))
@@ -132,8 +132,8 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatDTO getChatById(UUID chatId, String jwtToken) {
-        UserEntity loggedUser = jwtProvider.findUserByJwt(jwtToken).orElse(null);
+    public ChatDTO getChatById(UUID chatId, String authHeader) {
+        UserEntity loggedUser = jwtProvider.findUserByJwt(authHeader).orElse(null);
 
         if(loggedUser == null)
             throw new UserNotFoundException("user not found");

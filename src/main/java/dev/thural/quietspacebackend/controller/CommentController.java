@@ -37,34 +37,34 @@ public class CommentController {
     }
 
     @RequestMapping(value = COMMENT_PATH, method = RequestMethod.POST)
-    ResponseEntity<?> createComment(@RequestHeader("Authorization") String jwtToken,
+    ResponseEntity<?> createComment(@RequestHeader("Authorization") String authHeader,
                                     @RequestBody @Validated CommentDTO comment) {
-        CommentDTO savedComment = commentService.addOne(comment, jwtToken);
+        CommentDTO savedComment = commentService.addOne(comment, authHeader);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", COMMENT_PATH + "/" + savedComment.getId());
         return new ResponseEntity<>(savedComment, headers, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.PUT)
-    ResponseEntity<?> putComment(@RequestHeader("Authorization") String jwtToken,
+    ResponseEntity<?> putComment(@RequestHeader("Authorization") String authHeader,
                                  @PathVariable("commentId") UUID commentId,
                                  @RequestBody @Validated CommentDTO comment) {
-        commentService.updateOne(commentId, comment, jwtToken);
+        commentService.updateOne(commentId, comment, authHeader);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.DELETE)
-    ResponseEntity<?> deleteComment(@RequestHeader("Authorization") String jwtToken,
+    ResponseEntity<?> deleteComment(@RequestHeader("Authorization") String authHeader,
                                     @PathVariable("commentId") UUID commentId) {
-        commentService.deleteOne(commentId, jwtToken);
+        commentService.deleteOne(commentId, authHeader);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.PATCH)
-    ResponseEntity<?> patchComment(@RequestHeader("Authorization") String jwtToken,
+    ResponseEntity<?> patchComment(@RequestHeader("Authorization") String authHeader,
                                    @PathVariable("commentId") UUID commentId,
                                    @RequestBody CommentDTO comment) {
-        commentService.patchOne(commentId, comment, jwtToken);
+        commentService.patchOne(commentId, comment, authHeader);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

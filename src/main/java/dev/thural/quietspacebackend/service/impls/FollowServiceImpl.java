@@ -33,8 +33,8 @@ public class FollowServiceImpl implements FollowService {
     private final UserRepository userRepository;
 
     @Override
-    public Page<FollowDTO> listFollowings(UUID userId, String jwtToken, Integer pageNumber, Integer pageSize) {
-        checkUserValidity(userId, jwtToken);
+    public Page<FollowDTO> listFollowings(UUID userId, String authHeader, Integer pageNumber, Integer pageSize) {
+        checkUserValidity(userId, authHeader);
 
         PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
 
@@ -44,8 +44,8 @@ public class FollowServiceImpl implements FollowService {
     }
 
     @Override
-    public Page<FollowDTO> listFollowers(UUID userId, String jwtToken, Integer pageNumber, Integer pageSize) {
-        checkUserValidity(userId, jwtToken);
+    public Page<FollowDTO> listFollowers(UUID userId, String authHeader, Integer pageNumber, Integer pageSize) {
+        checkUserValidity(userId, authHeader);
 
         PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
 
@@ -64,8 +64,8 @@ public class FollowServiceImpl implements FollowService {
     }
 
     @Override
-    public void toggleFollow(UUID followingUserId, UUID followedUserId, String jwtToken) {
-        checkUserValidity(followingUserId,jwtToken);
+    public void toggleFollow(UUID followingUserId, UUID followedUserId, String authHeader) {
+        checkUserValidity(followingUserId, authHeader);
 
         if( followRepository.existsByFollowerIdAndFollowingId(followingUserId, followedUserId)){
 

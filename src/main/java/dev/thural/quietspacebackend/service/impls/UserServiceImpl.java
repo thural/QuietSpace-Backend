@@ -98,16 +98,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserEntity> findUserByJwt(String jwt) {
-        String email = JwtProvider.extractEmailFromToken(jwt);
+    public Optional<UserEntity> findUserByJwt(String authHeader) {
+        String email = JwtProvider.extractEmailFromHeaderToken(authHeader);
         UserEntity userEntity = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
         return Optional.of(userEntity);
     }
 
     @Override
-    public Optional<UserDTO> findUserDtoByJwt(String jwt) {
-        UserEntity founUserEntity = findUserByJwt(jwt)
+    public Optional<UserDTO> findUserDtoByJwt(String authHeader) {
+        UserEntity founUserEntity = findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("user does not exist"));
         return Optional.of(userMapper.userEntityToDto(founUserEntity));
     }
@@ -147,9 +147,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean deleteOne(UUID userId, String jwtToken) {
+    public Boolean deleteOne(UUID userId, String authHeader) {
 
-        UserEntity loggedUser = findUserByJwt(jwtToken)
+        UserEntity loggedUser = findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("user does not exist"));
 
         if (loggedUser.getRole().equals("admin")){
@@ -166,8 +166,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void patchOne(UserDTO userDTO, String jwtToken) {
-        UserEntity loggedUserEntity = findUserByJwt(jwtToken)
+    public void patchOne(UserDTO userDTO, String authHeader) {
+        UserEntity loggedUserEntity = findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("user does not exist"));
 
         if (StringUtils.hasText(userDTO.getUsername()))

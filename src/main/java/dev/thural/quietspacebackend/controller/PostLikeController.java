@@ -28,9 +28,9 @@ public class PostLikeController {
     }
 
     @RequestMapping(value = POST_LIKE_PATH + "/toggle-like", method = RequestMethod.POST)
-    ResponseEntity<?> togglePostLike(@RequestHeader("Authorization") String jwtToken,
+    ResponseEntity<?> togglePostLike(@RequestHeader("Authorization") String authHeader,
                                      @RequestBody PostLikeDTO postLikeDTO) {
-        postLikeService.togglePostLike(jwtToken, postLikeDTO);
+        postLikeService.togglePostLike(authHeader, postLikeDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

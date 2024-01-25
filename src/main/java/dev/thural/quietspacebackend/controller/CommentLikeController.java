@@ -29,9 +29,9 @@ public class CommentLikeController {
     }
 
     @RequestMapping(value = COMMENT_LIKE_PATH + "/toggle-like", method = RequestMethod.POST)
-    ResponseEntity<?> toggleCommentLike(@RequestHeader("Authorization") String jwtToken,
+    ResponseEntity<?> toggleCommentLike(@RequestHeader("Authorization") String authHeader,
                                         @RequestBody @Validated CommentLikeDTO commentLikeDTO) {
-        commentLikeService.toggleCommentLike(jwtToken, commentLikeDTO);
+        commentLikeService.toggleCommentLike(authHeader, commentLikeDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

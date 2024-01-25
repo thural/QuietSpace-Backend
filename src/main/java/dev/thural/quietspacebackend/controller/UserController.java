@@ -57,29 +57,31 @@ public class UserController {
     }
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.PUT)
-    ResponseEntity<?> putUser(@RequestHeader("Authorization") String jwt, @RequestBody @Validated UserDTO userDTO) {
-        userService.findUserByJwt(jwt).ifPresent(
+    ResponseEntity<?> putUser(@RequestHeader("Authorization") String authHeader,
+                              @RequestBody @Validated UserDTO userDTO) {
+        userService.findUserByJwt(authHeader).ifPresent(
                 (loggedUser) -> userService.updateOne(loggedUser, userDTO));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.DELETE)
-    ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String jwt, @PathVariable("userId") UUID id) {
-        boolean isDeleted = userService.deleteOne(id, jwt);
-        if (isDeleted) tokenBlackList.addToBlacklist(jwt);
+    ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String authHeader,
+                                 @PathVariable("userId") UUID id) {
+        boolean isDeleted = userService.deleteOne(id, authHeader);
+        if (isDeleted) tokenBlackList.addToBlacklist(authHeader);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.PATCH)
-    ResponseEntity<?> patchUser(@RequestHeader("Authorization") String jwt,
+    ResponseEntity<?> patchUser(@RequestHeader("Authorization") String authHeader,
                                 @RequestBody UserDTO userDTO) {
-        userService.patchOne(userDTO, jwt);
+        userService.patchOne(userDTO, authHeader);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = USER_PATH + "/profile", method = RequestMethod.GET)
-    public UserDTO getUserFromToken(@RequestHeader("Authorization") String jwt) {
-        return userService.findUserDtoByJwt(jwt).orElse(null);
+    public UserDTO getUserFromToken(@RequestHeader("Authorization") String authHeader) {
+        return userService.findUserDtoByJwt(authHeader).orElse(null);
     }
 
     @RequestMapping(value = USER_PATH_ID + "/posts", method = RequestMethod.GET)

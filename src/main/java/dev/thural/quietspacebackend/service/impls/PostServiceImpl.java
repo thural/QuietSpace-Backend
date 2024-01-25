@@ -54,8 +54,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void updateOne(UUID postId, PostDTO post, String jwtToken) {
-        UserEntity loggedUser = getUserEntityByToken(jwtToken);
+    public void updateOne(UUID postId, PostDTO post, String authHeader) {
+        UserEntity loggedUser = getUserEntityByToken(authHeader);
         PostEntity existingPostEntity = postRepository.findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
 
@@ -68,8 +68,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void deleteOne(UUID postId, String jwtToken) {
-        UserEntity loggedUser = getUserEntityByToken(jwtToken);
+    public void deleteOne(UUID postId, String authHeader) {
+        UserEntity loggedUser = getUserEntityByToken(authHeader);
         PostEntity existingPostEntity = postRepository.findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
 
@@ -80,8 +80,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void patchOne(String jwtToken, UUID postId, PostDTO post) {
-        UserEntity loggedUser = getUserEntityByToken(jwtToken);
+    public void patchOne(String authHeader, UUID postId, PostDTO post) {
+        UserEntity loggedUser = getUserEntityByToken(authHeader);
         PostEntity existingPostEntity = postRepository.findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
 
@@ -109,7 +109,7 @@ public class PostServiceImpl implements PostService {
     }
 
     private UserEntity getUserEntityByToken(String jwtToken) {
-        String loggedUserEmail = JwtProvider.getEmailFromJwtToken(jwtToken);
+        String loggedUserEmail = JwtProvider.extractEmailFromHeaderToken(jwtToken);
         return userRepository.findUserEntityByEmail(loggedUserEmail)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
     }

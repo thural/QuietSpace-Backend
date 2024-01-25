@@ -36,8 +36,8 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
-    ResponseEntity<?> logoutUser(@RequestHeader("Authorization") String jwt) {
-        tokenBlackList.addToBlacklist(jwt);
+    ResponseEntity<?> logoutUser(@RequestHeader("Authorization") String authHeader) {
+        tokenBlackList.addToBlacklist(authHeader);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

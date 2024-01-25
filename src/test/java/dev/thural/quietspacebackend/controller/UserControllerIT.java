@@ -171,7 +171,7 @@ class UserControllerIT {
     void testDeleteUser() {
         UserEntity userEntity = userRepository.findAll().get(0);
 
-        ResponseEntity response = userController.deleteUser(userEntity.getId());
+        ResponseEntity<?> response = userController.deleteUser(userEntity.getId().toString());
         assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
 
         assertThat(userRepository.findById(userEntity.getId())).isEmpty();
