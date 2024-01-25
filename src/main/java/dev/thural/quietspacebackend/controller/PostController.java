@@ -31,36 +31,35 @@ public class PostController {
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.GET)
     PostDTO getPostById(@PathVariable("postId") UUID id) {
         Optional<PostDTO> optionalPost = postService.getById(id);
-        PostDTO foundPost = optionalPost.orElse(null);
-        return foundPost;
+        return optionalPost.orElse(null);
     }
 
     @RequestMapping(value = POST_PATH, method = RequestMethod.POST)
-    ResponseEntity createPost(@RequestHeader("Authorization") String jwtToken, @RequestBody @Validated PostDTO post) {
+    ResponseEntity<?> createPost(@RequestHeader("Authorization") String jwtToken, @RequestBody @Validated PostDTO post) {
         PostDTO savedPost = postService.addOne(post, jwtToken);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", POST_PATH + "/" + savedPost.getId());
         System.out.println("post resource location" + headers.get("Location"));
-        return new ResponseEntity(savedPost, headers, HttpStatus.OK);
+        return new ResponseEntity<>(savedPost, headers, HttpStatus.OK);
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PUT)
-    ResponseEntity putPost(@RequestHeader("Authorization") String jwtToken,
-                           @PathVariable("postId") UUID id,
-                           @RequestBody @Validated PostDTO post) {
+    ResponseEntity<?> putPost(@RequestHeader("Authorization") String jwtToken,
+                              @PathVariable("postId") UUID id,
+                              @RequestBody @Validated PostDTO post) {
         postService.updateOne(id, post, jwtToken);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.DELETE)
-    ResponseEntity deletePost(@RequestHeader("Authorization") String jwtToken, @PathVariable("postId") UUID id) {
+    ResponseEntity<?> deletePost(@RequestHeader("Authorization") String jwtToken, @PathVariable("postId") UUID id) {
         postService.deleteOne(id, jwtToken);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PATCH)
-    ResponseEntity patchPost(@RequestHeader("Authorization") String jwtToken, @PathVariable("postId") UUID id, @RequestBody PostDTO post) {
+    ResponseEntity<?> patchPost(@RequestHeader("Authorization") String jwtToken, @PathVariable("postId") UUID id, @RequestBody PostDTO post) {
         postService.patchOne(jwtToken, id, post);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

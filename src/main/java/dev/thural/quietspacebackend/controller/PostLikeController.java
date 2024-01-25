@@ -1,14 +1,10 @@
 package dev.thural.quietspacebackend.controller;
 
-import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.model.PostLikeDTO;
-import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.service.PostLikeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,9 +28,9 @@ public class PostLikeController {
     }
 
     @RequestMapping(value = POST_LIKE_PATH + "/toggle-like", method = RequestMethod.POST)
-    ResponseEntity togglePostLike(@RequestHeader("Authorization") String jwtToken,
-                                  @RequestBody PostLikeDTO postLikeDTO) {
+    ResponseEntity<?> togglePostLike(@RequestHeader("Authorization") String jwtToken,
+                                     @RequestBody PostLikeDTO postLikeDTO) {
         postLikeService.togglePostLike(jwtToken, postLikeDTO);
-        return new ResponseEntity(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

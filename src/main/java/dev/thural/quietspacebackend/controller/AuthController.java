@@ -20,25 +20,25 @@ public class AuthController {
     private final TokenBlackList tokenBlackList;
 
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
-    ResponseEntity signupUser(@Validated @RequestBody UserDTO user) {
+    ResponseEntity<?> signupUser(@Validated @RequestBody UserDTO user) {
         AuthResponse authResponse = userService.addOne(user);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", UserController.USER_PATH + "/" + authResponse.getUserId());
-        return new ResponseEntity(authResponse, headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(authResponse, headers, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    ResponseEntity loginUser(@RequestBody LoginRequest loginRequest) {
+    ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
         AuthResponse authResponse = userService.getByLoginRequest(loginRequest);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", UserController.USER_PATH + "/" + authResponse.getUserId());
-        return new ResponseEntity(authResponse, headers, HttpStatus.OK);
+        return new ResponseEntity<>(authResponse, headers, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
-    ResponseEntity logoutUser(@RequestHeader("Authorization") String jwt) {
+    ResponseEntity<?> logoutUser(@RequestHeader("Authorization") String jwt) {
         tokenBlackList.addToBlacklist(jwt);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

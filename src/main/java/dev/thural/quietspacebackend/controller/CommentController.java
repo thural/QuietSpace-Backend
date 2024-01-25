@@ -25,8 +25,8 @@ public class CommentController {
 
     @RequestMapping(value = COMMENT_PATH + "/post/{postId}", method = RequestMethod.GET)
     Page<CommentDTO> getAllCommentsByPostId(@PathVariable("postId") UUID postId,
-                                          @RequestParam(name = "page-number", required = false) Integer pageNumber,
-                                          @RequestParam(name = "page-size", required = false) Integer pageSize) {
+                                            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+                                            @RequestParam(name = "page-size", required = false) Integer pageSize) {
         return commentService.getAllByPost(postId, pageNumber, pageSize);
     }
 
@@ -37,34 +37,34 @@ public class CommentController {
     }
 
     @RequestMapping(value = COMMENT_PATH, method = RequestMethod.POST)
-    ResponseEntity createComment(@RequestHeader("Authorization") String jwtToken,
-                                 @RequestBody @Validated CommentDTO comment) {
+    ResponseEntity<?> createComment(@RequestHeader("Authorization") String jwtToken,
+                                    @RequestBody @Validated CommentDTO comment) {
         CommentDTO savedComment = commentService.addOne(comment, jwtToken);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", COMMENT_PATH + "/" + savedComment.getId());
-        return new ResponseEntity(savedComment, headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(savedComment, headers, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.PUT)
-    ResponseEntity putComment(@RequestHeader("Authorization") String jwtToken,
-                              @PathVariable("commentId") UUID commentId,
-                              @RequestBody @Validated CommentDTO comment) {
+    ResponseEntity<?> putComment(@RequestHeader("Authorization") String jwtToken,
+                                 @PathVariable("commentId") UUID commentId,
+                                 @RequestBody @Validated CommentDTO comment) {
         commentService.updateOne(commentId, comment, jwtToken);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.DELETE)
-    ResponseEntity deleteComment(@RequestHeader("Authorization") String jwtToken,
-                                 @PathVariable("commentId") UUID commentId) {
+    ResponseEntity<?> deleteComment(@RequestHeader("Authorization") String jwtToken,
+                                    @PathVariable("commentId") UUID commentId) {
         commentService.deleteOne(commentId, jwtToken);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.PATCH)
-    ResponseEntity patchComment(@RequestHeader("Authorization") String jwtToken,
-                                @PathVariable("commentId") UUID commentId,
-                                @RequestBody CommentDTO comment) {
+    ResponseEntity<?> patchComment(@RequestHeader("Authorization") String jwtToken,
+                                   @PathVariable("commentId") UUID commentId,
+                                   @RequestBody CommentDTO comment) {
         commentService.patchOne(commentId, comment, jwtToken);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

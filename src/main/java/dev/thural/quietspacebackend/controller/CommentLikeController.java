@@ -25,14 +25,13 @@ public class CommentLikeController {
 
     @RequestMapping(value = COMMENT_LIKE_PATH + "/users/{userId}", method = RequestMethod.GET)
     List<CommentLikeDTO> getAllCommentLikesByUserId(@PathVariable("userId") UUID userId) {
-        List<CommentLikeDTO> commentLikes = commentLikeService.getAllByUserId(userId);
-        return commentLikes;
+        return commentLikeService.getAllByUserId(userId);
     }
 
     @RequestMapping(value = COMMENT_LIKE_PATH + "/toggle-like", method = RequestMethod.POST)
-    ResponseEntity toggleCommentLike(@RequestHeader("Authorization") String jwtToken,
-                                     @RequestBody @Validated CommentLikeDTO commentLikeDTO) {
+    ResponseEntity<?> toggleCommentLike(@RequestHeader("Authorization") String jwtToken,
+                                        @RequestBody @Validated CommentLikeDTO commentLikeDTO) {
         commentLikeService.toggleCommentLike(jwtToken, commentLikeDTO);
-        return new ResponseEntity(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

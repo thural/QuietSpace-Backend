@@ -6,7 +6,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -23,12 +23,12 @@ import java.util.stream.Collectors;
 public class CustomExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity handleNotFoundException() {
+    public ResponseEntity<?> handleNotFoundException() {
         return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler
-    ResponseEntity handleJPAViolations(TransactionSystemException exception) {
+    ResponseEntity<?> handleJPAViolations(TransactionSystemException exception) {
         ResponseEntity.BodyBuilder responseEntity = ResponseEntity.badRequest();
 
         if (exception.getCause().getCause() instanceof ConstraintViolationException violationException) {
@@ -48,7 +48,7 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    ResponseEntity handleBindErrors(MethodArgumentNotValidException exception) {
+    ResponseEntity<?> handleBindErrors(MethodArgumentNotValidException exception) {
         List<Map<String, String>> errorList = exception.getFieldErrors().stream()
                 .map(fieldError -> {
                     Map<String, String> errorMap = new HashMap<>();
@@ -58,19 +58,8 @@ public class CustomExceptionHandler {
         return ResponseEntity.badRequest().body(errorList);
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException e){
-        HttpStatus status = HttpStatus.UNAUTHORIZED;
-
-        return new ResponseEntity<>(ErrorResponse.builder()
-                .code(401)
-                .status(status.name())
-                .message(e.getMessage())
-                .build(), status);
-    }
-
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentialsException(UsernameNotFoundException e){
+    public ResponseEntity<ErrorResponse> handleBadCredentialsException(RuntimeException e) {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
 
         return new ResponseEntity<>(ErrorResponse.builder()
@@ -79,9 +68,32 @@ public class CustomExceptionHandler {
                 .message(e.getMessage())
                 .build(), status);
     }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(RuntimeException e) {
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+
+        return new ResponseEntity<>(ErrorResponse.builder()
+                .code(401)
+                .status(status.name())
+                .message(e.getMessage())
+                .build(), status);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(RuntimeException e) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+
+        return new ResponseEntity<>(ErrorResponse.builder()
+                .code(403)
+                .status(status.name())
+                .message(e.getMessage())
+                .build(), status);
+    }
+
 
     @ExceptionHandler(CustomDataNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCustomDataNotFoundExceptions(Exception e) {
+    public ResponseEntity<ErrorResponse> handleCustomDataNotFoundExceptions(RuntimeException e) {
         HttpStatus status = HttpStatus.NOT_FOUND;
 
         return new ResponseEntity<>(ErrorResponse.builder()
@@ -92,7 +104,7 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFoundExceptions(UserNotFoundException e) {
+    public ResponseEntity<ErrorResponse> handleUserNotFoundExceptions(RuntimeException e) {
         HttpStatus status = HttpStatus.NOT_FOUND; // 404
 
         return new ResponseEntity<>(
@@ -105,7 +117,7 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(CustomParameterConstraintException.class)
-    public ResponseEntity<ErrorResponse> handleCustomParameterConstraintExceptions(Exception e) {
+    public ResponseEntity<ErrorResponse> handleCustomParameterConstraintExceptions(RuntimeException e) {
         HttpStatus status = HttpStatus.BAD_REQUEST; // 400
 
         return new ResponseEntity<>(
@@ -118,7 +130,7 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(CustomErrorException.class)
-    public ResponseEntity<ErrorResponse> handleCustomErrorExceptions(Exception e) {
+    public ResponseEntity<ErrorResponse> handleCustomErrorExceptions(RuntimeException e) {
         CustomErrorException customErrorException = (CustomErrorException) e;
 
         HttpStatus status = customErrorException.getStatus();
@@ -135,7 +147,7 @@ public class CustomExceptionHandler {
 
     // fallback method
     @ExceptionHandler(Exception.class) // exception handled
-    public ResponseEntity handleExceptions(Exception exception) {
+    public ResponseEntity<ErrorResponse> handleExceptions(RuntimeException exception) {
 
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR; // 500
 
@@ -148,7 +160,6 @@ public class CustomExceptionHandler {
                         .build()
                 );
     }
-
 
 
 }

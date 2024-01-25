@@ -20,7 +20,7 @@ public class ChatController {
 
     @RequestMapping(value = CHAT_PATH + "/{chatId}", method = RequestMethod.GET)
     ChatDTO getSingleChatById(@RequestHeader("Authorization") String jwtToken,
-                              @PathVariable("chatId") UUID chatId){
+                              @PathVariable("chatId") UUID chatId) {
 
         return chatService.getChatById(chatId, jwtToken);
     }
@@ -32,32 +32,32 @@ public class ChatController {
     }
 
     @RequestMapping(value = CHAT_PATH, method = RequestMethod.POST)
-    ResponseEntity createChat(@RequestHeader("Authorization") String jwtToken,
-                                  @RequestBody ChatDTO chatDTO) {
+    ResponseEntity<?> createChat(@RequestHeader("Authorization") String jwtToken,
+                                 @RequestBody ChatDTO chatDTO) {
         ChatDTO createdChatDTO = chatService.createChat(chatDTO, jwtToken);
-        return new ResponseEntity(createdChatDTO, HttpStatus.CREATED);
+        return new ResponseEntity<>(createdChatDTO, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = CHAT_PATH + "/{chatId}/member/add/{userId}", method = RequestMethod.PATCH)
-    ResponseEntity addMemberWithId(@RequestHeader("Authorization") String jwtToken,
-                                   @PathVariable("chatId") UUID chatId,
-                                   @PathVariable("userId") UUID userId) {
+    ResponseEntity<?> addMemberWithId(@RequestHeader("Authorization") String jwtToken,
+                                      @PathVariable("chatId") UUID chatId,
+                                      @PathVariable("userId") UUID userId) {
         chatService.addMemberWithId(userId, chatId, jwtToken);
-        return new ResponseEntity(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @RequestMapping(value = CHAT_PATH + "/{chatId}/member/remove/{userId}", method = RequestMethod.PATCH)
-    ResponseEntity removeMemberWithId(@RequestHeader("Authorization") String jwtToken,
-                                      @PathVariable("chatId") UUID chatId,
-                                      @PathVariable("userId") UUID userId) {
+    ResponseEntity<?> removeMemberWithId(@RequestHeader("Authorization") String jwtToken,
+                                         @PathVariable("chatId") UUID chatId,
+                                         @PathVariable("userId") UUID userId) {
         chatService.removeMemberWithId(userId, chatId, jwtToken);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = CHAT_PATH + "/{chatId}", method = RequestMethod.DELETE)
-    ResponseEntity deleteChatWithId(@RequestHeader("Authorization") String jwtToken,
-                              @PathVariable("chatId") UUID chatId) {
+    ResponseEntity<?> deleteChatWithId(@RequestHeader("Authorization") String jwtToken,
+                                       @PathVariable("chatId") UUID chatId) {
         chatService.deleteChatById(chatId, jwtToken);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

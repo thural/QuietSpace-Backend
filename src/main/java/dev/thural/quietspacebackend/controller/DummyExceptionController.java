@@ -9,7 +9,6 @@ import dev.thural.quietspacebackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,7 +21,7 @@ public class DummyExceptionController {
     private final UserRepository userRepository;
 
     @GetMapping
-    public String home(){
+    public String home() {
         return "hello jwt";
     }
 
@@ -58,18 +57,18 @@ public class DummyExceptionController {
     }
 
     @GetMapping("admin-page")
-    public ResponseEntity adminAccessTest(){
+    public ResponseEntity<?> adminAccessTest() {
 
-        return new ResponseEntity("access has been granted", HttpStatus.OK);
+        return new ResponseEntity<>("access has been granted", HttpStatus.OK);
     }
 
     @GetMapping("get-user/{username}")
-    public ResponseEntity getUserByName(@PathVariable String username){
+    public ResponseEntity<?> getUserByName(@PathVariable String username) {
 
         UserEntity user = userRepository.findUserByUsername(username)
                 .orElseThrow(UserNotFoundException::new);
 
-        return new ResponseEntity(user, HttpStatus.OK);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
 }

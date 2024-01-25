@@ -49,32 +49,32 @@ public class UserController {
     }
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.POST)
-    ResponseEntity createUser(@Validated @RequestBody UserDTO user) {
+    ResponseEntity<?> createUser(@Validated @RequestBody UserDTO user) {
         AuthResponse authResponse = userService.addOne(user);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", UserController.USER_PATH + "/" + authResponse.getUserId());
-        return new ResponseEntity(authResponse, headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(authResponse, headers, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.PUT)
-    ResponseEntity putUser(@RequestHeader("Authorization") String jwt, @RequestBody @Validated UserDTO userDTO) {
+    ResponseEntity<?> putUser(@RequestHeader("Authorization") String jwt, @RequestBody @Validated UserDTO userDTO) {
         userService.findUserByJwt(jwt).ifPresent(
                 (loggedUser) -> userService.updateOne(loggedUser, userDTO));
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.DELETE)
-    ResponseEntity deleteUser(@RequestHeader("Authorization") String jwt, @PathVariable("userId") UUID id) {
+    ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String jwt, @PathVariable("userId") UUID id) {
         boolean isDeleted = userService.deleteOne(id, jwt);
         if (isDeleted) tokenBlackList.addToBlacklist(jwt);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.PATCH)
-    ResponseEntity patchUser(@RequestHeader("Authorization") String jwt,
-                             @RequestBody UserDTO userDTO) {
+    ResponseEntity<?> patchUser(@RequestHeader("Authorization") String jwt,
+                                @RequestBody UserDTO userDTO) {
         userService.patchOne(userDTO, jwt);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = USER_PATH + "/profile", method = RequestMethod.GET)
