@@ -3,58 +3,91 @@ package dev.thural.quietspacebackend.utils;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.security.Key;
 import java.util.*;
 
 import static dev.thural.quietspacebackend.constant.JwtConstant.SECRET_KEY;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class JwtProvider {
+
     private final UserRepository userRepository;
     private static final SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
-    public static String generatedToken(Authentication auth){
+
+    private static Key getSignKey() {
+        String SECRET = "356838792F423F4428472C7B6250655368566D597133743677397A2443264629";
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+
+    public static String generateToken(Authentication auth) {
+        return generateToken(auth, new HashMap<>());
+    }
+
+    public static String generateToken(Authentication auth, Map<String, Object> extraClaims) {
+        System.out.println("email on token generation: " + auth.getName());
+        System.out.println("principal on token generation: " + auth.getPrincipal());
+
         return Jwts.builder()
                 .setIssuer("thural")
                 .setSubject(auth.getName())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + 142500000))
+                .setClaims(extraClaims)
                 .claim("email", auth.getName())
-                .signWith(key, SignatureAlgorithm.HS256)
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public static String getEmailFromJwtToken(String jwt){
-        // Bearer token
-        String emailSubstring = jwt.substring(7);
-
-        Claims claims = getClaims(emailSubstring);
-
-        return String.valueOf(claims.get("email"));
-    }
-
-    private static Claims getClaims(String emailSubstring) {
-
+    private static Claims getClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getSignKey())
                 .build()
-                .parseClaimsJws(emailSubstring)
+                .parseClaimsJws(token)
                 .getBody();
     }
 
-    public Optional<UserEntity> findUserByJwt(String jwt) {
-        String email = JwtProvider.getEmailFromJwtToken(jwt);
-        UserEntity userEntity = userRepository.findUserEntityByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("user with this email not found"));
-        return Optional.of(userEntity);
+    public static String extractEmailFromAuthHeader(String authHeader) {
+        String token = authHeader.substring(7);
+        Claims claims = getClaims(token);
+        return String.valueOf(claims.get("email"));
     }
 
+    public static boolean isTokenValid(String authHeader, UserDetails userDetails) {
+        String username = extractEmailFromAuthHeader(authHeader);
+        return username.equals(userDetails.getUsername()); // TODO: add token expiration logic after fixing the method
+    }
 
+    private static boolean isTokenExpired(String authHeader) {
+        return extractExpiration(authHeader.substring(7)).before(new Date());
+    }
+
+    private static Date extractExpiration(String token) {
+        Claims claims = getClaims(token);
+        Date expirationDate = claims.getExpiration();
+        System.out.println("Expiration date: " + expirationDate);
+        return expirationDate;
+    }
+
+    public Optional<UserEntity> findUserByJwt(String authHeader) {
+
+        String email = JwtProvider.extractEmailFromAuthHeader(authHeader);
+
+        UserEntity userEntity = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("user with this email not found"));
+
+        return Optional.of(userEntity);
+    }
 
 }

@@ -1,6 +1,7 @@
 package dev.thural.quietspacebackend.service.impls;
 
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
+import dev.thural.quietspacebackend.utils.CustomPageProvider;
 import dev.thural.quietspacebackend.utils.JwtProvider;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.UserMapper;
@@ -24,8 +25,6 @@ import org.springframework.util.StringUtils;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dev.thural.quietspacebackend.utils.CustomPageProvider.buildCustomPageRequest;
-
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -38,7 +37,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserDTO> listUsers(String username, Integer pageNumber, Integer pageSize) {
 
-        PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
+        PageRequest pageRequest = CustomPageProvider.buildCustomPageRequest(pageNumber, pageSize);
 
         Page<UserEntity> userPage;
 
@@ -53,7 +52,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<UserDTO> listUsersByQuery(String query, Integer pageNumber, Integer pageSize) {
-        PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
+
+        PageRequest pageRequest = CustomPageProvider.buildCustomPageRequest(pageNumber, pageSize);
 
         Page<UserEntity> userPage;
 
@@ -68,30 +68,32 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AuthResponse addOne(UserDTO userDTO) {
+
         userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        UserEntity userEntity = userMapper.userDtoToEntity(userDTO);
-        UserEntity savedUser = userRepository.save(userEntity);
+
+        UserEntity savedUser = userRepository.save(userMapper.userDtoToEntity(userDTO));
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(savedUser.getEmail());
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 userDetails,
-                userDetails.getPassword()
+                userDetails.getPassword(),
+                userDetails.getAuthorities() // TODO: test at user signup
         );
 
         String token = JwtProvider.generateToken(authentication);
         String userId = savedUser.getId().toString();
+
         return new AuthResponse(token, userId, "register success");
     }
 
     @Override
     public AuthResponse getByLoginRequest(LoginRequest loginRequest) {
-        Authentication authentication = authenticate(loginRequest.getEmail(), loginRequest.getPassword());
 
+        Authentication authentication = authenticate(loginRequest.getEmail(), loginRequest.getPassword());
         String token = JwtProvider.generateToken(authentication);
 
         Optional<UserEntity> optionalUser = userRepository.findUserEntityByEmail(loginRequest.getEmail());
-
         String userId = optionalUser.isPresent() ? optionalUser.get().getId().toString() : "null";
 
         return new AuthResponse(token, userId, "login success");
@@ -99,16 +101,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserEntity> findUserByJwt(String authHeader) {
-        String email = JwtProvider.extractEmailFromHeaderToken(authHeader);
+
+        String email = JwtProvider.extractEmailFromAuthHeader(authHeader);
+
         UserEntity userEntity = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
+
         return Optional.of(userEntity);
     }
 
     @Override
     public Optional<UserDTO> findUserDtoByJwt(String authHeader) {
+
         UserEntity founUserEntity = findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("user does not exist"));
+
         return Optional.of(userMapper.userEntityToDto(founUserEntity));
     }
 
@@ -128,8 +135,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserDTO> getById(UUID id) {
+
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
+
         UserDTO userDTO = userMapper.userEntityToDto(userEntity);
         return Optional.of(userDTO);
     }
@@ -161,19 +170,21 @@ public class UserServiceImpl implements UserService {
             userRepository.deleteById(userId);
             return true;
         }
-
         return false;
     }
 
     @Override
     public void patchOne(UserDTO userDTO, String authHeader) {
+
         UserEntity loggedUserEntity = findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("user does not exist"));
 
         if (StringUtils.hasText(userDTO.getUsername()))
             loggedUserEntity.setUsername(userDTO.getUsername());
+
         if (StringUtils.hasText(userDTO.getEmail()))
             loggedUserEntity.setEmail(userDTO.getEmail());
+
         if (StringUtils.hasText(userDTO.getPassword()))
             loggedUserEntity.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 

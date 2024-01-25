@@ -70,7 +70,7 @@ public class CommentLikeServiceImpl implements CommentLikeService {
     }
 
     private UserEntity getUserEntityByToken(String jwtToken) {
-        String loggedUserEmail = JwtProvider.extractEmailFromHeaderToken(jwtToken);
+        String loggedUserEmail = JwtProvider.extractEmailFromAuthHeader(jwtToken);
         return userRepository.findUserEntityByEmail(loggedUserEmail)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
     }
