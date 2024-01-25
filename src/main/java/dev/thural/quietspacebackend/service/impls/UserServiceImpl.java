@@ -72,8 +72,14 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userMapper.userDtoToEntity(userDTO);
         UserEntity savedUser = userRepository.save(userEntity);
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(savedUser.getEmail(), savedUser.getPassword());
-        String token = JwtProvider.generatedToken(authentication);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(savedUser.getEmail());
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                userDetails,
+                userDetails.getPassword()
+        );
+
+        String token = JwtProvider.generateToken(authentication);
         String userId = savedUser.getId().toString();
         return new AuthResponse(token, userId, "register success");
     }
@@ -81,16 +87,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public AuthResponse getByLoginRequest(LoginRequest loginRequest) {
         Authentication authentication = authenticate(loginRequest.getEmail(), loginRequest.getPassword());
-        String token = JwtProvider.generatedToken(authentication);
+
+        String token = JwtProvider.generateToken(authentication);
 
         Optional<UserEntity> optionalUser = userRepository.findUserEntityByEmail(loginRequest.getEmail());
+
         String userId = optionalUser.isPresent() ? optionalUser.get().getId().toString() : "null";
+
         return new AuthResponse(token, userId, "login success");
     }
 
     @Override
     public Optional<UserEntity> findUserByJwt(String jwt) {
-        String email = JwtProvider.getEmailFromJwtToken(jwt);
+        String email = JwtProvider.extractEmailFromToken(jwt);
         UserEntity userEntity = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
         return Optional.of(userEntity);
@@ -113,7 +122,7 @@ public class UserServiceImpl implements UserService {
 
         return new UsernamePasswordAuthenticationToken(
                 userDetails,
-                null,
+                userDetails.getPassword(),
                 userDetails.getAuthorities());
     }
 

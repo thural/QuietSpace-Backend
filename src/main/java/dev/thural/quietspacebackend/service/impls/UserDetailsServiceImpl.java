@@ -3,7 +3,6 @@ package dev.thural.quietspacebackend.service.impls;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -24,8 +23,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<UserEntity> optionalUser = userRepository.findUserEntityByEmail(username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Optional<UserEntity> optionalUser = userRepository.findUserEntityByEmail(email);
 
         UserEntity user = optionalUser.orElseThrow(
                 () -> new UsernameNotFoundException("user not found with the email"));
