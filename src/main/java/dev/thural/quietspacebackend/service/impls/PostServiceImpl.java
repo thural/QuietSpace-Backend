@@ -1,13 +1,12 @@
 package dev.thural.quietspacebackend.service.impls;
 
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
-import dev.thural.quietspacebackend.utils.JwtProvider;
+import dev.thural.quietspacebackend.service.UserService;
 import dev.thural.quietspacebackend.entity.PostEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.PostMapper;
 import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.repository.PostRepository;
-import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.PostService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -27,39 +26,45 @@ import static dev.thural.quietspacebackend.utils.CustomPageProvider.buildCustomP
 public class PostServiceImpl implements PostService {
 
     private final PostMapper postMapper;
+    private final UserService userService;
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
 
     @Override
-    public Page<PostDTO> getAll(Integer pageNumber, Integer pageSize) {
+    public Page<PostDTO> getAllPosts(Integer pageNumber, Integer pageSize) {
+
         PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
+
         return postRepository.findAll(pageRequest).map(postMapper::postEntityToDto);
     }
 
     @Override
-    public PostDTO addOne(PostDTO post, String token) {
-        UserEntity loggedUser = getUserEntityByToken(token);
+    public PostDTO addPost(PostDTO post, String token) {
+        UserEntity loggedUserEntity = userService.findUserByJwt(token)
+                .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
         PostEntity postEntity = postMapper.postDtoToEntity(post);
 
-        postEntity.setUser(loggedUser);
+        postEntity.setUser(loggedUserEntity);
         return postMapper.postEntityToDto(postRepository.save(postEntity));
     }
 
     @Override
-    public Optional<PostDTO> getById(UUID postId) {
+    public Optional<PostDTO> getPostById(UUID postId) {
         PostEntity postEntity = postRepository.findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
+
         PostDTO postDTO = postMapper.postEntityToDto(postEntity);
         return Optional.of(postDTO);
     }
 
     @Override
-    public void updateOne(UUID postId, PostDTO post, String authHeader) {
-        UserEntity loggedUser = getUserEntityByToken(authHeader);
+    public void updatePost(UUID postId, PostDTO post, String authHeader) {
+        UserEntity loggedUserEntity = userService.findUserByJwt(authHeader)
+                .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
+
         PostEntity existingPostEntity = postRepository.findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUser);
+        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUserEntity);
 
         if (postExistsByLoggedUser) {
             existingPostEntity.setText(post.getText());
@@ -68,29 +73,33 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void deleteOne(UUID postId, String authHeader) {
-        UserEntity loggedUser = getUserEntityByToken(authHeader);
+    public void patchPost(String authHeader, UUID postId, PostDTO post) {
+        UserEntity loggedUserEntity = userService.findUserByJwt(authHeader)
+                .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
+
         PostEntity existingPostEntity = postRepository.findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUser);
-
-        if (postExistsByLoggedUser) postRepository.deleteById(postId);
-        else throw new AccessDeniedException("post author does not belong to current user");
-    }
-
-    @Override
-    public void patchOne(String authHeader, UUID postId, PostDTO post) {
-        UserEntity loggedUser = getUserEntityByToken(authHeader);
-        PostEntity existingPostEntity = postRepository.findById(postId)
-                .orElseThrow(EntityNotFoundException::new);
-
-        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUser);
+        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUserEntity);
 
         if (postExistsByLoggedUser) {
             if (StringUtils.hasText(post.getText())) existingPostEntity.setText(post.getText());
             postRepository.save(existingPostEntity);
         } else throw new AccessDeniedException("post author does not belong to current user");
+    }
+
+    @Override
+    public void deletePost(UUID postId, String authHeader) {
+        UserEntity loggedUserEntity = userService.findUserByJwt(authHeader)
+                .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
+
+        PostEntity existingPostEntity = postRepository.findById(postId)
+                .orElseThrow(EntityNotFoundException::new);
+
+        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUserEntity);
+
+        if (postExistsByLoggedUser) postRepository.deleteById(postId);
+        else throw new AccessDeniedException("post author does not belong to current user");
     }
 
     @Override
@@ -106,12 +115,6 @@ public class PostServiceImpl implements PostService {
         }
 
         return postPage.map(postMapper::postEntityToDto);
-    }
-
-    private UserEntity getUserEntityByToken(String jwtToken) {
-        String loggedUserEmail = JwtProvider.extractEmailFromAuthHeader(jwtToken);
-        return userRepository.findUserEntityByEmail(loggedUserEmail)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
     }
 
     private boolean isPostExistsByLoggedUser(PostEntity existingPostEntity, UserEntity loggedUser) {

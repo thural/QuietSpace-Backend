@@ -72,7 +72,7 @@ class UserControllerIT {
 
         AuthResponse authResponse = new AuthResponse("tokenTokenToken", "user created", "7817398717");
 
-        given(userService.addOne(any(UserDTO.class))).willReturn(authResponse);
+        given(userService.registerUser(any(UserDTO.class))).willReturn(authResponse);
 
         MvcResult result = mockMvc.perform(post(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)

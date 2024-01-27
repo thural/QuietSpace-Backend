@@ -7,13 +7,11 @@ import java.util.UUID;
 
 public interface MessageService {
 
-    MessageDTO addOne(MessageDTO messageDTO, String authHeader);
+    MessageDTO addMessage(MessageDTO messageDTO, String authHeader);
 
-    Optional<MessageDTO> getById(UUID messageId);
+    Optional<MessageDTO> getMessageById(UUID messageId);
 
-    void updateOne(UUID messageId, MessageDTO messageDTO, String authHeader);
+    void deleteMessage(UUID id, String authHeader);
 
-    void deleteOne(UUID id, String authHeader);
-
-    void patchOne(UUID messageId, MessageDTO messageDTO, String authHeader);
+    void patchMessage(UUID messageId, MessageDTO messageDTO, String authHeader);
 }

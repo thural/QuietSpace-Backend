@@ -77,7 +77,7 @@ public class UserControllerTest {
         UserDTO testUser = userServiceImpl.listUsers(null, null, null)
                 .getContent().get(1);
 
-        given(userService.getById(testUser.getId()))
+        given(userService.getUserById(testUser.getId()))
                 .willReturn(Optional.of(testUser));
 
         mockMvc.perform(get(UserController.USER_PATH + "/" + testUser.getId())
@@ -92,7 +92,7 @@ public class UserControllerTest {
     void createUser() throws Exception {
         AuthResponse authResponse = new AuthResponse("tokenTokenToken", "user created", "7817398717");
 
-        given(userService.addOne(any(UserDTO.class))).willReturn(authResponse);
+        given(userService.registerUser(any(UserDTO.class))).willReturn(authResponse);
 
         mockMvc.perform(post(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
@@ -110,7 +110,7 @@ public class UserControllerTest {
         testUser.setUsername("testUser");
         testUser.setPassword("testPassword");
 
-        given(userService.updateOne(any(), any())).willReturn(Optional.of(testUser));
+        given(userService.updateUser(any(), any())).willReturn(Optional.of(testUser));
 
         mockMvc.perform(put(UserController.USER_PATH + "/" + testUser.getId())
                         .accept(MediaType.APPLICATION_JSON)
@@ -118,7 +118,7 @@ public class UserControllerTest {
                         .content(objectMapper.writeValueAsString(testUser)))
                 .andExpect(status().isNoContent());
 
-        verify(userService).updateOne(any(UUID.class), any(UserDTO.class));
+        verify(userService).updateUser(any(UUID.class), any(UserDTO.class));
     }
 
     @Test
@@ -126,13 +126,13 @@ public class UserControllerTest {
         Page<UserDTO> testUsers = userServiceImpl.listUsers(null, null, null);
         UserDTO testUser = testUsers.getContent().get(0);
 
-        given(userService.deleteOne(any(), )).willReturn(true);
+        given(userService.deleteUser(any(), )).willReturn(true);
 
         mockMvc.perform(delete(UserController.USER_PATH + "/" + testUser.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        verify(userService).deleteOne(uuidArgumentCaptor.capture(), );
+        verify(userService).deleteUser(uuidArgumentCaptor.capture(), );
 
         assertThat(testUser.getId()).isEqualTo(uuidArgumentCaptor.getValue());
     }
@@ -160,7 +160,7 @@ public class UserControllerTest {
 
     @Test
     void userByIdNotFound() throws Exception {
-        given(userService.getById(any(UUID.class))).willReturn(Optional.empty());
+        given(userService.getUserById(any(UUID.class))).willReturn(Optional.empty());
 
         mockMvc.perform(get(UserController.USER_PATH_ID, UUID.randomUUID()))
                 .andExpect(status().isNotFound());
@@ -170,7 +170,7 @@ public class UserControllerTest {
     void createUserNullUserName() throws Exception {
         UserDTO userDTO = UserDTO.builder().build();
 
-        given(userService.addOne(any(UserDTO.class)))
+        given(userService.registerUser(any(UserDTO.class)))
                 .willReturn(userService.listUsers(null, null, null)
                 .getContent().get(0));
 

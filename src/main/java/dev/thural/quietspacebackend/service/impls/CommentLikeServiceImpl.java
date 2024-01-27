@@ -9,7 +9,7 @@ import dev.thural.quietspacebackend.repository.CommentLikeRepository;
 import dev.thural.quietspacebackend.repository.CommentRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.CommentLikeService;
-import dev.thural.quietspacebackend.utils.JwtProvider;
+import dev.thural.quietspacebackend.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -24,14 +24,15 @@ public class CommentLikeServiceImpl implements CommentLikeService {
 
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
     private final CommentLikeRepository commentLikeRepository;
 
     @Override
     public void toggleCommentLike(String authHeader, CommentLikeDTO commentLike) {
-        UserEntity loggedUser = getUserEntityByToken(authHeader);
-        if(loggedUser == null) throw new UserNotFoundException("user not found");
+        UserEntity loggedUser = userService.findUserByJwt(authHeader)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
-        if(!commentLike.getUserId().equals(loggedUser.getId()))
+        if (!commentLike.getUserId().equals(loggedUser.getId()))
             throw new AccessDeniedException("comment like does not belong to logged user");
 
         UUID likeUserId = commentLike.getUserId();
@@ -39,7 +40,7 @@ public class CommentLikeServiceImpl implements CommentLikeService {
 
         boolean isCommentLikeExists = commentLikeRepository.existsByCommentIdAndUserId(likeCommentId, likeUserId);
 
-        if (isCommentLikeExists){
+        if (isCommentLikeExists) {
             CommentLikeEntity foundLike = commentLikeRepository.findByCommentIdAndUserId(likeCommentId, likeUserId);
             commentLikeRepository.deleteById(foundLike.getId());
         } else {
@@ -53,7 +54,6 @@ public class CommentLikeServiceImpl implements CommentLikeService {
 
             commentLikeEntity.setUser(userEntity);
             commentLikeEntity.setComment(commentEntity);
-
             commentLikeRepository.save(commentLikeEntity);
         }
 
@@ -67,11 +67,5 @@ public class CommentLikeServiceImpl implements CommentLikeService {
     @Override
     public List<CommentLikeDTO> getAllByUserId(UUID userId) {
         return commentLikeRepository.findAllByUserId(userId);
-    }
-
-    private UserEntity getUserEntityByToken(String jwtToken) {
-        String loggedUserEmail = JwtProvider.extractEmailFromAuthHeader(jwtToken);
-        return userRepository.findUserEntityByEmail(loggedUserEmail)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
     }
 }

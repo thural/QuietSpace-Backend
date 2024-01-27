@@ -7,17 +7,17 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PostService {
-    Page<PostDTO> getAll(Integer pageNumber, Integer pageSize);
+    Page<PostDTO> getAllPosts(Integer pageNumber, Integer pageSize);
 
-    PostDTO addOne(PostDTO post, String authHeader);
+    PostDTO addPost(PostDTO post, String authHeader);
 
-    Optional<PostDTO> getById(UUID id);
+    Optional<PostDTO> getPostById(UUID id);
 
-    void updateOne(UUID id, PostDTO post, String authHeader);
+    void updatePost(UUID id, PostDTO post, String authHeader);
 
-    void deleteOne(UUID id, String authHeader);
+    void deletePost(UUID id, String authHeader);
 
-    void patchOne(String authHeader, UUID id, PostDTO post);
+    void patchPost(String authHeader, UUID id, PostDTO post);
 
     Page<PostDTO> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize);
 }

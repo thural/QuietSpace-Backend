@@ -1,27 +1,21 @@
 package dev.thural.quietspacebackend.utils;
 
-import dev.thural.quietspacebackend.entity.UserEntity;
-import dev.thural.quietspacebackend.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.*;
 
-import static dev.thural.quietspacebackend.constant.JwtConstant.SECRET_KEY;
-
 @Service
 @RequiredArgsConstructor
 public class JwtProvider {
-
-    private final UserRepository userRepository;
+    private final static String SECRET_KEY = "I'll keep it beneath my skies, until the day it becomes one";
     private static final SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 
     private static Key getSignKey() {
@@ -29,7 +23,6 @@ public class JwtProvider {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-
 
     public static String generateToken(Authentication auth) {
         return generateToken(auth, new HashMap<>());
@@ -66,7 +59,7 @@ public class JwtProvider {
 
     public static boolean isTokenValid(String authHeader, UserDetails userDetails) {
         String username = extractEmailFromAuthHeader(authHeader);
-        return username.equals(userDetails.getUsername()); // TODO: add token expiration logic after fixing the method
+        return username.equals(userDetails.getUsername()); // TODO: check expiration logic after fixing the method
     }
 
     private static boolean isTokenExpired(String authHeader) {
@@ -78,16 +71,6 @@ public class JwtProvider {
         Date expirationDate = claims.getExpiration();
         System.out.println("Expiration date: " + expirationDate);
         return expirationDate;
-    }
-
-    public Optional<UserEntity> findUserByJwt(String authHeader) {
-
-        String email = JwtProvider.extractEmailFromAuthHeader(authHeader);
-
-        UserEntity userEntity = userRepository.findUserEntityByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("user with this email not found"));
-
-        return Optional.of(userEntity);
     }
 
 }

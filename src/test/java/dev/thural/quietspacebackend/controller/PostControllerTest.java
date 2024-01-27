@@ -63,9 +63,9 @@ public class PostControllerTest {
 
     @Test
     void getAllPosts() throws Exception {
-        List<PostDTO> testPosts = postServiceImpl.getAll(, );
+        List<PostDTO> testPosts = postServiceImpl.getAllPosts(, );
 
-        given(postService.getAll(, )).willReturn(testPosts);
+        given(postService.getAllPosts(, )).willReturn(testPosts);
 
         mockMvc.perform(get(PostController.POST_PATH)
                         .accept(MediaType.APPLICATION_JSON))
@@ -76,9 +76,9 @@ public class PostControllerTest {
 
     @Test
     void getPostById() throws Exception {
-        PostDTO testPost = postServiceImpl.getAll(, ).get(1);
+        PostDTO testPost = postServiceImpl.getAllPosts(, ).get(1);
 
-        given(postService.getById(testPost.getId()))
+        given(postService.getPostById(testPost.getId()))
                 .willReturn(Optional.of(testPost));
 
         mockMvc.perform(get(PostController.POST_PATH + "/" + testPost.getId())
@@ -91,7 +91,7 @@ public class PostControllerTest {
 
     @Test
     void createPost() throws Exception {
-        List<PostDTO> testPosts = postServiceImpl.getAll(, );
+        List<PostDTO> testPosts = postServiceImpl.getAllPosts(, );
         PostDTO testPost = testPosts.get(0);
         testPost.setText("testText");
 
@@ -108,7 +108,7 @@ public class PostControllerTest {
 
     @Test
     void updatePost() throws Exception {
-        List<PostDTO> testPosts = postServiceImpl.getAll(, );
+        List<PostDTO> testPosts = postServiceImpl.getAllPosts(, );
         PostDTO testPost = testPosts.get(0);
         testPost.setText("testText");
 
@@ -118,12 +118,12 @@ public class PostControllerTest {
                         .content(objectMapper.writeValueAsString(testPost)))
                 .andExpect(status().isNoContent());
 
-        verify(postService).updateOne(any(UUID.class), any(PostDTO.class), jwtToken);
+        verify(postService).updatePost(any(UUID.class), any(PostDTO.class), jwtToken);
     }
 
     @Test
     void deletePost() throws Exception {
-        List<PostDTO> testPosts = postServiceImpl.getAll(, );
+        List<PostDTO> testPosts = postServiceImpl.getAllPosts(, );
         PostDTO testPost = testPosts.get(0);
 
         mockMvc.perform(delete(PostController.POST_PATH + "/" + testPost.getId())
@@ -132,14 +132,14 @@ public class PostControllerTest {
 
         ArgumentCaptor<UUID> objectIdArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
 
-        verify(postService).deleteOne(objectIdArgumentCaptor.capture(), jwtToken);
+        verify(postService).deletePost(objectIdArgumentCaptor.capture(), jwtToken);
 
         assertThat(testPost.getId()).isEqualTo(objectIdArgumentCaptor.getValue());
     }
 
     @Test
     void patchPost() throws Exception {
-        List<PostDTO> testPosts = postServiceImpl.getAll(, );
+        List<PostDTO> testPosts = postServiceImpl.getAllPosts(, );
 
         PostDTO testPost = testPosts.get(0);
         testPost.setUsername("testUser");
@@ -151,7 +151,7 @@ public class PostControllerTest {
                         .content(objectMapper.writeValueAsString(testPost)))
                 .andExpect(status().isNoContent());
 
-        verify(postService).patchOne(jwtToken, objectIdArgumentCaptor.capture(), postArgumentCaptor.capture());
+        verify(postService).patchPost(jwtToken, objectIdArgumentCaptor.capture(), postArgumentCaptor.capture());
 
         assertThat(testPost.getId()).isEqualTo(objectIdArgumentCaptor.getValue());
         assertThat(testPost.getUsername()).isEqualTo(postArgumentCaptor.getValue().getUsername());

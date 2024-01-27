@@ -7,17 +7,10 @@ import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.UserMapper;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.UserRepository;
-import dev.thural.quietspacebackend.model.request.LoginRequest;
-import dev.thural.quietspacebackend.model.response.AuthResponse;
 import dev.thural.quietspacebackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -30,7 +23,6 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
-    private final UserDetailsService userDetailsService;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
 
@@ -38,7 +30,6 @@ public class UserServiceImpl implements UserService {
     public Page<UserDTO> listUsers(String username, Integer pageNumber, Integer pageSize) {
 
         PageRequest pageRequest = CustomPageProvider.buildCustomPageRequest(pageNumber, pageSize);
-
         Page<UserEntity> userPage;
 
         if (StringUtils.hasText(username)) {
@@ -54,7 +45,6 @@ public class UserServiceImpl implements UserService {
     public Page<UserDTO> listUsersByQuery(String query, Integer pageNumber, Integer pageSize) {
 
         PageRequest pageRequest = CustomPageProvider.buildCustomPageRequest(pageNumber, pageSize);
-
         Page<UserEntity> userPage;
 
         if (StringUtils.hasText(query)) {
@@ -64,39 +54,6 @@ public class UserServiceImpl implements UserService {
         }
 
         return userPage.map(userMapper::userEntityToDto);
-    }
-
-    @Override
-    public AuthResponse addOne(UserDTO userDTO) {
-
-        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-
-        UserEntity savedUser = userRepository.save(userMapper.userDtoToEntity(userDTO));
-
-        UserDetails userDetails = userDetailsService.loadUserByUsername(savedUser.getEmail());
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                userDetails,
-                userDetails.getPassword(),
-                userDetails.getAuthorities() // TODO: test at user signup
-        );
-
-        String token = JwtProvider.generateToken(authentication);
-        String userId = savedUser.getId().toString();
-
-        return new AuthResponse(token, userId, "register success");
-    }
-
-    @Override
-    public AuthResponse getByLoginRequest(LoginRequest loginRequest) {
-
-        Authentication authentication = authenticate(loginRequest.getEmail(), loginRequest.getPassword());
-        String token = JwtProvider.generateToken(authentication);
-
-        Optional<UserEntity> optionalUser = userRepository.findUserEntityByEmail(loginRequest.getEmail());
-        String userId = optionalUser.isPresent() ? optionalUser.get().getId().toString() : "null";
-
-        return new AuthResponse(token, userId, "login success");
     }
 
     @Override
@@ -119,22 +76,8 @@ public class UserServiceImpl implements UserService {
         return Optional.of(userMapper.userEntityToDto(founUserEntity));
     }
 
-    Authentication authenticate(String email, String password) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-        if (userDetails == null)
-            throw new BadCredentialsException("invalid username");
-
-        if (!passwordEncoder.matches(password, userDetails.getPassword()))
-            throw new BadCredentialsException("invalid password");
-
-        return new UsernamePasswordAuthenticationToken(
-                userDetails,
-                userDetails.getPassword(),
-                userDetails.getAuthorities());
-    }
-
     @Override
-    public Optional<UserDTO> getById(UUID id) {
+    public Optional<UserDTO> getUserById(UUID id) {
 
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
@@ -144,7 +87,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserDTO> updateOne(UserEntity loggedUser, UserDTO userDTO) {
+    public Optional<UserDTO> updateUser(UserEntity loggedUser, UserDTO userDTO) {
 
         loggedUser.setUsername(userDTO.getUsername());
         loggedUser.setEmail(userDTO.getEmail());
@@ -156,7 +99,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean deleteOne(UUID userId, String authHeader) {
+    public Boolean deleteUser(UUID userId, String authHeader) {
 
         UserEntity loggedUser = findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("user does not exist"));
@@ -174,7 +117,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void patchOne(UserDTO userDTO, String authHeader) {
+    public void patchUser(UserDTO userDTO, String authHeader) {
 
         UserEntity loggedUserEntity = findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("user does not exist"));

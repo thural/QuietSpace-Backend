@@ -67,7 +67,7 @@ public class FollowServiceImpl implements FollowService {
     public void toggleFollow(UUID followingUserId, UUID followedUserId, String authHeader) {
         checkUserValidity(followingUserId, authHeader);
 
-        if( followRepository.existsByFollowerIdAndFollowingId(followingUserId, followedUserId)){
+        if (followRepository.existsByFollowerIdAndFollowingId(followingUserId, followedUserId)) {
 
             followRepository.deleteByFollowerIdAndFollowingId(followingUserId, followingUserId);
         } else {

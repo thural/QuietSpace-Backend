@@ -25,7 +25,7 @@ public class MessageController {
     ResponseEntity<?> createMessage(@RequestHeader("Authorization") String authHeader,
                                     @RequestBody @Validated MessageDTO messageDTO) {
 
-        MessageDTO savedMessage = messageService.addOne(messageDTO, authHeader);
+        MessageDTO savedMessage = messageService.addMessage(messageDTO, authHeader);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", MESSAGE_PATH + "/" + savedMessage.getId());
@@ -35,7 +35,7 @@ public class MessageController {
     @RequestMapping(value = MESSAGE_PATH_ID, method = RequestMethod.DELETE)
     ResponseEntity<?> deleteMessage(@RequestHeader("Authorization") String authHeader,
                                     @PathVariable("messageId") UUID messageId) {
-        messageService.deleteOne(messageId, authHeader);
+        messageService.deleteMessage(messageId, authHeader);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

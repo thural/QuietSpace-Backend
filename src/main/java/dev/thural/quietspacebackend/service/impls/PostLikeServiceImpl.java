@@ -9,7 +9,7 @@ import dev.thural.quietspacebackend.repository.PostLikeRepository;
 import dev.thural.quietspacebackend.repository.PostRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.PostLikeService;
-import dev.thural.quietspacebackend.utils.JwtProvider;
+import dev.thural.quietspacebackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -21,21 +21,26 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class PostLikeServiceImpl implements PostLikeService {
-
+    private final PostLikeRepository postLikeRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-    private final PostLikeRepository postLikeRepository;
-
+    private final UserService userService;
     @Override
     public List<PostLikeDTO> getAllByPostId(UUID postId) {
         return postLikeRepository.findAllByPostId(postId);
     }
 
     @Override
-    public void togglePostLike(String authHeader, PostLikeDTO postLikeDTO) {
-        UserEntity loggedUser = getUserEntityByToken(authHeader);
+    public List<PostLikeDTO> getAllByUserId(UUID userId) {
+        return postLikeRepository.findAllByUserId(userId);
+    }
 
-        if (!postLikeDTO.getUserId().equals(loggedUser.getId()))
+    @Override
+    public void togglePostLike(String authHeader, PostLikeDTO postLikeDTO) {
+        UserEntity loggedUserEntity = userService.findUserByJwt(authHeader)
+                .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
+
+        if (!postLikeDTO.getUserId().equals(loggedUserEntity.getId()))
             throw new AccessDeniedException("post like does not belong to logged user");
 
         UUID likeUserId = postLikeDTO.getUserId();
@@ -58,17 +63,5 @@ public class PostLikeServiceImpl implements PostLikeService {
 
             postLikeRepository.save(postLikeEntity);
         }
-
-    }
-
-    @Override
-    public List<PostLikeDTO> getAllByUserId(UUID userId) {
-        return postLikeRepository.findAllByUserId(userId);
-    }
-
-    private UserEntity getUserEntityByToken(String jwtToken) {
-        String loggedUserEmail = JwtProvider.extractEmailFromAuthHeader(jwtToken);
-        return userRepository.findUserEntityByEmail(loggedUserEmail)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
     }
 }

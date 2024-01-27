@@ -145,7 +145,6 @@ public class CustomExceptionHandler {
                 );
     }
 
-    // fallback method
     @ExceptionHandler(Exception.class) // exception handled
     public ResponseEntity<ErrorResponse> handleExceptions(RuntimeException exception) {
 

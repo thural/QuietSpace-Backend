@@ -1,9 +1,7 @@
 package dev.thural.quietspacebackend.config;
 
 import dev.thural.quietspacebackend.constant.JwtConstant;
-import dev.thural.quietspacebackend.exception.UnauthorizedException;
-import dev.thural.quietspacebackend.repository.UserRepository;
-import dev.thural.quietspacebackend.service.TokenBlackList;
+import dev.thural.quietspacebackend.service.AuthService;
 import dev.thural.quietspacebackend.utils.JwtProvider;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,21 +22,21 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtValidator extends OncePerRequestFilter {
-    private final TokenBlackList tokenBlackList;
+    private final AuthService authService;
     private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader(JwtConstant.JWT_HEADER);
+        String authHeader = request.getHeader("Authorization");
 
         if (!StringUtils.hasText(authHeader) || !authHeader.startsWith("Bearer")){
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (tokenBlackList.isBlacklisted(authHeader)){
+        if (authService.isBlacklisted(authHeader)){
             filterChain.doFilter(request, response);
             return;
         }
