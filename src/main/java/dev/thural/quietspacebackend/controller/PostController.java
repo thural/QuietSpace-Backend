@@ -2,7 +2,6 @@ package dev.thural.quietspacebackend.controller;
 
 import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.model.PostLikeDTO;
-import dev.thural.quietspacebackend.service.PostLikeService;
 import dev.thural.quietspacebackend.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,7 +23,6 @@ public class PostController {
     public static final String POST_PATH_ID = POST_PATH + "/{postId}";
 
     private final PostService postService;
-    private final PostLikeService postLikeService;
 
     @RequestMapping(value = POST_PATH, method = RequestMethod.GET)
     Page<PostDTO> getAllPosts(@RequestParam(name = "page-number", required = false) Integer pageNumber,
@@ -73,13 +71,13 @@ public class PostController {
 
     @RequestMapping(value = POST_PATH_ID + "/likes", method = RequestMethod.GET)
     List<PostLikeDTO> getAllLikesByPostId(@PathVariable("postId") UUID postId) {
-        return postLikeService.getAllByPostId(postId);
+        return postService.getPostLikesByPostId(postId);
     }
 
     @RequestMapping(value = POST_PATH_ID + "/toggle-like", method = RequestMethod.POST)
     ResponseEntity<?> togglePostLike(@RequestHeader("Authorization") String authHeader,
                                      @PathVariable UUID postId) {
-        postLikeService.togglePostLike(authHeader, postId);
+        postService.togglePostLike(authHeader, postId);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

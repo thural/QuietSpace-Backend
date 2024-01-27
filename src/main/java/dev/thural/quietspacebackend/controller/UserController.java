@@ -26,7 +26,6 @@ public class UserController {
     private final UserService userService;
     private final PostService postService;
     private final AuthService authService;
-    private final PostLikeService postLikeService;
     private final CommentService commentService;
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.GET)
@@ -86,7 +85,7 @@ public class UserController {
 
     @RequestMapping(value = USER_PATH_ID + "/post-likes", method = RequestMethod.GET)
     List<PostLikeDTO> getAllPostLikesByUserId(@PathVariable("userId") UUID userId) {
-        return postLikeService.getAllByUserId(userId);
+        return postService.getPostLikesByUserId(userId);
     }
 
     @RequestMapping(value = USER_PATH_ID + "/comment-likes", method = RequestMethod.GET)

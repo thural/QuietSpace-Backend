@@ -1,6 +1,9 @@
 package dev.thural.quietspacebackend.service.impls;
 
+import dev.thural.quietspacebackend.entity.PostLikeEntity;
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
+import dev.thural.quietspacebackend.model.PostLikeDTO;
+import dev.thural.quietspacebackend.repository.PostLikeRepository;
 import dev.thural.quietspacebackend.service.UserService;
 import dev.thural.quietspacebackend.entity.PostEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
@@ -16,6 +19,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +32,7 @@ public class PostServiceImpl implements PostService {
     private final PostMapper postMapper;
     private final UserService userService;
     private final PostRepository postRepository;
+    private final PostLikeRepository postLikeRepository;
 
     @Override
     public Page<PostDTO> getAllPosts(Integer pageNumber, Integer pageSize) {
@@ -119,6 +124,30 @@ public class PostServiceImpl implements PostService {
 
     private boolean isPostExistsByLoggedUser(PostEntity existingPostEntity, UserEntity loggedUser) {
         return existingPostEntity.getUser().equals(loggedUser);
+    }
+
+    @Override
+    public List<PostLikeDTO> getPostLikesByPostId(UUID postId) {
+        return postLikeRepository.findAllByPostId(postId);
+    }
+
+    @Override
+    public List<PostLikeDTO> getPostLikesByUserId(UUID userId) {
+        return postLikeRepository.findAllByUserId(userId);
+    }
+
+    @Override
+    public void togglePostLike(String authHeader, UUID postId) {
+        UserEntity userEntity = userService.findUserByJwt(authHeader)
+                .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
+        boolean isPostLikeExists = postLikeRepository.existsByPostIdAndUserId(postId, userEntity.getId());
+
+        if (isPostLikeExists) postLikeRepository.deleteById(postId);
+        else {
+            PostEntity postEntity = postRepository.findById(postId)
+                    .orElseThrow(() -> new UserNotFoundException("post not found"));
+            postLikeRepository.save(PostLikeEntity.builder().post(postEntity).user(userEntity).build());
+        }
     }
 
 }
