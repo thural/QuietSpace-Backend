@@ -1,8 +1,10 @@
 package dev.thural.quietspacebackend.controller;
 
 import dev.thural.quietspacebackend.model.PostDTO;
+import dev.thural.quietspacebackend.model.PostLikeDTO;
 import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.service.AuthService;
+import dev.thural.quietspacebackend.service.PostLikeService;
 import dev.thural.quietspacebackend.service.PostService;
 import dev.thural.quietspacebackend.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,6 +28,7 @@ public class UserController {
     private final UserService userService;
     private final PostService postService;
     private final AuthService authService;
+    private final PostLikeService postLikeService;
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.GET)
     Page<UserDTO> listUsers(@RequestParam(name = "username", required = false) String username,
@@ -79,6 +83,11 @@ public class UserController {
                                        @RequestParam(name = "page-number", required = false) Integer pageNumber,
                                        @RequestParam(name = "page-size", required = false) Integer pageSize) {
         return postService.getPostsByUserId(userId, pageNumber, pageSize);
+    }
+
+    @RequestMapping(value = USER_PATH_ID + "/post-likes", method = RequestMethod.GET)
+    List<PostLikeDTO> getAllPostLikesByUserId(@PathVariable("userId") UUID userId) {
+        return postLikeService.getAllByUserId(userId);
     }
 
 }

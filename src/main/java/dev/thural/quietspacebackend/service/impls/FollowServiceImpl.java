@@ -8,7 +8,7 @@ import dev.thural.quietspacebackend.model.FollowDTO;
 import dev.thural.quietspacebackend.repository.FollowRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.FollowService;
-import dev.thural.quietspacebackend.utils.JwtProvider;
+import dev.thural.quietspacebackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,7 +28,7 @@ public class FollowServiceImpl implements FollowService {
 
     private final FollowRepository followRepository;
 
-    private final JwtProvider jwtProvider;
+    private final UserService userService;
 
     private final UserRepository userRepository;
 
@@ -55,7 +55,7 @@ public class FollowServiceImpl implements FollowService {
     }
 
     private void checkUserValidity(UUID userId, String jwtToken) {
-        Optional<UserEntity> foundUser = jwtProvider.findUserByJwt(jwtToken);
+        Optional<UserEntity> foundUser = userService.findUserByJwt(jwtToken);
 
         foundUser.ifPresent(userEntity -> {
             if (!userEntity.getId().equals(userId))

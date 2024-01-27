@@ -1,6 +1,5 @@
 package dev.thural.quietspacebackend.config;
 
-import dev.thural.quietspacebackend.constant.JwtConstant;
 import dev.thural.quietspacebackend.service.AuthService;
 import dev.thural.quietspacebackend.utils.JwtProvider;
 import jakarta.servlet.*;
