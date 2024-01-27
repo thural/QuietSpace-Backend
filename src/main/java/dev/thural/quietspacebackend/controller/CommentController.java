@@ -79,8 +79,8 @@ public class CommentController {
 
     @RequestMapping(value = COMMENT_PATH_ID + "/toggle-like", method = RequestMethod.POST)
     ResponseEntity<?> toggleCommentLike(@RequestHeader("Authorization") String authHeader,
-                                        @RequestBody @Validated CommentLikeDTO commentLikeDTO) {
-        commentLikeService.toggleCommentLike(authHeader, commentLikeDTO);
+                                        @PathVariable("commentId") UUID commentId) {
+        commentLikeService.toggleCommentLike(authHeader, commentId);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

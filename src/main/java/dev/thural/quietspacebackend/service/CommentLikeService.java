@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface CommentLikeService {
-    void toggleCommentLike(String authHeader, CommentLikeDTO commentLike);
+    void toggleCommentLike(String authHeader, UUID commentId);
 
     List<CommentLikeDTO> getAllByCommentId(UUID commentId);
 
