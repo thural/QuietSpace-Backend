@@ -1,6 +1,8 @@
 package dev.thural.quietspacebackend.controller;
 
 import dev.thural.quietspacebackend.model.CommentDTO;
+import dev.thural.quietspacebackend.model.CommentLikeDTO;
+import dev.thural.quietspacebackend.service.CommentLikeService;
 import dev.thural.quietspacebackend.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,6 +24,7 @@ public class CommentController {
     public static final String COMMENT_PATH_ID = COMMENT_PATH + "/{commentId}";
 
     private final CommentService commentService;
+    private final CommentLikeService commentLikeService;
 
 
     @RequestMapping(value = COMMENT_PATH + "/post/{postId}", method = RequestMethod.GET)
@@ -67,4 +71,17 @@ public class CommentController {
         commentService.patchOne(commentId, comment, authHeader);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @RequestMapping(value = COMMENT_PATH_ID + "/likes", method = RequestMethod.GET)
+    List<CommentLikeDTO> getAllCommentLikesByCommentId(@PathVariable("commentId") UUID commentId) {
+        return commentLikeService.getAllByCommentId(commentId);
+    }
+
+    @RequestMapping(value = COMMENT_PATH_ID + "/toggle-like", method = RequestMethod.POST)
+    ResponseEntity<?> toggleCommentLike(@RequestHeader("Authorization") String authHeader,
+                                        @RequestBody @Validated CommentLikeDTO commentLikeDTO) {
+        commentLikeService.toggleCommentLike(authHeader, commentLikeDTO);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
 }

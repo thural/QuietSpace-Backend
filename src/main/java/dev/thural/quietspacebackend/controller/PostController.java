@@ -76,7 +76,7 @@ public class PostController {
         return postLikeService.getAllByPostId(postId);
     }
 
-    @RequestMapping(value = POST_PATH_ID + "/likes" + "/toggle-like", method = RequestMethod.POST)
+    @RequestMapping(value = POST_PATH_ID + "/toggle-like", method = RequestMethod.POST)
     ResponseEntity<?> togglePostLike(@RequestHeader("Authorization") String authHeader,
                                      @RequestBody PostLikeDTO postLikeDTO) {
         postLikeService.togglePostLike(authHeader, postLikeDTO);
