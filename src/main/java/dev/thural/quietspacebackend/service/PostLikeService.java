@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface PostLikeService {
     List<PostLikeDTO> getAllByPostId(UUID postId);
 
-    void togglePostLike(String authHeader, PostLikeDTO postLikeDTO);
+    void togglePostLike(String authHeader, UUID postId);
 
     List<PostLikeDTO> getAllByUserId(UUID userId);
 }

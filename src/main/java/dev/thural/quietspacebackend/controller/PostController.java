@@ -78,8 +78,8 @@ public class PostController {
 
     @RequestMapping(value = POST_PATH_ID + "/toggle-like", method = RequestMethod.POST)
     ResponseEntity<?> togglePostLike(@RequestHeader("Authorization") String authHeader,
-                                     @RequestBody PostLikeDTO postLikeDTO) {
-        postLikeService.togglePostLike(authHeader, postLikeDTO);
+                                     @PathVariable UUID postId) {
+        postLikeService.togglePostLike(authHeader, postId);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
