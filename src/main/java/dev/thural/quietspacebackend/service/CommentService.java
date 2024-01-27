@@ -1,8 +1,10 @@
 package dev.thural.quietspacebackend.service;
 
 import dev.thural.quietspacebackend.model.CommentDTO;
+import dev.thural.quietspacebackend.model.CommentLikeDTO;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,4 +20,10 @@ public interface CommentService {
     void deleteOne(UUID id, String authHeader);
 
     void patchOne(UUID id, CommentDTO comment, String authHeader);
+
+    void toggleCommentLike(String authHeader, UUID commentId);
+
+    List<CommentLikeDTO> getAllByCommentId(UUID commentId);
+
+    List<CommentLikeDTO> getAllByUserId(UUID userId);
 }

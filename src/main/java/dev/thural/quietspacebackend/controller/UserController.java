@@ -27,7 +27,7 @@ public class UserController {
     private final PostService postService;
     private final AuthService authService;
     private final PostLikeService postLikeService;
-    private final CommentLikeService commentLikeService;
+    private final CommentService commentService;
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.GET)
     Page<UserDTO> listUsers(@RequestParam(name = "username", required = false) String username,
@@ -91,7 +91,7 @@ public class UserController {
 
     @RequestMapping(value = USER_PATH_ID + "/comment-likes", method = RequestMethod.GET)
     List<CommentLikeDTO> getAllCommentLikesByUserId(@PathVariable("userId") UUID userId) {
-        return commentLikeService.getAllByUserId(userId);
+        return commentService.getAllByUserId(userId);
     }
 
 }
