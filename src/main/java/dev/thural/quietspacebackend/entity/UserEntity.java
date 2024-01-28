@@ -7,16 +7,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -28,7 +22,7 @@ import java.util.stream.Collectors;
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
-public class UserEntity implements UserDetails {
+public class UserEntity {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -113,30 +107,4 @@ public class UserEntity implements UserDetails {
         updateDate = OffsetDateTime.now();
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Arrays.stream(this.role.split(","))
-                .map(role -> new SimpleGrantedAuthority(role.toUpperCase()))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 }
