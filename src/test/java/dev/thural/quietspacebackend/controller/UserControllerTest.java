@@ -11,6 +11,7 @@ import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.model.response.AuthResponse;
 import dev.thural.quietspacebackend.service.AuthService;
+import dev.thural.quietspacebackend.service.CommentService;
 import dev.thural.quietspacebackend.service.PostService;
 import dev.thural.quietspacebackend.service.UserService;
 import dev.thural.quietspacebackend.service.impls.UserServiceImpl;
@@ -18,10 +19,9 @@ import dev.thural.quietspacebackend.utils.JwtProvider;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -35,20 +35,25 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@WebMvcTest(UserController.class)
-@AutoConfigureMockMvc(addFilters = false)
+//@WebMvcTest(UserController.class)
+//@AutoConfigureMockMvc(addFilters = false)
+@ExtendWith(MockitoExtension.class)
 public class UserControllerTest {
 
 //
@@ -70,32 +75,59 @@ public class UserControllerTest {
 //    @MockBean
 //    UserRepository userRepository;
 
-//    @Autowired
-//    UserRepository userRepository;
 //    UserService userServiceImpl;
 //    UserDetailsService userDetailsService;
 //    PasswordEncoder passwordEncoder;
 //    UserMapper userMapper;
 
+
+//    @Autowired
+//    MockMvc mockMvc;
+
+//    @MockBean
+//    AuthService authService;
+
+//
+//    @MockBean
+//    UserService userService;
+//
+//    @MockBean
+//    PostService postService;
+//
+//    @MockBean
+//    CommentService commentService;
+
+    @Mock
+    UserRepository userRepository;
+
+    @InjectMocks
+    UserServiceImpl userService;
+
+    @Test
+    public void getUserByIdTest() {
+        UUID id = UUID.fromString("e18d0c0c-37a4-4e50-8041-bd49ffde8182");
+        userService.getUserById(id);
+    }
+
+
+
+//    @InjectMocks
+//    UserController userController;
+
 //    @BeforeEach
 //    void setUp() {
+//        MockitoAnnotations.openMocks(this);
 //        userServiceImpl = new UserServiceImpl(passwordEncoder, userDetailsService, userMapper, userRepository );
+//    }
+
+//    public void mapTest(){
+//        Map mapMock = mock(Map.class);
+//        assertEquals(mapMock.size(), 0);
 //    }
 
 //    @Autowired
 //    private WebApplicationContext context;
 
-//    @MockBean
-//    UserController userController;
-
-//    @Autowired
-//    MockMvc mockMvc;
-//
-//
-//
-//    UserServiceImpl userServiceImpl;
-//
-//
 //    @Test
 //    void getUserById() throws Exception {
 //        UserEntity user = userRepository
@@ -103,20 +135,18 @@ public class UserControllerTest {
 //                .orElseThrow(EntityNotFoundException::new);
 //
 //        System.out.println("found user form test repository: " + user.getEmail());
-
 //
-//
-//        UserDTO testUser = userServiceImpl.listUsersByQuery("t", 10, 15)
+//        UserDTO testUser = userService.listUsersByQuery("t", 10, 15)
 //                .getContent().get(0);
 //
 //        System.out.println("found test user email: " + testUser.getEmail());
 //
 //        given(userService.getUserById(testUser.getId()))
 //                .willReturn(Optional.of(testUser));
-//
-//        mockMvc.perform(get(UserController.USER_PATH, UUID.randomUUID())
+
+//        mockMvc.perform(get(UserController.USER_PATH, UUID.fromString("e18d0c0c-37a4-4e50-8041-bd49ffde8182"))
 //                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk());
+//                .andExpect(status().isOk())
 //                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
 //                .andExpect(jsonPath("$.id", is(testUser.getId().toString())))
 //                .andExpect(jsonPath("$.username", is(testUser.getUsername())));
