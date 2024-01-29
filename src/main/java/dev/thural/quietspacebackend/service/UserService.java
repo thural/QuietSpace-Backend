@@ -14,7 +14,7 @@ public interface UserService {
 
     Optional<UserDto> getUserById(UUID id);
 
-    Optional<UserDto> updateUser(UserEntity loggedUser, UserDto user);
+    Optional<UserDto> updateUser(String authHeader, UserDto user);
 
     Boolean deleteUser(UUID userId, String authHeader);
 

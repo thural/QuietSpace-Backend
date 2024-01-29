@@ -51,8 +51,7 @@ public class UserController {
     @RequestMapping(value = USER_PATH, method = RequestMethod.PUT)
     ResponseEntity<?> putUser(@RequestHeader("Authorization") String authHeader,
                               @RequestBody @Validated UserDto user) {
-        userService.findUserByJwt(authHeader).ifPresent(
-                (loggedUser) -> userService.updateUser(loggedUser, user));
+        userService.updateUser(authHeader, user);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

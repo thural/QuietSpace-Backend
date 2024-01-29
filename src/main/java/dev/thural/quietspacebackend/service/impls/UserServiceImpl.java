@@ -87,7 +87,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserDto> updateUser(UserEntity loggedUser, UserDto userDTO) {
+    public Optional<UserDto> updateUser(String authHeader, UserDto userDTO) {
+        UserEntity loggedUser = findUserByJwt(authHeader)
+                .orElseThrow(() -> new UserNotFoundException("user does not exist"));
 
         loggedUser.setUsername(userDTO.getUsername());
         loggedUser.setEmail(userDTO.getEmail());
