@@ -4,7 +4,7 @@ import dev.thural.quietspacebackend.entity.ChatEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.mapper.ChatMapper;
-import dev.thural.quietspacebackend.model.ChatDTO;
+import dev.thural.quietspacebackend.model.ChatDto;
 import dev.thural.quietspacebackend.repository.ChatRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.ChatService;
@@ -29,7 +29,7 @@ public class ChatServiceImpl implements ChatService {
 
 
     @Override
-    public List<ChatDTO> getChatsByUserId(UUID memberId, String authHeader) {
+    public List<ChatDto> getChatsByUserId(UUID memberId, String authHeader) {
         UserEntity loggedUser = userService.findUserByJwt(authHeader).orElse(null);
 
         if (loggedUser == null)
@@ -101,7 +101,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatDTO createChat(ChatDTO chatDTO, String authHeader) {
+    public ChatDto createChat(ChatDto chatDTO, String authHeader) {
         List<UserEntity> userList = chatDTO.getUserIds().stream()
                 .map(userId -> userRepository.findById(userId)
                         .orElseThrow(() -> new UserNotFoundException("user not found"))
@@ -125,7 +125,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatDTO getChatById(UUID chatId, String authHeader) {
+    public ChatDto getChatById(UUID chatId, String authHeader) {
         UserEntity loggedUser = userService.findUserByJwt(authHeader).orElse(null);
 
         if (loggedUser == null)

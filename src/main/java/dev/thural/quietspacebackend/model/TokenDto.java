@@ -11,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TokenDTO {
+public class TokenDto {
 
     private UUID id;
 

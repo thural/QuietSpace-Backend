@@ -2,13 +2,13 @@ package dev.thural.quietspacebackend.service.impls;
 
 import dev.thural.quietspacebackend.entity.PostLikeEntity;
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
-import dev.thural.quietspacebackend.model.PostLikeDTO;
+import dev.thural.quietspacebackend.model.PostDto;
+import dev.thural.quietspacebackend.model.PostLikeDto;
 import dev.thural.quietspacebackend.repository.PostLikeRepository;
 import dev.thural.quietspacebackend.service.UserService;
 import dev.thural.quietspacebackend.entity.PostEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.PostMapper;
-import dev.thural.quietspacebackend.model.PostDTO;
 import dev.thural.quietspacebackend.repository.PostRepository;
 import dev.thural.quietspacebackend.service.PostService;
 import jakarta.persistence.EntityNotFoundException;
@@ -35,7 +35,7 @@ public class PostServiceImpl implements PostService {
     private final PostLikeRepository postLikeRepository;
 
     @Override
-    public Page<PostDTO> getAllPosts(Integer pageNumber, Integer pageSize) {
+    public Page<PostDto> getAllPosts(Integer pageNumber, Integer pageSize) {
 
         PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
 
@@ -43,7 +43,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostDTO addPost(PostDTO post, String token) {
+    public PostDto addPost(PostDto post, String token) {
         UserEntity loggedUserEntity = userService.findUserByJwt(token)
                 .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
         PostEntity postEntity = postMapper.postDtoToEntity(post);
@@ -53,16 +53,16 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Optional<PostDTO> getPostById(UUID postId) {
+    public Optional<PostDto> getPostById(UUID postId) {
         PostEntity postEntity = postRepository.findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        PostDTO postDTO = postMapper.postEntityToDto(postEntity);
+        PostDto postDTO = postMapper.postEntityToDto(postEntity);
         return Optional.of(postDTO);
     }
 
     @Override
-    public void updatePost(UUID postId, PostDTO post, String authHeader) {
+    public void updatePost(UUID postId, PostDto post, String authHeader) {
         UserEntity loggedUserEntity = userService.findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
 
@@ -78,7 +78,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void patchPost(String authHeader, UUID postId, PostDTO post) {
+    public void patchPost(String authHeader, UUID postId, PostDto post) {
         UserEntity loggedUserEntity = userService.findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
 
@@ -108,7 +108,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostDTO> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
+    public Page<PostDto> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
 
         Page<PostEntity> postPage;
@@ -127,12 +127,12 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostLikeDTO> getPostLikesByPostId(UUID postId) {
+    public List<PostLikeDto> getPostLikesByPostId(UUID postId) {
         return postLikeRepository.findAllByPostId(postId);
     }
 
     @Override
-    public List<PostLikeDTO> getPostLikesByUserId(UUID userId) {
+    public List<PostLikeDto> getPostLikesByUserId(UUID userId) {
         return postLikeRepository.findAllByUserId(userId);
     }
 

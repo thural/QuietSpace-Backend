@@ -6,8 +6,8 @@ import dev.thural.quietspacebackend.entity.PostEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.mapper.CommentMapper;
-import dev.thural.quietspacebackend.model.CommentDTO;
-import dev.thural.quietspacebackend.model.CommentLikeDTO;
+import dev.thural.quietspacebackend.model.CommentDto;
+import dev.thural.quietspacebackend.model.CommentLikeDto;
 import dev.thural.quietspacebackend.repository.CommentLikeRepository;
 import dev.thural.quietspacebackend.repository.CommentRepository;
 import dev.thural.quietspacebackend.repository.PostRepository;
@@ -38,13 +38,13 @@ public class CommentServiceImpl implements CommentService {
     private final CommentLikeRepository commentLikeRepository;
 
     @Override
-    public Page<CommentDTO> getAllByPost(UUID postId, Integer pageNumber, Integer pageSize) {
+    public Page<CommentDto> getAllByPost(UUID postId, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
         return commentRepository.findAllByPostId(postId, pageRequest).map(commentMapper::commentEntityToDto);
     }
 
     @Override
-    public CommentDTO addOne(CommentDTO comment, String authHeader) {
+    public CommentDto addOne(CommentDto comment, String authHeader) {
         UserEntity loggedUserEntity = userService.findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
 
@@ -62,15 +62,15 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Optional<CommentDTO> getById(UUID commentId) {
+    public Optional<CommentDto> getById(UUID commentId) {
         CommentEntity commentEntity = commentRepository.findById(commentId)
                 .orElseThrow(EntityNotFoundException::new);
-        CommentDTO commentDTO = commentMapper.commentEntityToDto(commentEntity);
+        CommentDto commentDTO = commentMapper.commentEntityToDto(commentEntity);
         return Optional.of(commentDTO);
     }
 
     @Override
-    public void updateOne(UUID commentId, CommentDTO comment, String authHeader) {
+    public void updateOne(UUID commentId, CommentDto comment, String authHeader) {
         UserEntity loggedUserEntity = userService.findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
         CommentEntity existingCommentEntity = commentRepository.findById(commentId)
@@ -98,7 +98,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void patchOne(UUID commentId, CommentDTO comment, String authHeader) {
+    public void patchOne(UUID commentId, CommentDto comment, String authHeader) {
         UserEntity loggedUserEntity = userService.findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
 
@@ -132,12 +132,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentLikeDTO> getAllByCommentId(UUID commentId) {
+    public List<CommentLikeDto> getAllByCommentId(UUID commentId) {
         return commentLikeRepository.findAllByCommentId(commentId);
     }
 
     @Override
-    public List<CommentLikeDTO> getAllByUserId(UUID userId) {
+    public List<CommentLikeDto> getAllByUserId(UUID userId) {
         return commentLikeRepository.findAllByUserId(userId);
     }
 

@@ -3,7 +3,7 @@ package dev.thural.quietspacebackend.repository;
 import dev.thural.quietspacebackend.entity.CommentEntity;
 import dev.thural.quietspacebackend.entity.CommentLikeEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
-import dev.thural.quietspacebackend.model.CommentLikeDTO;
+import dev.thural.quietspacebackend.model.CommentLikeDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -19,9 +19,9 @@ public interface CommentLikeRepository extends JpaRepository<CommentLikeEntity, 
 
     boolean existsByCommentIdAndUserId(UUID likeCommentId, UUID likeUserId);
 
-    List<CommentLikeDTO> findAllByCommentId(UUID commentId);
+    List<CommentLikeDto> findAllByCommentId(UUID commentId);
 
-    List<CommentLikeDTO> findAllByUserId(UUID userId);
+    List<CommentLikeDto> findAllByUserId(UUID userId);
 
     CommentLikeEntity findByCommentIdAndUserId(UUID likeCommentId, UUID likeUserId);
 }

@@ -1,7 +1,7 @@
 package dev.thural.quietspacebackend.service;
 
-import dev.thural.quietspacebackend.model.PostDTO;
-import dev.thural.quietspacebackend.model.PostLikeDTO;
+import dev.thural.quietspacebackend.model.PostDto;
+import dev.thural.quietspacebackend.model.PostLikeDto;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -9,23 +9,23 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PostService {
-    Page<PostDTO> getAllPosts(Integer pageNumber, Integer pageSize);
+    Page<PostDto> getAllPosts(Integer pageNumber, Integer pageSize);
 
-    PostDTO addPost(PostDTO post, String authHeader);
+    PostDto addPost(PostDto post, String authHeader);
 
-    Optional<PostDTO> getPostById(UUID id);
+    Optional<PostDto> getPostById(UUID id);
 
-    void updatePost(UUID id, PostDTO post, String authHeader);
+    void updatePost(UUID id, PostDto post, String authHeader);
 
     void deletePost(UUID id, String authHeader);
 
-    void patchPost(String authHeader, UUID id, PostDTO post);
+    void patchPost(String authHeader, UUID id, PostDto post);
 
-    Page<PostDTO> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize);
+    Page<PostDto> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize);
 
-    List<PostLikeDTO> getPostLikesByPostId(UUID postId);
+    List<PostLikeDto> getPostLikesByPostId(UUID postId);
 
     void togglePostLike(String authHeader, UUID postId);
 
-    List<PostLikeDTO> getPostLikesByUserId(UUID userId);
+    List<PostLikeDto> getPostLikesByUserId(UUID userId);
 }

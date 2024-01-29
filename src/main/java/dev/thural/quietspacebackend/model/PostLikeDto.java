@@ -11,7 +11,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostLikeDTO {
+public class PostLikeDto {
     private UUID id;
 
     String username;

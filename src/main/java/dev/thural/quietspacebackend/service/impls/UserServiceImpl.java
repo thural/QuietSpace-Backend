@@ -1,11 +1,11 @@
 package dev.thural.quietspacebackend.service.impls;
 
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
+import dev.thural.quietspacebackend.model.UserDto;
 import dev.thural.quietspacebackend.utils.CustomPageProvider;
 import dev.thural.quietspacebackend.utils.JwtProvider;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.UserMapper;
-import dev.thural.quietspacebackend.model.UserDTO;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public Page<UserDTO> listUsers(String username, Integer pageNumber, Integer pageSize) {
+    public Page<UserDto> listUsers(String username, Integer pageNumber, Integer pageSize) {
 
         PageRequest pageRequest = CustomPageProvider.buildCustomPageRequest(pageNumber, pageSize);
         Page<UserEntity> userPage;
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<UserDTO> listUsersByQuery(String query, Integer pageNumber, Integer pageSize) {
+    public Page<UserDto> listUsersByQuery(String query, Integer pageNumber, Integer pageSize) {
 
         PageRequest pageRequest = CustomPageProvider.buildCustomPageRequest(pageNumber, pageSize);
         Page<UserEntity> userPage;
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserDTO> findUserDtoByJwt(String authHeader) {
+    public Optional<UserDto> findUserDtoByJwt(String authHeader) {
 
         UserEntity founUserEntity = findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("user does not exist"));
@@ -77,17 +77,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserDTO> getUserById(UUID id) {
+    public Optional<UserDto> getUserById(UUID id) {
 
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
 
-        UserDTO userDTO = userMapper.userEntityToDto(userEntity);
+        UserDto userDTO = userMapper.userEntityToDto(userEntity);
         return Optional.of(userDTO);
     }
 
     @Override
-    public Optional<UserDTO> updateUser(UserEntity loggedUser, UserDTO userDTO) {
+    public Optional<UserDto> updateUser(UserEntity loggedUser, UserDto userDTO) {
 
         loggedUser.setUsername(userDTO.getUsername());
         loggedUser.setEmail(userDTO.getEmail());
@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void patchUser(UserDTO userDTO, String authHeader) {
+    public void patchUser(UserDto userDTO, String authHeader) {
 
         UserEntity loggedUserEntity = findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("user does not exist"));

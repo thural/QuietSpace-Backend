@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ChatDTO {
+public class ChatDto {
 
     private UUID id;
 
@@ -21,11 +21,11 @@ public class ChatDTO {
     private Integer version;
 
     @NotNull
-    private List<UserDTO> users;
+    private List<UserDto> users;
 
     private List<UUID> userIds;
 
-    private List<MessageDTO> messages;
+    private List<MessageDto> messages;
 
     private OffsetDateTime createDate;
 

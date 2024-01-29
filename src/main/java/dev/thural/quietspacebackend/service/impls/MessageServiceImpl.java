@@ -5,7 +5,7 @@ import dev.thural.quietspacebackend.entity.MessageEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.mapper.MessageMapper;
-import dev.thural.quietspacebackend.model.MessageDTO;
+import dev.thural.quietspacebackend.model.MessageDto;
 import dev.thural.quietspacebackend.repository.ChatRepository;
 import dev.thural.quietspacebackend.repository.MessageRepository;
 import dev.thural.quietspacebackend.service.MessageService;
@@ -27,7 +27,7 @@ public class MessageServiceImpl implements MessageService {
     private final UserService userService;
 
     @Override
-    public MessageDTO addMessage(MessageDTO messageDTO, String authHeader) {
+    public MessageDto addMessage(MessageDto messageDTO, String authHeader) {
 
         UserEntity loggedUser = userService.findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
@@ -44,7 +44,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Optional<MessageDTO> getMessageById(UUID messageId) {
+    public Optional<MessageDto> getMessageById(UUID messageId) {
         return Optional.empty();
     }
 
@@ -62,7 +62,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void patchMessage(UUID messageId, MessageDTO messageDTO, String authHeader) {
+    public void patchMessage(UUID messageId, MessageDto messageDTO, String authHeader) {
         // TODO: implement a patch method for messages
     }
 }

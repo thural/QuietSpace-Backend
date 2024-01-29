@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FollowDTO {
+public class FollowDto {
 
     private UUID id;
 

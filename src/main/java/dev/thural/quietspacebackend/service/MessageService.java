@@ -1,17 +1,17 @@
 package dev.thural.quietspacebackend.service;
 
-import dev.thural.quietspacebackend.model.MessageDTO;
+import dev.thural.quietspacebackend.model.MessageDto;
 
 import java.util.Optional;
 import java.util.UUID;
 
 public interface MessageService {
 
-    MessageDTO addMessage(MessageDTO messageDTO, String authHeader);
+    MessageDto addMessage(MessageDto messageDTO, String authHeader);
 
-    Optional<MessageDTO> getMessageById(UUID messageId);
+    Optional<MessageDto> getMessageById(UUID messageId);
 
     void deleteMessage(UUID id, String authHeader);
 
-    void patchMessage(UUID messageId, MessageDTO messageDTO, String authHeader);
+    void patchMessage(UUID messageId, MessageDto messageDTO, String authHeader);
 }

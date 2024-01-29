@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 @Setter
 public class CustomErrorException extends RuntimeException {
     private HttpStatus status = null;
-
     private Object data = null;
 
     public CustomErrorException() {

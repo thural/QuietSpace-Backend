@@ -17,6 +17,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Table(name = "token")
 public class TokenEntity {
+
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -26,4 +27,5 @@ public class TokenEntity {
     @NotNull
     @NotBlank
     private String jwtToken;
+
 }

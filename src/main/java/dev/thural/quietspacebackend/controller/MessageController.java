@@ -1,6 +1,6 @@
 package dev.thural.quietspacebackend.controller;
 
-import dev.thural.quietspacebackend.model.MessageDTO;
+import dev.thural.quietspacebackend.model.MessageDto;
 import dev.thural.quietspacebackend.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -23,10 +23,9 @@ public class MessageController {
 
     @RequestMapping(value = MESSAGE_PATH, method = RequestMethod.POST)
     ResponseEntity<?> createMessage(@RequestHeader("Authorization") String authHeader,
-                                    @RequestBody @Validated MessageDTO messageDTO) {
+                                    @RequestBody @Validated MessageDto messageDto) {
 
-        MessageDTO savedMessage = messageService.addMessage(messageDTO, authHeader);
-
+        MessageDto savedMessage = messageService.addMessage(messageDto, authHeader);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", MESSAGE_PATH + "/" + savedMessage.getId());
         return new ResponseEntity<>(savedMessage, headers, HttpStatus.CREATED);
@@ -35,6 +34,7 @@ public class MessageController {
     @RequestMapping(value = MESSAGE_PATH_ID, method = RequestMethod.DELETE)
     ResponseEntity<?> deleteMessage(@RequestHeader("Authorization") String authHeader,
                                     @PathVariable("messageId") UUID messageId) {
+
         messageService.deleteMessage(messageId, authHeader);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

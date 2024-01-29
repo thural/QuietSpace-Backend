@@ -57,4 +57,5 @@ public class CommentLikeEntity {
     private void onUpdate() {
         updateDate = OffsetDateTime.now();
     }
+
 }

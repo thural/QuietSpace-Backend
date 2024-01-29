@@ -1,7 +1,7 @@
 package dev.thural.quietspacebackend.controller;
 
-import dev.thural.quietspacebackend.model.CommentDTO;
-import dev.thural.quietspacebackend.model.CommentLikeDTO;
+import dev.thural.quietspacebackend.model.CommentDto;
+import dev.thural.quietspacebackend.model.CommentLikeDto;
 import dev.thural.quietspacebackend.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,22 +26,25 @@ public class CommentController {
 
 
     @RequestMapping(value = COMMENT_PATH + "/post/{postId}", method = RequestMethod.GET)
-    Page<CommentDTO> getAllCommentsByPostId(@PathVariable("postId") UUID postId,
-                                            @RequestParam(name = "page-number", required = false) Integer pageNumber,
-                                            @RequestParam(name = "page-size", required = false) Integer pageSize) {
+    Page<CommentDto> getCommentsByPostId(@PathVariable("postId") UUID postId,
+                                         @RequestParam(name = "page-number", required = false) Integer pageNumber,
+                                         @RequestParam(name = "page-size", required = false) Integer pageSize) {
+
         return commentService.getAllByPost(postId, pageNumber, pageSize);
     }
 
     @RequestMapping(COMMENT_PATH_ID)
-    CommentDTO getCommentById(@PathVariable("commentId") UUID commentId) {
-        Optional<CommentDTO> optionalComment = commentService.getById(commentId);
+    CommentDto getCommentById(@PathVariable("commentId") UUID commentId) {
+
+        Optional<CommentDto> optionalComment = commentService.getById(commentId);
         return optionalComment.orElse(null);
     }
 
     @RequestMapping(value = COMMENT_PATH, method = RequestMethod.POST)
     ResponseEntity<?> createComment(@RequestHeader("Authorization") String authHeader,
-                                    @RequestBody @Validated CommentDTO comment) {
-        CommentDTO savedComment = commentService.addOne(comment, authHeader);
+                                    @RequestBody @Validated CommentDto comment) {
+
+        CommentDto savedComment = commentService.addOne(comment, authHeader);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", COMMENT_PATH + "/" + savedComment.getId());
         return new ResponseEntity<>(savedComment, headers, HttpStatus.CREATED);
@@ -50,7 +53,8 @@ public class CommentController {
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.PUT)
     ResponseEntity<?> putComment(@RequestHeader("Authorization") String authHeader,
                                  @PathVariable("commentId") UUID commentId,
-                                 @RequestBody @Validated CommentDTO comment) {
+                                 @RequestBody @Validated CommentDto comment) {
+
         commentService.updateOne(commentId, comment, authHeader);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -58,6 +62,7 @@ public class CommentController {
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.DELETE)
     ResponseEntity<?> deleteComment(@RequestHeader("Authorization") String authHeader,
                                     @PathVariable("commentId") UUID commentId) {
+
         commentService.deleteOne(commentId, authHeader);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -65,19 +70,22 @@ public class CommentController {
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.PATCH)
     ResponseEntity<?> patchComment(@RequestHeader("Authorization") String authHeader,
                                    @PathVariable("commentId") UUID commentId,
-                                   @RequestBody CommentDTO comment) {
+                                   @RequestBody CommentDto comment) {
+
         commentService.patchOne(commentId, comment, authHeader);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = COMMENT_PATH_ID + "/likes", method = RequestMethod.GET)
-    List<CommentLikeDTO> getAllCommentLikesByCommentId(@PathVariable("commentId") UUID commentId) {
+    List<CommentLikeDto> getCommentLikesByCommentId(@PathVariable("commentId") UUID commentId) {
+
         return commentService.getAllByCommentId(commentId);
     }
 
     @RequestMapping(value = COMMENT_PATH_ID + "/toggle-like", method = RequestMethod.POST)
     ResponseEntity<?> toggleCommentLike(@RequestHeader("Authorization") String authHeader,
                                         @PathVariable("commentId") UUID commentId) {
+
         commentService.toggleCommentLike(authHeader, commentId);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

@@ -3,7 +3,7 @@ package dev.thural.quietspacebackend.service.impls;
 import dev.thural.quietspacebackend.entity.TokenEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.UserMapper;
-import dev.thural.quietspacebackend.model.UserDTO;
+import dev.thural.quietspacebackend.model.UserDto;
 import dev.thural.quietspacebackend.model.request.LoginRequest;
 import dev.thural.quietspacebackend.model.response.AuthResponse;
 import dev.thural.quietspacebackend.repository.TokenRepository;
@@ -37,7 +37,7 @@ public class AuthServiceImpl implements LogoutHandler, AuthService {
 
 
     @Override
-    public AuthResponse register(UserDTO userDTO) {
+    public AuthResponse register(UserDto userDTO) {
         userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         UserEntity savedUser = userRepository.save(userMapper.userDtoToEntity(userDTO));
         UserDetails userDetails = userDetailsService.loadUserByUsername(savedUser.getEmail());

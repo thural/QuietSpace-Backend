@@ -105,7 +105,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundExceptions(RuntimeException e) {
-        HttpStatus status = HttpStatus.NOT_FOUND; // 404
+        HttpStatus status = HttpStatus.NOT_FOUND;
 
         return new ResponseEntity<>(
                 ErrorResponse.builder()
@@ -118,7 +118,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(CustomParameterConstraintException.class)
     public ResponseEntity<ErrorResponse> handleCustomParameterConstraintExceptions(RuntimeException e) {
-        HttpStatus status = HttpStatus.BAD_REQUEST; // 400
+        HttpStatus status = HttpStatus.BAD_REQUEST;
 
         return new ResponseEntity<>(
                 ErrorResponse.builder()
@@ -148,7 +148,7 @@ public class CustomExceptionHandler {
     @ExceptionHandler(Exception.class) // exception handled
     public ResponseEntity<ErrorResponse> handleExceptions(RuntimeException exception) {
 
-        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR; // 500
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
 
         return ResponseEntity.internalServerError()
                 .body(ErrorResponse.builder()

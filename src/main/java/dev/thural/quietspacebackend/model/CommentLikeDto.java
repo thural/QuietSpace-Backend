@@ -12,7 +12,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentLikeDTO {
+public class CommentLikeDto {
 
     private UUID id;
 

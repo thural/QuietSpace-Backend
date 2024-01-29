@@ -1,9 +1,9 @@
 package dev.thural.quietspacebackend.controller;
 
-import dev.thural.quietspacebackend.model.CommentLikeDTO;
-import dev.thural.quietspacebackend.model.PostDTO;
-import dev.thural.quietspacebackend.model.PostLikeDTO;
-import dev.thural.quietspacebackend.model.UserDTO;
+import dev.thural.quietspacebackend.model.CommentLikeDto;
+import dev.thural.quietspacebackend.model.PostDto;
+import dev.thural.quietspacebackend.model.PostLikeDto;
+import dev.thural.quietspacebackend.model.UserDto;
 import dev.thural.quietspacebackend.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,30 +29,30 @@ public class UserController {
     private final CommentService commentService;
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.GET)
-    Page<UserDTO> listUsers(@RequestParam(name = "username", required = false) String username,
+    Page<UserDto> listUsers(@RequestParam(name = "username", required = false) String username,
                             @RequestParam(name = "page-number", required = false) Integer pageNumber,
                             @RequestParam(name = "page-size", required = false) Integer pageSize) {
         return userService.listUsers(username, pageNumber, pageSize);
     }
 
     @RequestMapping(value = USER_PATH + "/search", method = RequestMethod.GET)
-    Page<UserDTO> listUsersByQuery(@RequestParam(name = "query", required = false) String query,
+    Page<UserDto> listUsersByQuery(@RequestParam(name = "query", required = false) String query,
                                    @RequestParam(name = "page-number", required = false) Integer pageNumber,
                                    @RequestParam(name = "page-size", required = false) Integer pageSize) {
         return userService.listUsersByQuery(query, pageNumber, pageSize);
     }
 
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.GET)
-    UserDTO getUserById(@PathVariable("userId") UUID userId) {
-        Optional<UserDTO> optionalUser = userService.getUserById(userId);
+    UserDto getUserById(@PathVariable("userId") UUID userId) {
+        Optional<UserDto> optionalUser = userService.getUserById(userId);
         return optionalUser.orElse(null);
     }
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.PUT)
     ResponseEntity<?> putUser(@RequestHeader("Authorization") String authHeader,
-                              @RequestBody @Validated UserDTO userDTO) {
+                              @RequestBody @Validated UserDto user) {
         userService.findUserByJwt(authHeader).ifPresent(
-                (loggedUser) -> userService.updateUser(loggedUser, userDTO));
+                (loggedUser) -> userService.updateUser(loggedUser, user));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -66,30 +66,30 @@ public class UserController {
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.PATCH)
     ResponseEntity<?> patchUser(@RequestHeader("Authorization") String authHeader,
-                                @RequestBody UserDTO userDTO) {
-        userService.patchUser(userDTO, authHeader);
+                                @RequestBody UserDto userDto) {
+        userService.patchUser(userDto, authHeader);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = USER_PATH + "/profile", method = RequestMethod.GET)
-    public UserDTO getUserFromToken(@RequestHeader("Authorization") String authHeader) {
+    public UserDto getUserFromToken(@RequestHeader("Authorization") String authHeader) {
         return userService.findUserDtoByJwt(authHeader).orElse(null);
     }
 
     @RequestMapping(value = USER_PATH_ID + "/posts", method = RequestMethod.GET)
-    public Page<PostDTO> listUserPosts(@PathVariable("userId") UUID userId,
+    public Page<PostDto> listUserPosts(@PathVariable("userId") UUID userId,
                                        @RequestParam(name = "page-number", required = false) Integer pageNumber,
                                        @RequestParam(name = "page-size", required = false) Integer pageSize) {
         return postService.getPostsByUserId(userId, pageNumber, pageSize);
     }
 
     @RequestMapping(value = USER_PATH_ID + "/post-likes", method = RequestMethod.GET)
-    List<PostLikeDTO> getAllPostLikesByUserId(@PathVariable("userId") UUID userId) {
+    List<PostLikeDto> getAllPostLikesByUserId(@PathVariable("userId") UUID userId) {
         return postService.getPostLikesByUserId(userId);
     }
 
     @RequestMapping(value = USER_PATH_ID + "/comment-likes", method = RequestMethod.GET)
-    List<CommentLikeDTO> getAllCommentLikesByUserId(@PathVariable("userId") UUID userId) {
+    List<CommentLikeDto> getAllCommentLikesByUserId(@PathVariable("userId") UUID userId) {
         return commentService.getAllByUserId(userId);
     }
 

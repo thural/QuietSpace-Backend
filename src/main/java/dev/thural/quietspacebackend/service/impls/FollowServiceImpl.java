@@ -4,7 +4,7 @@ import dev.thural.quietspacebackend.entity.FollowEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.mapper.FollowMapper;
-import dev.thural.quietspacebackend.model.FollowDTO;
+import dev.thural.quietspacebackend.model.FollowDto;
 import dev.thural.quietspacebackend.repository.FollowRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.FollowService;
@@ -28,7 +28,7 @@ public class FollowServiceImpl implements FollowService {
     private final UserRepository userRepository;
 
     @Override
-    public Page<FollowDTO> listFollowings(String authHeader, Integer pageNumber, Integer pageSize) {
+    public Page<FollowDto> listFollowings(String authHeader, Integer pageNumber, Integer pageSize) {
         UserEntity user = userService.findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("logged user does not exist"));
 
@@ -39,7 +39,7 @@ public class FollowServiceImpl implements FollowService {
     }
 
     @Override
-    public Page<FollowDTO> listFollowers(String authHeader, Integer pageNumber, Integer pageSize) {
+    public Page<FollowDto> listFollowers(String authHeader, Integer pageNumber, Integer pageSize) {
         UserEntity user = userService.findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("logged user does not exist"));
 
