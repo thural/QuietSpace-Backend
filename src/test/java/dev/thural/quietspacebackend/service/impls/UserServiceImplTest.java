@@ -2,7 +2,7 @@ package dev.thural.quietspacebackend.service.impls;
 
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.UserMapper;
-import dev.thural.quietspacebackend.model.UserDTO;
+import dev.thural.quietspacebackend.model.UserDto;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,13 +11,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
@@ -45,9 +44,17 @@ class UserServiceImplTest {
         UserEntity user = new UserEntity();
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        Optional <UserDTO> foundUser = userService.getUserById(userId);
+        Optional <UserDto> foundUser = userService.getUserById(userId);
         assertThat(foundUser).isNotNull();
 
         verify(userRepository, times(1)).findById(userId);
     }
+
+    @Test
+    void getByUUID(){
+        userService.getUserById(userId);
+
+        verify(userRepository).findById(any(UUID.class));
+    }
+
 }

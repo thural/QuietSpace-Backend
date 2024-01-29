@@ -2,7 +2,7 @@ package dev.thural.quietspacebackend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspacebackend.entity.UserEntity;
-import dev.thural.quietspacebackend.model.UserDTO;
+import dev.thural.quietspacebackend.model.UserDto;
 import dev.thural.quietspacebackend.model.response.AuthResponse;
 import dev.thural.quietspacebackend.service.AuthService;
 import dev.thural.quietspacebackend.service.UserService;
@@ -45,7 +45,7 @@ public class UserControllerTest {
     @Captor
     ArgumentCaptor<UUID> uuidArgumentCaptor;
     @Captor
-    ArgumentCaptor<UserDTO> userArgumentCaptor;
+    ArgumentCaptor<UserDto> userArgumentCaptor;
     @Captor
     ArgumentCaptor<String> authHeaderCaptor;
 
@@ -63,7 +63,7 @@ public class UserControllerTest {
     void getUserById() throws Exception {
         UUID userId = UUID.randomUUID();
 
-        UserDTO testUser = UserDTO.builder()
+        UserDto testUser = UserDto.builder()
                 .id(userId)
                 .username("user")
                 .role("user")
@@ -83,7 +83,7 @@ public class UserControllerTest {
 
     @Test
     void getAllUsers() throws Exception {
-        Page<UserDTO> testUsers = userServiceImpl.listUsers("user", 0, 25);
+        Page<UserDto> testUsers = userServiceImpl.listUsers("user", 0, 25);
 
         given(userService.listUsers(any(), any(), any())).willReturn(testUsers);
 
@@ -99,7 +99,7 @@ public class UserControllerTest {
     void createUser() throws Exception {
         AuthResponse authResponse = new AuthResponse("tokenTokenToken", "user created", "7817398717");
 
-        given(authService.register(any(UserDTO.class))).willReturn(authResponse);
+        given(authService.register(any(UserDto.class))).willReturn(authResponse);
 
         mockMvc.perform(post(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
@@ -112,13 +112,13 @@ public class UserControllerTest {
 
     @Test
     void updateUser() throws Exception {
-        Page<UserDTO> testUsers = userServiceImpl.listUsers(null, 0, 25);
+        Page<UserDto> testUsers = userServiceImpl.listUsers(null, 0, 25);
 
-        UserDTO testUser = testUsers.getContent().get(0);
+        UserDto testUser = testUsers.getContent().get(0);
         testUser.setUsername("testUser");
         testUser.setPassword("testPassword");
 
-        given(userService.updateUser(any(UserEntity.class), any(UserDTO.class))).willReturn(Optional.of(testUser));
+        given(userService.updateUser(any(UserEntity.class), any(UserDto.class))).willReturn(Optional.of(testUser));
 
         mockMvc.perform(put(UserController.USER_PATH + "/" + testUser.getId())
                         .accept(MediaType.APPLICATION_JSON)
@@ -126,14 +126,14 @@ public class UserControllerTest {
                         .content(objectMapper.writeValueAsString(testUser)))
                 .andExpect(status().isNoContent());
 
-        verify(userService).updateUser(any(UserEntity.class), any(UserDTO.class));
+        verify(userService).updateUser(any(UserEntity.class), any(UserDto.class));
     }
 
 
     @Test
     void deleteUser() throws Exception {
-        Page<UserDTO> testUsers = userServiceImpl.listUsers(null, 0, 25);
-        UserDTO testUser = testUsers.getContent().get(0);
+        Page<UserDto> testUsers = userServiceImpl.listUsers(null, 0, 25);
+        UserDto testUser = testUsers.getContent().get(0);
 
         given(userService.deleteUser(any(UUID.class), any(String.class))).willReturn(true);
 
@@ -149,9 +149,9 @@ public class UserControllerTest {
 
     @Test
     void patchUser() throws Exception {
-        Page<UserDTO> testUsers = userServiceImpl.listUsers(null, 0, 25);
+        Page<UserDto> testUsers = userServiceImpl.listUsers(null, 0, 25);
 
-        UserDTO testUser = testUsers.getContent().get(0);
+        UserDto testUser = testUsers.getContent().get(0);
         testUser.setUsername("testUser");
         testUser.setPassword("testPassword");
 
@@ -182,12 +182,12 @@ public class UserControllerTest {
     void createUserNullEmail() throws Exception {
         UUID userId = UUID.randomUUID();
 
-        UserDTO userDTO = UserDTO.builder()
+        UserDto userDTO = UserDto.builder()
                 .id(userId)
                 .password("pAssWord")
                 .build();
 
-        given(authService.register(any(UserDTO.class))).willReturn(any(AuthResponse.class));
+        given(authService.register(any(UserDto.class))).willReturn(any(AuthResponse.class));
 
         mockMvc.perform(post(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
