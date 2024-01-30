@@ -32,29 +32,22 @@ class UserServiceImplTest {
 
     UUID userId = UUID.fromString("e18d0c0c-37a4-4e50-8041-bd49ffde8182");
 
-    @Test
-    void getUserById() {
-        userService.getUserById(userId);
-
-        verify(userRepository, times(1)).findById(userId);
-    }
+    UserEntity user = UserEntity.builder()
+            .id(userId)
+            .username("user")
+            .email("user@email.com")
+            .role("admin")
+            .password("pAsSword")
+            .build();
 
     @Test
     void findByIdTest(){
-        UserEntity user = new UserEntity();
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         Optional <UserDto> foundUser = userService.getUserById(userId);
         assertThat(foundUser).isNotNull();
 
         verify(userRepository, times(1)).findById(userId);
-    }
-
-    @Test
-    void getByUUID(){
-        userService.getUserById(userId);
-
-        verify(userRepository).findById(any(UUID.class));
     }
 
 }
