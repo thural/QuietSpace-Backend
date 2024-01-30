@@ -28,4 +28,8 @@ public class TokenEntity {
     @NotBlank
     private String jwtToken;
 
+    @NotNull
+    @NotBlank
+    private String email;
+
 }
