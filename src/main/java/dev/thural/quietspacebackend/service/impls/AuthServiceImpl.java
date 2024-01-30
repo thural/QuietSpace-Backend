@@ -36,11 +36,12 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public AuthResponse register(UserDto userDTO) {
-        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        UserEntity savedUser = userRepository.save(userMapper.userDtoToEntity(userDTO));
+    public AuthResponse register(UserDto user) {
+        String password = user.getPassword();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        UserEntity savedUser = userRepository.save(userMapper.userDtoToEntity(user));
 
-        Authentication authentication = authenticate(userDTO.getEmail(), userDTO.getPassword());
+        Authentication authentication = authenticate(user.getEmail(), password);
 
 //        authManager.authenticate(authentication);
 
@@ -55,6 +56,8 @@ public class AuthServiceImpl implements AuthService {
         String token = JwtProvider.generateToken(authentication);
 
 //        authManager.authenticate(authentication);
+
+        tokenRepository.findAll().forEach(tokenEntity -> System.out.println(tokenEntity.getEmail()));
 
         tokenRepository.deleteByEmail(loginRequest.getEmail());
 

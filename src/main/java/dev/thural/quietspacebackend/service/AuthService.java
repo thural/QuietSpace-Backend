@@ -6,7 +6,7 @@ import dev.thural.quietspacebackend.model.response.AuthResponse;
 import org.springframework.security.core.Authentication;
 
 public interface AuthService {
-    AuthResponse register(UserDto userDTO);
+    AuthResponse register(UserDto user);
 
     AuthResponse login(LoginRequest loginRequest);
 
