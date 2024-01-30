@@ -1,7 +1,9 @@
 package dev.thural.quietspacebackend.service.impls;
 
+import dev.thural.quietspacebackend.entity.TokenEntity;
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.model.UserDto;
+import dev.thural.quietspacebackend.repository.TokenRepository;
 import dev.thural.quietspacebackend.utils.CustomPageProvider;
 import dev.thural.quietspacebackend.utils.JwtProvider;
 import dev.thural.quietspacebackend.entity.UserEntity;
@@ -25,6 +27,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
 
     @Override
     public Page<UserDto> listUsers(String username, Integer pageNumber, Integer pageSize) {
@@ -103,19 +106,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean deleteUser(UUID userId, String authHeader) {
 
+        boolean isDeleted = false;
+        String token = authHeader.substring(7);
         UserEntity loggedUser = findUserByJwt(authHeader)
                 .orElseThrow(() -> new UserNotFoundException("user does not exist"));
 
         if (loggedUser.getRole().equals("admin")){
             userRepository.deleteById(userId);
-            return true;
+            isDeleted = true;
+        } else if (loggedUser.getId().equals(userId)) {
+            userRepository.deleteById(userId);
+            isDeleted =  true;
         }
 
-        if (loggedUser.getId().equals(userId)) {
-            userRepository.deleteById(userId);
-            return true;
-        }
-        return false;
+        if (isDeleted) tokenRepository.save(TokenEntity.builder()
+                .jwtToken(token)
+                .email(loggedUser.getEmail())
+                .build()
+        );
+
+        return isDeleted;
     }
 
     @Override
