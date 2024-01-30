@@ -10,9 +10,11 @@ public interface AuthService {
 
     AuthResponse login(LoginRequest loginRequest);
 
+    void logout(String authHeader);
+
     Authentication authenticate(String email, String password);
 
-    void addToBlacklist(String authHeader);
+    void addToBlacklist(String authHeader, String email);
 
     boolean isBlacklisted(String authHeader);
 }
