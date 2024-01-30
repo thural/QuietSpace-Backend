@@ -1,10 +1,12 @@
 package dev.thural.quietspacebackend.config;
 
-import dev.thural.quietspacebackend.service.AuthService;
+import dev.thural.quietspacebackend.repository.TokenRepository;
 import dev.thural.quietspacebackend.utils.JwtProvider;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,8 +23,9 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtValidator extends OncePerRequestFilter {
-    private final AuthService authService;
+    private final TokenRepository tokenRepository;
     private final UserDetailsService userDetailsService;
+
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -35,7 +38,7 @@ public class JwtValidator extends OncePerRequestFilter {
             return;
         }
 
-        if (authService.isBlacklisted(authHeader)){
+        if (tokenRepository.existsByJwtToken(authHeader.substring(7))){
             filterChain.doFilter(request, response);
             return;
         }
@@ -50,13 +53,14 @@ public class JwtValidator extends OncePerRequestFilter {
         UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
 
         if (JwtProvider.isTokenValid(authHeader, userDetails)) {
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
-                    null,
-                    userDetails.getAuthorities());
+                    userDetails.getPassword(),
+                    userDetails.getAuthorities()
+            );
 
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authToken);
         }
 
         filterChain.doFilter(request, response);
