@@ -8,5 +8,9 @@ import java.util.UUID;
 public interface TokenRepository extends JpaRepository<TokenEntity, UUID> {
     boolean existsByJwtToken(String jwtToken);
 
+    boolean existsByEmail(String email);
+
     void deleteByEmail(String email);
+
+    TokenEntity getByEmail(String email);
 }

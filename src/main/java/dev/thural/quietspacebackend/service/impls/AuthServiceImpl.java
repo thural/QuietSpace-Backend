@@ -20,11 +20,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AuthServiceImpl implements AuthService {
 
     private final PasswordEncoder passwordEncoder;
@@ -37,11 +39,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse register(UserDto user) {
-        String password = user.getPassword();
+        String userPassword = user.getPassword();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         UserEntity savedUser = userRepository.save(userMapper.userDtoToEntity(user));
 
-        Authentication authentication = authenticate(user.getEmail(), password);
+        Authentication authentication = authenticate(user.getEmail(), userPassword);
 
 //        authManager.authenticate(authentication);
 
@@ -52,18 +54,22 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest loginRequest) {
-        Authentication authentication = authenticate(loginRequest.getEmail(), loginRequest.getPassword());
-        String token = JwtProvider.generateToken(authentication);
+        String userEmail = loginRequest.getEmail();
+        String userPassword = loginRequest.getPassword();
+        Authentication authentication = authenticate(userEmail, userPassword);
+        String token;
 
 //        authManager.authenticate(authentication);
 
-        tokenRepository.findAll().forEach(tokenEntity -> System.out.println(tokenEntity.getEmail()));
+        if(tokenRepository.existsByEmail(userEmail)){
+            token = tokenRepository.getByEmail(userEmail).getJwtToken();
+            tokenRepository.deleteByEmail(userEmail);
+        } else {
+            token = JwtProvider.generateToken(authentication);
+        }
 
-        tokenRepository.deleteByEmail(loginRequest.getEmail());
-
-        Optional<UserEntity> optionalUser = userRepository.findUserEntityByEmail(loginRequest.getEmail());
+        Optional<UserEntity> optionalUser = userRepository.findUserEntityByEmail(userEmail);
         String userId = optionalUser.isPresent() ? optionalUser.get().getId().toString() : "null";
-
         return new AuthResponse(token, userId, "login success");
     }
 
