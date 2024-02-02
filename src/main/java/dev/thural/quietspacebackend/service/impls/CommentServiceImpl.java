@@ -11,13 +11,14 @@ import dev.thural.quietspacebackend.model.CommentLikeDto;
 import dev.thural.quietspacebackend.repository.CommentLikeRepository;
 import dev.thural.quietspacebackend.repository.CommentRepository;
 import dev.thural.quietspacebackend.repository.PostRepository;
+import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.CommentService;
-import dev.thural.quietspacebackend.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -32,89 +33,95 @@ import static dev.thural.quietspacebackend.utils.PagingProvider.buildCustomPageR
 public class CommentServiceImpl implements CommentService {
 
     private final CommentMapper commentMapper;
-    private final UserService userService;
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final CommentLikeRepository commentLikeRepository;
+    private final UserRepository userRepository;
 
     @Override
-    public Page<CommentDto> getAllByPost(UUID postId, Integer pageNumber, Integer pageSize) {
+    public Page<CommentDto> getCommentsByPost(UUID postId, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
         return commentRepository.findAllByPostId(postId, pageRequest).map(commentMapper::commentEntityToDto);
     }
 
     @Override
-    public CommentDto addOne(CommentDto comment, String authHeader) {
-        UserEntity loggedUserEntity = userService.findUserByJwt(authHeader)
-                .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
+    public CommentDto createComment(CommentDto comment) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         Optional<PostEntity> foundPost = postRepository.findById(comment.getPostId());
 
-        if (!loggedUserEntity.getId().equals(comment.getUserId()))
+        if (!loggedUser.getId().equals(comment.getUserId()))
             throw new AccessDeniedException("resource does not belong to current user");
         if (foundPost.isEmpty())
             throw new EntityNotFoundException("post does not exist");
 
         CommentEntity commentEntity = commentMapper.commentDtoToEntity(comment);
-        commentEntity.setUser(loggedUserEntity);
+        commentEntity.setUser(loggedUser);
         commentEntity.setPost(foundPost.orElse(null));
         return commentMapper.commentEntityToDto(commentRepository.save(commentEntity));
     }
 
     @Override
-    public Optional<CommentDto> getById(UUID commentId) {
+    public Optional<CommentDto> getCommentById(UUID commentId) {
         CommentEntity commentEntity = commentRepository.findById(commentId)
                 .orElseThrow(EntityNotFoundException::new);
+
         CommentDto commentDTO = commentMapper.commentEntityToDto(commentEntity);
         return Optional.of(commentDTO);
     }
 
     @Override
-    public void updateOne(UUID commentId, CommentDto comment, String authHeader) {
-        UserEntity loggedUserEntity = userService.findUserByJwt(authHeader)
-                .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
-        CommentEntity existingCommentEntity = commentRepository.findById(commentId)
+    public void updateComment(UUID commentId, CommentDto comment) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
+
+        CommentEntity existingComment = commentRepository.findById(commentId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        if (existingCommentEntity.getUser().equals(loggedUserEntity)) {
-
-            existingCommentEntity.setText(comment.getText());
-
-            commentRepository.save(existingCommentEntity);
+        if (existingComment.getUser().equals(loggedUser)) {
+            existingComment.setText(comment.getText());
+            commentRepository.save(existingComment);
         } else throw new AccessDeniedException("comment author does not belong to current user");
 
     }
 
     @Override
-    public void deleteOne(UUID commentId, String authHeader) {
-        UserEntity loggedUserEntity = userService.findUserByJwt(authHeader)
-                .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
-        CommentEntity existingCommentEntity = commentRepository.findById(commentId)
+    public void deleteComment(UUID commentId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
+
+        CommentEntity existingComment = commentRepository.findById(commentId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        if (existingCommentEntity.getUser().getId().equals(loggedUserEntity.getId())) {
+        if (existingComment.getUser().getId().equals(loggedUser.getId())) {
             commentRepository.deleteById(commentId);
         } else throw new AccessDeniedException("comment author does not belong to current user");
     }
 
     @Override
-    public void patchOne(UUID commentId, CommentDto comment, String authHeader) {
-        UserEntity loggedUserEntity = userService.findUserByJwt(authHeader)
-                .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
+    public void patchComment(UUID commentId, CommentDto comment) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
-        CommentEntity existingCommentEntity = commentRepository.findById(commentId)
+        CommentEntity existingComment = commentRepository.findById(commentId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        if (existingCommentEntity.getUser().equals(loggedUserEntity)) {
-            if (StringUtils.hasText(comment.getText())) existingCommentEntity.setText(comment.getText());
-            commentRepository.save(existingCommentEntity);
+        if (existingComment.getUser().equals(loggedUser)) {
+            if (StringUtils.hasText(comment.getText())) existingComment.setText(comment.getText());
+            commentRepository.save(existingComment);
         } else throw new AccessDeniedException("comment author does not belong to current user");
 
     }
 
     @Override
-    public void toggleCommentLike(String authHeader, UUID commentId) {
-        UserEntity user = userService.findUserByJwt(authHeader)
+    public void toggleCommentLike(UUID commentId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity user = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         boolean isLikeExists = commentLikeRepository
@@ -132,7 +139,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentLikeDto> getAllByCommentId(UUID commentId) {
+    public List<CommentLikeDto> getLikesByCommentId(UUID commentId) {
         return commentLikeRepository.findAllByCommentId(commentId);
     }
 

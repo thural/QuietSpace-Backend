@@ -9,21 +9,21 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CommentService {
-    Page<CommentDto> getAllByPost(UUID postId, Integer pageNumber, Integer pageSize);
+    Page<CommentDto> getCommentsByPost(UUID postId, Integer pageNumber, Integer pageSize);
 
-    CommentDto addOne(CommentDto comment, String authHeader);
+    CommentDto createComment(CommentDto comment);
 
-    Optional<CommentDto> getById(UUID id);
+    Optional<CommentDto> getCommentById(UUID id);
 
-    void updateOne(UUID commentId, CommentDto comment, String authHeader);
+    void updateComment(UUID commentId, CommentDto comment);
 
-    void deleteOne(UUID id, String authHeader);
+    void deleteComment(UUID id);
 
-    void patchOne(UUID id, CommentDto comment, String authHeader);
+    void patchComment(UUID id, CommentDto comment);
 
-    void toggleCommentLike(String authHeader, UUID commentId);
+    void toggleCommentLike(UUID commentId);
 
-    List<CommentLikeDto> getAllByCommentId(UUID commentId);
+    List<CommentLikeDto> getLikesByCommentId(UUID commentId);
 
     List<CommentLikeDto> getAllByUserId(UUID userId);
 }

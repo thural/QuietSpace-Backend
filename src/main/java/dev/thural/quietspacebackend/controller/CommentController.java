@@ -30,13 +30,13 @@ public class CommentController {
                                          @RequestParam(name = "page-number", required = false) Integer pageNumber,
                                          @RequestParam(name = "page-size", required = false) Integer pageSize) {
 
-        return commentService.getAllByPost(postId, pageNumber, pageSize);
+        return commentService.getCommentsByPost(postId, pageNumber, pageSize);
     }
 
     @RequestMapping(COMMENT_PATH_ID)
     CommentDto getCommentById(@PathVariable("commentId") UUID commentId) {
 
-        Optional<CommentDto> optionalComment = commentService.getById(commentId);
+        Optional<CommentDto> optionalComment = commentService.getCommentById(commentId);
         return optionalComment.orElse(null);
     }
 
@@ -44,7 +44,7 @@ public class CommentController {
     ResponseEntity<?> createComment(@RequestHeader("Authorization") String authHeader,
                                     @RequestBody @Validated CommentDto comment) {
 
-        CommentDto savedComment = commentService.addOne(comment, authHeader);
+        CommentDto savedComment = commentService.createComment(comment);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", COMMENT_PATH + "/" + savedComment.getId());
         return new ResponseEntity<>(savedComment, headers, HttpStatus.CREATED);
@@ -55,7 +55,7 @@ public class CommentController {
                                  @PathVariable("commentId") UUID commentId,
                                  @RequestBody @Validated CommentDto comment) {
 
-        commentService.updateOne(commentId, comment, authHeader);
+        commentService.updateComment(commentId, comment);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -63,7 +63,7 @@ public class CommentController {
     ResponseEntity<?> deleteComment(@RequestHeader("Authorization") String authHeader,
                                     @PathVariable("commentId") UUID commentId) {
 
-        commentService.deleteOne(commentId, authHeader);
+        commentService.deleteComment(commentId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -72,21 +72,21 @@ public class CommentController {
                                    @PathVariable("commentId") UUID commentId,
                                    @RequestBody CommentDto comment) {
 
-        commentService.patchOne(commentId, comment, authHeader);
+        commentService.patchComment(commentId, comment);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = COMMENT_PATH_ID + "/likes", method = RequestMethod.GET)
     List<CommentLikeDto> getCommentLikesByCommentId(@PathVariable("commentId") UUID commentId) {
 
-        return commentService.getAllByCommentId(commentId);
+        return commentService.getLikesByCommentId(commentId);
     }
 
     @RequestMapping(value = COMMENT_PATH_ID + "/toggle-like", method = RequestMethod.POST)
     ResponseEntity<?> toggleCommentLike(@RequestHeader("Authorization") String authHeader,
                                         @PathVariable("commentId") UUID commentId) {
 
-        commentService.toggleCommentLike(authHeader, commentId);
+        commentService.toggleCommentLike(commentId);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
