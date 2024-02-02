@@ -5,6 +5,7 @@ import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.model.PostDto;
 import dev.thural.quietspacebackend.model.PostLikeDto;
 import dev.thural.quietspacebackend.repository.PostLikeRepository;
+import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.UserService;
 import dev.thural.quietspacebackend.entity.PostEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -33,6 +35,7 @@ public class PostServiceImpl implements PostService {
     private final UserService userService;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
+    private final UserRepository userRepository;
 
     @Override
     public Page<PostDto> getAllPosts(Integer pageNumber, Integer pageSize) {
@@ -43,12 +46,14 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostDto addPost(PostDto post, String token) {
-        UserEntity loggedUserEntity = userService.findUserByJwt(token)
-                .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
+    public PostDto addPost(PostDto post) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
+
         PostEntity postEntity = postMapper.postDtoToEntity(post);
 
-        postEntity.setUser(loggedUserEntity);
+        postEntity.setUser(loggedUser);
         return postMapper.postEntityToDto(postRepository.save(postEntity));
     }
 
@@ -62,14 +67,15 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void updatePost(UUID postId, PostDto post, String authHeader) {
-        UserEntity loggedUserEntity = userService.findUserByJwt(authHeader)
-                .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
+    public void updatePost(UUID postId, PostDto post) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         PostEntity existingPostEntity = postRepository.findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUserEntity);
+        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUser);
 
         if (postExistsByLoggedUser) {
             existingPostEntity.setText(post.getText());
@@ -78,14 +84,15 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void patchPost(String authHeader, UUID postId, PostDto post) {
-        UserEntity loggedUserEntity = userService.findUserByJwt(authHeader)
-                .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
+    public void patchPost(UUID postId, PostDto post) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         PostEntity existingPostEntity = postRepository.findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUserEntity);
+        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUser);
 
         if (postExistsByLoggedUser) {
             if (StringUtils.hasText(post.getText())) existingPostEntity.setText(post.getText());
@@ -94,14 +101,15 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void deletePost(UUID postId, String authHeader) {
-        UserEntity loggedUserEntity = userService.findUserByJwt(authHeader)
-                .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
+    public void deletePost(UUID postId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         PostEntity existingPostEntity = postRepository.findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUserEntity);
+        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUser);
 
         if (postExistsByLoggedUser) postRepository.deleteById(postId);
         else throw new AccessDeniedException("post author does not belong to current user");
@@ -137,9 +145,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void togglePostLike(String authHeader, UUID postId) {
-        UserEntity userEntity = userService.findUserByJwt(authHeader)
-                .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
+    public void togglePostLike(UUID postId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity userEntity = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
+
         boolean isPostLikeExists = postLikeRepository.existsByPostIdAndUserId(postId, userEntity.getId());
 
         if (isPostLikeExists) postLikeRepository.deleteById(postId);

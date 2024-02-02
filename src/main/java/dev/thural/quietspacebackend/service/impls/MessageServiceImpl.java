@@ -27,7 +27,7 @@ public class MessageServiceImpl implements MessageService {
     private final UserRepository userRepository;
 
     @Override
-    public MessageDto addMessage(MessageDto messageDTO, String authHeader) {
+    public MessageDto addMessage(MessageDto messageDTO) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
@@ -44,7 +44,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void deleteMessage(UUID messageId, String authHeader) {
+    public void deleteMessage(UUID messageId) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));

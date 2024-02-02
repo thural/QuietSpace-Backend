@@ -22,20 +22,16 @@ public class MessageController {
 
 
     @RequestMapping(value = MESSAGE_PATH, method = RequestMethod.POST)
-    ResponseEntity<?> createMessage(@RequestHeader("Authorization") String authHeader,
-                                    @RequestBody @Validated MessageDto messageDto) {
-
-        MessageDto savedMessage = messageService.addMessage(messageDto, authHeader);
+    ResponseEntity<?> createMessage(@RequestBody @Validated MessageDto messageDto) {
+        MessageDto savedMessage = messageService.addMessage(messageDto);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", MESSAGE_PATH + "/" + savedMessage.getId());
         return new ResponseEntity<>(savedMessage, headers, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = MESSAGE_PATH_ID, method = RequestMethod.DELETE)
-    ResponseEntity<?> deleteMessage(@RequestHeader("Authorization") String authHeader,
-                                    @PathVariable("messageId") UUID messageId) {
-
-        messageService.deleteMessage(messageId, authHeader);
+    ResponseEntity<?> deleteMessage(@PathVariable("messageId") UUID messageId) {
+        messageService.deleteMessage(messageId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

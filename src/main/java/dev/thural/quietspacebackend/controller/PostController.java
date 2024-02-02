@@ -31,9 +31,8 @@ public class PostController {
     }
 
     @RequestMapping(value = POST_PATH, method = RequestMethod.POST)
-    ResponseEntity<?> createPost(@RequestHeader("Authorization") String jwtToken,
-                                 @RequestBody @Validated PostDto post) {
-        PostDto savedPost = postService.addPost(post, jwtToken);
+    ResponseEntity<?> createPost(@RequestBody @Validated PostDto post) {
+        PostDto savedPost = postService.addPost(post);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", POST_PATH + "/" + savedPost.getId());
         System.out.println("post resource location" + headers.get("Location"));
@@ -47,25 +46,22 @@ public class PostController {
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PUT)
-    ResponseEntity<?> putPost(@RequestHeader("Authorization") String authHeader,
-                              @PathVariable("postId") UUID id,
+    ResponseEntity<?> putPost(@PathVariable("postId") UUID id,
                               @RequestBody @Validated PostDto post) {
-        postService.updatePost(id, post, authHeader);
+        postService.updatePost(id, post);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.DELETE)
-    ResponseEntity<?> deletePost(@RequestHeader("Authorization") String authHeader,
-                                 @PathVariable("postId") UUID id) {
-        postService.deletePost(id, authHeader);
+    ResponseEntity<?> deletePost(@PathVariable("postId") UUID id) {
+        postService.deletePost(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PATCH)
-    ResponseEntity<?> patchPost(@RequestHeader("Authorization") String authHeader,
-                                @PathVariable("postId") UUID id,
+    ResponseEntity<?> patchPost(@PathVariable("postId") UUID id,
                                 @RequestBody PostDto post) {
-        postService.patchPost(authHeader, id, post);
+        postService.patchPost(id, post);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -75,9 +71,9 @@ public class PostController {
     }
 
     @RequestMapping(value = POST_PATH_ID + "/toggle-like", method = RequestMethod.POST)
-    ResponseEntity<?> togglePostLike(@RequestHeader("Authorization") String authHeader,
-                                     @PathVariable UUID postId) {
-        postService.togglePostLike(authHeader, postId);
+    ResponseEntity<?> togglePostLike(@PathVariable UUID postId) {
+        postService.togglePostLike(postId);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
 }
