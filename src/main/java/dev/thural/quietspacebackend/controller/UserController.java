@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,13 +46,6 @@ public class UserController {
         return optionalUser.orElse(null);
     }
 
-    @RequestMapping(value = USER_PATH, method = RequestMethod.PUT)
-    ResponseEntity<?> putUser(@RequestHeader("Authorization") String authHeader,
-                              @RequestBody @Validated UserDto user) {
-        userService.updateUser(authHeader, user);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.DELETE)
     ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String authHeader,
                                  @PathVariable("userId") UUID id) {
@@ -62,15 +54,14 @@ public class UserController {
     }
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.PATCH)
-    ResponseEntity<?> patchUser(@RequestHeader("Authorization") String authHeader,
-                                @RequestBody UserDto userDto) {
-        userService.patchUser(userDto, authHeader);
+    ResponseEntity<?> patchUser(@RequestBody UserDto userDto) {
+        userService.patchUser(userDto);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = USER_PATH + "/profile", method = RequestMethod.GET)
-    public UserDto getUserFromToken(@RequestHeader("Authorization") String authHeader) {
-        return userService.findUserDtoByJwt(authHeader).orElse(null);
+    public UserDto getUserFromToken() {
+        return userService.findLoggedUser().orElse(null);
     }
 
     @RequestMapping(value = USER_PATH_ID + "/posts", method = RequestMethod.GET)

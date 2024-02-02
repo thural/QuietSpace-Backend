@@ -1,6 +1,5 @@
 package dev.thural.quietspacebackend.service;
 
-import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.model.UserDto;
 import org.springframework.data.domain.Page;
 
@@ -14,13 +13,9 @@ public interface UserService {
 
     Optional<UserDto> getUserById(UUID id);
 
-    Optional<UserDto> updateUser(String authHeader, UserDto user);
-
     Boolean deleteUser(UUID userId, String authHeader);
 
-    void patchUser(UserDto userDTO, String authHeader);
+    void patchUser(UserDto userDTO);
 
-    Optional<UserEntity> findUserByJwt(String authHeader);
-
-    Optional<UserDto> findUserDtoByJwt(String authHeader);
+    Optional<UserDto> findLoggedUser();
 }

@@ -41,8 +41,7 @@ public class CommentController {
     }
 
     @RequestMapping(value = COMMENT_PATH, method = RequestMethod.POST)
-    ResponseEntity<?> createComment(@RequestHeader("Authorization") String authHeader,
-                                    @RequestBody @Validated CommentDto comment) {
+    ResponseEntity<?> createComment(@RequestBody @Validated CommentDto comment) {
 
         CommentDto savedComment = commentService.createComment(comment);
         HttpHeaders headers = new HttpHeaders();
@@ -51,8 +50,7 @@ public class CommentController {
     }
 
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.PUT)
-    ResponseEntity<?> putComment(@RequestHeader("Authorization") String authHeader,
-                                 @PathVariable("commentId") UUID commentId,
+    ResponseEntity<?> putComment(@PathVariable("commentId") UUID commentId,
                                  @RequestBody @Validated CommentDto comment) {
 
         commentService.updateComment(commentId, comment);
@@ -60,16 +58,14 @@ public class CommentController {
     }
 
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.DELETE)
-    ResponseEntity<?> deleteComment(@RequestHeader("Authorization") String authHeader,
-                                    @PathVariable("commentId") UUID commentId) {
+    ResponseEntity<?> deleteComment(@PathVariable("commentId") UUID commentId) {
 
         commentService.deleteComment(commentId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.PATCH)
-    ResponseEntity<?> patchComment(@RequestHeader("Authorization") String authHeader,
-                                   @PathVariable("commentId") UUID commentId,
+    ResponseEntity<?> patchComment(@PathVariable("commentId") UUID commentId,
                                    @RequestBody CommentDto comment) {
 
         commentService.patchComment(commentId, comment);
@@ -83,8 +79,7 @@ public class CommentController {
     }
 
     @RequestMapping(value = COMMENT_PATH_ID + "/toggle-like", method = RequestMethod.POST)
-    ResponseEntity<?> toggleCommentLike(@RequestHeader("Authorization") String authHeader,
-                                        @PathVariable("commentId") UUID commentId) {
+    ResponseEntity<?> toggleCommentLike(@PathVariable("commentId") UUID commentId) {
 
         commentService.toggleCommentLike(commentId);
         return new ResponseEntity<>(HttpStatus.CREATED);

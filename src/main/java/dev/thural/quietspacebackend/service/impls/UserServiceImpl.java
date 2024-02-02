@@ -5,7 +5,6 @@ import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.model.UserDto;
 import dev.thural.quietspacebackend.repository.TokenRepository;
 import dev.thural.quietspacebackend.utils.PagingProvider;
-import dev.thural.quietspacebackend.utils.JwtProvider;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.UserMapper;
 import dev.thural.quietspacebackend.repository.UserRepository;
@@ -13,6 +12,7 @@ import dev.thural.quietspacebackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -60,23 +60,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserEntity> findUserByJwt(String authHeader) {
+    public Optional<UserDto> findLoggedUser() {
 
-        String email = JwtProvider.extractUsername(authHeader.substring(7));
-
-        UserEntity userEntity = userRepository.findUserEntityByEmail(email)
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
 
-        return Optional.of(userEntity);
-    }
-
-    @Override
-    public Optional<UserDto> findUserDtoByJwt(String authHeader) {
-
-        UserEntity founUserEntity = findUserByJwt(authHeader)
-                .orElseThrow(() -> new UserNotFoundException("user does not exist"));
-
-        return Optional.of(userMapper.userEntityToDto(founUserEntity));
+        return Optional.of(userMapper.userEntityToDto(loggedUser));
     }
 
     @Override
@@ -90,26 +80,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserDto> updateUser(String authHeader, UserDto userDTO) {
-        UserEntity loggedUser = findUserByJwt(authHeader)
-                .orElseThrow(() -> new UserNotFoundException("user does not exist"));
-
-        loggedUser.setUsername(userDTO.getUsername());
-        loggedUser.setEmail(userDTO.getEmail());
-        loggedUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-
-        UserEntity updatedUser = userRepository.save(loggedUser);
-
-        return Optional.of(userMapper.userEntityToDto(updatedUser));
-    }
-
-    @Override
     public Boolean deleteUser(UUID userId, String authHeader) {
 
         boolean isDeleted = false;
         String token = authHeader.substring(7);
-        UserEntity loggedUser = findUserByJwt(authHeader)
-                .orElseThrow(() -> new UserNotFoundException("user does not exist"));
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         if (loggedUser.getRole().equals("admin")){
             userRepository.deleteById(userId);
@@ -129,21 +107,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void patchUser(UserDto userDTO, String authHeader) {
+    public void patchUser(UserDto userDTO) {
 
-        UserEntity loggedUserEntity = findUserByJwt(authHeader)
-                .orElseThrow(() -> new UserNotFoundException("user does not exist"));
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         if (StringUtils.hasText(userDTO.getUsername()))
-            loggedUserEntity.setUsername(userDTO.getUsername());
+            loggedUser.setUsername(userDTO.getUsername());
 
         if (StringUtils.hasText(userDTO.getEmail()))
-            loggedUserEntity.setEmail(userDTO.getEmail());
+            loggedUser.setEmail(userDTO.getEmail());
 
         if (StringUtils.hasText(userDTO.getPassword()))
-            loggedUserEntity.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            loggedUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
-        userRepository.save(loggedUserEntity);
+        userRepository.save(loggedUser);
     }
 
 }

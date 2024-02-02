@@ -11,7 +11,6 @@ import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.AuthService;
 import dev.thural.quietspacebackend.utils.JwtProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,7 +33,6 @@ public class AuthServiceImpl implements AuthService {
     private final TokenRepository tokenRepository;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
-    private final AuthenticationManager authManager;
 
 
     @Override
@@ -73,7 +71,6 @@ public class AuthServiceImpl implements AuthService {
     public void logout(String authHeader) {
         String currentUserName = SecurityContextHolder.getContext()
                 .getAuthentication().getName();
-        System.out.println("logged User name: " + currentUserName);
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             addToBlacklist(authHeader, currentUserName);

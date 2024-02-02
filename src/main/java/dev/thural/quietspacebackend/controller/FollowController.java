@@ -22,24 +22,21 @@ public class FollowController {
 
 
     @RequestMapping(value = FOLLOW_USER_TOGGLE, method = RequestMethod.POST)
-    ResponseEntity<?> toggleFollow(@RequestHeader("Authorization") String authHeader,
-                                   @PathVariable("userId") UUID followedUserId) {
+    ResponseEntity<?> toggleFollow(@PathVariable("userId") UUID followedUserId) {
 
         followService.toggleFollow(followedUserId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = FOLLOW_PATH_ID + "/followings", method = RequestMethod.GET)
-    Page<FollowDto> listFollowings(@RequestHeader("Authorization") String authHeader,
-                                   @RequestParam(name = "page-number", required = false) Integer pageNumber,
+    Page<FollowDto> listFollowings(@RequestParam(name = "page-number", required = false) Integer pageNumber,
                                    @RequestParam(name = "page-size", required = false) Integer pageSize) {
 
         return followService.listFollowings(pageNumber, pageSize);
     }
 
     @RequestMapping(value = FOLLOW_PATH_ID + "/followers", method = RequestMethod.GET)
-    Page<FollowDto> listFollowers(@RequestHeader("Authorization") String authHeader,
-                                  @RequestParam(name = "page-number", required = false) Integer pageNumber,
+    Page<FollowDto> listFollowers(@RequestParam(name = "page-number", required = false) Integer pageNumber,
                                   @RequestParam(name = "page-size", required = false) Integer pageSize) {
 
         return followService.listFollowers(pageNumber, pageSize);
