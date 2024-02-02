@@ -8,14 +8,14 @@ import dev.thural.quietspacebackend.mapper.MessageMapper;
 import dev.thural.quietspacebackend.model.MessageDto;
 import dev.thural.quietspacebackend.repository.ChatRepository;
 import dev.thural.quietspacebackend.repository.MessageRepository;
+import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.MessageService;
-import dev.thural.quietspacebackend.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,12 +24,12 @@ public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
     private final MessageMapper messageMapper;
     private final ChatRepository chatRepository;
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     @Override
     public MessageDto addMessage(MessageDto messageDTO, String authHeader) {
-
-        UserEntity loggedUser = userService.findUserByJwt(authHeader)
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         ChatEntity parentChat = chatRepository.findById(messageDTO.getChatId())
@@ -44,25 +44,17 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Optional<MessageDto> getMessageById(UUID messageId) {
-        return Optional.empty();
-    }
-
-    @Override
     public void deleteMessage(UUID messageId, String authHeader) {
-        UserEntity loggedUserEntity = userService.findUserByJwt(authHeader)
-                .orElseThrow(() -> new UserNotFoundException("logged user was not found"));
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         MessageEntity existingMessage = messageRepository.findById(messageId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        if (existingMessage.getSender().getId().equals(loggedUserEntity.getId())) {
+        if (existingMessage.getSender().getId().equals(loggedUser.getId())) {
             messageRepository.deleteById(messageId);
         } else throw new AccessDeniedException("message does not belong to current user");
     }
 
-    @Override
-    public void patchMessage(UUID messageId, MessageDto messageDTO, String authHeader) {
-        // TODO: implement a patch method for messages
-    }
 }
