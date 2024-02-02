@@ -12,7 +12,7 @@ public interface AuthService {
 
     void logout(String authHeader);
 
-    Authentication authenticate(String email, String password);
+    Authentication generateAuthentication(String email, String password);
 
     void addToBlacklist(String authHeader, String email);
 

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-import static dev.thural.quietspacebackend.utils.CustomPageProvider.buildCustomPageRequest;
+import static dev.thural.quietspacebackend.utils.PagingProvider.buildCustomPageRequest;
 
 @Service
 @RequiredArgsConstructor

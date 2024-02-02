@@ -1,8 +1,6 @@
 package dev.thural.quietspacebackend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspacebackend.config.JwtValidator;
-import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.model.UserDto;
 import dev.thural.quietspacebackend.model.response.AuthResponse;
 import dev.thural.quietspacebackend.service.AuthService;
@@ -14,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;

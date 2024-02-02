@@ -43,7 +43,9 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         UserEntity savedUser = userRepository.save(userMapper.userDtoToEntity(user));
 
-        Authentication authentication = authenticate(user.getEmail(), userPassword);
+        System.out.println("saved user: " + savedUser);
+
+        Authentication authentication = generateAuthentication(user.getEmail(), userPassword);
 
 //        authManager.authenticate(authentication);
 
@@ -56,7 +58,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse login(LoginRequest loginRequest) {
         String userEmail = loginRequest.getEmail();
         String userPassword = loginRequest.getPassword();
-        Authentication authentication = authenticate(userEmail, userPassword);
+        Authentication authentication = generateAuthentication(userEmail, userPassword);
         String token;
 
 //        authManager.authenticate(authentication);
@@ -86,7 +88,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Authentication authenticate(String email, String password) {
+    public Authentication generateAuthentication(String email, String password) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
         if (userDetails == null)

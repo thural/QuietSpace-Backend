@@ -4,73 +4,84 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.*;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
 public class JwtProvider {
-    private final static String SECRET_KEY = "I'll keep it beneath my skies, until the day it becomes one";
-    private static final SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 
-    private static Key getSignKey() {
-        String SECRET = "356838792F423F4428472C7B6250655368566D597133743677397A2443264629";
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
-        return Keys.hmacShaKeyFor(keyBytes);
+    private static String secretKey = "356838792F423F4428472C7B6250655368566D597133743677397A2443264629";
+    private static long jwtExpiration = 86400000;
+    private long refreshExpiration = 604800000;
+
+    public static String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    public static <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
     }
 
     public static String generateToken(Authentication auth) {
-        return generateToken(auth, new HashMap<>());
+        System.out.println("generate token is running ...");
+        return generateToken(new HashMap<>(), auth);
     }
 
-    public static String generateToken(Authentication auth, Map<String, Object> extraClaims) {
-        System.out.println("email on token generation: " + auth.getName());
-        System.out.println("principal on token generation: " + auth.getPrincipal());
+    public static String generateToken(Map<String, Object> extraClaims,
+                                       Authentication auth) {
+        return buildToken(extraClaims, auth, jwtExpiration);
+    }
 
-        return Jwts.builder()
-                .setIssuer("thural")
-                .setSubject(auth.getName())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + 142500000))
+    public String generateRefreshToken(Authentication auth) {
+        return buildToken(new HashMap<>(), auth, refreshExpiration);
+    }
+
+    private static String buildToken(Map<String, Object> extraClaims,
+                                     Authentication auth,
+                                     long expiration) {
+        return Jwts
+                .builder()
                 .setClaims(extraClaims)
-                .claim("email", auth.getName())
-                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .setSubject(auth.getName())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    private static Claims getClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSignKey())
+    public static boolean isTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername())); // TODO: check expiration logic after fixing the method
+    }
+
+    private static boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    private static Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    private static Claims extractAllClaims(String token) {
+        return Jwts
+                .parserBuilder()
+                .setSigningKey(getSignInKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
 
-    public static String extractEmailFromAuthHeader(String authHeader) {
-        String token = authHeader.substring(7);
-        Claims claims = getClaims(token);
-        return String.valueOf(claims.get("email"));
-    }
-
-    public static boolean isTokenValid(String authHeader, UserDetails userDetails) {
-        String username = extractEmailFromAuthHeader(authHeader);
-        return username.equals(userDetails.getUsername()); // TODO: check expiration logic after fixing the method
-    }
-
-    private static boolean isTokenExpired(String authHeader) {
-        return extractExpiration(authHeader.substring(7)).before(new Date());
-    }
-
-    private static Date extractExpiration(String token) {
-        Claims claims = getClaims(token);
-        Date expirationDate = claims.getExpiration();
-        System.out.println("Expiration date: " + expirationDate);
-        return expirationDate;
+    private static Key getSignInKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
 }

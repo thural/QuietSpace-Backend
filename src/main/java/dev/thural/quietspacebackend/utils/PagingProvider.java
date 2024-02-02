@@ -2,7 +2,7 @@ package dev.thural.quietspacebackend.utils;
 
 import org.springframework.data.domain.PageRequest;
 
-public class CustomPageProvider {
+public class PagingProvider {
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_PAGE_SIZE = 25;
 

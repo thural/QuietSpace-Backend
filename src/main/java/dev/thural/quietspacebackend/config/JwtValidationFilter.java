@@ -5,8 +5,6 @@ import dev.thural.quietspacebackend.utils.JwtProvider;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,7 +20,7 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
-public class JwtValidator extends OncePerRequestFilter {
+public class JwtValidationFilter extends OncePerRequestFilter {
     private final TokenRepository tokenRepository;
     private final UserDetailsService userDetailsService;
 
@@ -43,7 +41,7 @@ public class JwtValidator extends OncePerRequestFilter {
             return;
         }
 
-        String userEmail = JwtProvider.extractEmailFromAuthHeader(authHeader);
+        String userEmail = JwtProvider.extractUsername(authHeader.substring(7));
 
         if (userEmail == null || SecurityContextHolder.getContext().getAuthentication() != null){
             filterChain.doFilter(request, response);
@@ -52,7 +50,7 @@ public class JwtValidator extends OncePerRequestFilter {
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
 
-        if (JwtProvider.isTokenValid(authHeader, userDetails)) {
+        if (JwtProvider.isTokenValid(authHeader.substring(7), userDetails)) {
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
                     userDetails.getPassword(),

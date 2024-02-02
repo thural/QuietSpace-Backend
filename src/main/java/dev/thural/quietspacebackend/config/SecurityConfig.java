@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtValidator jwtValidator;
+    private final JwtValidationFilter jwtValidationFilter;
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
 
@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .exceptionHandling((exception) -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
-                .addFilterBefore(jwtValidator, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtValidationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

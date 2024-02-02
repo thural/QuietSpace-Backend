@@ -4,7 +4,7 @@ import dev.thural.quietspacebackend.entity.TokenEntity;
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.model.UserDto;
 import dev.thural.quietspacebackend.repository.TokenRepository;
-import dev.thural.quietspacebackend.utils.CustomPageProvider;
+import dev.thural.quietspacebackend.utils.PagingProvider;
 import dev.thural.quietspacebackend.utils.JwtProvider;
 import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.mapper.UserMapper;
@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserDto> listUsers(String username, Integer pageNumber, Integer pageSize) {
 
-        PageRequest pageRequest = CustomPageProvider.buildCustomPageRequest(pageNumber, pageSize);
+        PageRequest pageRequest = PagingProvider.buildCustomPageRequest(pageNumber, pageSize);
         Page<UserEntity> userPage;
 
         if (StringUtils.hasText(username)) {
@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserDto> listUsersByQuery(String query, Integer pageNumber, Integer pageSize) {
 
-        PageRequest pageRequest = CustomPageProvider.buildCustomPageRequest(pageNumber, pageSize);
+        PageRequest pageRequest = PagingProvider.buildCustomPageRequest(pageNumber, pageSize);
         Page<UserEntity> userPage;
 
         if (StringUtils.hasText(query)) {
@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<UserEntity> findUserByJwt(String authHeader) {
 
-        String email = JwtProvider.extractEmailFromAuthHeader(authHeader);
+        String email = JwtProvider.extractUsername(authHeader.substring(7));
 
         UserEntity userEntity = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));

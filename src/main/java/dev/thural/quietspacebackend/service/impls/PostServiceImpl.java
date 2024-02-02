@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dev.thural.quietspacebackend.utils.CustomPageProvider.buildCustomPageRequest;
+import static dev.thural.quietspacebackend.utils.PagingProvider.buildCustomPageRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -145,7 +145,7 @@ public class PostServiceImpl implements PostService {
         if (isPostLikeExists) postLikeRepository.deleteById(postId);
         else {
             PostEntity postEntity = postRepository.findById(postId)
-                    .orElseThrow(() -> new UserNotFoundException("post not found"));
+                    .orElseThrow(() -> new EntityNotFoundException("post not found"));
             postLikeRepository.save(PostLikeEntity.builder().post(postEntity).user(userEntity).build());
         }
     }
