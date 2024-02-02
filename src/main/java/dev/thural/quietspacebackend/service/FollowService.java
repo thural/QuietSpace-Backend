@@ -7,9 +7,9 @@ import java.util.UUID;
 
 public interface FollowService {
 
-    Page<FollowDto> listFollowings(String authHeader, Integer pageNumber, Integer pageSize);
+    Page<FollowDto> listFollowings(Integer pageNumber, Integer pageSize);
 
-    Page<FollowDto> listFollowers(String authHeader, Integer pageNumber, Integer pageSize);
+    Page<FollowDto> listFollowers(Integer pageNumber, Integer pageSize);
 
-    void toggleFollow(UUID followedUserId, String authHeader);
+    void toggleFollow(UUID followedUserId);
 }

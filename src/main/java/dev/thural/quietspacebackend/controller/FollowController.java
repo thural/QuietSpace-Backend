@@ -25,7 +25,7 @@ public class FollowController {
     ResponseEntity<?> toggleFollow(@RequestHeader("Authorization") String authHeader,
                                    @PathVariable("userId") UUID followedUserId) {
 
-        followService.toggleFollow(followedUserId, authHeader);
+        followService.toggleFollow(followedUserId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -34,7 +34,7 @@ public class FollowController {
                                    @RequestParam(name = "page-number", required = false) Integer pageNumber,
                                    @RequestParam(name = "page-size", required = false) Integer pageSize) {
 
-        return followService.listFollowings(authHeader, pageNumber, pageSize);
+        return followService.listFollowings(pageNumber, pageSize);
     }
 
     @RequestMapping(value = FOLLOW_PATH_ID + "/followers", method = RequestMethod.GET)
@@ -42,8 +42,7 @@ public class FollowController {
                                   @RequestParam(name = "page-number", required = false) Integer pageNumber,
                                   @RequestParam(name = "page-size", required = false) Integer pageSize) {
 
-        return followService.listFollowers(authHeader, pageNumber, pageSize);
+        return followService.listFollowers(pageNumber, pageSize);
     }
-
 
 }
