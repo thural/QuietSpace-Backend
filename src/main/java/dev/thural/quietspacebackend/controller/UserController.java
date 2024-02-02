@@ -25,7 +25,6 @@ public class UserController {
 
     private final UserService userService;
     private final PostService postService;
-    private final AuthService authService;
     private final CommentService commentService;
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.GET)

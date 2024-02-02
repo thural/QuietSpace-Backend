@@ -2,16 +2,17 @@ package dev.thural.quietspacebackend.service.impls;
 
 import dev.thural.quietspacebackend.entity.ChatEntity;
 import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.exception.CustomErrorException;
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.mapper.ChatMapper;
 import dev.thural.quietspacebackend.model.ChatDto;
 import dev.thural.quietspacebackend.repository.ChatRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.ChatService;
-import dev.thural.quietspacebackend.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -24,16 +25,14 @@ public class ChatServiceImpl implements ChatService {
 
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
-    private final UserService userService;
     private final ChatMapper chatMapper;
 
 
     @Override
-    public List<ChatDto> getChatsByUserId(UUID memberId, String authHeader) {
-        UserEntity loggedUser = userService.findUserByJwt(authHeader).orElse(null);
-
-        if (loggedUser == null)
-            throw new UserNotFoundException("user not found");
+    public List<ChatDto> getChatsByUserId(UUID memberId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         if (!loggedUser.getId().equals(memberId))
             throw new AccessDeniedException("user mismatch with the chat member");
@@ -44,11 +43,10 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void deleteChatById(UUID chatId, String authHeader) {
-        UserEntity loggedUser = userService.findUserByJwt(authHeader).orElse(null);
-
-        if (loggedUser == null)
-            throw new UserNotFoundException("user not found");
+    public void deleteChatById(UUID chatId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         ChatEntity foundChat = chatRepository.findById(chatId)
                 .orElseThrow(EntityNotFoundException::new);
@@ -60,8 +58,10 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void addMemberWithId(UUID memberId, UUID chatId, String authHeader) {
-        UserEntity loggedUser = userService.findUserByJwt(authHeader).orElse(null);
+    public void addMemberWithId(UUID memberId, UUID chatId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         UserEntity foundMember = userRepository.findById(memberId)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
@@ -80,9 +80,10 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void removeMemberWithId(UUID memberId, UUID chatId, String authHeader) {
-        UserEntity loggedUser = userService.findUserByJwt(authHeader)
-                .orElseThrow(() -> new AccessDeniedException("logged user does not exist"));
+    public void removeMemberWithId(UUID memberId, UUID chatId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         UserEntity foundMember = userRepository.findById(memberId)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
@@ -101,13 +102,13 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatDto createChat(ChatDto chatDTO, String authHeader) {
-        List<UserEntity> userList = chatDTO.getUserIds().stream()
+    public ChatDto createChat(ChatDto chatDto) {
+        List<UserEntity> userList = chatDto.getUserIds().stream()
                 .map(userId -> userRepository.findById(userId)
-                        .orElseThrow(() -> new UserNotFoundException("user not found"))
-                ).toList();
+                        .orElseThrow(() -> new UserNotFoundException("user not found"))).toList();
 
-        UserEntity loggedUser = userService.findUserByJwt(authHeader)
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         if (!userList.contains(loggedUser))
@@ -116,20 +117,19 @@ public class ChatServiceImpl implements ChatService {
         boolean isChatDuplicate = chatRepository.findAllByUsersIn(userList)
                 .stream().anyMatch(chat -> new HashSet<>(chat.getUsers()).containsAll(userList));
 
-        if (isChatDuplicate) throw new RuntimeException("a chat with same members already exists");
+        if (isChatDuplicate) throw new CustomErrorException("a chat with same members already exists");
 
-        ChatEntity newChat = chatMapper.chatDtoToEntity(chatDTO);
+        ChatEntity newChat = chatMapper.chatDtoToEntity(chatDto);
         newChat.setUsers(userList);
 
         return chatMapper.chatEntityToDto(chatRepository.save(newChat));
     }
 
     @Override
-    public ChatDto getChatById(UUID chatId, String authHeader) {
-        UserEntity loggedUser = userService.findUserByJwt(authHeader).orElse(null);
-
-        if (loggedUser == null)
-            throw new UserNotFoundException("user not found");
+    public ChatDto getChatById(UUID chatId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         ChatEntity foundChatEntity = chatRepository.findById(chatId)
                 .orElseThrow(EntityNotFoundException::new);

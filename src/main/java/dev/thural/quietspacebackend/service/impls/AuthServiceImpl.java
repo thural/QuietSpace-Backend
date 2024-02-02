@@ -43,11 +43,7 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         UserEntity savedUser = userRepository.save(userMapper.userDtoToEntity(user));
 
-        System.out.println("saved user: " + savedUser);
-
         Authentication authentication = generateAuthentication(user.getEmail(), userPassword);
-
-//        authManager.authenticate(authentication);
 
         String token = JwtProvider.generateToken(authentication);
         String userId = savedUser.getId().toString();
@@ -60,8 +56,6 @@ public class AuthServiceImpl implements AuthService {
         String userPassword = loginRequest.getPassword();
         Authentication authentication = generateAuthentication(userEmail, userPassword);
         String token;
-
-//        authManager.authenticate(authentication);
 
         if(tokenRepository.existsByEmail(userEmail)){
             token = tokenRepository.getByEmail(userEmail).getJwtToken();
