@@ -31,12 +31,10 @@ public class JwtProvider {
     }
 
     public static String generateToken(Authentication auth) {
-        System.out.println("generate token is running ...");
         return generateToken(new HashMap<>(), auth);
     }
 
-    public static String generateToken(Map<String, Object> extraClaims,
-                                       Authentication auth) {
+    public static String generateToken(Map<String, Object> extraClaims, Authentication auth) {
         return buildToken(extraClaims, auth, jwtExpiration);
     }
 
@@ -59,7 +57,7 @@ public class JwtProvider {
 
     public static boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())); // TODO: check expiration logic after fixing the method
+        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
     private static boolean isTokenExpired(String token) {
