@@ -132,7 +132,7 @@ class UserControllerIT {
                 .username("new test user")
                 .build();
 
-        ResponseEntity<?> response = userController.putUser("auth header", userDto);
+        ResponseEntity<?> response = userController.patchUser(userDto);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(201));
         assertThat(response.getHeaders().getLocation()).isNotNull();
@@ -153,7 +153,7 @@ class UserControllerIT {
         final String updatedName = "updated user name";
         userDto.setUsername(updatedName);
 
-        ResponseEntity<?> response = userController.putUser(userEntity.getId().toString(), userDto);
+        ResponseEntity<?> response = userController.patchUser(userDto);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
 
         UserEntity updatedUser = userRepository.findById(userEntity.getId()).orElse(null);
@@ -163,9 +163,7 @@ class UserControllerIT {
 
     @Test
     void testUpdateNotFound() {
-        assertThrows(UserNotFoundException.class, () -> {
-            userController.putUser(UUID.randomUUID().toString(), UserDto.builder().build());
-        });
+        assertThrows(UserNotFoundException.class, () -> userController.patchUser(UserDto.builder().build()));
     }
 
     @Rollback
