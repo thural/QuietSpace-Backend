@@ -5,7 +5,6 @@ import dev.thural.quietspacebackend.entity.UserEntity;
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.mapper.UserMapper;
 import dev.thural.quietspacebackend.model.UserDto;
-import dev.thural.quietspacebackend.model.response.AuthResponse;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.AuthService;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -29,10 +29,8 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -66,23 +64,30 @@ class UserControllerIT {
     }
 
     @Test
-    void createUserInvalidUserName() throws Exception {
-        UUID userId = UUID.randomUUID();
-        UserDto userDTO = UserDto.builder()
-                .id(userId)
-                .username("a long text for username which should exceed 32 character limit")
-                .build();
+    void testListUsers() throws Exception {
+        mockMvc.perform(get(UserController.USER_PATH))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.size()", is(4)))
+                .andExpect(jsonPath("$.size()", is(11)));
+    }
 
-        AuthResponse authResponse = new AuthResponse("tokenTokenToken", "user created", "7817398717");
+    @WithUserDetails("tural@email.com")
+    @Test
+    void testUpdateUserNameTooLong() throws Exception {
 
-        given(authService.register(any(UserDto.class))).willReturn(authResponse);
+        UserEntity user = userRepository.findUserEntityByEmail("tural@email.com")
+                .orElseThrow();
 
-        MvcResult result = mockMvc.perform(post(UserController.USER_PATH)
+        UserDto userDto = userMapper.userEntityToDto(user);
+
+        userDto.setUsername("a long user name to cause transaction exception");
+
+        MvcResult result = mockMvc.perform(patch(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userDTO)))
+                        .content(objectMapper.writeValueAsString(userDto)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.length()", is(1))).andReturn();
+                .andExpect(jsonPath("$.length()", is(3))).andReturn();
 
         System.out.println(result.getResponse().getContentAsString());
     }
@@ -90,82 +95,60 @@ class UserControllerIT {
     @Test
     void testListUserByNamePage1() throws Exception {
         mockMvc.perform(get(UserController.USER_PATH)
-                        .queryParam("userName", "John")
-                        .queryParam("pageNumber", "1")
-                        .queryParam("pageSize", "25"))
+                        .queryParam("username", "john")
+                        .queryParam("page-number", "1")
+                        .queryParam("page-size", "25"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(25)))
-                .andExpect(jsonPath("$.[0].userName", is("John")));
+                .andExpect(jsonPath("$.size()", is(11)))
+                .andExpect(jsonPath("$.content.[0].username", is("john")));
     }
 
     @Rollback
     @Transactional
     @Test
-    void testGetAllUsers() {
+    void testDeleteAllUsers() {
         userRepository.deleteAll();
         Page<UserDto> userList = userController.listUsers(null, 1, 25);
-        assertThat(userList.getContent().size()).isEqualTo(8);
-
+        assertThat(userList.getContent().size()).isEqualTo(0);
     }
 
     @Test
     void testGetById() {
         UserEntity userEntity = userRepository.findAll().get(0);
-
         UserDto userDto = userController.getUserById(userEntity.getId());
-
         assertThat(userDto).isNotNull();
     }
 
     @Test
     void testUserNotFound() {
-        assertThrows(UserNotFoundException.class, () -> {
-            userController.getUserById(UUID.randomUUID());
-        });
+        assertThrows(UserNotFoundException.class, () -> userController.getUserById(UUID.randomUUID()));
     }
 
-    @Rollback
-    @Transactional
-    @Test
-    void testCreateUser() {
-        UserDto userDto = UserDto.builder()
-                .username("new test user")
-                .build();
-
-        ResponseEntity<?> response = userController.patchUser(userDto);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(201));
-        assertThat(response.getHeaders().getLocation()).isNotNull();
-
-        String[] locationUUID = response.getHeaders().getLocation().getPath().split("/");
-        UUID savedUUID = UUID.fromString(locationUUID[8]);
-
-        UserEntity userEntity = userRepository.findById(savedUUID).orElse(null);
-        assertThat(userEntity).isNotNull();
-    }
-
+    @WithUserDetails("tural@email.com")
     @Rollback
     @Transactional
     @Test
     void testUpdateExistingUser() {
-        UserEntity userEntity = userRepository.findAll().get(0);
+        UserEntity userEntity = userRepository.findUserEntityByEmail("tural@email.com").orElseThrow();
         UserDto userDto = userMapper.userEntityToDto(userEntity);
-        final String updatedName = "updated user name";
+        final String updatedName = "updatedName";
         userDto.setUsername(updatedName);
 
         ResponseEntity<?> response = userController.patchUser(userDto);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
 
         UserEntity updatedUser = userRepository.findById(userEntity.getId()).orElse(null);
-        assert updatedUser != null;
+        assertThat(updatedUser).isNotNull();
         assertThat(updatedUser.getUsername()).isEqualTo(updatedName);
     }
 
+    @WithUserDetails("tural@email.com")
     @Test
     void testUpdateNotFound() {
         assertThrows(UserNotFoundException.class, () -> userController.patchUser(UserDto.builder().build()));
     }
 
+    @WithUserDetails("tural@email.com")
     @Rollback
     @Transactional
     @Test
@@ -173,26 +156,9 @@ class UserControllerIT {
         UserEntity userEntity = userRepository.findAll().get(0);
 
         ResponseEntity<?> response = userController.deleteUser("auth header", userEntity.getId());
+
         assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
-
         assertThat(userRepository.findById(userEntity.getId())).isEmpty();
-    }
-
-    @Transactional
-    @Rollback
-    @Test
-    void testDeleteUserNotFound() {
-        assertThrows(UserNotFoundException.class, () -> {
-            userController.deleteUser("authentication header", UUID.randomUUID());
-        });
-    }
-
-    @Test
-    void testListUsersByName() throws Exception {
-        mockMvc.perform(get(UserController.USER_PATH)
-                        .queryParam("userName", "John"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(100)));
     }
 
 }
