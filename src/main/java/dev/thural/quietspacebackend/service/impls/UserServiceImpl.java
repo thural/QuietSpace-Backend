@@ -12,6 +12,7 @@ import dev.thural.quietspacebackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -109,9 +110,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public void patchUser(UserDto userDTO) {
 
+        UserEntity requestedUser = userRepository.findUserEntityByEmail(userDTO.getEmail())
+                .orElseThrow(UserNotFoundException::new);
+
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains("ADMIN");
+
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
+
+        if (!isAdmin && !requestedUser.getEmail().equals(loggedUser.getEmail()))
+            throw new AccessDeniedException("logged user has no access to requested resource");
 
         if (StringUtils.hasText(userDTO.getUsername()))
             loggedUser.setUsername(userDTO.getUsername());
