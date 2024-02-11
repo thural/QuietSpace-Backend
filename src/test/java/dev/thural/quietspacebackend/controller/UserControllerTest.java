@@ -50,29 +50,26 @@ public class UserControllerTest {
 
     @MockBean
     UserService userService;
-
     @MockBean
     TokenRepository tokenRepository;
-
     @MockBean
     PostService postService;
-
     @MockBean
     CommentService commentService;
 
     @InjectMocks
     UserController userController;
 
+    UUID userId;
     UserDto testUser;
 
-    UUID userId;
 
 
     @BeforeEach
     void setUp() {
-        userId = UUID.randomUUID();
+        this.userId = UUID.randomUUID();
 
-        testUser = UserDto.builder()
+        this.testUser = UserDto.builder()
                 .id(userId)
                 .username("user")
                 .role("user")
@@ -83,9 +80,9 @@ public class UserControllerTest {
 
     @Test
     void getUserById() throws Exception {
-        given(userService.getUserById(userId)).willReturn(Optional.of(testUser));
+        given(userService.getUserById(any())).willReturn(Optional.of(testUser));
 
-        mockMvc.perform(get(UserController.USER_PATH, testUser.getId())
+        mockMvc.perform(get(UserController.USER_PATH + "/" + testUser.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -98,7 +95,7 @@ public class UserControllerTest {
         testUser.setUsername("testUserUpdated");
         testUser.setPassword("testPasswordUpdated");
 
-        mockMvc.perform(patch(UserController.USER_PATH, testUser.getId())
+        mockMvc.perform(patch(UserController.USER_PATH, testUser)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testUser)))
@@ -106,17 +103,20 @@ public class UserControllerTest {
 
         verify(userService).patchUser(userArgumentCaptor.capture());
 
-        assertThat(testUser.getId()).isEqualTo(uuidArgumentCaptor.getValue());
         assertThat(testUser.getUsername()).isEqualTo(userArgumentCaptor.getValue().getUsername());
         assertThat(testUser.getPassword()).isEqualTo(userArgumentCaptor.getValue().getPassword());
     }
 
     @Test
     void userByIdNotFound() throws Exception {
-        given(userService.getUserById(any(UUID.class))).willReturn(Optional.empty());
+        given(userService.getUserById(userId)).willReturn(Optional.empty());
 
-        mockMvc.perform(get(UserController.USER_PATH_ID, UUID.randomUUID()))
+        mockMvc.perform(get(UserController.USER_PATH + "/" + userId)
+                        .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isNotFound());
+
+        verify(userService).getUserById(uuidArgumentCaptor.capture());
     }
 
 }

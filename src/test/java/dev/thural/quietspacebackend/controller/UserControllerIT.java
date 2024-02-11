@@ -6,7 +6,6 @@ import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.mapper.UserMapper;
 import dev.thural.quietspacebackend.model.UserDto;
 import dev.thural.quietspacebackend.repository.UserRepository;
-import dev.thural.quietspacebackend.service.AuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,22 +39,14 @@ class UserControllerIT {
 
     @Autowired
     UserController userController;
-
     @Autowired
     UserRepository userRepository;
-
-    @Autowired
-    AuthService authService;
-
     @Autowired
     UserMapper userMapper;
-
     @Autowired
     ObjectMapper objectMapper;
-
     @Autowired
     WebApplicationContext wac;
-
     MockMvc mockMvc;
 
     @BeforeEach
@@ -115,8 +106,8 @@ class UserControllerIT {
     @Test
     void testGetById() {
         UserEntity userEntity = userRepository.findAll().get(0);
-        UserDto userDto = userController.getUserById(userEntity.getId());
-        assertThat(userDto).isNotNull();
+        ResponseEntity<?> response = userController.getUserById(userEntity.getId());
+        assertThat(response.getBody()).isNotNull();
     }
 
     @Test
