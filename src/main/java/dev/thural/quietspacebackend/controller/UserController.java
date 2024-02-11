@@ -7,6 +7,7 @@ import dev.thural.quietspacebackend.model.UserDto;
 import dev.thural.quietspacebackend.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,9 +42,13 @@ public class UserController {
     }
 
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.GET)
-    UserDto getUserById(@PathVariable("userId") UUID userId) {
-        Optional<UserDto> optionalUser = userService.getUserById(userId);
-        return optionalUser.orElse(null);
+    ResponseEntity<?> getUserById(@PathVariable("userId") UUID userId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+
+        return userService.getUserById(userId)
+                .map(user -> ResponseEntity.ok().headers(headers).body(user))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @RequestMapping(value = USER_PATH_ID, method = RequestMethod.DELETE)
