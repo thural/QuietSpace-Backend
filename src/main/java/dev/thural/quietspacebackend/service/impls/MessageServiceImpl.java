@@ -12,11 +12,15 @@ import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.MessageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+
+import static dev.thural.quietspacebackend.utils.PagingProvider.buildCustomPageRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -55,6 +59,13 @@ public class MessageServiceImpl implements MessageService {
         if (existingMessage.getSender().getId().equals(loggedUser.getId())) {
             messageRepository.deleteById(messageId);
         } else throw new AccessDeniedException("message does not belong to current user");
+    }
+
+    @Override
+    public Page<MessageDto> getMessagesByChatId(Integer pageNumber, Integer pageSize, UUID chatId) {
+        PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
+        Page<MessageEntity> messagePage = messageRepository.findAllByChatId(chatId, pageRequest);
+        return messagePage.map(messageMapper::messageEntityToDto);
     }
 
 }

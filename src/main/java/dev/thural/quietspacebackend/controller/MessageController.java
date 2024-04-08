@@ -3,6 +3,7 @@ package dev.thural.quietspacebackend.controller;
 import dev.thural.quietspacebackend.model.MessageDto;
 import dev.thural.quietspacebackend.service.MessageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,14 @@ public class MessageController {
     ResponseEntity<?> deleteMessage(@PathVariable("messageId") UUID messageId) {
         messageService.deleteMessage(messageId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @RequestMapping(value = MESSAGE_PATH + "/chat/{chatId}", method = RequestMethod.GET)
+    Page<MessageDto> getMessagesByChatId(
+            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+            @RequestParam(name = "page-size", required = false) Integer pageSize,
+            @PathVariable("chatId") UUID chatId) {
+        return messageService.getMessagesByChatId(pageNumber, pageSize, chatId);
     }
 
 }
