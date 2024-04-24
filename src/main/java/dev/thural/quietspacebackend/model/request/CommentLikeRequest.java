@@ -1,4 +1,4 @@
-package dev.thural.quietspacebackend.model;
+package dev.thural.quietspacebackend.model.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +12,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentLikeDto {
+public class CommentLikeRequest {
 
     private UUID id;
 

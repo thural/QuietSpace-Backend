@@ -1,7 +1,5 @@
-package dev.thural.quietspacebackend.model;
+package dev.thural.quietspacebackend.model.response;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.OffsetDateTime;
@@ -13,22 +11,14 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ChatDto {
+public class ChatResponse {
 
     private UUID id;
-
-    @Version
     private Integer version;
-
-    @NotNull
-    private List<UserDto> users;
-
     private List<UUID> userIds;
-
-    private List<MessageDto> messages;
-
+    private List<UserResponse> users;
+    private List<MessageResponse> messages;
     private OffsetDateTime createDate;
-
     private OffsetDateTime updateDate;
 
 }

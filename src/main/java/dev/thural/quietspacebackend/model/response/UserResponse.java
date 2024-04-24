@@ -1,4 +1,4 @@
-package dev.thural.quietspacebackend.model;
+package dev.thural.quietspacebackend.model.response;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserDto {
+public class UserResponse {
 
     private UUID id;
 

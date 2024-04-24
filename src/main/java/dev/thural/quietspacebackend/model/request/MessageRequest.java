@@ -1,4 +1,4 @@
-package dev.thural.quietspacebackend.model;
+package dev.thural.quietspacebackend.model.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -11,12 +11,15 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TokenDto {
-
-    private UUID id;
+public class MessageRequest {
 
     @NotNull
     @NotBlank
-    private String jwtToken;
+    private String text;
+
+    @NotNull
+    private UUID chatId;
+    @NotNull
+    private UUID senderId;
 
 }

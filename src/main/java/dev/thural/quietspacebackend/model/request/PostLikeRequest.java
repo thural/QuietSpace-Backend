@@ -1,4 +1,4 @@
-package dev.thural.quietspacebackend.model;
+package dev.thural.quietspacebackend.model.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -11,7 +11,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostLikeDto {
+public class PostLikeRequest {
     private UUID id;
 
     String username;

@@ -1,7 +1,6 @@
-package dev.thural.quietspacebackend.model;
+package dev.thural.quietspacebackend.model.response;
 
-import dev.thural.quietspacebackend.entity.UserEntity;
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -10,26 +9,25 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class FollowDto {
+public class CommentLikeResponse {
 
     private UUID id;
 
-    @Version
-    private Integer version;
+    @NotNull
+    UUID userId;
 
     @NotNull
-    private UserEntity following;
+    UUID commentId;
 
-    @NotNull
-    private UserEntity follower;
+    String username;
 
-    @NotNull
+    @JsonIgnore
     private OffsetDateTime createDate;
 
-    @NotNull
+    @JsonIgnore
     private OffsetDateTime updateDate;
 
 }

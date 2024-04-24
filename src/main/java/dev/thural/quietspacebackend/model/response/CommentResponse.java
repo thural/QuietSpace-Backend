@@ -1,6 +1,6 @@
-package dev.thural.quietspacebackend.model;
+package dev.thural.quietspacebackend.model.response;
 
-import dev.thural.quietspacebackend.entity.CommentLikeEntity;
+import dev.thural.quietspacebackend.entity.CommentLike;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -14,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CommentDto {
+public class CommentResponse {
 
     private UUID id;
 
@@ -30,10 +30,9 @@ public class CommentDto {
     @NotBlank
     private String text;
 
-    private List<CommentLikeEntity> likes;
+    private List<CommentLike> likes;
 
     private OffsetDateTime createDate = OffsetDateTime.now();
-
     private OffsetDateTime updateDate = OffsetDateTime.now();
 
 }
