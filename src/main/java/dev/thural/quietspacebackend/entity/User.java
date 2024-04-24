@@ -18,11 +18,10 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "user")
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
-public class UserEntity {
+public class User {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)

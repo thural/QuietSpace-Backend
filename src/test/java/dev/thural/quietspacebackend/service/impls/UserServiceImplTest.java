@@ -1,8 +1,8 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.entity.User;
 import dev.thural.quietspacebackend.mapper.UserMapper;
-import dev.thural.quietspacebackend.model.UserDto;
+import dev.thural.quietspacebackend.model.response.UserResponse;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +32,7 @@ class UserServiceImplTest {
 
     UUID userId = UUID.fromString("e18d0c0c-37a4-4e50-8041-bd49ffde8182");
 
-    UserEntity user = UserEntity.builder()
+    User user = User.builder()
             .id(userId)
             .username("user")
             .email("user@email.com")
@@ -44,7 +44,7 @@ class UserServiceImplTest {
     void findByIdTest(){
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        Optional <UserDto> foundUser = userService.getUserById(userId);
+        Optional <UserResponse> foundUser = userService.getUserById(userId);
         assertThat(foundUser).isNotNull();
 
         verify(userRepository, times(1)).findById(userId);

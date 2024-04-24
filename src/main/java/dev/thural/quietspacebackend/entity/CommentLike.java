@@ -16,8 +16,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "comment_like")
-public class CommentLikeEntity {
+public class CommentLike {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -32,7 +31,7 @@ public class CommentLikeEntity {
     @NotNull
     @ManyToOne
     @JsonIgnore
-    private UserEntity user;
+    private User user;
 
     @NotNull
     @ManyToOne

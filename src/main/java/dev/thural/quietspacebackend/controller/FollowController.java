@@ -1,6 +1,6 @@
 package dev.thural.quietspacebackend.controller;
 
-import dev.thural.quietspacebackend.model.FollowDto;
+import dev.thural.quietspacebackend.model.response.FollowResponse;
 import dev.thural.quietspacebackend.service.FollowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,16 +28,16 @@ public class FollowController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequestMapping(value = FOLLOW_PATH_ID + "/followings", method = RequestMethod.GET)
-    Page<FollowDto> listFollowings(@RequestParam(name = "page-number", required = false) Integer pageNumber,
-                                   @RequestParam(name = "page-size", required = false) Integer pageSize) {
+    @RequestMapping(value = FOLLOW_PATH + "/followings", method = RequestMethod.GET)
+    Page<FollowResponse> listFollowings(@RequestParam(name = "page-number", required = false) Integer pageNumber,
+                                        @RequestParam(name = "page-size", required = false) Integer pageSize) {
 
         return followService.listFollowings(pageNumber, pageSize);
     }
 
-    @RequestMapping(value = FOLLOW_PATH_ID + "/followers", method = RequestMethod.GET)
-    Page<FollowDto> listFollowers(@RequestParam(name = "page-number", required = false) Integer pageNumber,
-                                  @RequestParam(name = "page-size", required = false) Integer pageSize) {
+    @RequestMapping(value = FOLLOW_PATH + "/followers", method = RequestMethod.GET)
+    Page<FollowResponse> listFollowers(@RequestParam(name = "page-number", required = false) Integer pageNumber,
+                                       @RequestParam(name = "page-size", required = false) Integer pageSize) {
 
         return followService.listFollowers(pageNumber, pageSize);
     }

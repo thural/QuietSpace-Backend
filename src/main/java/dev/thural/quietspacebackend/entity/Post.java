@@ -20,11 +20,10 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "post")
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
-public class PostEntity {
+public class Post {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -41,11 +40,11 @@ public class PostEntity {
 
     @NotNull
     @ManyToOne
-    private UserEntity user;
+    private User user;
 
     @JsonIgnore
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<PostLikeEntity> likes;
+    private List<PostLike> likes;
 
     @JsonIgnore
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

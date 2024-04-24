@@ -19,8 +19,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "comment")
-public class CommentEntity {
+public class Comment {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -38,15 +37,15 @@ public class CommentEntity {
     @NotNull
     @ManyToOne
     @JsonIgnore
-    private UserEntity user;
+    private User user;
 
     @NotNull
     @ManyToOne
     @JsonIgnore
-    private PostEntity post;
+    private Post post;
 
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CommentLikeEntity> likes;
+    private List<CommentLike> likes;
 
     @NotNull
     private OffsetDateTime createDate = OffsetDateTime.now();

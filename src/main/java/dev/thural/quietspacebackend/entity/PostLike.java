@@ -18,11 +18,10 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "post_like")
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
-public class PostLikeEntity {
+public class PostLike {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -35,7 +34,7 @@ public class PostLikeEntity {
 
     @JsonIgnore
     @ManyToOne
-    private UserEntity user;
+    private User user;
 
     @JsonIgnore
     @ManyToOne

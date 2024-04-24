@@ -1,7 +1,7 @@
 package dev.thural.quietspacebackend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspacebackend.model.UserDto;
+import dev.thural.quietspacebackend.model.response.UserResponse;
 import dev.thural.quietspacebackend.repository.TokenRepository;
 import dev.thural.quietspacebackend.service.CommentService;
 import dev.thural.quietspacebackend.service.PostService;
@@ -46,7 +46,7 @@ public class UserControllerTest {
     @Captor
     ArgumentCaptor<UUID> uuidArgumentCaptor;
     @Captor
-    ArgumentCaptor<UserDto> userArgumentCaptor;
+    ArgumentCaptor<UserResponse> userArgumentCaptor;
 
     @MockBean
     UserService userService;
@@ -61,7 +61,7 @@ public class UserControllerTest {
     UserController userController;
 
     UUID userId;
-    UserDto testUser;
+    UserResponse testUser;
 
 
 
@@ -69,7 +69,7 @@ public class UserControllerTest {
     void setUp() {
         this.userId = UUID.randomUUID();
 
-        this.testUser = UserDto.builder()
+        this.testUser = UserResponse.builder()
                 .id(userId)
                 .username("user")
                 .role("user")

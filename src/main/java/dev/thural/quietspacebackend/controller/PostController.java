@@ -1,7 +1,8 @@
 package dev.thural.quietspacebackend.controller;
 
-import dev.thural.quietspacebackend.model.PostDto;
-import dev.thural.quietspacebackend.model.PostLikeDto;
+import dev.thural.quietspacebackend.model.request.PostRequest;
+import dev.thural.quietspacebackend.model.response.PostResponse;
+import dev.thural.quietspacebackend.model.response.PostLikeResponse;
 import dev.thural.quietspacebackend.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,14 +26,14 @@ public class PostController {
     private final PostService postService;
 
     @RequestMapping(value = POST_PATH, method = RequestMethod.GET)
-    Page<PostDto> getAllPosts(@RequestParam(name = "page-number", required = false) Integer pageNumber,
-                              @RequestParam(name = "page-size", required = false) Integer pageSize) {
+    Page<PostResponse> getAllPosts(@RequestParam(name = "page-number", required = false) Integer pageNumber,
+                                   @RequestParam(name = "page-size", required = false) Integer pageSize) {
         return postService.getAllPosts(pageNumber, pageSize);
     }
 
     @RequestMapping(value = POST_PATH, method = RequestMethod.POST)
-    ResponseEntity<?> createPost(@RequestBody @Validated PostDto post) {
-        PostDto savedPost = postService.addPost(post);
+    ResponseEntity<?> createPost(@RequestBody @Validated PostRequest post) {
+        PostResponse savedPost = postService.addPost(post);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", POST_PATH + "/" + savedPost.getId());
         System.out.println("post resource location" + headers.get("Location"));
@@ -40,14 +41,14 @@ public class PostController {
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.GET)
-    PostDto getPostById(@PathVariable("postId") UUID id) {
-        Optional<PostDto> optionalPost = postService.getPostById(id);
+    PostResponse getPostById(@PathVariable("postId") UUID id) {
+        Optional<PostResponse> optionalPost = postService.getPostById(id);
         return optionalPost.orElse(null);
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PUT)
     ResponseEntity<?> putPost(@PathVariable("postId") UUID id,
-                              @RequestBody @Validated PostDto post) {
+                              @RequestBody @Validated PostRequest post) {
         postService.updatePost(id, post);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -60,13 +61,13 @@ public class PostController {
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PATCH)
     ResponseEntity<?> patchPost(@PathVariable("postId") UUID id,
-                                @RequestBody PostDto post) {
+                                @RequestBody PostRequest post) {
         postService.patchPost(id, post);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = POST_PATH_ID + "/likes", method = RequestMethod.GET)
-    List<PostLikeDto> getAllLikesByPostId(@PathVariable("postId") UUID postId) {
+    List<PostLikeResponse> getAllLikesByPostId(@PathVariable("postId") UUID postId) {
         return postService.getPostLikesByPostId(postId);
     }
 

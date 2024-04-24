@@ -17,11 +17,10 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "chat")
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
-public class ChatEntity {
+public class Chat {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -37,10 +36,10 @@ public class ChatEntity {
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "chat_id",
                     referencedColumnName = "id"))
-    private List<UserEntity> users;
+    private List<User> users;
 
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MessageEntity> messages;
+    private List<Message> messages;
 
     @NotNull
     @Column(updatable = false)

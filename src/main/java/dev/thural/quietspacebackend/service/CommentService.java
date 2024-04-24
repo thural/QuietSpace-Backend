@@ -1,7 +1,7 @@
 package dev.thural.quietspacebackend.service;
 
-import dev.thural.quietspacebackend.model.CommentDto;
-import dev.thural.quietspacebackend.model.CommentLikeDto;
+import dev.thural.quietspacebackend.model.response.CommentLikeResponse;
+import dev.thural.quietspacebackend.model.request.CommentRequest;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -9,21 +9,21 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CommentService {
-    Page<CommentDto> getCommentsByPost(UUID postId, Integer pageNumber, Integer pageSize);
+    Page<dev.thural.quietspacebackend.model.response.CommentResponse> getCommentsByPost(UUID postId, Integer pageNumber, Integer pageSize);
 
-    CommentDto createComment(CommentDto comment);
+    dev.thural.quietspacebackend.model.response.CommentResponse createComment(CommentRequest comment);
 
-    Optional<CommentDto> getCommentById(UUID id);
+    Optional<dev.thural.quietspacebackend.model.response.CommentResponse> getCommentById(UUID id);
 
-    void updateComment(UUID commentId, CommentDto comment);
+    void updateComment(UUID commentId, CommentRequest comment);
 
     void deleteComment(UUID id);
 
-    void patchComment(UUID id, CommentDto comment);
+    void patchComment(UUID id, CommentRequest comment);
 
     void toggleCommentLike(UUID commentId);
 
-    List<CommentLikeDto> getLikesByCommentId(UUID commentId);
+    List<CommentLikeResponse> getLikesByCommentId(UUID commentId);
 
-    List<CommentLikeDto> getAllByUserId(UUID userId);
+    List<CommentLikeResponse> getAllByUserId(UUID userId);
 }

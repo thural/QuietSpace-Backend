@@ -1,9 +1,9 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.entity.TokenEntity;
-import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.entity.Token;
+import dev.thural.quietspacebackend.entity.User;
 import dev.thural.quietspacebackend.mapper.UserMapper;
-import dev.thural.quietspacebackend.model.UserDto;
+import dev.thural.quietspacebackend.model.request.UserRequest;
 import dev.thural.quietspacebackend.model.request.LoginRequest;
 import dev.thural.quietspacebackend.model.response.AuthResponse;
 import dev.thural.quietspacebackend.repository.TokenRepository;
@@ -11,6 +11,7 @@ import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.AuthService;
 import dev.thural.quietspacebackend.utils.JwtProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,10 +37,10 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public AuthResponse register(UserDto user) {
+    public AuthResponse register(UserRequest user) {
         String userPassword = user.getPassword();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        UserEntity savedUser = userRepository.save(userMapper.userDtoToEntity(user));
+        User savedUser = userRepository.save(userMapper.userRequestToEntity(user));
 
         Authentication authentication = generateAuthentication(user.getEmail(), userPassword);
 
@@ -62,9 +63,9 @@ public class AuthServiceImpl implements AuthService {
             token = JwtProvider.generateToken(authentication);
         }
 
-        Optional<UserEntity> optionalUser = userRepository.findUserEntityByEmail(userEmail);
-        String userId = optionalUser.isPresent() ? optionalUser.get().getId().toString() : "null";
-        return new AuthResponse(token, userId, "login success");
+        Optional<User> optionalUser = userRepository.findUserEntityByEmail(userEmail);
+        User user = optionalUser.orElseThrow(() -> new AuthenticationCredentialsNotFoundException("login failed"));
+        return new AuthResponse(token, user.getId().toString(), "login success");
     }
 
     @Override
@@ -98,7 +99,7 @@ public class AuthServiceImpl implements AuthService {
     public void addToBlacklist(String authHeader, String email) {
         String token = authHeader.substring(7);
         boolean isBlacklisted = tokenRepository.existsByJwtToken(token);
-        if (!isBlacklisted) tokenRepository.save(TokenEntity.builder()
+        if (!isBlacklisted) tokenRepository.save(Token.builder()
                 .jwtToken(token)
                 .email(email)
                 .build()

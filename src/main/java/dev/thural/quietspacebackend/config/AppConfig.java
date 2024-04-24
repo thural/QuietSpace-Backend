@@ -1,6 +1,6 @@
 package dev.thural.quietspacebackend.config;
 
-import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.entity.User;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +12,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -34,14 +33,14 @@ public class AppConfig {
     @Primary
     public UserDetailsService userDetailsService() {
         return username -> {
-            UserEntity user = userRepository.findUserEntityByEmail(username).orElseThrow(
+            User user = userRepository.findUserEntityByEmail(username).orElseThrow(
                     () -> new UsernameNotFoundException("user not found with the email"));
 
             List<GrantedAuthority> authorityList = Arrays.stream(user.getRole().split(","))
                     .map(role -> new SimpleGrantedAuthority(role.toUpperCase()))
                     .collect(Collectors.toList());
 
-            return new User(user.getEmail(),user.getPassword(),authorityList);
+            return new org.springframework.security.core.userdetails.User(user.getEmail(),user.getPassword(),authorityList);
         };
     }
 

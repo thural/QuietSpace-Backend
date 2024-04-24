@@ -1,6 +1,6 @@
 package dev.thural.quietspacebackend.repository;
 
-import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.entity.User;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,14 +24,14 @@ class UserRepositoryTest {
 
     @Test
     void testGetUserListByName(){
-        Page<UserEntity> list = userRepository.findAllByUsernameIsLikeIgnoreCase("%John%", null);
+        Page<User> list = userRepository.findAllByUsernameIsLikeIgnoreCase("%John%", null);
 
         assertThat(list.toList().size()).isEqualTo(33);
     }
 
     @Test
     void testSavedUser(){
-        UserEntity savedUser = userRepository.save(UserEntity.builder()
+        User savedUser = userRepository.save(User.builder()
                 .username("test user")
                 .build());
 
@@ -55,7 +55,7 @@ class UserRepositoryTest {
     @Test
     void testSavedUserNameIsTooLong(){
         assertThrows(ConstraintViolationException.class, () -> {
-            userRepository.save(UserEntity.builder()
+            userRepository.save(User.builder()
                     .username("test user random text longer than 32 characters")
                     .build());
 

@@ -16,8 +16,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "message")
-public class MessageEntity {
+public class Message {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -33,7 +32,7 @@ public class MessageEntity {
 
     @NotNull
     @ManyToOne
-    private UserEntity sender;
+    private User sender;
 
     @NotNull
     @NotBlank

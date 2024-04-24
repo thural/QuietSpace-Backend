@@ -1,15 +1,16 @@
 package dev.thural.quietspacebackend.service;
 
-import dev.thural.quietspacebackend.model.MessageDto;
+import dev.thural.quietspacebackend.model.request.MessageRequest;
+import dev.thural.quietspacebackend.model.response.MessageResponse;
 import org.springframework.data.domain.Page;
 
 import java.util.UUID;
 
 public interface MessageService {
 
-    MessageDto addMessage(MessageDto messageDTO);
+    MessageResponse addMessage(MessageRequest messageRequest);
 
     void deleteMessage(UUID id);
 
-    Page<MessageDto> getMessagesByChatId(Integer pageNumber, Integer pageSiz, UUID chatId);
+    Page<MessageResponse> getMessagesByChatId(Integer pageNumber, Integer pageSiz, UUID chatId);
 }

@@ -1,6 +1,7 @@
 package dev.thural.quietspacebackend.controller;
 
-import dev.thural.quietspacebackend.model.MessageDto;
+import dev.thural.quietspacebackend.model.request.MessageRequest;
+import dev.thural.quietspacebackend.model.response.MessageResponse;
 import dev.thural.quietspacebackend.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,8 +24,8 @@ public class MessageController {
 
 
     @RequestMapping(value = MESSAGE_PATH, method = RequestMethod.POST)
-    ResponseEntity<?> createMessage(@RequestBody @Validated MessageDto messageDto) {
-        MessageDto savedMessage = messageService.addMessage(messageDto);
+    ResponseEntity<?> createMessage(@RequestBody @Validated MessageRequest messageRequest) {
+        MessageResponse savedMessage = messageService.addMessage(messageRequest);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", MESSAGE_PATH + "/" + savedMessage.getId());
         return new ResponseEntity<>(savedMessage, headers, HttpStatus.CREATED);
@@ -37,7 +38,7 @@ public class MessageController {
     }
 
     @RequestMapping(value = MESSAGE_PATH + "/chat/{chatId}", method = RequestMethod.GET)
-    Page<MessageDto> getMessagesByChatId(
+    Page<MessageResponse> getMessagesByChatId(
             @RequestParam(name = "page-number", required = false) Integer pageNumber,
             @RequestParam(name = "page-size", required = false) Integer pageSize,
             @PathVariable("chatId") UUID chatId) {

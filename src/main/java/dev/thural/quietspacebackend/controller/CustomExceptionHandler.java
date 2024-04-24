@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -158,7 +157,7 @@ public class CustomExceptionHandler {
                 );
     }
 
-    @ExceptionHandler(Exception.class) // exception handled
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleExceptions(RuntimeException exception) {
 
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -172,6 +171,7 @@ public class CustomExceptionHandler {
                         .build()
                 );
     }
+
 
 
 }

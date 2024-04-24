@@ -1,14 +1,14 @@
 package dev.thural.quietspacebackend.mapper;
 
-import dev.thural.quietspacebackend.entity.PostLikeEntity;
-import dev.thural.quietspacebackend.model.PostLikeDto;
+import dev.thural.quietspacebackend.entity.PostLike;
+import dev.thural.quietspacebackend.model.response.PostLikeResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper
 public interface PostLikeMapper {
     @Mapping(target = "id", ignore = true)
-    PostLikeEntity postLikeDtoToEntity(PostLikeDto postLikeDto);
+    PostLike postLikeDtoToEntity(PostLikeResponse postLikeResponse);
 
-    PostLikeDto postLikeEntityToDto(PostLikeEntity postLikeEntity);
+    PostLikeResponse postLikeEntityToDto(PostLike postLike);
 }

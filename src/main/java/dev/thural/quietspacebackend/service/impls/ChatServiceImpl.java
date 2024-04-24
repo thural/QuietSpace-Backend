@@ -1,11 +1,14 @@
 package dev.thural.quietspacebackend.service.impls;
 
 import dev.thural.quietspacebackend.entity.Chat;
+import dev.thural.quietspacebackend.entity.Message;
 import dev.thural.quietspacebackend.entity.User;
 import dev.thural.quietspacebackend.exception.CustomErrorException;
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.mapper.ChatMapper;
-import dev.thural.quietspacebackend.model.ChatDto;
+import dev.thural.quietspacebackend.mapper.MessageMapper;
+import dev.thural.quietspacebackend.model.request.ChatRequest;
+import dev.thural.quietspacebackend.model.response.ChatResponse;
 import dev.thural.quietspacebackend.repository.ChatRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.ChatService;
@@ -25,11 +28,12 @@ public class ChatServiceImpl implements ChatService {
 
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
+    private final MessageMapper messageMapper;
     private final ChatMapper chatMapper;
 
 
     @Override
-    public List<ChatDto> getChatsByUserId(UUID memberId) {
+    public List<ChatResponse> getChatsByUserId(UUID memberId) {
         User loggedUser = getLoggedUser();
 
         if (!loggedUser.getId().equals(memberId))
@@ -37,7 +41,7 @@ public class ChatServiceImpl implements ChatService {
 
         return chatRepository.findAllByUsersId(memberId)
                 .stream()
-                .map(chatMapper::chatEntityToDto).toList();
+                .map(chatMapper::chatEntityToResponse).toList();
     }
 
     @Override
@@ -75,8 +79,8 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatDto createChat(ChatDto chatDto) {
-        List<User> userList = chatDto.getUserIds().stream()
+    public ChatResponse createChat(ChatRequest chatRequest) {
+        List<User> userList = chatRequest.getUserIds().stream()
                 .map(userId -> userRepository.findById(userId)
                         .orElseThrow(() -> new UserNotFoundException("user not found"))).toList();
 
@@ -90,10 +94,12 @@ public class ChatServiceImpl implements ChatService {
 
         if (isChatDuplicate) throw new CustomErrorException("a chat with same members already exists");
 
-        Chat newChat = chatMapper.chatDtoToEntity(chatDto);
+        Chat newChat = chatMapper.chatRequestToEntity(chatRequest);
         newChat.setUsers(userList);
+        Message message = messageMapper.messageRequestToEntity(chatRequest.getMessage());
+        newChat.setMessages(List.of());
 
-        return chatMapper.chatEntityToDto(chatRepository.save(newChat));
+        return chatMapper.chatEntityToResponse(chatRepository.save(newChat));
     }
 
     private User getLoggedUser() {
@@ -104,7 +110,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatDto getChatById(UUID chatId) {
+    public ChatResponse getChatById(UUID chatId) {
         User loggedUser = getLoggedUser();
 
         Chat foundChat = chatRepository.findById(chatId)
@@ -113,7 +119,7 @@ public class ChatServiceImpl implements ChatService {
         if (!foundChat.getUsers().contains(loggedUser))
             throw new AccessDeniedException("chat does not belong to logged user");
 
-        return chatMapper.chatEntityToDto(foundChat);
+        return chatMapper.chatEntityToResponse(foundChat);
     }
 
     private Chat findChatById(UUID chatId) {

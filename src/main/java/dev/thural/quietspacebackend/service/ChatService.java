@@ -1,12 +1,13 @@
 package dev.thural.quietspacebackend.service;
 
-import dev.thural.quietspacebackend.model.ChatDto;
+import dev.thural.quietspacebackend.model.request.ChatRequest;
+import dev.thural.quietspacebackend.model.response.ChatResponse;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface ChatService {
-    List<ChatDto> getChatsByUserId(UUID userId);
+    List<ChatResponse> getChatsByUserId(UUID userId);
 
     void deleteChatById(UUID chatId);
 
@@ -14,7 +15,7 @@ public interface ChatService {
 
     void removeMemberWithId(UUID memberId, UUID chatId);
 
-    ChatDto createChat(ChatDto chatDTO);
+    ChatResponse createChat(ChatRequest chatRequest);
 
-    ChatDto getChatById(UUID chatId);
+    ChatResponse getChatById(UUID chatId);
 }

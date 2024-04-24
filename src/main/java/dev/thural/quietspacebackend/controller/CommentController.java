@@ -1,7 +1,8 @@
 package dev.thural.quietspacebackend.controller;
 
-import dev.thural.quietspacebackend.model.CommentDto;
-import dev.thural.quietspacebackend.model.CommentLikeDto;
+import dev.thural.quietspacebackend.model.response.CommentResponse;
+import dev.thural.quietspacebackend.model.response.CommentLikeResponse;
+import dev.thural.quietspacebackend.model.request.CommentRequest;
 import dev.thural.quietspacebackend.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,24 +27,24 @@ public class CommentController {
 
 
     @RequestMapping(value = COMMENT_PATH + "/post/{postId}", method = RequestMethod.GET)
-    Page<CommentDto> getCommentsByPostId(@PathVariable("postId") UUID postId,
-                                         @RequestParam(name = "page-number", required = false) Integer pageNumber,
-                                         @RequestParam(name = "page-size", required = false) Integer pageSize) {
+    Page<CommentResponse> getCommentsByPostId(@PathVariable("postId") UUID postId,
+                                              @RequestParam(name = "page-number", required = false) Integer pageNumber,
+                                              @RequestParam(name = "page-size", required = false) Integer pageSize) {
 
         return commentService.getCommentsByPost(postId, pageNumber, pageSize);
     }
 
-    @RequestMapping(COMMENT_PATH_ID)
-    CommentDto getCommentById(@PathVariable("commentId") UUID commentId) {
+    @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.GET)
+    CommentResponse getCommentById(@PathVariable("commentId") UUID commentId) {
 
-        Optional<CommentDto> optionalComment = commentService.getCommentById(commentId);
+        Optional<CommentResponse> optionalComment = commentService.getCommentById(commentId);
         return optionalComment.orElse(null);
     }
 
     @RequestMapping(value = COMMENT_PATH, method = RequestMethod.POST)
-    ResponseEntity<?> createComment(@RequestBody @Validated CommentDto comment) {
+    ResponseEntity<?> createComment(@RequestBody @Validated CommentRequest comment) {
 
-        CommentDto savedComment = commentService.createComment(comment);
+        CommentResponse savedComment = commentService.createComment(comment);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", COMMENT_PATH + "/" + savedComment.getId());
         return new ResponseEntity<>(savedComment, headers, HttpStatus.CREATED);
@@ -51,7 +52,7 @@ public class CommentController {
 
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.PUT)
     ResponseEntity<?> putComment(@PathVariable("commentId") UUID commentId,
-                                 @RequestBody @Validated CommentDto comment) {
+                                 @RequestBody @Validated CommentRequest comment) {
 
         commentService.updateComment(commentId, comment);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -66,14 +67,14 @@ public class CommentController {
 
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.PATCH)
     ResponseEntity<?> patchComment(@PathVariable("commentId") UUID commentId,
-                                   @RequestBody CommentDto comment) {
+                                   @RequestBody CommentRequest comment) {
 
         commentService.patchComment(commentId, comment);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = COMMENT_PATH_ID + "/likes", method = RequestMethod.GET)
-    List<CommentLikeDto> getCommentLikesByCommentId(@PathVariable("commentId") UUID commentId) {
+    List<CommentLikeResponse> getCommentLikesByCommentId(@PathVariable("commentId") UUID commentId) {
 
         return commentService.getLikesByCommentId(commentId);
     }

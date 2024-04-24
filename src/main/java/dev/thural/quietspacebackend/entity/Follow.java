@@ -15,8 +15,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "follow")
-public class FollowEntity {
+public class Follow {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -29,11 +28,11 @@ public class FollowEntity {
 
     @NotNull
     @ManyToOne
-    private UserEntity following;
+    private User following;
 
     @NotNull
     @ManyToOne
-    private UserEntity follower;
+    private User follower;
 
     @NotNull
     private OffsetDateTime createDate = OffsetDateTime.now();

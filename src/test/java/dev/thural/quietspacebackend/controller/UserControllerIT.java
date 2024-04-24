@@ -1,10 +1,10 @@
 package dev.thural.quietspacebackend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.entity.User;
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.mapper.UserMapper;
-import dev.thural.quietspacebackend.model.UserDto;
+import dev.thural.quietspacebackend.model.response.UserResponse;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,17 +66,17 @@ class UserControllerIT {
     @Test
     void testUpdateUserNameTooLong() throws Exception {
 
-        UserEntity user = userRepository.findUserEntityByEmail("tural@email.com")
+        User user = userRepository.findUserEntityByEmail("tural@email.com")
                 .orElseThrow();
 
-        UserDto userDto = userMapper.userEntityToDto(user);
+        UserResponse userResponse = userMapper.userEntityToResponse(user);
 
-        userDto.setUsername("a long user name to cause transaction exception");
+        userResponse.setUsername("a long user name to cause transaction exception");
 
         MvcResult result = mockMvc.perform(patch(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userDto)))
+                        .content(objectMapper.writeValueAsString(userResponse)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.length()", is(3))).andReturn();
 
@@ -99,14 +99,14 @@ class UserControllerIT {
     @Test
     void testDeleteAllUsers() {
         userRepository.deleteAll();
-        Page<UserDto> userList = userController.listUsers(null, 1, 25);
+        Page<UserResponse> userList = userController.listUsers(null, 1, 25);
         assertThat(userList.getContent().size()).isEqualTo(0);
     }
 
     @Test
     void testGetById() {
-        UserEntity userEntity = userRepository.findAll().get(0);
-        ResponseEntity<?> response = userController.getUserById(userEntity.getId());
+        User user = userRepository.findAll().get(0);
+        ResponseEntity<?> response = userController.getUserById(user.getId());
         assertThat(response.getBody()).isNotNull();
     }
 
@@ -120,15 +120,15 @@ class UserControllerIT {
     @Transactional
     @Test
     void testUpdateExistingUser() {
-        UserEntity userEntity = userRepository.findUserEntityByEmail("tural@email.com").orElseThrow();
-        UserDto userDto = userMapper.userEntityToDto(userEntity);
+        User user = userRepository.findUserEntityByEmail("tural@email.com").orElseThrow();
+        UserResponse userResponse = userMapper.userEntityToResponse(user);
         final String updatedName = "updatedName";
-        userDto.setUsername(updatedName);
+        userResponse.setUsername(updatedName);
 
-        ResponseEntity<?> response = userController.patchUser(userDto);
+        ResponseEntity<?> response = userController.patchUser(userResponse);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
 
-        UserEntity updatedUser = userRepository.findById(userEntity.getId()).orElse(null);
+        User updatedUser = userRepository.findById(user.getId()).orElse(null);
         assertThat(updatedUser).isNotNull();
         assertThat(updatedUser.getUsername()).isEqualTo(updatedName);
     }
@@ -136,7 +136,7 @@ class UserControllerIT {
     @WithUserDetails("tural@email.com")
     @Test
     void testUpdateNotFound() {
-        assertThrows(UserNotFoundException.class, () -> userController.patchUser(UserDto.builder().build()));
+        assertThrows(UserNotFoundException.class, () -> userController.patchUser(UserResponse.builder().build()));
     }
 
     @WithUserDetails("tural@email.com")
@@ -144,12 +144,12 @@ class UserControllerIT {
     @Transactional
     @Test
     void testDeleteUser() {
-        UserEntity userEntity = userRepository.findAll().get(0);
+        User user = userRepository.findAll().get(0);
 
-        ResponseEntity<?> response = userController.deleteUser("auth header", userEntity.getId());
+        ResponseEntity<?> response = userController.deleteUser("auth header", user.getId());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
-        assertThat(userRepository.findById(userEntity.getId())).isEmpty();
+        assertThat(userRepository.findById(user.getId())).isEmpty();
     }
 
 }

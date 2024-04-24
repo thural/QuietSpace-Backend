@@ -1,11 +1,12 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.entity.ChatEntity;
-import dev.thural.quietspacebackend.entity.MessageEntity;
-import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.entity.Chat;
+import dev.thural.quietspacebackend.entity.Message;
+import dev.thural.quietspacebackend.entity.User;
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
 import dev.thural.quietspacebackend.mapper.MessageMapper;
-import dev.thural.quietspacebackend.model.MessageDto;
+import dev.thural.quietspacebackend.model.request.MessageRequest;
+import dev.thural.quietspacebackend.model.response.MessageResponse;
 import dev.thural.quietspacebackend.repository.ChatRepository;
 import dev.thural.quietspacebackend.repository.MessageRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
@@ -26,20 +27,20 @@ import static dev.thural.quietspacebackend.utils.PagingProvider.buildCustomPageR
 @RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
-    private final MessageMapper messageMapper;
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
+    private final MessageMapper messageMapper;
 
     @Override
-    public MessageDto addMessage(MessageDto messageDTO) {
+    public MessageResponse addMessage(MessageRequest messageRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+        User loggedUser = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
 
-        ChatEntity parentChat = chatRepository.findById(messageDTO.getChatId())
+        Chat parentChat = chatRepository.findById(messageRequest.getChatId())
                 .orElseThrow(EntityNotFoundException::new);
 
-        MessageEntity newMessage = messageMapper.messageDtoToEntity(messageDTO);
+        Message newMessage = messageMapper.messageRequestToEntity(messageRequest);
 
         newMessage.setSender(loggedUser);
         newMessage.setChat(parentChat);
@@ -50,10 +51,10 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public void deleteMessage(UUID messageId) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+        User loggedUser = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
 
-        MessageEntity existingMessage = messageRepository.findById(messageId)
+        Message existingMessage = messageRepository.findById(messageId)
                 .orElseThrow(EntityNotFoundException::new);
 
         if (existingMessage.getSender().getId().equals(loggedUser.getId())) {
@@ -62,9 +63,9 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Page<MessageDto> getMessagesByChatId(Integer pageNumber, Integer pageSize, UUID chatId) {
+    public Page<MessageResponse> getMessagesByChatId(Integer pageNumber, Integer pageSize, UUID chatId) {
         PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
-        Page<MessageEntity> messagePage = messageRepository.findAllByChatId(chatId, pageRequest);
+        Page<Message> messagePage = messageRepository.findAllByChatId(chatId, pageRequest);
         return messagePage.map(messageMapper::messageEntityToDto);
     }
 

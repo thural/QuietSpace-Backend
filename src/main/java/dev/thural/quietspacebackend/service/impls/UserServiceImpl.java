@@ -1,11 +1,11 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.entity.TokenEntity;
+import dev.thural.quietspacebackend.entity.Token;
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
-import dev.thural.quietspacebackend.model.UserDto;
+import dev.thural.quietspacebackend.model.response.UserResponse;
 import dev.thural.quietspacebackend.repository.TokenRepository;
 import dev.thural.quietspacebackend.utils.PagingProvider;
-import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.entity.User;
 import dev.thural.quietspacebackend.mapper.UserMapper;
 import dev.thural.quietspacebackend.repository.UserRepository;
 import dev.thural.quietspacebackend.service.UserService;
@@ -31,10 +31,10 @@ public class UserServiceImpl implements UserService {
     private final TokenRepository tokenRepository;
 
     @Override
-    public Page<UserDto> listUsers(String username, Integer pageNumber, Integer pageSize) {
+    public Page<UserResponse> listUsers(String username, Integer pageNumber, Integer pageSize) {
 
         PageRequest pageRequest = PagingProvider.buildCustomPageRequest(pageNumber, pageSize);
-        Page<UserEntity> userPage;
+        Page<User> userPage;
 
         if (StringUtils.hasText(username)) {
             userPage = userRepository.findAllByUsernameIsLikeIgnoreCase("%" + username + "%", pageRequest);
@@ -42,14 +42,14 @@ public class UserServiceImpl implements UserService {
             userPage = userRepository.findAll(pageRequest);
         }
 
-        return userPage.map(userMapper::userEntityToDto);
+        return userPage.map(userMapper::userEntityToResponse);
     }
 
     @Override
-    public Page<UserDto> listUsersByQuery(String query, Integer pageNumber, Integer pageSize) {
+    public Page<UserResponse> listUsersByQuery(String query, Integer pageNumber, Integer pageSize) {
 
         PageRequest pageRequest = PagingProvider.buildCustomPageRequest(pageNumber, pageSize);
-        Page<UserEntity> userPage;
+        Page<User> userPage;
 
         if (StringUtils.hasText(query)) {
             userPage = userRepository.findAllByQuery(query, pageRequest);
@@ -57,27 +57,27 @@ public class UserServiceImpl implements UserService {
             userPage = userRepository.findAll(pageRequest);
         }
 
-        return userPage.map(userMapper::userEntityToDto);
+        return userPage.map(userMapper::userEntityToResponse);
     }
 
     @Override
-    public Optional<UserDto> findLoggedUser() {
+    public Optional<UserResponse> findLoggedUser() {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+        User loggedUser = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
 
-        return Optional.of(userMapper.userEntityToDto(loggedUser));
+        return Optional.of(userMapper.userEntityToResponse(loggedUser));
     }
 
     @Override
-    public Optional<UserDto> getUserById(UUID id) {
+    public Optional<UserResponse> getUserById(UUID id) {
 
-        UserEntity userEntity = userRepository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
 
-        UserDto userDTO = userMapper.userEntityToDto(userEntity);
-        return Optional.of(userDTO);
+        UserResponse userResponse = userMapper.userEntityToResponse(user);
+        return Optional.of(userResponse);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
         String token = authHeader.substring(7);
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+        User loggedUser = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         if (loggedUser.getRole().equals("admin")){
@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
             isDeleted =  true;
         }
 
-        if (isDeleted) tokenRepository.save(TokenEntity.builder()
+        if (isDeleted) tokenRepository.save(Token.builder()
                 .jwtToken(token)
                 .email(loggedUser.getEmail())
                 .build()
@@ -108,28 +108,28 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void patchUser(UserDto userDTO) {
+    public void patchUser(UserResponse userResponse) {
 
-        UserEntity requestedUser = userRepository.findUserEntityByEmail(userDTO.getEmail())
+        User requestedUser = userRepository.findUserEntityByEmail(userResponse.getEmail())
                 .orElseThrow(UserNotFoundException::new);
 
         boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains("ADMIN");
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+        User loggedUser = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         if (!isAdmin && !requestedUser.getEmail().equals(loggedUser.getEmail()))
             throw new AccessDeniedException("logged user has no access to requested resource");
 
-        if (StringUtils.hasText(userDTO.getUsername()))
-            loggedUser.setUsername(userDTO.getUsername());
+        if (StringUtils.hasText(userResponse.getUsername()))
+            loggedUser.setUsername(userResponse.getUsername());
 
-        if (StringUtils.hasText(userDTO.getEmail()))
-            loggedUser.setEmail(userDTO.getEmail());
+        if (StringUtils.hasText(userResponse.getEmail()))
+            loggedUser.setEmail(userResponse.getEmail());
 
-        if (StringUtils.hasText(userDTO.getPassword()))
-            loggedUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        if (StringUtils.hasText(userResponse.getPassword()))
+            loggedUser.setPassword(passwordEncoder.encode(userResponse.getPassword()));
 
         userRepository.save(loggedUser);
     }

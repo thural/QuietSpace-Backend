@@ -1,21 +1,21 @@
 package dev.thural.quietspacebackend.service;
 
-import dev.thural.quietspacebackend.model.UserDto;
+import dev.thural.quietspacebackend.model.response.UserResponse;
 import org.springframework.data.domain.Page;
 
 import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService {
-    Page<UserDto> listUsers(String username, Integer pageNumber, Integer pageSize);
+    Page<UserResponse> listUsers(String username, Integer pageNumber, Integer pageSize);
 
-    Page<UserDto> listUsersByQuery(String query, Integer pageNumber, Integer pageSize);
+    Page<UserResponse> listUsersByQuery(String query, Integer pageNumber, Integer pageSize);
 
-    Optional<UserDto> getUserById(UUID id);
+    Optional<UserResponse> getUserById(UUID id);
 
     Boolean deleteUser(UUID userId, String authHeader);
 
-    void patchUser(UserDto userDTO);
+    void patchUser(UserResponse userResponse);
 
-    Optional<UserDto> findLoggedUser();
+    Optional<UserResponse> findLoggedUser();
 }

@@ -1,6 +1,6 @@
 package dev.thural.quietspacebackend.controller;
 
-import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.entity.User;
 import dev.thural.quietspacebackend.exception.CustomDataNotFoundException;
 import dev.thural.quietspacebackend.exception.CustomErrorException;
 import dev.thural.quietspacebackend.exception.CustomParameterConstraintException;
@@ -65,7 +65,7 @@ public class DummyExceptionController {
     @GetMapping("get-user/{username}")
     public ResponseEntity<?> getUserByName(@PathVariable String username) {
 
-        UserEntity user = userRepository.findUserByUsername(username)
+        User user = userRepository.findUserByUsername(username)
                 .orElseThrow(UserNotFoundException::new);
 
         return new ResponseEntity<>(user, HttpStatus.OK);

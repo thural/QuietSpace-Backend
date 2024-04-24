@@ -1,14 +1,14 @@
 package dev.thural.quietspacebackend.service.impls;
 
-import dev.thural.quietspacebackend.entity.PostLikeEntity;
+import dev.thural.quietspacebackend.entity.PostLike;
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
-import dev.thural.quietspacebackend.model.PostDto;
-import dev.thural.quietspacebackend.model.PostLikeDto;
+import dev.thural.quietspacebackend.model.request.PostRequest;
+import dev.thural.quietspacebackend.model.response.PostResponse;
+import dev.thural.quietspacebackend.model.response.PostLikeResponse;
 import dev.thural.quietspacebackend.repository.PostLikeRepository;
 import dev.thural.quietspacebackend.repository.UserRepository;
-import dev.thural.quietspacebackend.service.UserService;
-import dev.thural.quietspacebackend.entity.PostEntity;
-import dev.thural.quietspacebackend.entity.UserEntity;
+import dev.thural.quietspacebackend.entity.Post;
+import dev.thural.quietspacebackend.entity.User;
 import dev.thural.quietspacebackend.mapper.PostMapper;
 import dev.thural.quietspacebackend.repository.PostRepository;
 import dev.thural.quietspacebackend.service.PostService;
@@ -32,131 +32,110 @@ import static dev.thural.quietspacebackend.utils.PagingProvider.buildCustomPageR
 public class PostServiceImpl implements PostService {
 
     private final PostMapper postMapper;
-    private final UserService userService;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final UserRepository userRepository;
 
-    @Override
-    public Page<PostDto> getAllPosts(Integer pageNumber, Integer pageSize) {
+    public final String AUTHOR_MISMATCH_MESSAGE = "post author mismatch with current user";
 
+    @Override
+    public Page<PostResponse> getAllPosts(Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
-
-        return postRepository.findAll(pageRequest).map(postMapper::postEntityToDto);
+        return postRepository.findAll(pageRequest).map(postMapper::postEntityToResponse);
     }
 
     @Override
-    public PostDto addPost(PostDto post) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
-
-        PostEntity postEntity = postMapper.postDtoToEntity(post);
-
+    public PostResponse addPost(PostRequest post) {
+        User loggedUser = getUserFromSecurityContext();
+        Post postEntity = postMapper.postRequestToEntity(post);
         postEntity.setUser(loggedUser);
-        return postMapper.postEntityToDto(postRepository.save(postEntity));
+        return postMapper.postEntityToResponse(postRepository.save(postEntity));
     }
 
-    @Override
-    public Optional<PostDto> getPostById(UUID postId) {
-        PostEntity postEntity = postRepository.findById(postId)
-                .orElseThrow(EntityNotFoundException::new);
-
-        PostDto postDTO = postMapper.postEntityToDto(postEntity);
-        return Optional.of(postDTO);
-    }
-
-    @Override
-    public void updatePost(UUID postId, PostDto post) {
+    private User getUserFromSecurityContext() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
+        return userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
-
-        PostEntity existingPostEntity = postRepository.findById(postId)
-                .orElseThrow(EntityNotFoundException::new);
-
-        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUser);
-
-        if (postExistsByLoggedUser) {
-            existingPostEntity.setText(post.getText());
-            postRepository.save(existingPostEntity);
-        } else throw new AccessDeniedException("post author does not belong to current user");
     }
 
     @Override
-    public void patchPost(UUID postId, PostDto post) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
+    public Optional<PostResponse> getPostById(UUID postId) {
+        Post post = findPostEntityById(postId);
+        PostResponse postResponse = postMapper.postEntityToResponse(post);
+        return Optional.of(postResponse);
+    }
 
-        PostEntity existingPostEntity = postRepository.findById(postId)
+    private Post findPostEntityById(UUID postId) {
+        return postRepository.findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
+    }
 
-        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUser);
-
+    @Override
+    public void updatePost(UUID postId, PostRequest post) {
+        User loggedUser = getUserFromSecurityContext();
+        Post existingPost = findPostEntityById(postId);
+        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
         if (postExistsByLoggedUser) {
-            if (StringUtils.hasText(post.getText())) existingPostEntity.setText(post.getText());
-            postRepository.save(existingPostEntity);
-        } else throw new AccessDeniedException("post author does not belong to current user");
+            existingPost.setText(post.getTextContent());
+            postRepository.save(existingPost);
+        } else throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
+    }
+
+    @Override
+    public void patchPost(UUID postId, PostRequest post) {
+        User loggedUser = getUserFromSecurityContext();
+        Post existingPost = findPostEntityById(postId);
+        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
+        if (postExistsByLoggedUser) {
+            if (StringUtils.hasText(post.getTextContent())) existingPost.setText(post.getTextContent());
+            postRepository.save(existingPost);
+        } else throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
     }
 
     @Override
     public void deletePost(UUID postId) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity loggedUser = userRepository.findUserEntityByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
-
-        PostEntity existingPostEntity = postRepository.findById(postId)
-                .orElseThrow(EntityNotFoundException::new);
-
-        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPostEntity, loggedUser);
-
+        User loggedUser = getUserFromSecurityContext();
+        Post existingPost = findPostEntityById(postId);
+        boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
         if (postExistsByLoggedUser) postRepository.deleteById(postId);
-        else throw new AccessDeniedException("post author does not belong to current user");
+        else throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
     }
 
     @Override
-    public Page<PostDto> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
+    public Page<PostResponse> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
-
-        Page<PostEntity> postPage;
-
+        Page<Post> postPage;
         if (userId != null) {
             postPage = postRepository.findAllByUserId(userId, pageRequest);
         } else {
             postPage = postRepository.findAll(pageRequest);
         }
-
-        return postPage.map(postMapper::postEntityToDto);
+        return postPage.map(postMapper::postEntityToResponse);
     }
 
-    private boolean isPostExistsByLoggedUser(PostEntity existingPostEntity, UserEntity loggedUser) {
-        return existingPostEntity.getUser().equals(loggedUser);
+    private boolean isPostExistsByLoggedUser(Post existingPost, User loggedUser) {
+        return existingPost.getUser().equals(loggedUser);
     }
 
     @Override
-    public List<PostLikeDto> getPostLikesByPostId(UUID postId) {
+    public List<PostLikeResponse> getPostLikesByPostId(UUID postId) {
         return postLikeRepository.findAllByPostId(postId);
     }
 
     @Override
-    public List<PostLikeDto> getPostLikesByUserId(UUID userId) {
+    public List<PostLikeResponse> getPostLikesByUserId(UUID userId) {
         return postLikeRepository.findAllByUserId(userId);
     }
 
     @Override
     public void togglePostLike(UUID postId) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity userEntity = userRepository.findUserEntityByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
-
-        boolean isPostLikeExists = postLikeRepository.existsByPostIdAndUserId(postId, userEntity.getId());
-
+        User user = getUserFromSecurityContext();
+        boolean isPostLikeExists = postLikeRepository.existsByPostIdAndUserId(postId, user.getId());
         if (isPostLikeExists) postLikeRepository.deleteById(postId);
         else {
-            PostEntity postEntity = postRepository.findById(postId)
+            Post post = postRepository.findById(postId)
                     .orElseThrow(() -> new EntityNotFoundException("post not found"));
-            postLikeRepository.save(PostLikeEntity.builder().post(postEntity).user(userEntity).build());
+            postLikeRepository.save(PostLike.builder().post(post).user(user).build());
         }
     }
 
