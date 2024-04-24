@@ -1,7 +1,9 @@
 package dev.thural.quietspacebackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -16,8 +18,11 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "message")
-public class MessageEntity {
+@Table(name = "post_like")
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
+public class PostLikeEntity {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -28,16 +33,13 @@ public class MessageEntity {
     @Version
     private Integer version;
 
+    @JsonIgnore
     @ManyToOne
-    private ChatEntity chat;
+    private UserEntity user;
 
-    @NotNull
+    @JsonIgnore
     @ManyToOne
-    private UserEntity sender;
-
-    @NotNull
-    @NotBlank
-    private String text;
+    private Post post;
 
     @NotNull
     @Column(updatable = false)

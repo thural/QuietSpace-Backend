@@ -49,7 +49,7 @@ public class PostEntity {
 
     @JsonIgnore
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<CommentEntity> comments;
+    private List<Comment> comments;
 
     @NotNull
     @Column(updatable = false)

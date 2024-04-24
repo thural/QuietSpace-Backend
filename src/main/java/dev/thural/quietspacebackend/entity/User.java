@@ -55,19 +55,19 @@ public class UserEntity {
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<PostEntity> posts;
+    private List<Post> posts;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<PostLikeEntity> postLikes;
+    private List<PostLike> postLikes;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<CommentEntity> comments;
+    private List<Comment> comments;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<CommentLikeEntity> commentLikes;
+    private List<CommentLike> commentLikes;
 
     @JsonIgnore
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
@@ -75,19 +75,19 @@ public class UserEntity {
             joinColumns = @JoinColumn(name = "chat_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "user_id",
                     referencedColumnName = "id"))
-    private List<ChatEntity> chats;
+    private List<Chat> chats;
 
     @JsonIgnore
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<MessageEntity> messages;
+    private List<Message> messages;
 
     @JsonIgnore
     @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<FollowEntity> followings;
+    private List<Follow> followings;
 
     @JsonIgnore
     @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<FollowEntity> followers;
+    private List<Follow> followers;
 
     @NotNull
     @Column(updatable = false)

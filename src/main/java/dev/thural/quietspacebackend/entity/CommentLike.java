@@ -1,8 +1,6 @@
 package dev.thural.quietspacebackend.entity;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -18,11 +16,8 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "post_like")
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
-public class PostLikeEntity {
+@Table(name = "comment_like")
+public class CommentLikeEntity {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -30,21 +25,25 @@ public class PostLikeEntity {
     @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false)
     private UUID id;
 
+    @JsonIgnore
     @Version
     private Integer version;
 
-    @JsonIgnore
+    @NotNull
     @ManyToOne
+    @JsonIgnore
     private UserEntity user;
 
-    @JsonIgnore
+    @NotNull
     @ManyToOne
-    private PostEntity post;
+    @JsonIgnore
+    private Comment comment;
 
     @NotNull
     @Column(updatable = false)
     private OffsetDateTime createDate;
 
+    @JsonIgnore
     @NotNull
     private OffsetDateTime updateDate;
 
