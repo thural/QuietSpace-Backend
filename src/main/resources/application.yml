@@ -5,9 +5,9 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/quietspace
-    username: thural
-    password: "@dolphin888"
+    url: jdbc:mysql://${HOST_NAME}:${DB_PORT_NUMBER}/${DB_NAME}
+    username: ${DB_USER_USERNAME}
+    password: ${DB_USER_PASSWORD}
 
     hikari:
       data-source-properties:
@@ -38,11 +38,10 @@ spring:
   flyway:
     enabled: false
 
-
 logging:
   level:
     org.hibernate.orm.jdbc.bind: trace
     org.springframework.web.servlet.handler.HandlerMappingIntrospector: ERROR
 
 server:
-  port: 8080
+  port: ${SERVER_PORT_NUMBER}

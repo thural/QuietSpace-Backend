@@ -11,7 +11,7 @@ services:
     networks:
       - monolith-network
     ports:
-      - "8080:8080"
+      - ${SERVER_PORT_NUMBER}:${SERVER_PORT_NUMBER}
 
   mysql-quietspace-monolith:
     container_name: mysql_quietspace_monolith_container
@@ -20,14 +20,14 @@ services:
     volumes:
       - quietspace_monolith_data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: quietspace
-      MYSQL_USER: thural
-      MYSQL_PASSWORD: "@dolphin888"
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER_USERNAME}
+      MYSQL_PASSWORD: ${DB_USER_PASSWORD}
     networks:
       - monolith-network
     ports:
-      - "3306:3306"
+      - ${EXP_DB_PORT_NUMBER}:${DB_PORT_NUMBER}
 
 volumes:
   quietspace_monolith_data:
