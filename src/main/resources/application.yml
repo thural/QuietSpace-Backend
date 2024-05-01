@@ -33,6 +33,7 @@ spring:
     hibernate:
       ddl-auto: update
     database: mysql
+    open-in-view: false
 
   flyway:
     enabled: false
@@ -42,3 +43,6 @@ logging:
   level:
     org.hibernate.orm.jdbc.bind: trace
     org.springframework.web.servlet.handler.HandlerMappingIntrospector: ERROR
+
+server:
+  port: 8080

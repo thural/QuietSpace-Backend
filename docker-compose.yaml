@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  quietspace-monolith:
+    build:
+      context: .
+      dockerfile: ./docker/prod/Dockerfile
+    image: thural/quietspace:monolith
+    container_name: quietspace_monolith_container
+    depends_on:
+      - mysql-quietspace-monolith
+    networks:
+      - monolith-network
+    ports:
+      - "8080:8080"
+
+  mysql-quietspace-monolith:
+    container_name: mysql_quietspace_monolith_container
+    image: mysql:8.0
+    restart: on-failure
+    volumes:
+      - quietspace_monolith_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: quietspace
+      MYSQL_USER: thural
+      MYSQL_PASSWORD: "@dolphin888"
+    networks:
+      - monolith-network
+    ports:
+      - "3306:3306"
+
+volumes:
+  quietspace_monolith_data:
+
+networks:
+  monolith-network:
+    name: monolith-network
+    driver: bridge
