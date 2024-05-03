@@ -3,7 +3,7 @@ services:
   quietspace-monolith:
     build:
       context: .
-      dockerfile: ./docker/prod/Dockerfile
+      dockerfile: ./docker/maven/Dockerfile
     image: thural/quietspace:monolith
     container_name: quietspace_monolith_container
     depends_on:
