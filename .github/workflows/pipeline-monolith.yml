@@ -1,0 +1,138 @@
+name: QuietSpace monolith Backend pipeline
+
+on:
+  push:
+    branches: ["main", "prod"]
+    paths:
+      - src
+      - 'pom.xml'
+      - 'docker-compose.yaml'
+      - ./docker/prod/Dockerfile
+      - ./github/workflows/*-monolith.yml
+
+jobs:
+
+  compile:
+    name: Compile Project
+    runs-on: ubuntu-22.04
+    steps:
+      - name: checkout code
+        uses: checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-jdk@v4
+        with:
+          java-version: 21
+          distribution: 'corretto'
+
+      - name: compile project
+        run: |
+          ./mvnw clean compile
+
+  test:
+    name: Test Project
+    runs-on: ubuntu-22.04
+    steps:
+      - name: checkout code
+        uses: checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-jdk@v4
+        with:
+          java-version: 21
+          distribution: 'corretto'
+
+      - name: test project
+        run: |
+          ./mvnw clean test
+
+  package:
+    name: Package Project
+    runs-on: ubuntu-22.04
+    needs: [compile, test]
+    steps:
+      - name: checkout code
+        uses: checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-jdk@v4
+        with:
+          java-version: 21
+          distribution: 'corretto'
+
+      - name: test project
+        run: |
+          ./mvnw clean package
+
+  build:
+    runs-on: ubuntu-22.04
+    name: Build Docker Image
+    needs: [package]
+    steps:
+      - name: checkout code
+        uses: checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-jdk@v4
+        with:
+          java-version: 21
+          distribution: 'corretto'
+
+      - name: Extract Project Version
+        id: project-version
+        run: |
+          echo "VERSION=$(./mvnw -q -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec)" >> GITHUB_OUTPUT
+
+      - name: Login to Dockerhub
+        uses: docker/login-action@v3
+        with:
+          username: ${{secrets.DOCKERHUB_USERNAME}}
+          password: ${{secrets.DOCKERHUB_PASSWORD}}
+
+      - name: Build and Push to DockerHub
+        uses: docker/build-push-actions@v5
+        with:
+          context: ./
+          file: docker/prod/Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: ${{secrets.DOCKERHUB_USERNAME}}/quietspace:monolith-${{steps.extract_version.outputs.VERSION}},${{secrets.DOCKERHUB_USERNAME}}/quietspace:monolith-latest
+          build-args: |
+            PROFILE=default
+            VERSION=${{steps.project_version.outputs.VERSION}}
+
+  deploy:
+    name: Deploy Backend to VPS
+    runs-on: ubuntu-22.04
+    needs: [build]
+    steps:
+      - name: Create Deployment Folder
+        run: ssh ${{secrets.VPS_USERNAME}}@${{secrets.VPS_IP}} "mkdir -p deployment"
+
+      - name: Copy Docker Compose File
+        run: scp docker-compose.yml ${{secrets.VPS_USERNAME}}@${{secrets.VPS_IP}}:deployment/docker-compose.yaml
+
+      - name: Set ENV Variables and Deploy
+        run: |
+          ssh ${{secrets.VPS_USERNAME}}@${{secrets.VPS_IP}} "mkdir -p deployment" <<EOF
+          export DB_USER_PASSWORD=${{secrets.DB_USER_PASSWORD}}
+          export DB_USER_USERNAME=${{secrets.DB_USER_USERNAME}}
+          export DB_PORT_NUMBER=${{secrets.DB_PORT_NUMBER}}
+          export DB_HOST_NAME=${{secrets.DB_HOST_NAME}}
+          export DB_NAME=${{secrets.DB_NAME}}
+          export MYSQL_ROOT_PASSWORD: ${{secrets.DB_ROOT_PASSWORD}}
+          export MYSQL_DATABASE: ${{secrets.DB_NAME}}
+          export MYSQL_USER: ${{secrets.DB_USER_USERNAME}}
+          export MYSQL_PASSWORD: ${{secrets.DB_USER_PASSWORD}}
+          cd deployment
+          docker-compose -f docker-compose.yaml pull -q
+          docker-compose -f docker-compose.yaml up -d
+          EOF

@@ -27,6 +27,15 @@ services:
       - quietspace-monolith-db
     env_file:
       - .env
+    environment:
+      DB_USER_PASSWORD: ${DB_USER_PASSWORD}
+      DB_USER_USERNAME: ${DB_USER_USERNAME}
+      DB_PORT_NUMBER: ${DB_PORT_NUMBER}
+      DB_NAME: ${DB_NAME}
+      DB_URL: ${DB_URL}
+      DB_HOST_NAME: ${DB_HOST_NAME}
+      APP_VERSION: ${APP_VERSION}
+      ACTIVE_PROFILE: ${ACTIVE_PROFILE}
     networks:
       - monolith-network
     ports:

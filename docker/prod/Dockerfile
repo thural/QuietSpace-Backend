@@ -1,20 +1,29 @@
-FROM eclipse-temurin:17.0.4.1_1-jre as builder
+FROM maven:3.9.6-eclipse-temurin-17-alpine as build
 
-WORKDIR extracted
+WORKDIR /build
+COPY pom.xml .
+RUN mvn dependency:go-offline
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-ADD target/*.jar app.jar
 
-RUN java -Djarmode=layertools -jar app.jar extract
+FROM eclipse-temurin:17-jre-alpine
 
-FROM eclipse-temurin:17.0.4.1_1-jre
+ARG PROFILE=default
+ARG VERSION=0.0.1
 
-WORKDIR application
-
-COPY --from=builder extracted/dependencies/ ./
-COPY --from=builder extracted/spring-boot-loader/ ./
-COPY --from=builder extracted/snapshot-dependencies/ ./
-COPY --from=builder extracted/application/ ./
+WORKDIR /app
+COPY --from=build /build/target/*SNAPSHOT.jar /app/
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
+ENV DB_USER_PASSWORD=undefined
+ENV DB_USER_USERNAME=undefined
+ENV DB_PORT_NUMBER=undefined
+ENV DB_NAME=undefined
+ENV DB_URL=undefined
+ENV DB_HOST_NAME=undefined
+ENV APP_VERSION=${VERSION}
+ENV ACTIVE_PROFILE=${PROFILE}
+
+CMD java -jar -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Dspring.profiles.active=${ACTIVE_PROFILE} -Dspring.datasource.url=${DB_URL}  quietspacebackend-${APP_VERSION}-SNAPSHOT.jar
