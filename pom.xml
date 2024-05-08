@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>dev.thural</groupId>
-	<artifactId>quietspacebackend</artifactId>
+	<artifactId>quietspace</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>quietspacebackend</name>
+	<name>quietspace</name>
 	<description>Backend for QuietSpace social app</description>
 	<properties>
 		<java.version>17</java.version>
