@@ -17,68 +17,60 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/comments")
 public class CommentController {
 
-    public static final String COMMENT_PATH = "/api/v1/comments";
-    public static final String COMMENT_PATH_ID = COMMENT_PATH + "/{commentId}";
+    public static final String COMMENT_PATH_ID = "/{commentId}";
 
     private final CommentService commentService;
 
 
-    @RequestMapping(value = COMMENT_PATH + "/post/{postId}", method = RequestMethod.GET)
-    Page<CommentResponse> getCommentsByPostId(@PathVariable("postId") UUID postId,
-                                              @RequestParam(name = "page-number", required = false) Integer pageNumber,
-                                              @RequestParam(name = "page-size", required = false) Integer pageSize) {
-
+    @GetMapping("/post/{postId}")
+    Page<CommentResponse> getCommentsByPostId(@PathVariable UUID postId,
+                                              @RequestParam(required = false) Integer pageNumber,
+                                              @RequestParam(required = false) Integer pageSize) {
         return commentService.getCommentsByPost(postId, pageNumber, pageSize);
     }
 
-    @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.GET)
-    CommentResponse getCommentById(@PathVariable("commentId") UUID commentId) {
-
+    @GetMapping(COMMENT_PATH_ID)
+    CommentResponse getCommentById(@PathVariable UUID commentId) {
         Optional<CommentResponse> optionalComment = commentService.getCommentById(commentId);
         return optionalComment.orElse(null);
     }
 
-    @RequestMapping(value = COMMENT_PATH, method = RequestMethod.POST)
+    @PostMapping
     ResponseEntity<?> createComment(@RequestBody @Validated CommentRequest comment) {
-
         commentService.createComment(comment);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.PUT)
-    ResponseEntity<?> putComment(@PathVariable("commentId") UUID commentId,
+    @PutMapping(COMMENT_PATH_ID)
+    ResponseEntity<?> putComment(@PathVariable UUID commentId,
                                  @RequestBody @Validated CommentRequest comment) {
-
         commentService.updateComment(commentId, comment);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.DELETE)
-    ResponseEntity<?> deleteComment(@PathVariable("commentId") UUID commentId) {
-
+    @DeleteMapping(COMMENT_PATH_ID)
+    ResponseEntity<?> deleteComment(@PathVariable UUID commentId) {
         commentService.deleteComment(commentId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.PATCH)
-    ResponseEntity<?> patchComment(@PathVariable("commentId") UUID commentId,
+    @PatchMapping(COMMENT_PATH_ID)
+    ResponseEntity<?> patchComment(@PathVariable UUID commentId,
                                    @RequestBody CommentRequest comment) {
-
         commentService.patchComment(commentId, comment);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = COMMENT_PATH_ID + "/likes", method = RequestMethod.GET)
-    List<CommentLikeResponse> getCommentLikesByCommentId(@PathVariable("commentId") UUID commentId) {
-
+    @GetMapping(value = COMMENT_PATH_ID + "/likes")
+    List<CommentLikeResponse> getCommentLikesByCommentId(@PathVariable UUID commentId) {
         return commentService.getLikesByCommentId(commentId);
     }
 
-    @RequestMapping(value = COMMENT_PATH_ID + "/toggle-like", method = RequestMethod.POST)
-    ResponseEntity<?> toggleCommentLike(@PathVariable("commentId") UUID commentId) {
-
+    @PostMapping(COMMENT_PATH_ID + "/toggle-like")
+    ResponseEntity<?> toggleCommentLike(@PathVariable UUID commentId) {
         commentService.toggleCommentLike(commentId);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

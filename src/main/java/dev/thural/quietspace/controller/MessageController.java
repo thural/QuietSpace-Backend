@@ -14,31 +14,31 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/messages")
 public class MessageController {
 
-    public static final String MESSAGE_PATH = "/api/v1/messages";
-    public static final String MESSAGE_PATH_ID = MESSAGE_PATH + "/{messageId}";
+    public static final String MESSAGE_PATH_ID = "/{messageId}";
 
     private final MessageService messageService;
 
 
-    @RequestMapping(value = MESSAGE_PATH, method = RequestMethod.POST)
+    @PostMapping
     ResponseEntity<?> createMessage(@RequestBody @Validated MessageRequest messageRequest) {
         messageService.addMessage(messageRequest);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = MESSAGE_PATH_ID, method = RequestMethod.DELETE)
-    ResponseEntity<?> deleteMessage(@PathVariable("messageId") UUID messageId) {
+    @DeleteMapping(MESSAGE_PATH_ID)
+    ResponseEntity<?> deleteMessage(@PathVariable UUID messageId) {
         messageService.deleteMessage(messageId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequestMapping(value = MESSAGE_PATH + "/chat/{chatId}", method = RequestMethod.GET)
+    @GetMapping("/chat/{chatId}")
     Page<MessageResponse> getMessagesByChatId(
             @RequestParam(name = "page-number", required = false) Integer pageNumber,
             @RequestParam(name = "page-size", required = false) Integer pageSize,
-            @PathVariable("chatId") UUID chatId) {
+            @PathVariable UUID chatId) {
         return messageService.getMessagesByChatId(pageNumber, pageSize, chatId);
     }
 

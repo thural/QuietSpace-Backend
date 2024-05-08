@@ -18,71 +18,72 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/users")
 public class UserController {
 
     public static final String USER_PATH = "/api/v1/users";
-    public static final String USER_PATH_ID = USER_PATH + "/{userId}";
+    public static final String USER_PATH_ID = "/{userId}";
 
     private final UserService userService;
     private final PostService postService;
     private final CommentService commentService;
 
-    @RequestMapping(value = USER_PATH, method = RequestMethod.GET)
+    @GetMapping
     Page<UserResponse> listUsers(@RequestParam(name = "username", required = false) String username,
                                  @RequestParam(name = "page-number", required = false) Integer pageNumber,
                                  @RequestParam(name = "page-size", required = false) Integer pageSize) {
         return userService.listUsers(username, pageNumber, pageSize);
     }
 
-    @RequestMapping(value = USER_PATH + "/search", method = RequestMethod.GET)
+    @GetMapping("/search")
     Page<UserResponse> listUsersByQuery(@RequestParam(name = "query", required = false) String query,
                                         @RequestParam(name = "page-number", required = false) Integer pageNumber,
                                         @RequestParam(name = "page-size", required = false) Integer pageSize) {
         return userService.listUsersByQuery(query, pageNumber, pageSize);
     }
 
-    @RequestMapping(value = USER_PATH_ID, method = RequestMethod.GET)
-    ResponseEntity<?> getUserById(@PathVariable("userId") UUID userId) {
+    @GetMapping(USER_PATH_ID)
+    ResponseEntity<?> getUserById(@PathVariable UUID userId) {
+
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
-
         return userService.getUserById(userId)
                 .map(user -> ResponseEntity.ok().headers(headers).body(user))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @RequestMapping(value = USER_PATH_ID, method = RequestMethod.DELETE)
+    @DeleteMapping(USER_PATH_ID)
     ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String authHeader,
-                                 @PathVariable("userId") UUID id) {
-        userService.deleteUser(id, authHeader);
+                                 @PathVariable UUID userId) {
+        userService.deleteUser(userId, authHeader);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = USER_PATH, method = RequestMethod.PATCH)
+    @PatchMapping
     ResponseEntity<?> patchUser(@RequestBody UserRequest userRequest) {
         userService.patchUser(userRequest);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = USER_PATH + "/profile", method = RequestMethod.GET)
+    @GetMapping("/profile")
     public UserResponse getUserFromToken() {
         return userService.findLoggedUser().orElse(null);
     }
 
-    @RequestMapping(value = USER_PATH_ID + "/posts", method = RequestMethod.GET)
-    public Page<PostResponse> listUserPosts(@PathVariable("userId") UUID userId,
+    @GetMapping(USER_PATH_ID + "/posts")
+    public Page<PostResponse> listUserPosts(@PathVariable UUID userId,
                                             @RequestParam(name = "page-number", required = false) Integer pageNumber,
                                             @RequestParam(name = "page-size", required = false) Integer pageSize) {
         return postService.getPostsByUserId(userId, pageNumber, pageSize);
     }
 
-    @RequestMapping(value = USER_PATH_ID + "/post-likes", method = RequestMethod.GET)
-    List<PostLikeResponse> getAllPostLikesByUserId(@PathVariable("userId") UUID userId) {
+    @GetMapping(USER_PATH_ID + "/post-likes")
+    List<PostLikeResponse> getAllPostLikesByUserId(@PathVariable UUID userId) {
         return postService.getPostLikesByUserId(userId);
     }
 
-    @RequestMapping(value = USER_PATH_ID + "/comment-likes", method = RequestMethod.GET)
-    List<CommentLikeResponse> getAllCommentLikesByUserId(@PathVariable("userId") UUID userId) {
+    @GetMapping(USER_PATH_ID + "/comment-likes")
+    List<CommentLikeResponse> getAllCommentLikesByUserId(@PathVariable UUID userId) {
         return commentService.getAllByUserId(userId);
     }
 

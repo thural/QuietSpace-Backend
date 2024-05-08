@@ -12,51 +12,42 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@RequestMapping("/api/v1/chats")
 @RequiredArgsConstructor
 public class ChatController {
 
-    public static final String CHAT_PATH = "/api/v1/chats";
-
     private final ChatService chatService;
 
-    @RequestMapping(value = CHAT_PATH + "/{chatId}", method = RequestMethod.GET)
-    ChatResponse getSingleChatById(@PathVariable("chatId") UUID chatId) {
-
+    @GetMapping("/{chatId}")
+    ChatResponse getSingleChatById(@PathVariable UUID chatId) {
         return chatService.getChatById(chatId);
     }
 
-    @RequestMapping(value = CHAT_PATH + "/member/{userId}", method = RequestMethod.GET)
-    List<ChatResponse> getChatsByMemberId(@PathVariable("userId") UUID userId) {
-
+    @GetMapping("/member/{userId}")
+    List<ChatResponse> getChatsByMemberId(@PathVariable UUID userId) {
         return chatService.getChatsByUserId(userId);
     }
 
-    @RequestMapping(value = CHAT_PATH, method = RequestMethod.POST)
+    @PostMapping()
     ResponseEntity<?> createChat(@RequestBody ChatRequest chat) {
-
         chatService.createChat(chat);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = CHAT_PATH + "/{chatId}/members/add/{userId}", method = RequestMethod.PATCH)
-    ResponseEntity<?> addMemberWithId(@PathVariable("chatId") UUID chatId,
-                                      @PathVariable("userId") UUID userId) {
-
+    @PatchMapping("/{chatId}/members/add/{userId}")
+    ResponseEntity<?> addMemberWithId(@PathVariable UUID chatId, @PathVariable UUID userId) {
         chatService.addMemberWithId(userId, chatId);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = CHAT_PATH + "/{chatId}/members/remove/{userId}", method = RequestMethod.PATCH)
-    ResponseEntity<?> removeMemberWithId(@PathVariable("chatId") UUID chatId,
-                                         @PathVariable("userId") UUID userId) {
-
+    @PatchMapping("/{chatId}/members/remove/{userId}")
+    ResponseEntity<?> removeMemberWithId(@PathVariable UUID chatId, @PathVariable UUID userId) {
         chatService.removeMemberWithId(userId, chatId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = CHAT_PATH + "/{chatId}", method = RequestMethod.DELETE)
+    @DeleteMapping("/{chatId}")
     ResponseEntity<?> deleteChatWithId(@PathVariable("chatId") UUID chatId) {
-
         chatService.deleteChatById(chatId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

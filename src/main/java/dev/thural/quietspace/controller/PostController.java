@@ -17,57 +17,57 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping( "/api/v1/posts")
 public class PostController {
 
-    public static final String POST_PATH = "/api/v1/posts";
-    public static final String POST_PATH_ID = POST_PATH + "/{postId}";
+    public static final String POST_PATH_ID = "/{postId}";
 
     private final PostService postService;
 
-    @RequestMapping(value = POST_PATH, method = RequestMethod.GET)
+    @GetMapping
     Page<PostResponse> getAllPosts(@RequestParam(name = "page-number", required = false) Integer pageNumber,
                                    @RequestParam(name = "page-size", required = false) Integer pageSize) {
         return postService.getAllPosts(pageNumber, pageSize);
     }
 
-    @RequestMapping(value = POST_PATH, method = RequestMethod.POST)
+    @PostMapping
     ResponseEntity<?> createPost(@RequestBody @Validated PostRequest post) {
         postService.addPost(post);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = POST_PATH_ID, method = RequestMethod.GET)
-    ResponseEntity<?> getPostById(@PathVariable("postId") UUID id) {
-        Optional<PostResponse> optionalPost = postService.getPostById(id);
+    @GetMapping(POST_PATH_ID)
+    ResponseEntity<?> getPostById(@PathVariable UUID postId) {
+        Optional<PostResponse> optionalPost = postService.getPostById(postId);
         return new ResponseEntity<>(optionalPost.orElse(null), HttpStatus.OK);
     }
 
-    @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PUT)
-    ResponseEntity<?> putPost(@PathVariable("postId") UUID id,
+    @PutMapping(POST_PATH_ID)
+    ResponseEntity<?> putPost(@PathVariable UUID postId,
                               @RequestBody @Validated PostRequest post) {
-        postService.updatePost(id, post);
+        postService.updatePost(postId, post);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = POST_PATH_ID, method = RequestMethod.DELETE)
-    ResponseEntity<?> deletePost(@PathVariable("postId") UUID id) {
-        postService.deletePost(id);
+    @DeleteMapping(POST_PATH_ID)
+    ResponseEntity<?> deletePost(@PathVariable UUID postId) {
+        postService.deletePost(postId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PATCH)
-    ResponseEntity<?> patchPost(@PathVariable("postId") UUID id,
+    @PatchMapping(POST_PATH_ID)
+    ResponseEntity<?> patchPost(@PathVariable UUID postId,
                                 @RequestBody PostRequest post) {
-        postService.patchPost(id, post);
+        postService.patchPost(postId, post);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = POST_PATH_ID + "/likes", method = RequestMethod.GET)
-    List<PostLikeResponse> getAllLikesByPostId(@PathVariable("postId") UUID postId) {
+    @GetMapping(POST_PATH_ID + "/likes")
+    List<PostLikeResponse> getAllLikesByPostId(@PathVariable UUID postId) {
         return postService.getPostLikesByPostId(postId);
     }
 
-    @RequestMapping(value = POST_PATH_ID + "/toggle-like", method = RequestMethod.POST)
+    @PostMapping(POST_PATH_ID + "/toggle-like")
     ResponseEntity<?> togglePostLike(@PathVariable UUID postId) {
         postService.togglePostLike(postId);
         return new ResponseEntity<>(HttpStatus.CREATED);
