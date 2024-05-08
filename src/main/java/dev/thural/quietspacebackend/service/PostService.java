@@ -12,7 +12,7 @@ import java.util.UUID;
 public interface PostService {
     Page<PostResponse> getAllPosts(Integer pageNumber, Integer pageSize);
 
-    PostResponse addPost(PostRequest post);
+    void addPost(PostRequest post);
 
     Optional<PostResponse> getPostById(UUID id);
 

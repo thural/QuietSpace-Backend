@@ -1,5 +1,6 @@
 package dev.thural.quietspacebackend.service;
 
+import dev.thural.quietspacebackend.model.request.UserRequest;
 import dev.thural.quietspacebackend.model.response.UserResponse;
 import org.springframework.data.domain.Page;
 
@@ -13,9 +14,9 @@ public interface UserService {
 
     Optional<UserResponse> getUserById(UUID id);
 
-    Boolean deleteUser(UUID userId, String authHeader);
+    void deleteUser(UUID userId, String authHeader);
 
-    void patchUser(UserResponse userResponse);
+    void patchUser(UserRequest userRequest);
 
     Optional<UserResponse> findLoggedUser();
 }

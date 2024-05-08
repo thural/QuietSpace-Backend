@@ -6,7 +6,6 @@ import dev.thural.quietspacebackend.model.request.CommentRequest;
 import dev.thural.quietspacebackend.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -44,10 +43,8 @@ public class CommentController {
     @RequestMapping(value = COMMENT_PATH, method = RequestMethod.POST)
     ResponseEntity<?> createComment(@RequestBody @Validated CommentRequest comment) {
 
-        CommentResponse savedComment = commentService.createComment(comment);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", COMMENT_PATH + "/" + savedComment.getId());
-        return new ResponseEntity<>(savedComment, headers, HttpStatus.CREATED);
+        commentService.createComment(comment);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @RequestMapping(value = COMMENT_PATH_ID, method = RequestMethod.PUT)

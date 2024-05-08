@@ -2,6 +2,7 @@ package dev.thural.quietspacebackend.service.impls;
 
 import dev.thural.quietspacebackend.entity.Token;
 import dev.thural.quietspacebackend.exception.UserNotFoundException;
+import dev.thural.quietspacebackend.model.request.UserRequest;
 import dev.thural.quietspacebackend.model.response.UserResponse;
 import dev.thural.quietspacebackend.repository.TokenRepository;
 import dev.thural.quietspacebackend.utils.PagingProvider;
@@ -81,7 +82,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean deleteUser(UUID userId, String authHeader) {
+    public void deleteUser(UUID userId, String authHeader) {
 
         boolean isDeleted = false;
         String token = authHeader.substring(7);
@@ -104,13 +105,12 @@ public class UserServiceImpl implements UserService {
                 .build()
         );
 
-        return isDeleted;
     }
 
     @Override
-    public void patchUser(UserResponse userResponse) {
+    public void patchUser(UserRequest userRequest) {
 
-        User requestedUser = userRepository.findUserEntityByEmail(userResponse.getEmail())
+        User requestedUser = userRepository.findUserEntityByEmail(userRequest.getEmail())
                 .orElseThrow(UserNotFoundException::new);
 
         boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains("ADMIN");
@@ -122,14 +122,12 @@ public class UserServiceImpl implements UserService {
         if (!isAdmin && !requestedUser.getEmail().equals(loggedUser.getEmail()))
             throw new AccessDeniedException("logged user has no access to requested resource");
 
-        if (StringUtils.hasText(userResponse.getUsername()))
-            loggedUser.setUsername(userResponse.getUsername());
-
-        if (StringUtils.hasText(userResponse.getEmail()))
-            loggedUser.setEmail(userResponse.getEmail());
-
-        if (StringUtils.hasText(userResponse.getPassword()))
-            loggedUser.setPassword(passwordEncoder.encode(userResponse.getPassword()));
+        if (StringUtils.hasText(userRequest.getUsername()))
+            loggedUser.setUsername(userRequest.getUsername());
+        if (StringUtils.hasText(userRequest.getEmail()))
+            loggedUser.setEmail(userRequest.getEmail());
+        if (StringUtils.hasText(userRequest.getPassword()))
+            loggedUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
         userRepository.save(loggedUser);
     }

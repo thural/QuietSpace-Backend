@@ -34,8 +34,8 @@ public class ChatController {
     @RequestMapping(value = CHAT_PATH, method = RequestMethod.POST)
     ResponseEntity<?> createChat(@RequestBody ChatRequest chat) {
 
-        ChatResponse createdChatResponse = chatService.createChat(chat);
-        return new ResponseEntity<>(createdChatResponse, HttpStatus.CREATED);
+        chatService.createChat(chat);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @RequestMapping(value = CHAT_PATH + "/{chatId}/members/add/{userId}", method = RequestMethod.PATCH)

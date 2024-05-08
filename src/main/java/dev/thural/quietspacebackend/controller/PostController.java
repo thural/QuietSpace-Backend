@@ -6,7 +6,6 @@ import dev.thural.quietspacebackend.model.response.PostLikeResponse;
 import dev.thural.quietspacebackend.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -33,17 +32,14 @@ public class PostController {
 
     @RequestMapping(value = POST_PATH, method = RequestMethod.POST)
     ResponseEntity<?> createPost(@RequestBody @Validated PostRequest post) {
-        PostResponse savedPost = postService.addPost(post);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", POST_PATH + "/" + savedPost.getId());
-        System.out.println("post resource location" + headers.get("Location"));
-        return new ResponseEntity<>(savedPost, headers, HttpStatus.OK);
+        postService.addPost(post);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.GET)
-    PostResponse getPostById(@PathVariable("postId") UUID id) {
+    ResponseEntity<?> getPostById(@PathVariable("postId") UUID id) {
         Optional<PostResponse> optionalPost = postService.getPostById(id);
-        return optionalPost.orElse(null);
+        return new ResponseEntity<>(optionalPost.orElse(null), HttpStatus.OK);
     }
 
     @RequestMapping(value = POST_PATH_ID, method = RequestMethod.PUT)

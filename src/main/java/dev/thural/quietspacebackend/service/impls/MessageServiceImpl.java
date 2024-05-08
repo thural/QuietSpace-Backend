@@ -32,7 +32,7 @@ public class MessageServiceImpl implements MessageService {
     private final MessageMapper messageMapper;
 
     @Override
-    public MessageResponse addMessage(MessageRequest messageRequest) {
+    public void addMessage(MessageRequest messageRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User loggedUser = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
@@ -45,7 +45,7 @@ public class MessageServiceImpl implements MessageService {
         newMessage.setSender(loggedUser);
         newMessage.setChat(parentChat);
 
-        return messageMapper.messageEntityToDto(messageRepository.save(newMessage));
+        messageMapper.messageEntityToDto(messageRepository.save(newMessage));
     }
 
     @Override

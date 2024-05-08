@@ -5,7 +5,6 @@ import dev.thural.quietspacebackend.model.response.MessageResponse;
 import dev.thural.quietspacebackend.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -25,16 +24,14 @@ public class MessageController {
 
     @RequestMapping(value = MESSAGE_PATH, method = RequestMethod.POST)
     ResponseEntity<?> createMessage(@RequestBody @Validated MessageRequest messageRequest) {
-        MessageResponse savedMessage = messageService.addMessage(messageRequest);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", MESSAGE_PATH + "/" + savedMessage.getId());
-        return new ResponseEntity<>(savedMessage, headers, HttpStatus.CREATED);
+        messageService.addMessage(messageRequest);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @RequestMapping(value = MESSAGE_PATH_ID, method = RequestMethod.DELETE)
     ResponseEntity<?> deleteMessage(@PathVariable("messageId") UUID messageId) {
         messageService.deleteMessage(messageId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = MESSAGE_PATH + "/chat/{chatId}", method = RequestMethod.GET)

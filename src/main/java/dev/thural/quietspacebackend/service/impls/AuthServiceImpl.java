@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -46,7 +47,7 @@ public class AuthServiceImpl implements AuthService {
 
         String token = JwtProvider.generateToken(authentication);
         String userId = savedUser.getId().toString();
-        return new AuthResponse(token, userId, "register success");
+        return new AuthResponse(UUID.randomUUID(), token, userId, "register success");
     }
 
     @Override
@@ -65,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
 
         Optional<User> optionalUser = userRepository.findUserEntityByEmail(userEmail);
         User user = optionalUser.orElseThrow(() -> new AuthenticationCredentialsNotFoundException("login failed"));
-        return new AuthResponse(token, user.getId().toString(), "login success");
+        return new AuthResponse(UUID.randomUUID(), token, user.getId().toString(), "login success");
     }
 
     @Override

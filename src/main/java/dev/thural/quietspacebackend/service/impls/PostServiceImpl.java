@@ -45,11 +45,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostResponse addPost(PostRequest post) {
+    public void addPost(PostRequest post) {
         User loggedUser = getUserFromSecurityContext();
         Post postEntity = postMapper.postRequestToEntity(post);
         postEntity.setUser(loggedUser);
-        return postMapper.postEntityToResponse(postRepository.save(postEntity));
+        postMapper.postEntityToResponse(postRepository.save(postEntity));
     }
 
     private User getUserFromSecurityContext() {
@@ -76,7 +76,7 @@ public class PostServiceImpl implements PostService {
         Post existingPost = findPostEntityById(postId);
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
         if (postExistsByLoggedUser) {
-            existingPost.setText(post.getTextContent());
+            existingPost.setText(post.getText());
             postRepository.save(existingPost);
         } else throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
     }
@@ -87,7 +87,7 @@ public class PostServiceImpl implements PostService {
         Post existingPost = findPostEntityById(postId);
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
         if (postExistsByLoggedUser) {
-            if (StringUtils.hasText(post.getTextContent())) existingPost.setText(post.getTextContent());
+            if (StringUtils.hasText(post.getText())) existingPost.setText(post.getText());
             postRepository.save(existingPost);
         } else throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
     }

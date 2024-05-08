@@ -15,7 +15,7 @@ public interface ChatService {
 
     void removeMemberWithId(UUID memberId, UUID chatId);
 
-    ChatResponse createChat(ChatRequest chatRequest);
+    void createChat(ChatRequest chatRequest);
 
     ChatResponse getChatById(UUID chatId);
 }

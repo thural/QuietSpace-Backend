@@ -79,7 +79,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatResponse createChat(ChatRequest chatRequest) {
+    public void createChat(ChatRequest chatRequest) {
         List<User> userList = chatRequest.getUserIds().stream()
                 .map(userId -> userRepository.findById(userId)
                         .orElseThrow(() -> new UserNotFoundException("user not found"))).toList();
@@ -97,9 +97,9 @@ public class ChatServiceImpl implements ChatService {
         Chat newChat = chatMapper.chatRequestToEntity(chatRequest);
         newChat.setUsers(userList);
         Message message = messageMapper.messageRequestToEntity(chatRequest.getMessage());
-        newChat.setMessages(List.of());
+        newChat.setMessages(List.of(message));
 
-        return chatMapper.chatEntityToResponse(chatRepository.save(newChat));
+        chatMapper.chatEntityToResponse(chatRepository.save(newChat));
     }
 
     private User getLoggedUser() {

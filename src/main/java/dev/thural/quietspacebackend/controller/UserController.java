@@ -1,5 +1,6 @@
 package dev.thural.quietspacebackend.controller;
 
+import dev.thural.quietspacebackend.model.request.UserRequest;
 import dev.thural.quietspacebackend.model.response.CommentLikeResponse;
 import dev.thural.quietspacebackend.model.response.PostResponse;
 import dev.thural.quietspacebackend.model.response.PostLikeResponse;
@@ -58,8 +59,8 @@ public class UserController {
     }
 
     @RequestMapping(value = USER_PATH, method = RequestMethod.PATCH)
-    ResponseEntity<?> patchUser(@RequestBody UserResponse userResponse) {
-        userService.patchUser(userResponse);
+    ResponseEntity<?> patchUser(@RequestBody UserRequest userRequest) {
+        userService.patchUser(userRequest);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

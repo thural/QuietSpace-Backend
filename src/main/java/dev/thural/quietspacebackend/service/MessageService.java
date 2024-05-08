@@ -8,9 +8,9 @@ import java.util.UUID;
 
 public interface MessageService {
 
-    MessageResponse addMessage(MessageRequest messageRequest);
+    void addMessage(MessageRequest messageRequest);
 
     void deleteMessage(UUID id);
 
-    Page<MessageResponse> getMessagesByChatId(Integer pageNumber, Integer pageSiz, UUID chatId);
+    Page<MessageResponse> getMessagesByChatId(Integer pageNumber, Integer pageSize, UUID chatId);
 }

@@ -45,7 +45,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public dev.thural.quietspacebackend.model.response.CommentResponse createComment(CommentRequest comment) {
+    public void createComment(CommentRequest comment) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User loggedUser = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
@@ -60,7 +60,7 @@ public class CommentServiceImpl implements CommentService {
         Comment commentEntity = commentMapper.commentRequestToEntity(comment);
         commentEntity.setUser(loggedUser);
         commentEntity.setPost(foundPost.orElse(null));
-        return commentMapper.commentEntityToResponse(commentRepository.save(commentEntity));
+        commentMapper.commentEntityToResponse(commentRepository.save(commentEntity));
     }
 
     @Override
