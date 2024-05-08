@@ -1,12 +1,10 @@
 package dev.thural.quietspacebackend.model.request;
 
-import dev.thural.quietspacebackend.entity.CommentLike;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
-import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -16,24 +14,14 @@ import java.util.UUID;
 @Builder
 public class CommentRequest {
 
-    private UUID id;
+    @NotNull
+    private UUID userId;
 
     @NotNull
-    UUID userId;
+    private UUID postId;
 
-    @NotNull
-    UUID postId;
-
-    private String username;
-
-    @NotNull
     @NotBlank
+    @Size(min = 1, max = 255)
     private String text;
-
-    private List<CommentLike> likes;
-
-    private OffsetDateTime createDate = OffsetDateTime.now();
-
-    private OffsetDateTime updateDate = OffsetDateTime.now();
 
 }

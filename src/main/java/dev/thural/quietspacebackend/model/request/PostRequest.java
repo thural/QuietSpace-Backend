@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Getter
@@ -15,16 +14,12 @@ import java.util.UUID;
 @Builder
 public class PostRequest {
 
-    private UUID id;
+    @NotNull
     private UUID userId;
-    private String username;
 
     @NotNull
     @NotBlank
-    @Size(min = 1, max = 255)
-    private String textContent;
-
-    private OffsetDateTime createDate;
-    private OffsetDateTime updateDate;
+    @Size(min = 1, max = 1000)
+    private String text;
 
 }

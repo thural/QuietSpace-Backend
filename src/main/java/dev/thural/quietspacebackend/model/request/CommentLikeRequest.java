@@ -1,10 +1,8 @@
 package dev.thural.quietspacebackend.model.request;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Getter
@@ -14,20 +12,10 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CommentLikeRequest {
 
-    private UUID id;
+    @NotNull
+    private UUID userId;
 
     @NotNull
-    UUID userId;
-
-    @NotNull
-    UUID commentId;
-
-    String username;
-
-    @JsonIgnore
-    private OffsetDateTime createDate;
-
-    @JsonIgnore
-    private OffsetDateTime updateDate;
+    private UUID commentId;
 
 }

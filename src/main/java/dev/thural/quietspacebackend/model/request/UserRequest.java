@@ -1,12 +1,11 @@
 package dev.thural.quietspacebackend.model.request;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-import java.time.OffsetDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -14,8 +13,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class UserRequest {
-
-    private UUID id;
 
     @NotNull
     @NotBlank
@@ -27,6 +24,7 @@ public class UserRequest {
     @Size(min = 1, max = 32)
     private String username;
 
+    @Email
     @NotNull
     @NotBlank
     @Size(min = 1, max = 32)
@@ -34,10 +32,7 @@ public class UserRequest {
 
     @NotNull
     @NotBlank
+    @Size(min = 8, max = 32)
     private String password;
-
-    private OffsetDateTime createDate;
-
-    private OffsetDateTime updateDate;
 
 }

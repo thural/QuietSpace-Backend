@@ -15,6 +15,7 @@ public class ChatRequest {
 
     @NotNull
     private List<UUID> userIds;
+
     @NotNull
     private MessageRequest message;
 

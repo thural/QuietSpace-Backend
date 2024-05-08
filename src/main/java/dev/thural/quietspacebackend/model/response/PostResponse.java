@@ -8,9 +8,9 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class PostResponse {
 
     private UUID id;

@@ -13,6 +13,7 @@ import java.util.UUID;
 @Builder
 public class TokenRequest {
 
+    @NotNull
     private UUID id;
 
     @NotNull

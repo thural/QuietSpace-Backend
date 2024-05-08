@@ -8,9 +8,9 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class ChatResponse {
 
     private UUID id;

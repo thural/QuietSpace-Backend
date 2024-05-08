@@ -7,14 +7,14 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class MessageResponse {
 
     private UUID id;
-    private String text;
     private UUID chatId;
+    private String text;
     private UUID senderId;
     private String username;
     private OffsetDateTime createDate;
