@@ -9,7 +9,7 @@ RUN mvn clean package -DskipTests
 
 FROM eclipse-temurin:17-jre-alpine
 
-ARG PROFILE=default
+ARG PROFILE=prod
 ARG VERSION=0.0.1
 
 WORKDIR /app
@@ -26,4 +26,4 @@ ENV DB_HOST_NAME=undefined
 ENV APP_VERSION=${VERSION}
 ENV ACTIVE_PROFILE=${PROFILE}
 
-CMD java -jar -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Dspring.profiles.active=${ACTIVE_PROFILE} -Dspring.datasource.url=${DB_URL}  quietspace-${APP_VERSION}-SNAPSHOT.jar
+CMD java -jar -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Dspring.profiles.active=prod -Dspring.datasource.url=${DB_URL}  quietspace-${APP_VERSION}-SNAPSHOT.jar

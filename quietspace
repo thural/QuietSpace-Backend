@@ -1,0 +1,15 @@
+2024-05-09T20:07:32.468+04:00  WARN 74764 --- [quietspace-backend] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-05-09T20:13:53.777+04:00  WARN 76810 --- [quietspace-backend] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-05-09T20:14:18.866+04:00 TRACE 76810 --- [quietspace-backend] [http-nio-8080-exec-2] org.hibernate.orm.jdbc.bind              : binding parameter (1:VARCHAR) <- [johnny@email.com]
+2024-05-09T20:14:18.970+04:00 TRACE 76810 --- [quietspace-backend] [http-nio-8080-exec-2] org.hibernate.orm.jdbc.bind              : binding parameter (1:VARCHAR) <- [johnny@email.com]
+2024-05-09T20:14:18.970+04:00 TRACE 76810 --- [quietspace-backend] [http-nio-8080-exec-2] org.hibernate.orm.jdbc.bind              : binding parameter (2:INTEGER) <- [1]
+2024-05-09T20:14:18.996+04:00 TRACE 76810 --- [quietspace-backend] [http-nio-8080-exec-2] org.hibernate.orm.jdbc.bind              : binding parameter (1:VARCHAR) <- [johnny@email.com]
+2024-05-09T20:14:19.056+04:00 TRACE 76810 --- [quietspace-backend] [http-nio-8080-exec-4] org.hibernate.orm.jdbc.bind              : binding parameter (1:VARCHAR) <- [eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2hubnlAZW1haWwuY29tIiwiaWF0IjoxNzE1MjcxMjU4LCJleHAiOjE3MTUzNTc2NTh9.kBxj6w6YntD7PNvSD-b9GC91u0cELTeXq1nK95CqtAM]
+2024-05-09T20:14:19.056+04:00 TRACE 76810 --- [quietspace-backend] [http-nio-8080-exec-4] org.hibernate.orm.jdbc.bind              : binding parameter (2:INTEGER) <- [1]
+2024-05-09T20:14:19.076+04:00 TRACE 76810 --- [quietspace-backend] [http-nio-8080-exec-4] org.hibernate.orm.jdbc.bind              : binding parameter (1:VARCHAR) <- [johnny@email.com]
+2024-05-09T20:14:19.085+04:00 TRACE 76810 --- [quietspace-backend] [http-nio-8080-exec-4] org.hibernate.orm.jdbc.bind              : binding parameter (1:VARCHAR) <- [johnny@email.com]
+2024-05-09T20:14:19.143+04:00 TRACE 76810 --- [quietspace-backend] [http-nio-8080-exec-5] org.hibernate.orm.jdbc.bind              : binding parameter (1:VARCHAR) <- [eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2hubnlAZW1haWwuY29tIiwiaWF0IjoxNzE1MjcxMjU4LCJleHAiOjE3MTUzNTc2NTh9.kBxj6w6YntD7PNvSD-b9GC91u0cELTeXq1nK95CqtAM]
+2024-05-09T20:14:19.143+04:00 TRACE 76810 --- [quietspace-backend] [http-nio-8080-exec-5] org.hibernate.orm.jdbc.bind              : binding parameter (2:INTEGER) <- [1]
+2024-05-09T20:14:19.150+04:00 TRACE 76810 --- [quietspace-backend] [http-nio-8080-exec-5] org.hibernate.orm.jdbc.bind              : binding parameter (1:VARCHAR) <- [johnny@email.com]
+2024-05-09T20:14:19.180+04:00 TRACE 76810 --- [quietspace-backend] [http-nio-8080-exec-5] org.hibernate.orm.jdbc.bind              : binding parameter (1:INTEGER) <- [0]
+2024-05-09T20:14:19.180+04:00 TRACE 76810 --- [quietspace-backend] [http-nio-8080-exec-5] org.hibernate.orm.jdbc.bind              : binding parameter (2:INTEGER) <- [25]
