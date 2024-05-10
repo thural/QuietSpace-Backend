@@ -157,21 +157,4 @@ public class CustomExceptionHandler {
                 );
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleExceptions(RuntimeException exception) {
-
-        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-
-        return ResponseEntity.internalServerError()
-                .body(ErrorResponse.builder()
-                        .code(500)
-                        .status(status.name())
-                        .message("An unexpected error occurred: " + exception.getMessage())
-                        .timestamp(new Date())
-                        .build()
-                );
-    }
-
-
-
 }

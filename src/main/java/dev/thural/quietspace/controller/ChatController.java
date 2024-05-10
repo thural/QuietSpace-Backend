@@ -23,7 +23,7 @@ public class ChatController {
         return chatService.getChatById(chatId);
     }
 
-    @GetMapping("/member/{userId}")
+    @GetMapping("/members/{userId}")
     List<ChatResponse> getChatsByMemberId(@PathVariable UUID userId) {
         return chatService.getChatsByUserId(userId);
     }
