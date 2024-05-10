@@ -1,10 +1,8 @@
 package dev.thural.quietspace.model.response;
 
-import dev.thural.quietspace.entity.CommentLike;
 import lombok.*;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -19,8 +17,10 @@ public class CommentResponse {
     private UUID postId;
     private String text;
     private String username;
-    private List<CommentLike> likes;
     private OffsetDateTime createDate = OffsetDateTime.now();
     private OffsetDateTime updateDate = OffsetDateTime.now();
+    // TODO: include replied comment id
+    // TODO: include like counts
+    // TODO: include dislike counts
 
 }

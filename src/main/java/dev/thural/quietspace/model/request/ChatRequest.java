@@ -1,6 +1,8 @@
 package dev.thural.quietspace.model.request;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.List;
@@ -17,6 +19,8 @@ public class ChatRequest {
     private List<UUID> userIds;
 
     @NotNull
-    private MessageRequest message;
+    @NotBlank
+    @Size(min = 1, max = 1000)
+    private String message;
 
 }

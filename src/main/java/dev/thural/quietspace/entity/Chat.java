@@ -38,6 +38,7 @@ public class Chat {
                     referencedColumnName = "id"))
     private List<User> users;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Message> messages;
 

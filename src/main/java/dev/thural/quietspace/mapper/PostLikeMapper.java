@@ -10,5 +10,7 @@ public interface PostLikeMapper {
     @Mapping(target = "id", ignore = true)
     PostLike postLikeDtoToEntity(PostLikeResponse postLikeResponse);
 
-    PostLikeResponse postLikeEntityToDto(PostLike postLike);
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "username", source = "user.username")
+    PostLikeResponse postLikeEntityToResponse(PostLike postLike);
 }

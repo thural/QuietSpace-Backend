@@ -44,6 +44,7 @@ public class Comment {
     @JsonIgnore
     private Post post;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentLike> likes;
 
