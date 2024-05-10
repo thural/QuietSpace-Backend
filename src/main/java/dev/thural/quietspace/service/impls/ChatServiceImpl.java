@@ -1,12 +1,11 @@
 package dev.thural.quietspace.service.impls;
 
 import dev.thural.quietspace.entity.Chat;
-import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.exception.CustomErrorException;
+import dev.thural.quietspace.exception.UnauthorizedException;
 import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.ChatMapper;
-import dev.thural.quietspace.mapper.MessageMapper;
 import dev.thural.quietspace.model.request.ChatRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.repository.ChatRepository;
@@ -28,7 +27,6 @@ public class ChatServiceImpl implements ChatService {
 
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
-    private final MessageMapper messageMapper;
     private final ChatMapper chatMapper;
 
 
@@ -37,18 +35,24 @@ public class ChatServiceImpl implements ChatService {
         User loggedUser = getLoggedUser();
 
         if (!loggedUser.getId().equals(memberId))
-            throw new AccessDeniedException("user mismatch with the chat member");
+            throw new UnauthorizedException("user mismatch with the chat member");
 
         return chatRepository.findAllByUsersId(memberId)
                 .stream()
-                .map(chatMapper::chatEntityToResponse).toList();
+                .map(chat -> {
+                    ChatResponse chatResponse = chatMapper.chatEntityToResponse(chat);
+                    chatResponse.setUserIds(chat.getUsers().stream().map(User::getId).toList());
+                    return chatResponse;
+                }).toList();
     }
+
 
     @Override
     public void deleteChatById(UUID chatId) {
         getChatById(chatId);
         if (chatRepository.existsById(chatId)) chatRepository.deleteById(chatId);
     }
+
 
     @Override
     public void addMemberWithId(UUID memberId, UUID chatId) {
@@ -64,6 +68,7 @@ public class ChatServiceImpl implements ChatService {
         chatRepository.save(foundChat);
     }
 
+
     @Override
     public void removeMemberWithId(UUID memberId, UUID chatId) {
         Chat foundChat = findChatById(chatId);
@@ -78,6 +83,7 @@ public class ChatServiceImpl implements ChatService {
         chatRepository.save(foundChat);
     }
 
+
     @Override
     public void createChat(ChatRequest chatRequest) {
         List<User> userList = chatRequest.getUserIds().stream()
@@ -87,7 +93,7 @@ public class ChatServiceImpl implements ChatService {
         User loggedUser = getLoggedUser();
 
         if (!userList.contains(loggedUser))
-            throw new AccessDeniedException("logged user is not a member of requested chat");
+            throw new UnauthorizedException("logged user is not a member of requested chat");
 
         boolean isChatDuplicate = chatRepository.findAllByUsersIn(userList)
                 .stream().anyMatch(chat -> new HashSet<>(chat.getUsers()).containsAll(userList));
@@ -96,11 +102,22 @@ public class ChatServiceImpl implements ChatService {
 
         Chat newChat = chatMapper.chatRequestToEntity(chatRequest);
         newChat.setUsers(userList);
-        Message message = messageMapper.messageRequestToEntity(chatRequest.getMessage());
-        newChat.setMessages(List.of(message));
-
-        chatMapper.chatEntityToResponse(chatRepository.save(newChat));
+        chatRepository.save(newChat);
     }
+
+
+    @Override
+    public ChatResponse getChatById(UUID chatId) {
+        User loggedUser = getLoggedUser();
+
+        Chat foundChat = findChatById(chatId);
+
+        if (!foundChat.getUsers().contains(loggedUser))
+            throw new AccessDeniedException("chat does not belong to logged user");
+
+        return chatMapper.chatEntityToResponse(foundChat);
+    }
+
 
     private User getLoggedUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -109,18 +126,6 @@ public class ChatServiceImpl implements ChatService {
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
     }
 
-    @Override
-    public ChatResponse getChatById(UUID chatId) {
-        User loggedUser = getLoggedUser();
-
-        Chat foundChat = chatRepository.findById(chatId)
-                .orElseThrow(EntityNotFoundException::new);
-
-        if (!foundChat.getUsers().contains(loggedUser))
-            throw new AccessDeniedException("chat does not belong to logged user");
-
-        return chatMapper.chatEntityToResponse(foundChat);
-    }
 
     private Chat findChatById(UUID chatId) {
         User loggedUser = getLoggedUser();

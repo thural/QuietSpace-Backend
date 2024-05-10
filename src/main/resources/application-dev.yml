@@ -31,11 +31,11 @@ spring:
 
 logging:
   file:
-    name: quietspace
+    name: quietspace.log
   level:
     root: WARN
     org.hibernate.orm.jdbc.bind: TRACE
-    dev.thural.quietspace.service: WARN
+    dev.thural.quietspace.service: ERROR
     org.hibernate.sql: DEBUG
     org.springframework.web.servlet.handler.HandlerMappingIntrospector: ERROR
   logback:

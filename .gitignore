@@ -34,3 +34,5 @@ build/
 
 ### ENV files ###
 .env
+/quietspace
+/quietspace.log
