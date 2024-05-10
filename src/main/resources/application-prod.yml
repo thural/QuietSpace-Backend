@@ -1,8 +1,10 @@
 spring:
+
   devtools:
     livereload.enabled: false
     restart:
       enabled: false
+
   application:
     name: quietspace-backend
 
@@ -27,6 +29,7 @@ spring:
       pool-name: RestDB-Pool
       maximum-pool-size: 5
 
+
   jpa:
     properties:
       hibernate:
@@ -36,10 +39,14 @@ spring:
     hibernate:
       ddl-auto: none
     database: mysql
-    open-in-view: false
+    open-in-view: true
 
   flyway:
     enabled: false
+
+  sql:
+    init:
+      mode: never
 
 server:
   port: ${SERVER_PORT_NUMBER}

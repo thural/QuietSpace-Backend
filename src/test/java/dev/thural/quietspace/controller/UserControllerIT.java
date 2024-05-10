@@ -122,11 +122,11 @@ class UserControllerIT {
     @Test
     void testUpdateExistingUser() {
         User user = userRepository.findUserEntityByEmail("tural@email.com").orElseThrow();
-        UserRequest userResponse = userMapper.userEntityToRequest(user);
+        UserRequest userRequest = userMapper.userEntityToRequest(user);
         final String updatedName = "updatedName";
-        userResponse.setUsername(updatedName);
+        userRequest.setUsername(updatedName);
 
-        ResponseEntity<?> response = userController.patchUser(userResponse);
+        ResponseEntity<?> response = userController.patchUser(userRequest);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
 
         User updatedUser = userRepository.findById(user.getId()).orElse(null);

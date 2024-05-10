@@ -2,6 +2,7 @@ package dev.thural.quietspace.service.impls;
 
 import dev.thural.quietspace.entity.PostLike;
 import dev.thural.quietspace.exception.UserNotFoundException;
+import dev.thural.quietspace.mapper.PostLikeMapper;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.PostLikeResponse;
@@ -32,6 +33,7 @@ import static dev.thural.quietspace.utils.PagingProvider.buildCustomPageRequest;
 public class PostServiceImpl implements PostService {
 
     private final PostMapper postMapper;
+    private final PostLikeMapper postLikeMapper;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final UserRepository userRepository;
@@ -47,6 +49,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public void addPost(PostRequest post) {
         User loggedUser = getUserFromSecurityContext();
+        if (!loggedUser.getId().equals(post.getUserId()))
+            throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
         Post postEntity = postMapper.postRequestToEntity(post);
         postEntity.setUser(loggedUser);
         postMapper.postEntityToResponse(postRepository.save(postEntity));
@@ -63,11 +67,6 @@ public class PostServiceImpl implements PostService {
         Post post = findPostEntityById(postId);
         PostResponse postResponse = postMapper.postEntityToResponse(post);
         return Optional.of(postResponse);
-    }
-
-    private Post findPostEntityById(UUID postId) {
-        return postRepository.findById(postId)
-                .orElseThrow(EntityNotFoundException::new);
     }
 
     @Override
@@ -113,18 +112,18 @@ public class PostServiceImpl implements PostService {
         return postPage.map(postMapper::postEntityToResponse);
     }
 
-    private boolean isPostExistsByLoggedUser(Post existingPost, User loggedUser) {
-        return existingPost.getUser().equals(loggedUser);
-    }
-
     @Override
     public List<PostLikeResponse> getPostLikesByPostId(UUID postId) {
-        return postLikeRepository.findAllByPostId(postId);
+        return postLikeRepository.findAllByPostId(postId).stream()
+                .map(postLikeMapper::postLikeEntityToResponse)
+                .toList();
     }
 
     @Override
     public List<PostLikeResponse> getPostLikesByUserId(UUID userId) {
-        return postLikeRepository.findAllByUserId(userId);
+        return postLikeRepository.findAllByUserId(userId).stream()
+                .map(postLikeMapper::postLikeEntityToResponse)
+                .toList();
     }
 
     @Override
@@ -137,6 +136,15 @@ public class PostServiceImpl implements PostService {
                     .orElseThrow(() -> new EntityNotFoundException("post not found"));
             postLikeRepository.save(PostLike.builder().post(post).user(user).build());
         }
+    }
+
+    private boolean isPostExistsByLoggedUser(Post existingPost, User loggedUser) {
+        return existingPost.getUser().equals(loggedUser);
+    }
+
+    private Post findPostEntityById(UUID postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(EntityNotFoundException::new);
     }
 
 }
