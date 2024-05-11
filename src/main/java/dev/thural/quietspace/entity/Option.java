@@ -11,7 +11,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
-import java.util.List;
+import java.util.HashSet;
 import java.util.UUID;
 
 @Entity
@@ -23,7 +23,7 @@ import java.util.UUID;
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
-public class Post {
+public class Option {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -34,27 +34,18 @@ public class Post {
     @Version
     private Integer version;
 
-    private String title;
-
     @NotNull
-    @NotBlank
-    private String text;
-
-    @OneToOne
     @JsonIgnore
+    @ManyToOne
     private Poll poll;
 
     @NotNull
-    @ManyToOne
-    private User user;
+    @NotBlank
+    private String label;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<PostLike> likes;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Comment> comments;
+    @NotNull
+    @ElementCollection
+    private HashSet<UUID> voters;
 
     @NotNull
     @Column(updatable = false)

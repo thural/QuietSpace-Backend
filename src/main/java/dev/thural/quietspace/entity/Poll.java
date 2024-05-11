@@ -23,7 +23,7 @@ import java.util.UUID;
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
-public class Post {
+public class Poll {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -34,27 +34,17 @@ public class Post {
     @Version
     private Integer version;
 
-    private String title;
+    private OffsetDateTime dueDate;
 
     @NotNull
-    @NotBlank
-    private String text;
-
+    @JsonIgnore
     @OneToOne
-    @JsonIgnore
-    private Poll poll;
+    private Post post;
 
     @NotNull
-    @ManyToOne
-    private User user;
-
     @JsonIgnore
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<PostLike> likes;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Comment> comments;
+    @OneToMany
+    private List<Option> options;
 
     @NotNull
     @Column(updatable = false)
