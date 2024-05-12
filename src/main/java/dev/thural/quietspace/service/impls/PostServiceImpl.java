@@ -1,15 +1,14 @@
 package dev.thural.quietspace.service.impls;
 
-import dev.thural.quietspace.entity.PostLike;
+import dev.thural.quietspace.entity.*;
 import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.PostLikeMapper;
+import dev.thural.quietspace.model.request.PollRequest;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.PostLikeResponse;
 import dev.thural.quietspace.repository.PostLikeRepository;
 import dev.thural.quietspace.repository.UserRepository;
-import dev.thural.quietspace.entity.Post;
-import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.mapper.PostMapper;
 import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.service.PostService;
@@ -51,9 +50,31 @@ public class PostServiceImpl implements PostService {
         User loggedUser = getUserFromSecurityContext();
         if (!loggedUser.getId().equals(post.getUserId()))
             throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
-        Post postEntity = postMapper.postRequestToEntity(post);
-        postEntity.setUser(loggedUser);
-        postMapper.postEntityToResponse(postRepository.save(postEntity));
+        Post newPost = postMapper.postRequestToEntity(post);
+        newPost.setUser(loggedUser);
+
+        if(post.getPoll() != null) {
+            PollRequest pollRequest = post.getPoll();
+
+            Poll newPoll = Poll.builder()
+                    .post(newPost)
+                    .dueDate(pollRequest.getDueDate())
+                    .build();
+
+            List<PollOption> options = pollRequest.getOptions().stream()
+                    .map(option -> PollOption.builder()
+                            .label(option)
+                            .poll(newPoll)
+                            .votes(List.of())
+                            .build())
+                    .toList();
+
+            newPoll.setOptions(options);
+
+            newPost.setPoll(newPoll);
+        }
+
+        postRepository.save(newPost);
     }
 
     private User getUserFromSecurityContext() {

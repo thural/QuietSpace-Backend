@@ -22,7 +22,7 @@ import java.util.UUID;
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
-public class Poll {
+public class PollOption {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -33,17 +33,17 @@ public class Poll {
     @Version
     private Integer version;
 
-    private OffsetDateTime dueDate;
-
     @NotNull
     @JsonIgnore
-    @OneToOne
-    private Post post;
+    @ManyToOne
+    private Poll poll;
 
     @NotNull
-    @JsonIgnore
-    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<PollOption> options;
+    private String label;
+
+    @NotNull
+    @ElementCollection
+    private List<UUID> votes;
 
     @NotNull
     @Column(updatable = false)

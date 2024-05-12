@@ -40,8 +40,8 @@ public class Post {
     @NotBlank
     private String text;
 
-    @OneToOne
     @JsonIgnore
+    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Poll poll;
 
     @NotNull
