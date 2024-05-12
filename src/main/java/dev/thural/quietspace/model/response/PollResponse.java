@@ -3,6 +3,7 @@ package dev.thural.quietspace.model.response;
 import lombok.*;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -10,18 +11,15 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostResponse {
+public class PollResponse {
 
     private UUID id;
-    private UUID userId;
-    private String username;
-    private String title;
-    private String text;
-    private PollResponse poll;
+    private UUID postId;
+    private String votedOption;
+    private Integer voteCount;
+    private List<OptionResponse> options;
+    private OffsetDateTime dueDate;
     private OffsetDateTime createDate;
     private OffsetDateTime updateDate;
-    // TODO: include like counts
-    // TODO: include dislike counts
-    // TODO: include comment count
 
 }

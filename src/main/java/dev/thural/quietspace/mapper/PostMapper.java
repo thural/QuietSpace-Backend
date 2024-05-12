@@ -9,9 +9,11 @@ import org.mapstruct.Mapping;
 @Mapper
 public interface PostMapper {
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "poll", ignore = true)
     Post postRequestToEntity(PostRequest postRequest);
 
     @Mapping(target = "username", source ="user.username")
     @Mapping(target = "userId", source ="user.id")
+    @Mapping(target = "poll", ignore = true)
     PostResponse postEntityToResponse(Post post);
 }
