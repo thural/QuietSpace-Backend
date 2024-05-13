@@ -18,7 +18,5 @@ public class PollResponse {
     private Integer voteCount;
     private List<OptionResponse> options;
     private OffsetDateTime dueDate;
-    private OffsetDateTime createDate;
-    private OffsetDateTime updateDate;
 
 }

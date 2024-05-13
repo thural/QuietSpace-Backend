@@ -30,8 +30,8 @@ spring:
     enabled: false
 
 logging:
-  file:
-    name: quietspace.log
+#  file:
+#    name: quietspace.log
   level:
     root: WARN
     org.hibernate.orm.jdbc.bind: TRACE

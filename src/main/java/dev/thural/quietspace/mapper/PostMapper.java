@@ -17,9 +17,12 @@ public interface PostMapper {
 
     @Mapping(target = "username", source ="user.username")
     @Mapping(target = "userId", source ="user.id")
+    @Mapping(target = "likeCount", expression = "java(post.getLikes().size())")
+    @Mapping(target = "commentCount", expression = "java(post.getComments().size())")
     PostResponse postEntityToResponse(Post post);
 
     default PollResponse pollEntityToResponse (Poll poll){
         return Mappers.getMapper(PollMapper.class).pollEntityToResponse(poll);
     }
+
 }

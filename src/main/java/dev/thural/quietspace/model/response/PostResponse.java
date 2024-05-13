@@ -18,10 +18,10 @@ public class PostResponse {
     private String title;
     private String text;
     private PollResponse poll;
+    private Integer likeCount;
+    private Integer commentCount;
     private OffsetDateTime createDate;
     private OffsetDateTime updateDate;
-    // TODO: include like counts
     // TODO: include dislike counts
-    // TODO: include comment count
 
 }
