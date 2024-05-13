@@ -1,5 +1,6 @@
 package dev.thural.quietspace.service;
 
+import dev.thural.quietspace.entity.Poll;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.PostLikeResponse;
@@ -21,6 +22,8 @@ public interface PostService {
     void deletePost(UUID id);
 
     void patchPost(UUID id, PostRequest post);
+
+    String getVotedPollOptionLabel(Poll poll);
 
     Page<PostResponse> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize);
 

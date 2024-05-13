@@ -14,7 +14,6 @@ import java.util.UUID;
 public class PollResponse {
 
     private UUID id;
-    private UUID postId;
     private String votedOption;
     private Integer voteCount;
     private List<OptionResponse> options;

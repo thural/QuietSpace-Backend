@@ -77,6 +77,16 @@ public class PostServiceImpl implements PostService {
         postRepository.save(newPost);
     }
 
+    public String getVotedPollOptionLabel(Poll poll){
+        UUID userId = getUserFromSecurityContext().getId();
+
+        Optional <PollOption> pollOption = poll.getOptions().stream()
+               .filter(option -> option.getVotes().contains(userId))
+               .findAny();
+
+        return pollOption.map(PollOption::getLabel).orElse("not voted");
+    }
+
     private User getUserFromSecurityContext() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findUserEntityByEmail(email)

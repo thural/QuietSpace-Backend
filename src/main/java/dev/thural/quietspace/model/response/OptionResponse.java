@@ -12,7 +12,6 @@ import java.util.UUID;
 public class OptionResponse {
 
     private UUID id;
-    private UUID pollId;
     private String label;
     private String voteShare;
 
