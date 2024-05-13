@@ -1,9 +1,8 @@
 package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.model.request.UserRequest;
-import dev.thural.quietspace.model.response.CommentLikeResponse;
 import dev.thural.quietspace.model.response.PostResponse;
-import dev.thural.quietspace.model.response.PostLikeResponse;
+import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.service.*;
 import org.springframework.data.domain.Page;
@@ -78,13 +77,13 @@ public class UserController {
     }
 
     @GetMapping(USER_PATH_ID + "/post-likes")
-    List<PostLikeResponse> getAllPostLikesByUserId(@PathVariable UUID userId) {
+    List<ReactionResponse> getAllPostLikesByUserId(@PathVariable UUID userId) {
         return postService.getPostLikesByUserId(userId);
     }
 
     @GetMapping(USER_PATH_ID + "/comment-likes")
-    List<CommentLikeResponse> getAllCommentLikesByUserId(@PathVariable UUID userId) {
-        return commentService.getAllByUserId(userId);
+    List<ReactionResponse> getAllCommentLikesByUserId(@PathVariable UUID userId) {
+        return commentService.getAllCommentLikesByUserId(userId);
     }
 
 }

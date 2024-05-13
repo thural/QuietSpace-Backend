@@ -1,8 +1,8 @@
 package dev.thural.quietspace.service;
 
-import dev.thural.quietspace.model.response.CommentLikeResponse;
 import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
+import dev.thural.quietspace.model.response.ReactionResponse;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public interface CommentService {
 
     void toggleCommentLike(UUID commentId);
 
-    List<CommentLikeResponse> getLikesByCommentId(UUID commentId);
+    List<ReactionResponse> getLikesByCommentId(UUID commentId);
 
-    List<CommentLikeResponse> getAllByUserId(UUID userId);
+    List<ReactionResponse> getAllCommentLikesByUserId(UUID userId);
 }

@@ -3,7 +3,7 @@ package dev.thural.quietspace.service;
 import dev.thural.quietspace.entity.Poll;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.response.PostResponse;
-import dev.thural.quietspace.model.response.PostLikeResponse;
+import dev.thural.quietspace.model.response.ReactionResponse;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -27,9 +27,11 @@ public interface PostService {
 
     Page<PostResponse> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize);
 
-    List<PostLikeResponse> getPostLikesByPostId(UUID postId);
+    List<ReactionResponse> getPostLikesByPostId(UUID postId);
 
     void togglePostLike(UUID postId);
 
-    List<PostLikeResponse> getPostLikesByUserId(UUID userId);
+    void togglePostDislike(UUID postId);
+
+    List<ReactionResponse> getPostLikesByUserId(UUID userId);
 }

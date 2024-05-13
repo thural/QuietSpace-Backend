@@ -2,16 +2,18 @@ package dev.thural.quietspace.service.impls;
 
 import dev.thural.quietspace.entity.*;
 import dev.thural.quietspace.exception.UserNotFoundException;
-import dev.thural.quietspace.mapper.PostLikeMapper;
+import dev.thural.quietspace.mapper.ReactionMapper;
 import dev.thural.quietspace.model.request.PollRequest;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.response.PostResponse;
-import dev.thural.quietspace.model.response.PostLikeResponse;
-import dev.thural.quietspace.repository.PostLikeRepository;
+import dev.thural.quietspace.model.response.ReactionResponse;
+import dev.thural.quietspace.repository.ReactionRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.mapper.PostMapper;
 import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.service.PostService;
+import dev.thural.quietspace.utils.enums.ContentType;
+import dev.thural.quietspace.utils.enums.LikeType;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,9 +34,9 @@ import static dev.thural.quietspace.utils.PagingProvider.buildCustomPageRequest;
 public class PostServiceImpl implements PostService {
 
     private final PostMapper postMapper;
-    private final PostLikeMapper postLikeMapper;
+    private final ReactionMapper reactionMapper;
     private final PostRepository postRepository;
-    private final PostLikeRepository postLikeRepository;
+    private final ReactionRepository reactionRepository;
     private final UserRepository userRepository;
 
     public final String AUTHOR_MISMATCH_MESSAGE = "post author mismatch with current user";
@@ -144,28 +146,50 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostLikeResponse> getPostLikesByPostId(UUID postId) {
-        return postLikeRepository.findAllByPostId(postId).stream()
-                .map(postLikeMapper::postLikeEntityToResponse)
+    public List<ReactionResponse> getPostLikesByPostId(UUID postId) {
+        return reactionRepository.findAllByContentId(postId).stream()
+                .map(reactionMapper::postLikeEntityToResponse)
                 .toList();
     }
 
     @Override
-    public List<PostLikeResponse> getPostLikesByUserId(UUID userId) {
-        return postLikeRepository.findAllByUserId(userId).stream()
-                .map(postLikeMapper::postLikeEntityToResponse)
+    public List<ReactionResponse> getPostLikesByUserId(UUID userId) {
+        return reactionRepository.findAllByUserId(userId).stream()
+                .map(reactionMapper::postLikeEntityToResponse)
                 .toList();
     }
 
     @Override
     public void togglePostLike(UUID postId) {
         User user = getUserFromSecurityContext();
-        boolean isPostLikeExists = postLikeRepository.existsByPostIdAndUserId(postId, user.getId());
-        if (isPostLikeExists) postLikeRepository.deleteById(postId);
+        boolean isPostLikeExists = reactionRepository.existsByContentIdAndUserId(postId, user.getId());
+        if (isPostLikeExists) reactionRepository.deleteById(postId);
         else {
-            Post post = postRepository.findById(postId)
+            postRepository.findById(postId)
                     .orElseThrow(() -> new EntityNotFoundException("post not found"));
-            postLikeRepository.save(PostLike.builder().post(post).user(user).build());
+            reactionRepository.save(Reaction.builder()
+                    .contentId(postId)
+                    .userId(user.getId())
+                    .contentType(ContentType.POST)
+                    .likeType(LikeType.LIKE)
+                    .build());
+        }
+    }
+
+    @Override
+    public void togglePostDislike(UUID postId) {
+        User user = getUserFromSecurityContext();
+        boolean isPostLikeExists = reactionRepository.existsByContentIdAndUserId(postId, user.getId());
+        if (isPostLikeExists) reactionRepository.deleteById(postId);
+        else {
+            postRepository.findById(postId)
+                    .orElseThrow(() -> new EntityNotFoundException("post not found"));
+            reactionRepository.save(Reaction.builder()
+                    .contentId(postId)
+                    .userId(user.getId())
+                    .contentType(ContentType.POST)
+                    .likeType(LikeType.DISLIKE)
+                    .build());
         }
     }
 

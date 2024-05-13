@@ -49,6 +49,8 @@ public class AuthServiceImpl implements AuthService {
                 .role(user.getRole())
                 .build();
 
+        // TODO: check whether newUser object is redundant
+
         User savedUser = userRepository.save(userMapper.userRequestToEntity(user));
 
         Authentication authentication = generateAuthentication(user.getEmail(), userPassword);

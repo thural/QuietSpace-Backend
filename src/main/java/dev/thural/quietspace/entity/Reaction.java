@@ -1,6 +1,9 @@
 package dev.thural.quietspace.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import dev.thural.quietspace.utils.enums.ContentType;
+import dev.thural.quietspace.utils.enums.LikeType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -16,7 +19,10 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentLike {
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
+public class Reaction {
 
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
@@ -24,25 +30,25 @@ public class CommentLike {
     @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false)
     private UUID id;
 
-    @JsonIgnore
     @Version
     private Integer version;
 
     @NotNull
-    @ManyToOne
-    @JsonIgnore
-    private User user;
+    private UUID userId;
 
     @NotNull
-    @ManyToOne
-    @JsonIgnore
-    private Comment comment;
+    private UUID contentId;
+
+    @Enumerated(EnumType.STRING)
+    private ContentType contentType;
+
+    @Enumerated(EnumType.STRING)
+    private LikeType likeType;
 
     @NotNull
     @Column(updatable = false)
     private OffsetDateTime createDate;
 
-    @JsonIgnore
     @NotNull
     private OffsetDateTime updateDate;
 

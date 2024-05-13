@@ -2,7 +2,7 @@ package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.response.PostResponse;
-import dev.thural.quietspace.model.response.PostLikeResponse;
+import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -63,12 +63,18 @@ public class PostController {
     }
 
     @GetMapping(POST_PATH_ID + "/likes")
-    List<PostLikeResponse> getAllLikesByPostId(@PathVariable UUID postId) {
+    List<ReactionResponse> getAllLikesByPostId(@PathVariable UUID postId) {
         return postService.getPostLikesByPostId(postId);
     }
 
     @PostMapping(POST_PATH_ID + "/toggle-like")
     ResponseEntity<?> togglePostLike(@PathVariable UUID postId) {
+        postService.togglePostLike(postId);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PostMapping(POST_PATH_ID + "/toggle-dislike")
+    ResponseEntity<?> togglePostDislike(@PathVariable UUID postId) {
         postService.togglePostLike(postId);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

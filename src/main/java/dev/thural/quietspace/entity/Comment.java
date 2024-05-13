@@ -10,7 +10,6 @@ import org.hibernate.type.SqlTypes;
 
 
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -43,10 +42,6 @@ public class Comment {
     @ManyToOne
     @JsonIgnore
     private Post post;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CommentLike> likes;
 
     @NotNull
     private OffsetDateTime createDate = OffsetDateTime.now();

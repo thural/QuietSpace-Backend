@@ -10,10 +10,11 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostLikeResponse {
+public class ReactionResponse {
 
     private UUID id;
     private UUID userId;
+    private UUID contentId;
     private String username;
     private OffsetDateTime createDate;
     private OffsetDateTime updateDate;

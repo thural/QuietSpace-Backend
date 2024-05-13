@@ -33,7 +33,7 @@ public interface PollMapper {
     }
 
     @AfterMapping
-    default void setVotedOption(Poll poll, @MappingTarget PollResponse pollResponse, @Context PostService postService) {
+    default void votedOption(Poll poll, @MappingTarget PollResponse pollResponse, @Context PostService postService) {
         pollResponse.setVotedOption(postService.getVotedPollOptionLabel(poll));
     }
 

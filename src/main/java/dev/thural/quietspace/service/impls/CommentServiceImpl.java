@@ -1,18 +1,21 @@
 package dev.thural.quietspace.service.impls;
 
 import dev.thural.quietspace.entity.Comment;
-import dev.thural.quietspace.entity.CommentLike;
 import dev.thural.quietspace.entity.Post;
+import dev.thural.quietspace.entity.Reaction;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.CommentMapper;
-import dev.thural.quietspace.model.response.CommentLikeResponse;
+import dev.thural.quietspace.mapper.ReactionMapper;
 import dev.thural.quietspace.model.request.CommentRequest;
-import dev.thural.quietspace.repository.CommentLikeRepository;
+import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.repository.CommentRepository;
 import dev.thural.quietspace.repository.PostRepository;
+import dev.thural.quietspace.repository.ReactionRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.CommentService;
+import dev.thural.quietspace.utils.enums.ContentType;
+import dev.thural.quietspace.utils.enums.LikeType;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,8 +38,9 @@ public class CommentServiceImpl implements CommentService {
     private final CommentMapper commentMapper;
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
-    private final CommentLikeRepository commentLikeRepository;
     private final UserRepository userRepository;
+    private final ReactionRepository reactionRepository;
+    private final ReactionMapper reactionMapper;
 
     @Override
     public Page<dev.thural.quietspace.model.response.CommentResponse> getCommentsByPost(UUID postId, Integer pageNumber, Integer pageSize) {
@@ -124,28 +128,38 @@ public class CommentServiceImpl implements CommentService {
         User user = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
 
-        boolean isLikeExists = commentLikeRepository
-                .existsByCommentIdAndUserId(commentId, user.getId());
+        boolean isLikeExists = reactionRepository
+                .existsByContentIdAndUserId(commentId, user.getId());
 
         if (isLikeExists) {
-            CommentLike foundLike = commentLikeRepository
-                    .findByCommentIdAndUserId(commentId, user.getId());
-            commentLikeRepository.deleteById(foundLike.getId());
+            Reaction foundLike = reactionRepository.findByContentIdAndUserId(commentId, user.getId());
+            reactionRepository.deleteById(foundLike.getId());
         } else {
             Comment comment = commentRepository.findById(commentId)
                     .orElseThrow(EntityNotFoundException::new);
-            commentLikeRepository.save(CommentLike.builder().comment(comment).user(user).build());
+            reactionRepository.save(
+                    Reaction.builder()
+                    .contentId(comment.getId())
+                    .userId(user.getId())
+                    .contentType(ContentType.COMMENT)
+                    .likeType(LikeType.LIKE)
+                    .build()
+            );
         }
     }
 
     @Override
-    public List<CommentLikeResponse> getLikesByCommentId(UUID commentId) {
-        return commentLikeRepository.findAllByCommentId(commentId);
+    public List<ReactionResponse> getLikesByCommentId(UUID commentId) {
+        return reactionRepository.findAllByContentId(commentId).stream()
+                .map(reactionMapper::postLikeEntityToResponse)
+                .toList();
     }
 
     @Override
-    public List<CommentLikeResponse> getAllByUserId(UUID userId) {
-        return commentLikeRepository.findAllByUserId(userId);
+    public List<ReactionResponse> getAllCommentLikesByUserId(UUID userId) {
+        return reactionRepository.findAllByContentTypeAndUserId(ContentType.COMMENT, userId).stream()
+                .map(reactionMapper::postLikeEntityToResponse)
+                .toList();
     }
 
 }

@@ -1,8 +1,8 @@
 package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.model.response.CommentResponse;
-import dev.thural.quietspace.model.response.CommentLikeResponse;
 import dev.thural.quietspace.model.request.CommentRequest;
+import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -65,7 +65,7 @@ public class CommentController {
     }
 
     @GetMapping(value = COMMENT_PATH_ID + "/likes")
-    List<CommentLikeResponse> getCommentLikesByCommentId(@PathVariable UUID commentId) {
+    List<ReactionResponse> getCommentLikesById(@PathVariable UUID commentId) {
         return commentService.getLikesByCommentId(commentId);
     }
 
