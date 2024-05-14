@@ -5,6 +5,7 @@ import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.ReactionMapper;
 import dev.thural.quietspace.model.request.PollRequest;
 import dev.thural.quietspace.model.request.PostRequest;
+import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.repository.ReactionRepository;
@@ -21,6 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -65,7 +67,7 @@ public class PostServiceImpl implements PostService {
                     .map(option -> PollOption.builder()
                             .label(option)
                             .poll(newPoll)
-                            .votes(List.of())
+                            .votes(new HashSet<>())
                             .build())
                     .toList();
 
@@ -120,6 +122,23 @@ public class PostServiceImpl implements PostService {
             if (StringUtils.hasText(post.getText())) existingPost.setText(post.getText());
             postRepository.save(existingPost);
         } else throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
+    }
+
+    @Override
+    public void votePostPoll(VoteRequest voteRequest) {
+        Post foundPost = postRepository.findById(voteRequest.getPostId())
+                .orElseThrow(EntityNotFoundException::new);
+
+        foundPost.getPoll().getOptions()
+                .stream().filter(option -> option.getLabel().equals(voteRequest.getOption()))
+                .findFirst()
+                .ifPresent(option -> {
+                    HashSet<UUID> votes = option.getVotes();
+                    votes.add(voteRequest.getUserId());
+                    option.setVotes(votes);
+                });
+
+        postRepository.save(foundPost);
     }
 
     @Override

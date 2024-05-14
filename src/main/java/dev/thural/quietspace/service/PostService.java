@@ -2,6 +2,7 @@ package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.Poll;
 import dev.thural.quietspace.model.request.PostRequest;
+import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,8 @@ public interface PostService {
     void deletePost(UUID id);
 
     void patchPost(UUID id, PostRequest post);
+
+    void votePostPoll(VoteRequest voteRequest);
 
     String getVotedPollOptionLabel(Poll poll);
 

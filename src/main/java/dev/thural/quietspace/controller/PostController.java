@@ -2,6 +2,7 @@ package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.ReactionRequest;
+import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.service.PostService;
@@ -74,6 +75,12 @@ public class PostController {
     @PostMapping("/toggle-reaction")
     ResponseEntity<?> togglePostLike(ReactionRequest reaction) {
         reactionService.handleReaction(reaction);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/vote-poll")
+    ResponseEntity<?> votePoll(VoteRequest voteRequest) {
+        postService.votePostPoll(voteRequest);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
