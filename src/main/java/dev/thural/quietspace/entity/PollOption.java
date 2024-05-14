@@ -12,6 +12,7 @@ import org.hibernate.type.SqlTypes;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -44,7 +45,7 @@ public class PollOption {
 
     @NotNull
     @ElementCollection
-    private HashSet<UUID> votes;
+    private Set<UUID> votes = new HashSet<>();
 
     @NotNull
     @Column(updatable = false)

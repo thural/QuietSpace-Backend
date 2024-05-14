@@ -22,10 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static dev.thural.quietspace.utils.PagingProvider.buildCustomPageRequest;
 
@@ -133,7 +130,7 @@ public class PostServiceImpl implements PostService {
                 .stream().filter(option -> option.getLabel().equals(voteRequest.getOption()))
                 .findFirst()
                 .ifPresent(option -> {
-                    HashSet<UUID> votes = option.getVotes();
+                    Set<UUID> votes = option.getVotes();
                     votes.add(voteRequest.getUserId());
                     option.setVotes(votes);
                 });
