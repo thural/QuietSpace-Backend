@@ -1,9 +1,11 @@
 package dev.thural.quietspace.controller;
 
+import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.service.CommentService;
+import dev.thural.quietspace.service.ReactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ public class CommentController {
     public static final String COMMENT_PATH_ID = "/{commentId}";
 
     private final CommentService commentService;
+    private final ReactionService reactionService;
 
 
     @GetMapping("/post/{postId}")
@@ -69,9 +72,9 @@ public class CommentController {
         return commentService.getLikesByCommentId(commentId);
     }
 
-    @PostMapping(COMMENT_PATH_ID + "/toggle-like")
-    ResponseEntity<?> toggleCommentLike(@PathVariable UUID commentId) {
-        commentService.toggleCommentLike(commentId);
+    @PostMapping("/toggle-reaction")
+    ResponseEntity<?> togglePostLike(ReactionRequest reaction) {
+        reactionService.handleReaction(reaction);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

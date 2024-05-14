@@ -1,6 +1,7 @@
 package dev.thural.quietspace.service.impls;
 
 import dev.thural.quietspace.entity.Token;
+import dev.thural.quietspace.exception.UnauthorizedException;
 import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.model.request.UserRequest;
 import dev.thural.quietspace.model.response.UserResponse;
@@ -13,7 +14,6 @@ import dev.thural.quietspace.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -114,13 +114,13 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(UserNotFoundException::new);
 
         boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains("ADMIN");
-
+        // TODO: use enum types fot authorities
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User loggedUser = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         if (!isAdmin && !requestedUser.getEmail().equals(loggedUser.getEmail()))
-            throw new AccessDeniedException("logged user has no access to requested resource");
+            throw new UnauthorizedException("logged user has no access to requested resource");
 
         if (StringUtils.hasText(userRequest.getUsername()))
             loggedUser.setUsername(userRequest.getUsername());

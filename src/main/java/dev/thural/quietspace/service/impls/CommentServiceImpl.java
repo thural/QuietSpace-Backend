@@ -15,7 +15,6 @@ import dev.thural.quietspace.repository.ReactionRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.CommentService;
 import dev.thural.quietspace.utils.enums.ContentType;
-import dev.thural.quietspace.utils.enums.LikeType;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -122,43 +121,18 @@ public class CommentServiceImpl implements CommentService {
 
     }
 
-    @Override
-    public void toggleCommentLike(UUID commentId) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findUserEntityByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
-
-        boolean isLikeExists = reactionRepository
-                .existsByContentIdAndUserId(commentId, user.getId());
-
-        if (isLikeExists) {
-            Reaction foundLike = reactionRepository.findByContentIdAndUserId(commentId, user.getId());
-            reactionRepository.deleteById(foundLike.getId());
-        } else {
-            Comment comment = commentRepository.findById(commentId)
-                    .orElseThrow(EntityNotFoundException::new);
-            reactionRepository.save(
-                    Reaction.builder()
-                    .contentId(comment.getId())
-                    .userId(user.getId())
-                    .contentType(ContentType.COMMENT)
-                    .likeType(LikeType.LIKE)
-                    .build()
-            );
-        }
-    }
 
     @Override
     public List<ReactionResponse> getLikesByCommentId(UUID commentId) {
         return reactionRepository.findAllByContentId(commentId).stream()
-                .map(reactionMapper::postLikeEntityToResponse)
+                .map(reactionMapper::reactionEntityToResponse)
                 .toList();
     }
 
     @Override
     public List<ReactionResponse> getAllCommentLikesByUserId(UUID userId) {
         return reactionRepository.findAllByContentTypeAndUserId(ContentType.COMMENT, userId).stream()
-                .map(reactionMapper::postLikeEntityToResponse)
+                .map(reactionMapper::reactionEntityToResponse)
                 .toList();
     }
 

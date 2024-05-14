@@ -1,9 +1,11 @@
 package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.model.request.PostRequest;
+import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.service.PostService;
+import dev.thural.quietspace.service.ReactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ public class PostController {
     public static final String POST_PATH_ID = "/{postId}";
 
     private final PostService postService;
+    private final ReactionService reactionService;
 
     @GetMapping
     Page<PostResponse> getAllPosts(@RequestParam(name = "page-number", required = false) Integer pageNumber,
@@ -67,16 +70,10 @@ public class PostController {
         return postService.getPostLikesByPostId(postId);
     }
 
-    @PostMapping(POST_PATH_ID + "/toggle-like")
-    ResponseEntity<?> togglePostLike(@PathVariable UUID postId) {
-        postService.togglePostLike(postId);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
-
-    @PostMapping(POST_PATH_ID + "/toggle-dislike")
-    ResponseEntity<?> togglePostDislike(@PathVariable UUID postId) {
-        postService.togglePostLike(postId);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    @PostMapping("/toggle-reaction")
+    ResponseEntity<?> togglePostLike(ReactionRequest reaction) {
+        reactionService.handleReaction(reaction);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

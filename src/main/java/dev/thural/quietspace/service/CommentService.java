@@ -22,8 +22,6 @@ public interface CommentService {
 
     void patchComment(UUID id, CommentRequest comment);
 
-    void toggleCommentLike(UUID commentId);
-
     List<ReactionResponse> getLikesByCommentId(UUID commentId);
 
     List<ReactionResponse> getAllCommentLikesByUserId(UUID userId);
