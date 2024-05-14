@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService {
+
     Page<UserResponse> listUsers(String username, Integer pageNumber, Integer pageSize);
 
     Page<UserResponse> listUsersByQuery(String query, Integer pageNumber, Integer pageSize);
@@ -19,4 +20,5 @@ public interface UserService {
     void patchUser(UserRequest userRequest);
 
     Optional<UserResponse> findLoggedUser();
+
 }

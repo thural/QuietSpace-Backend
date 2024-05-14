@@ -12,4 +12,5 @@ public interface FollowService {
     Page<FollowResponse> listFollowers(Integer pageNumber, Integer pageSize);
 
     void toggleFollow(UUID followedUserId);
+
 }

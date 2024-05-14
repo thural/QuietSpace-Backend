@@ -6,6 +6,7 @@ import dev.thural.quietspace.model.response.AuthResponse;
 import org.springframework.security.core.Authentication;
 
 public interface AuthService {
+
     AuthResponse register(UserRequest user);
 
     AuthResponse login(LoginRequest loginRequest);
@@ -17,4 +18,5 @@ public interface AuthService {
     void addToBlacklist(String authHeader, String email);
 
     boolean isBlacklisted(String authHeader);
+
 }

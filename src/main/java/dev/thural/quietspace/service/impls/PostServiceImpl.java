@@ -5,7 +5,6 @@ import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.ReactionMapper;
 import dev.thural.quietspace.model.request.PollRequest;
 import dev.thural.quietspace.model.request.PostRequest;
-import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.repository.ReactionRepository;
@@ -147,13 +146,6 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<ReactionResponse> getPostLikesByPostId(UUID postId) {
         return reactionRepository.findAllByContentId(postId).stream()
-                .map(reactionMapper::reactionEntityToResponse)
-                .toList();
-    }
-
-    @Override
-    public List<ReactionResponse> getPostLikesByUserId(UUID userId) {
-        return reactionRepository.findAllByUserId(userId).stream()
                 .map(reactionMapper::reactionEntityToResponse)
                 .toList();
     }

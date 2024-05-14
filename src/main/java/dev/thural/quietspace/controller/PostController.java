@@ -6,6 +6,7 @@ import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.service.PostService;
 import dev.thural.quietspace.service.ReactionService;
+import dev.thural.quietspace.utils.enums.ContentType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -67,7 +68,7 @@ public class PostController {
 
     @GetMapping(POST_PATH_ID + "/likes")
     List<ReactionResponse> getAllLikesByPostId(@PathVariable UUID postId) {
-        return postService.getPostLikesByPostId(postId);
+        return reactionService.getReactionsByContentId(postId, ContentType.POST);
     }
 
     @PostMapping("/toggle-reaction")

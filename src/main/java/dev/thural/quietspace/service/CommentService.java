@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CommentService {
+
     Page<CommentResponse> getCommentsByPost(UUID postId, Integer pageNumber, Integer pageSize);
 
     void createComment(CommentRequest comment);
@@ -22,7 +23,4 @@ public interface CommentService {
 
     void patchComment(UUID id, CommentRequest comment);
 
-    List<ReactionResponse> getLikesByCommentId(UUID commentId);
-
-    List<ReactionResponse> getAllCommentLikesByUserId(UUID userId);
 }

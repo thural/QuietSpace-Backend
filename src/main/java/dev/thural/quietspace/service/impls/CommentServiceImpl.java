@@ -121,19 +121,4 @@ public class CommentServiceImpl implements CommentService {
 
     }
 
-
-    @Override
-    public List<ReactionResponse> getLikesByCommentId(UUID commentId) {
-        return reactionRepository.findAllByContentId(commentId).stream()
-                .map(reactionMapper::reactionEntityToResponse)
-                .toList();
-    }
-
-    @Override
-    public List<ReactionResponse> getAllCommentLikesByUserId(UUID userId) {
-        return reactionRepository.findAllByContentTypeAndUserId(ContentType.COMMENT, userId).stream()
-                .map(reactionMapper::reactionEntityToResponse)
-                .toList();
-    }
-
 }

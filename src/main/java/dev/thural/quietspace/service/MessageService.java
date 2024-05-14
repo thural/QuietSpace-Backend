@@ -13,4 +13,5 @@ public interface MessageService {
     void deleteMessage(UUID id);
 
     Page<MessageResponse> getMessagesByChatId(Integer pageNumber, Integer pageSize, UUID chatId);
+
 }

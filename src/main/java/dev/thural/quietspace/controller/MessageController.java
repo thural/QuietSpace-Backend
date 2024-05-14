@@ -46,9 +46,9 @@ public class MessageController {
     }
 
     @PostMapping("/toggle-reaction")
-    ResponseEntity<?> togglePostLike(ReactionRequest reaction) {
+    ResponseEntity<?> toggleMessageLike(ReactionRequest reaction) {
         reactionService.handleReaction(reaction);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

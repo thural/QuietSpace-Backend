@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ChatService {
+
     List<ChatResponse> getChatsByUserId(UUID userId);
 
     void deleteChatById(UUID chatId);
@@ -18,4 +19,5 @@ public interface ChatService {
     void createChat(ChatRequest chatRequest);
 
     ChatResponse getChatById(UUID chatId);
+
 }

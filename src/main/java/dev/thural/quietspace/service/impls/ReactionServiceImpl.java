@@ -3,22 +3,28 @@ package dev.thural.quietspace.service.impls;
 import dev.thural.quietspace.entity.Reaction;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.exception.UserNotFoundException;
+import dev.thural.quietspace.mapper.ReactionMapper;
 import dev.thural.quietspace.model.request.ReactionRequest;
+import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.repository.ReactionRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.ReactionService;
+import dev.thural.quietspace.utils.enums.ContentType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ReactionServiceImpl implements ReactionService {
 
-    UserRepository userRepository;
-    ReactionRepository reactionRepository;
+    private final UserRepository userRepository;
+    private final ReactionRepository reactionRepository;
+    private final ReactionMapper reactionMapper;
 
     @Override
     public void handleReaction(ReactionRequest reaction) {
@@ -40,6 +46,20 @@ public class ReactionServiceImpl implements ReactionService {
             existingReaction.setLikeType(reaction.getLikeType());
             reactionRepository.save(existingReaction);
         }
+    }
+
+    @Override
+    public List<ReactionResponse> getReactionsByContentId(UUID contentId, ContentType type) {
+        return reactionRepository.findAllByContentIdAndContentType(contentId, type)
+                .stream().map(reactionMapper::reactionEntityToResponse)
+                .toList();
+    }
+
+    @Override
+    public List<ReactionResponse> getReactionsByUserId(UUID userId, ContentType contentType) {
+        return reactionRepository.findAllByUserIdAndContentType(userId, contentType)
+                .stream().map(reactionMapper::reactionEntityToResponse)
+                .toList();
     }
 
     private User getUserFromSecurityContext() {

@@ -6,6 +6,7 @@ import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.service.CommentService;
 import dev.thural.quietspace.service.ReactionService;
+import dev.thural.quietspace.utils.enums.ContentType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -69,13 +70,13 @@ public class CommentController {
 
     @GetMapping(value = COMMENT_PATH_ID + "/likes")
     List<ReactionResponse> getCommentLikesById(@PathVariable UUID commentId) {
-        return commentService.getLikesByCommentId(commentId);
+        return reactionService.getReactionsByContentId(commentId, ContentType.COMMENT);
     }
 
     @PostMapping("/toggle-reaction")
-    ResponseEntity<?> togglePostLike(ReactionRequest reaction) {
+    ResponseEntity<?> toggleCommentLike(ReactionRequest reaction) {
         reactionService.handleReaction(reaction);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

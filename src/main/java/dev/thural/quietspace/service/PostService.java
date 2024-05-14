@@ -2,7 +2,6 @@ package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.Poll;
 import dev.thural.quietspace.model.request.PostRequest;
-import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import org.springframework.data.domain.Page;
@@ -12,6 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PostService {
+
     Page<PostResponse> getAllPosts(Integer pageNumber, Integer pageSize);
 
     void addPost(PostRequest post);
@@ -30,5 +30,4 @@ public interface PostService {
 
     List<ReactionResponse> getPostLikesByPostId(UUID postId);
 
-    List<ReactionResponse> getPostLikesByUserId(UUID userId);
 }
