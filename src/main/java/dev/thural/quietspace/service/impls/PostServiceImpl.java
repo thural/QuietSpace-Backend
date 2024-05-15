@@ -3,14 +3,13 @@ package dev.thural.quietspace.service.impls;
 import dev.thural.quietspace.entity.*;
 import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.ReactionMapper;
-import dev.thural.quietspace.model.request.PollRequest;
+import dev.thural.quietspace.mapper.custom.PostMapper;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.repository.ReactionRepository;
 import dev.thural.quietspace.repository.UserRepository;
-import dev.thural.quietspace.mapper.PostMapper;
 import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.service.PostService;
 import jakarta.persistence.EntityNotFoundException;
@@ -30,11 +29,11 @@ import static dev.thural.quietspace.utils.PagingProvider.buildCustomPageRequest;
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
 
-    private final PostMapper postMapper;
     private final ReactionMapper reactionMapper;
     private final PostRepository postRepository;
     private final ReactionRepository reactionRepository;
     private final UserRepository userRepository;
+    private final PostMapper postMapper;
 
     public final String AUTHOR_MISMATCH_MESSAGE = "post author mismatch with current user";
 
@@ -49,41 +48,18 @@ public class PostServiceImpl implements PostService {
         User loggedUser = getUserFromSecurityContext();
         if (!loggedUser.getId().equals(post.getUserId()))
             throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
-        Post newPost = postMapper.postRequestToEntity(post);
-        newPost.setUser(loggedUser);
-
-        if(post.getPoll() != null) {
-            PollRequest pollRequest = post.getPoll();
-
-            Poll newPoll = Poll.builder()
-                    .post(newPost)
-                    .dueDate(pollRequest.getDueDate())
-                    .build();
-
-            List<PollOption> options = pollRequest.getOptions().stream()
-                    .map(option -> PollOption.builder()
-                            .label(option)
-                            .poll(newPoll)
-                            .votes(new HashSet<>())
-                            .build())
-                    .toList();
-
-            newPoll.setOptions(options);
-
-            newPost.setPoll(newPoll);
-        }
-
-        postRepository.save(newPost);
+        Post postEntity = postMapper.postRequestToEntity(post);
+        postEntity.setUser(loggedUser);
+        postRepository.save(postEntity);
     }
 
     public String getVotedPollOptionLabel(Poll poll){
         UUID userId = getUserFromSecurityContext().getId();
 
-        Optional <PollOption> pollOption = poll.getOptions().stream()
+        return poll.getOptions().stream()
                .filter(option -> option.getVotes().contains(userId))
-               .findAny();
-
-        return pollOption.map(PollOption::getLabel).orElse("not voted");
+               .findAny()
+                .map(PollOption::getLabel).orElse("not voted");
     }
 
     private User getUserFromSecurityContext() {
