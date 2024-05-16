@@ -79,7 +79,7 @@ public class PostController {
     }
 
     @PostMapping("/vote-poll")
-    ResponseEntity<?> votePoll(VoteRequest voteRequest) {
+    ResponseEntity<?> votePoll(@RequestBody VoteRequest voteRequest) {
         postService.votePostPoll(voteRequest);
         return new ResponseEntity<>(HttpStatus.OK);
     }

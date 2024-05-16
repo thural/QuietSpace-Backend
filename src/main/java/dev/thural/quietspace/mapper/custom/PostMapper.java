@@ -101,19 +101,18 @@ public class PostMapper {
     }
 
     private String getVoteShare(PollOption option){
-        Integer totalVoteNum = option.getPoll().getOptions().stream()
-                .map(pollOption -> pollOption.getVotes().size())
-                .reduce(0,Integer::sum);
-
-        Integer optionVoteNum = option.getVotes().size();
-        if (totalVoteNum < 1) return "0%";
-        return optionVoteNum/totalVoteNum +  "%";
+        Integer totalVoteCount = getVoteCount(option.getPoll());
+        int optionVoteNum = option.getVotes().size();
+        if (totalVoteCount < 1) return "0%";
+        return (optionVoteNum * 100/totalVoteCount) +  "%";
     }
 
-    public String getVotedPollOptionLabel(Poll poll, UUID userId){
+    private String getVotedPollOptionLabel(Poll poll, UUID userId){
         return poll.getOptions().stream()
                 .filter(option -> option.getVotes().contains(userId))
-                .findAny()
-                .map(PollOption::getLabel).orElse("not voted");
+                .findFirst()
+                .map(PollOption::getLabel)
+                .orElse("not voted");
     }
+
 }

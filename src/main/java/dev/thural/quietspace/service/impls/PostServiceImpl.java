@@ -97,8 +97,11 @@ public class PostServiceImpl implements PostService {
         Post foundPost = postRepository.findById(voteRequest.getPostId())
                 .orElseThrow(EntityNotFoundException::new);
 
-        foundPost.getPoll().getOptions()
-                .stream().filter(option -> option.getLabel().equals(voteRequest.getOption()))
+        if(foundPost.getPoll().getOptions().stream()
+                .anyMatch(option -> option.getVotes().contains(voteRequest.getUserId()))) return;
+
+        foundPost.getPoll().getOptions().stream()
+                .filter(option -> option.getLabel().equals(voteRequest.getOption()))
                 .findFirst()
                 .ifPresent(option -> {
                     Set<UUID> votes = option.getVotes();
