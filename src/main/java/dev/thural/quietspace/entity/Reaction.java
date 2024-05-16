@@ -37,6 +37,9 @@ public class Reaction {
     private UUID userId;
 
     @NotNull
+    private String username;
+
+    @NotNull
     private UUID contentId;
 
     @Enumerated(EnumType.STRING)

@@ -3,14 +3,13 @@ package dev.thural.quietspace.mapper.custom;
 import dev.thural.quietspace.entity.Poll;
 import dev.thural.quietspace.entity.PollOption;
 import dev.thural.quietspace.entity.Post;
-import dev.thural.quietspace.mapper.ReactionMapper;
 import dev.thural.quietspace.model.request.PollRequest;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.response.OptionResponse;
 import dev.thural.quietspace.model.response.PollResponse;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
-import dev.thural.quietspace.repository.ReactionRepository;
+import dev.thural.quietspace.service.ReactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -22,8 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PostMapper {
 
-    private final ReactionMapper reactionMapper;
-    private final ReactionRepository reactionRepository;
+    private final ReactionService reactionService;
 
     public Post postRequestToEntity(PostRequest postRequest) {
         Post post = Post.builder()
@@ -56,7 +54,10 @@ public class PostMapper {
 
    public PostResponse postEntityToResponse(Post post) {
         Integer commentCount = post.getComments().size();
-        Integer postLikeCount = getPostLikesByPostId(post.getId()).size();
+        Integer postLikeCount = reactionService.getLikeCountByContentId(post.getId());
+        Integer dislikeCount = reactionService.getDislikeCountByContentId(post.getId());
+        ReactionResponse userReaction = reactionService.getUserReactionByContentId(post.getId())
+                .orElse(null);
 
         PostResponse postResponse = PostResponse.builder()
                 .id(post.getId())
@@ -64,8 +65,10 @@ public class PostMapper {
                 .text(post.getText())
                 .commentCount(commentCount)
                 .likeCount(postLikeCount)
+                .dislikeCount(dislikeCount)
                 .userId(post.getUser().getId())
                 .username(post.getUser().getUsername())
+                .userReaction(userReaction)
                 .createDate(post.getCreateDate())
                 .updateDate(post.getUpdateDate())
                 .build();
@@ -84,14 +87,14 @@ public class PostMapper {
                 .id(post.getPoll().getId())
                 .options(options)
                 .votedOption(getVotedPollOptionLabel(post.getPoll(), post.getUser().getId()))
-                .voteCount(voteCounter(post.getPoll()))
+                .voteCount(getVoteCount(post.getPoll()))
                 .build();
 
         postResponse.setPoll(pollResponse);
         return postResponse;
     }
 
-    private Integer voteCounter(Poll poll){
+    private Integer getVoteCount(Poll poll){
         return poll.getOptions().stream()
                 .map(option -> option.getVotes().size())
                 .reduce(0, Integer::sum);
@@ -105,12 +108,6 @@ public class PostMapper {
         Integer optionVoteNum = option.getVotes().size();
         if (totalVoteNum < 1) return "0%";
         return optionVoteNum/totalVoteNum +  "%";
-    }
-
-    private List<ReactionResponse> getPostLikesByPostId(UUID postId) {
-        return reactionRepository.findAllByContentId(postId).stream()
-                .map(reactionMapper::reactionEntityToResponse)
-                .toList();
     }
 
     public String getVotedPollOptionLabel(Poll poll, UUID userId){

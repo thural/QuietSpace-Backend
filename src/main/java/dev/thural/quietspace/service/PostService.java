@@ -4,10 +4,8 @@ import dev.thural.quietspace.entity.Poll;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
-import dev.thural.quietspace.model.response.ReactionResponse;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,7 +28,5 @@ public interface PostService {
     String getVotedPollOptionLabel(Poll poll);
 
     Page<PostResponse> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize);
-
-    List<ReactionResponse> getPostLikesByPostId(UUID postId);
 
 }

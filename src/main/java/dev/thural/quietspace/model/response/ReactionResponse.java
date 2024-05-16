@@ -18,7 +18,6 @@ public class ReactionResponse {
     private UUID contentId;
     private String username;
     private LikeType likeType;
-    private OffsetDateTime createDate;
     private OffsetDateTime updateDate;
 
 }

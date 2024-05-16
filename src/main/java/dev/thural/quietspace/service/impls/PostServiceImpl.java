@@ -2,13 +2,10 @@ package dev.thural.quietspace.service.impls;
 
 import dev.thural.quietspace.entity.*;
 import dev.thural.quietspace.exception.UserNotFoundException;
-import dev.thural.quietspace.mapper.ReactionMapper;
 import dev.thural.quietspace.mapper.custom.PostMapper;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
-import dev.thural.quietspace.model.response.ReactionResponse;
-import dev.thural.quietspace.repository.ReactionRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.service.PostService;
@@ -29,9 +26,7 @@ import static dev.thural.quietspace.utils.PagingProvider.buildCustomPageRequest;
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
 
-    private final ReactionMapper reactionMapper;
     private final PostRepository postRepository;
-    private final ReactionRepository reactionRepository;
     private final UserRepository userRepository;
     private final PostMapper postMapper;
 
@@ -133,13 +128,6 @@ public class PostServiceImpl implements PostService {
             postPage = postRepository.findAll(pageRequest);
         }
         return postPage.map(postMapper::postEntityToResponse);
-    }
-
-    @Override
-    public List<ReactionResponse> getPostLikesByPostId(UUID postId) {
-        return reactionRepository.findAllByContentId(postId).stream()
-                .map(reactionMapper::reactionEntityToResponse)
-                .toList();
     }
 
     private boolean isPostExistsByLoggedUser(Post existingPost, User loggedUser) {

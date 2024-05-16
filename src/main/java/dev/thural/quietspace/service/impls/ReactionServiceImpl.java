@@ -3,13 +3,14 @@ package dev.thural.quietspace.service.impls;
 import dev.thural.quietspace.entity.Reaction;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.exception.UserNotFoundException;
-import dev.thural.quietspace.mapper.ReactionMapper;
+import dev.thural.quietspace.mapper.custom.ReactionMapper;
 import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.repository.ReactionRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.utils.enums.ContentType;
+import dev.thural.quietspace.utils.enums.LikeType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -29,23 +30,49 @@ public class ReactionServiceImpl implements ReactionService {
     @Override
     public void handleReaction(ReactionRequest reaction) {
         User user = getUserFromSecurityContext();
-        Optional<Reaction> optionalReaction = reactionRepository
-                .findByContentIdAndUserId(reaction.getContentId(), user.getId());
+        Reaction foundReaction = reactionRepository
+                .findByContentIdAndUserId(reaction.getContentId(), user.getId())
+                .orElse(null);
 
-        if (optionalReaction.isEmpty()) {
-            reactionRepository.save(Reaction.builder()
-                    .contentId(reaction.getContentId())
-                    .userId(user.getId())
-                    .contentType(reaction.getContentType())
-                    .likeType(reaction.getLikeType())
-                    .build());
-        } else if (reaction.getLikeType().equals(optionalReaction.get().getLikeType())) {
-            reactionRepository.deleteById(optionalReaction.get().getId());
+        if (foundReaction == null) {
+            reactionRepository.save(reactionMapper.reactionRequestToEntity(reaction));
+        } else if (reaction.getLikeType().equals(foundReaction.getLikeType())) {
+            reactionRepository.deleteById(foundReaction.getId());
         } else {
-            Reaction existingReaction = optionalReaction.get();
-            existingReaction.setLikeType(reaction.getLikeType());
-            reactionRepository.save(existingReaction);
+            foundReaction.setLikeType(reaction.getLikeType());
+            reactionRepository.save(foundReaction);
         }
+    }
+
+    @Override
+    public Optional<ReactionResponse> getUserReactionByContentId(UUID contentId) {
+        User user = getUserFromSecurityContext();
+        Optional<Reaction> userReaction = reactionRepository.findByContentIdAndUserId(contentId, user.getId());
+        return userReaction.map(reactionMapper::reactionEntityToResponse);
+    }
+
+    @Override
+    public List<ReactionResponse> getLikesByContentId(UUID contentId) {
+        return reactionRepository.findAllByContentIdAndLikeType(contentId, LikeType.LIKE)
+                .stream().map(reactionMapper::reactionEntityToResponse)
+                .toList();
+    }
+
+    @Override
+    public List<ReactionResponse> getDislikesByContentId(UUID contentId) {
+        return reactionRepository.findAllByContentIdAndLikeType(contentId, LikeType.DISLIKE)
+                .stream().map(reactionMapper::reactionEntityToResponse)
+                .toList();
+    }
+
+    @Override
+    public Integer getLikeCountByContentId(UUID contentId) {
+        return reactionRepository.countByContentIdAndLikeType(contentId, LikeType.LIKE);
+    }
+
+    @Override
+    public Integer getDislikeCountByContentId(UUID contentId) {
+        return reactionRepository.countByContentIdAndLikeType(contentId, LikeType.DISLIKE);
     }
 
     @Override
