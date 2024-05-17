@@ -81,7 +81,7 @@ public class CommentController {
     }
 
     @PostMapping("/toggle-reaction")
-    ResponseEntity<?> toggleCommentLike(ReactionRequest reaction) {
+    ResponseEntity<?> toggleCommentLike(@RequestBody ReactionRequest reaction) {
         reactionService.handleReaction(reaction);
         return new ResponseEntity<>(HttpStatus.OK);
     }

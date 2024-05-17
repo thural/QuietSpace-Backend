@@ -5,10 +5,12 @@ import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
+import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.repository.CommentRepository;
 import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.repository.ReactionRepository;
 import dev.thural.quietspace.repository.UserRepository;
+import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.utils.enums.LikeType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -23,6 +25,7 @@ public class CommentMapper {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final ReactionRepository reactionRepository;
+    private final ReactionService reactionService;
 
 
     public Comment commentRequestToEntity(CommentRequest comment){
@@ -42,6 +45,7 @@ public class CommentMapper {
                 .userId(comment.getUser().getId())
                 .username(comment.getUser().getUsername())
                 .text(comment.getText())
+                .userReaction(getUserReaction(comment.getId()))
                 .createDate(comment.getCreateDate())
                 .updateDate(comment.getUpdateDate())
                 .likeCount(getLikeCount(comment.getId()))
@@ -63,6 +67,10 @@ public class CommentMapper {
 
     private Integer getLikeCount(UUID commentId){
         return reactionRepository.countByContentIdAndLikeType(commentId, LikeType.LIKE);
+    }
+
+    private ReactionResponse getUserReaction(UUID commentId){
+        return reactionService.getUserReactionByContentId(commentId).orElse(null);
     }
 
 }
