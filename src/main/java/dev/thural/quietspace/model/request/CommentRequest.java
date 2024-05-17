@@ -20,6 +20,8 @@ public class CommentRequest {
     @NotNull
     private UUID postId;
 
+    private UUID parentId;
+
     @NotBlank
     @Size(min = 1, max = 255)
     private String text;

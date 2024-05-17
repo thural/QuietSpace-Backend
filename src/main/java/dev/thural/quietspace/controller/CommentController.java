@@ -36,6 +36,13 @@ public class CommentController {
         return commentService.getCommentsByPost(postId, pageNumber, pageSize);
     }
 
+    @GetMapping(COMMENT_PATH_ID + "/replies")
+    Page<CommentResponse> getCommentRepliesById(@PathVariable UUID commentId,
+                                              @RequestParam(required = false) Integer pageNumber,
+                                              @RequestParam(required = false) Integer pageSize) {
+        return commentService.getRepliesByParentId(commentId, pageNumber, pageSize);
+    }
+
     @GetMapping(COMMENT_PATH_ID)
     CommentResponse getCommentById(@PathVariable UUID commentId) {
         Optional<CommentResponse> optionalComment = commentService.getCommentById(commentId);

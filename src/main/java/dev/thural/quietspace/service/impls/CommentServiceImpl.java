@@ -4,8 +4,9 @@ import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.exception.UserNotFoundException;
-import dev.thural.quietspace.mapper.CommentMapper;
+import dev.thural.quietspace.mapper.custom.CommentMapper;
 import dev.thural.quietspace.model.request.CommentRequest;
+import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.repository.CommentRepository;
 import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.repository.UserRepository;
@@ -93,8 +94,15 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(EntityNotFoundException::new);
 
         if (existingComment.getUser().getId().equals(loggedUser.getId())) {
+            commentRepository.deleteAllByParentId(commentId);
             commentRepository.deleteById(commentId);
         } else throw new AccessDeniedException("comment author does not belong to current user");
+    }
+
+    @Override
+    public Page<CommentResponse> getRepliesByParentId(UUID commentId, Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
+        return commentRepository.findAllByParentId(commentId, pageRequest).map(commentMapper::commentEntityToResponse);
     }
 
     @Override

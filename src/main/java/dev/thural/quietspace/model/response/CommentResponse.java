@@ -16,11 +16,11 @@ public class CommentResponse {
     private UUID userId;
     private UUID postId;
     private String text;
+    private UUID parentId;
     private String username;
+    private Integer likeCount;
+    private Integer replyCount;
     private OffsetDateTime createDate = OffsetDateTime.now();
     private OffsetDateTime updateDate = OffsetDateTime.now();
-    // TODO: include replied comment id
-    // TODO: include like counts
-    // TODO: include dislike counts
 
 }

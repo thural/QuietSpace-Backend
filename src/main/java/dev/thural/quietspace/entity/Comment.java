@@ -29,6 +29,8 @@ public class Comment {
     @Version
     private Integer version;
 
+    private UUID parentId;
+
     @NotNull
     @NotBlank
     private String text;
