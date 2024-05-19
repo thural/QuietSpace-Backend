@@ -5,12 +5,13 @@ import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.exception.CustomErrorException;
 import dev.thural.quietspace.exception.UnauthorizedException;
 import dev.thural.quietspace.exception.UserNotFoundException;
-import dev.thural.quietspace.mapper.ChatMapper;
+import dev.thural.quietspace.mapper.custom.ChatMapper;
 import dev.thural.quietspace.model.request.ChatRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.repository.ChatRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.ChatService;
+import dev.thural.quietspace.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +25,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
 
+    private final UserService userService;
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
     private final ChatMapper chatMapper;
@@ -39,12 +41,8 @@ public class ChatServiceImpl implements ChatService {
 
         return chatRepository.findAllByUsersId(memberId)
                 .stream()
-                .map(chat -> {
-                    ChatResponse chatResponse = chatMapper.chatEntityToResponse(chat);
-                    chatResponse.setUserIds(chat.getUsers().stream().map(User::getId).toList());
-                    return chatResponse;
-                }).toList();
-
+                .map(chatMapper::chatEntityToResponse)
+                .toList();
     }
 
 
@@ -86,25 +84,18 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void createChat(ChatRequest chatRequest) {
 
-        List<User> userList = chatRequest.getUserIds().stream()
-                .map(userId -> userRepository.findById(userId)
-                        .orElseThrow(() -> new UserNotFoundException("user not found"))
-                )
-                .toList();
-
+        List<User> userList = userService.getUsersFromIdList(chatRequest.getUserIds());
         User loggedUser = getLoggedUser();
 
         if (!userList.contains(loggedUser))
             throw new UnauthorizedException("requesting user is not member of requested chat");
 
-        boolean isChatDuplicate = chatRepository.findAllByUsersIn(userList)
-                .stream().anyMatch(chat -> new HashSet<>(chat.getUsers()).containsAll(userList));
+        boolean isChatDuplicate = chatRepository.findAllByUsersIn(userList).stream()
+                .anyMatch(chat -> new HashSet<>(chat.getUsers()).containsAll(userList));
 
         if (isChatDuplicate) throw new CustomErrorException("a chat with same members already exists");
 
-        Chat newChat = chatMapper.chatRequestToEntity(chatRequest);
-        newChat.setUsers(userList);
-        chatRepository.save(newChat);
+        chatRepository.save(chatMapper.chatRequestToEntity(chatRequest));
 
     }
 

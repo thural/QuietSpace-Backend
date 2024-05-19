@@ -16,6 +16,8 @@ public class ChatResponse {
     private UUID id;
     private Integer version;
     private List<UUID> userIds;
+    private List<UserResponse> members;
+    private MessageResponse recentMessage;
     private OffsetDateTime createDate;
     private OffsetDateTime updateDate;
 
