@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,7 +35,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserResponse> listUsers(String username, Integer pageNumber, Integer pageSize) {
 
-        PageRequest pageRequest = PagingProvider.buildCustomPageRequest(pageNumber, pageSize);
+        PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, null);
         Page<User> userPage;
 
         if (StringUtils.hasText(username)) {
@@ -49,7 +50,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserResponse> listUsersByQuery(String query, Integer pageNumber, Integer pageSize) {
 
-        PageRequest pageRequest = PagingProvider.buildCustomPageRequest(pageNumber, pageSize);
+        PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, null);
         Page<User> userPage;
 
         if (StringUtils.hasText(query)) {
@@ -69,6 +70,14 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
         // TODO: fix jwt expire error
         return Optional.of(userMapper.userEntityToResponse(loggedUser));
+    }
+
+    @Override
+    public List<User> getUsersFromIdList(List<UUID> userIds) {
+        return userIds.stream()
+                .map(userId -> userRepository.findById(userId)
+                        .orElseThrow(() -> new UserNotFoundException("user not found")))
+                .toList();
     }
 
     @Override

@@ -26,7 +26,6 @@ public class UserController {
 
     private final UserService userService;
     private final PostService postService;
-    private final CommentService commentService;
     private final ReactionService reactionService;
 
     @GetMapping
