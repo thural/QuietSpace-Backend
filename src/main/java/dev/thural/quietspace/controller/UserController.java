@@ -67,7 +67,7 @@ public class UserController {
 
     @GetMapping("/profile")
     public UserResponse getUserFromToken() {
-        return userService.findLoggedUser().orElse(null);
+        return userService.getLoggedUserResponse().orElse(null);
     }
 
     @GetMapping(USER_PATH_ID + "/posts")

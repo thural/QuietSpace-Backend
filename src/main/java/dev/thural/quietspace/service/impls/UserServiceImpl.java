@@ -63,13 +63,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserResponse> findLoggedUser() {
-
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User loggedUser = userRepository.findUserEntityByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
+    public Optional<UserResponse> getLoggedUserResponse() {
+        return getLoggedUser().map(userMapper::userEntityToResponse);
         // TODO: fix jwt expire error
-        return Optional.of(userMapper.userEntityToResponse(loggedUser));
+    }
+
+    @Override
+    public Optional<User> getLoggedUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findUserEntityByEmail(email);
     }
 
     @Override

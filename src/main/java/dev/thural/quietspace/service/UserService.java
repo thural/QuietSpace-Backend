@@ -23,6 +23,8 @@ public interface UserService {
 
     void patchUser(UserRequest userRequest);
 
-    Optional<UserResponse> findLoggedUser();
+    Optional<UserResponse> getLoggedUserResponse();
+
+    Optional<User> getLoggedUser();
 
 }
