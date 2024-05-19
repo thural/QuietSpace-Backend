@@ -19,9 +19,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
-import static dev.thural.quietspace.utils.PagingProvider.buildCustomPageRequest;
+import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -64,9 +65,15 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public Page<MessageResponse> getMessagesByChatId(Integer pageNumber, Integer pageSize, UUID chatId) {
-        PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize,null);
         Page<Message> messagePage = messageRepository.findAllByChatId(chatId, pageRequest);
         return messagePage.map(messageMapper::messageEntityToDto);
+    }
+
+    @Override
+    public Optional<MessageResponse> getLastMessageByChat(Chat chat) {
+        return messageRepository.findFirstByChatOrderByCreateDateDesc(chat)
+                .map(messageMapper::messageEntityToDto);
     }
 
 }
