@@ -20,7 +20,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.*;
 
-import static dev.thural.quietspace.utils.PagingProvider.buildCustomPageRequest;
+import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Page<PostResponse> getAllPosts(Integer pageNumber, Integer pageSize) {
-        PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         return postRepository.findAll(pageRequest).map(postMapper::postEntityToResponse);
     }
 
@@ -123,7 +123,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Page<PostResponse> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
-        PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         Page<Post> postPage;
         if (userId != null) {
             postPage = postRepository.findAllByUserId(userId, pageRequest);

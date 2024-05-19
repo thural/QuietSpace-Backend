@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-import static dev.thural.quietspace.utils.PagingProvider.buildCustomPageRequest;
+import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +36,7 @@ public class FollowServiceImpl implements FollowService {
     public Page<FollowResponse> listFollowings(Integer pageNumber, Integer pageSize) {
         User user = getUserFromSecurityContext();
 
-        PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         Page<Follow> userPage = followRepository.findAllByFollowingId(user.getId(), pageRequest);
 
         return userPage.map(followMapper::followEntityToResponse);
@@ -46,7 +46,7 @@ public class FollowServiceImpl implements FollowService {
     public Page<FollowResponse> listFollowers(Integer pageNumber, Integer pageSize) {
         User user = getUserFromSecurityContext();
 
-        PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         Page<Follow> userPage = followRepository.findAllByFollowerId(user.getId(), pageRequest);
 
         return userPage.map(followMapper::followEntityToResponse);

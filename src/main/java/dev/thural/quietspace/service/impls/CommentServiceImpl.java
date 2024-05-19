@@ -23,7 +23,7 @@ import org.springframework.util.StringUtils;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dev.thural.quietspace.utils.PagingProvider.buildCustomPageRequest;
+import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +36,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Page<dev.thural.quietspace.model.response.CommentResponse> getCommentsByPost(UUID postId, Integer pageNumber, Integer pageSize) {
-        PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         return commentRepository.findAllByPostId(postId, pageRequest).map(commentMapper::commentEntityToResponse);
     }
 
@@ -101,7 +101,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Page<CommentResponse> getRepliesByParentId(UUID commentId, Integer pageNumber, Integer pageSize) {
-        PageRequest pageRequest = buildCustomPageRequest(pageNumber, pageSize);
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         return commentRepository.findAllByParentId(commentId, pageRequest).map(commentMapper::commentEntityToResponse);
     }
 
