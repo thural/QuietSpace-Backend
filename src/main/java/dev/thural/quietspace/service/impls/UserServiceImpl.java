@@ -119,7 +119,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void patchUser(UserRequest userRequest) {
+    public UserResponse patchUser(UserRequest userRequest) {
 
         User requestedUser = userRepository.findUserEntityByEmail(userRequest.getEmail())
                 .orElseThrow(UserNotFoundException::new);
@@ -140,7 +140,8 @@ public class UserServiceImpl implements UserService {
         if (StringUtils.hasText(userRequest.getPassword()))
             loggedUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
-        userRepository.save(loggedUser);
+        User patchedUser = userRepository.save(loggedUser);
+        return userMapper.userEntityToResponse(patchedUser);
     }
 
 }

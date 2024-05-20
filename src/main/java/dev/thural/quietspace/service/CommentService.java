@@ -11,16 +11,16 @@ public interface CommentService {
 
     Page<CommentResponse> getCommentsByPost(UUID postId, Integer pageNumber, Integer pageSize);
 
-    void createComment(CommentRequest comment);
+    CommentResponse createComment(CommentRequest comment);
 
     Optional<CommentResponse> getCommentById(UUID id);
 
-    void updateComment(UUID commentId, CommentRequest comment);
+    CommentResponse updateComment(UUID commentId, CommentRequest comment);
 
     void deleteComment(UUID id);
 
     Page<CommentResponse> getRepliesByParentId(UUID commentId, Integer pageNumber, Integer pageSize);
 
-    void patchComment(UUID id, CommentRequest comment);
+    CommentResponse patchComment(UUID id, CommentRequest comment);
 
 }

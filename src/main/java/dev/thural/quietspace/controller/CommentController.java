@@ -51,15 +51,15 @@ public class CommentController {
 
     @PostMapping
     ResponseEntity<?> createComment(@RequestBody @Validated CommentRequest comment) {
-        commentService.createComment(comment);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        CommentResponse createdComment = commentService.createComment(comment);
+        return new ResponseEntity<>(createdComment, HttpStatus.CREATED);
     }
 
     @PutMapping(COMMENT_PATH_ID)
     ResponseEntity<?> putComment(@PathVariable UUID commentId,
                                  @RequestBody @Validated CommentRequest comment) {
-        commentService.updateComment(commentId, comment);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        CommentResponse patchedComment = commentService.updateComment(commentId, comment);
+        return new ResponseEntity<>(patchedComment, HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping(COMMENT_PATH_ID)
@@ -71,8 +71,8 @@ public class CommentController {
     @PatchMapping(COMMENT_PATH_ID)
     ResponseEntity<?> patchComment(@PathVariable UUID commentId,
                                    @RequestBody CommentRequest comment) {
-        commentService.patchComment(commentId, comment);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        CommentResponse patchedComment = commentService.patchComment(commentId, comment);
+        return new ResponseEntity<>(patchedComment, HttpStatus.OK);
     }
 
     @GetMapping(value = COMMENT_PATH_ID + "/likes")

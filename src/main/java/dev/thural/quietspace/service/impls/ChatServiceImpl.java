@@ -54,7 +54,7 @@ public class ChatServiceImpl implements ChatService {
 
 
     @Override
-    public void addMemberWithId(UUID memberId, UUID chatId) {
+    public ChatResponse addMemberWithId(UUID memberId, UUID chatId) {
 
         Chat foundChat = findChatById(chatId);
         User foundMember = getUserById(memberId);
@@ -62,8 +62,9 @@ public class ChatServiceImpl implements ChatService {
 
         members.add(foundMember);
         foundChat.setUsers(members);
-        chatRepository.save(foundChat);
+        Chat patchedChat = chatRepository.save(foundChat);
 
+        return chatMapper.chatEntityToResponse(patchedChat);
     }
 
 
@@ -82,7 +83,7 @@ public class ChatServiceImpl implements ChatService {
 
 
     @Override
-    public void createChat(ChatRequest chatRequest) {
+    public ChatResponse createChat(ChatRequest chatRequest) {
 
         List<User> userList = userService.getUsersFromIdList(chatRequest.getUserIds());
         User loggedUser = getLoggedUser();
@@ -95,7 +96,8 @@ public class ChatServiceImpl implements ChatService {
 
         if (isChatDuplicate) throw new CustomErrorException("a chat with same members already exists");
 
-        chatRepository.save(chatMapper.chatRequestToEntity(chatRequest));
+        Chat createdChat = chatRepository.save(chatMapper.chatRequestToEntity(chatRequest));
+        return chatMapper.chatEntityToResponse(createdChat);
 
     }
 

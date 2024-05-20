@@ -12,11 +12,11 @@ public interface ChatService {
 
     void deleteChatById(UUID chatId);
 
-    void addMemberWithId(UUID memberId, UUID chatId);
+    ChatResponse addMemberWithId(UUID memberId, UUID chatId);
 
     void removeMemberWithId(UUID memberId, UUID chatId);
 
-    void createChat(ChatRequest chatRequest);
+    ChatResponse createChat(ChatRequest chatRequest);
 
     ChatResponse getChatById(UUID chatId);
 

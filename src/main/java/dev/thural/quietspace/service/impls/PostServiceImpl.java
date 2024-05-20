@@ -39,13 +39,14 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void addPost(PostRequest post) {
+    public PostResponse addPost(PostRequest post) {
         User loggedUser = getUserFromSecurityContext();
         if (!loggedUser.getId().equals(post.getUserId()))
             throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
         Post postEntity = postMapper.postRequestToEntity(post);
         postEntity.setUser(loggedUser);
-        postRepository.save(postEntity);
+        Post savedPost = postRepository.save(postEntity);
+        return postMapper.postEntityToResponse(savedPost);
     }
 
     public String getVotedPollOptionLabel(Poll poll){
@@ -71,24 +72,26 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void updatePost(UUID postId, PostRequest post) {
+    public PostResponse updatePost(UUID postId, PostRequest post) {
         User loggedUser = getUserFromSecurityContext();
         Post existingPost = findPostEntityById(postId);
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
         if (postExistsByLoggedUser) {
             existingPost.setText(post.getText());
-            postRepository.save(existingPost);
+            Post updatedPost = postRepository.save(existingPost);
+            return postMapper.postEntityToResponse(updatedPost);
         } else throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
     }
 
     @Override
-    public void patchPost(UUID postId, PostRequest post) {
+    public PostResponse patchPost(UUID postId, PostRequest post) {
         User loggedUser = getUserFromSecurityContext();
         Post existingPost = findPostEntityById(postId);
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
         if (postExistsByLoggedUser) {
             if (StringUtils.hasText(post.getText())) existingPost.setText(post.getText());
-            postRepository.save(existingPost);
+            Post patchedPost = postRepository.save(existingPost);
+            return postMapper.postEntityToResponse(patchedPost);
         } else throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
     }
 

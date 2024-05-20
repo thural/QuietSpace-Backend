@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public interface MessageService {
 
-    void addMessage(MessageRequest messageRequest);
+    MessageResponse addMessage(MessageRequest messageRequest);
 
     void deleteMessage(UUID id);
 

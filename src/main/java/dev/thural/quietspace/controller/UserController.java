@@ -61,8 +61,8 @@ public class UserController {
 
     @PatchMapping
     ResponseEntity<?> patchUser(@RequestBody UserRequest userRequest) {
-        userService.patchUser(userRequest);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        UserResponse patchedUser = userService.patchUser(userRequest);
+        return new ResponseEntity<>(patchedUser, HttpStatus.OK);
     }
 
     @GetMapping("/profile")
@@ -77,7 +77,7 @@ public class UserController {
         return postService.getPostsByUserId(userId, pageNumber, pageSize);
     }
 
-    @GetMapping("/post-likes")
+    @GetMapping(USER_PATH_ID + "/post-likes")
     List<ReactionResponse> getPostLikesByUserId(@PathVariable UUID userId) {
         return reactionService.getReactionsByUserId(userId, ContentType.POST);
     }

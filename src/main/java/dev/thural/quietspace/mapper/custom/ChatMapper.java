@@ -34,6 +34,8 @@ public class ChatMapper {
                 .userIds(getUserIdsFromChat(chat))
                 .members(getChatMembers(chat))
                 .recentMessage(getLastMessage(chat))
+                .createDate(chat.getCreateDate())
+                .updateDate(chat.getUpdateDate())
                 .build();
     }
 
@@ -52,7 +54,7 @@ public class ChatMapper {
     private List<UserResponse> getChatMembers(Chat chat){
         User loggedUser = userService.getLoggedUser().orElse(null);
         return chat.getUsers().stream()
-                .filter(user -> user.equals(loggedUser))
+                .filter(user -> !user.equals(loggedUser))
                 .map(userMapper::userEntityToResponse).toList();
     }
 }

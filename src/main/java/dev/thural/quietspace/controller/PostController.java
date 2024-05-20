@@ -37,8 +37,8 @@ public class PostController {
 
     @PostMapping
     ResponseEntity<?> createPost(@RequestBody @Validated PostRequest post) {
-        postService.addPost(post);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        PostResponse createdPost = postService.addPost(post);
+        return new ResponseEntity<>(createdPost,HttpStatus.CREATED);
     }
 
     @GetMapping(POST_PATH_ID)
@@ -50,8 +50,8 @@ public class PostController {
     @PutMapping(POST_PATH_ID)
     ResponseEntity<?> putPost(@PathVariable UUID postId,
                               @RequestBody @Validated PostRequest post) {
-        postService.updatePost(postId, post);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        PostResponse updatedPost = postService.updatePost(postId, post);
+        return new ResponseEntity<>(updatedPost, HttpStatus.OK);
     }
 
     @DeleteMapping(POST_PATH_ID)

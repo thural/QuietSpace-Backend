@@ -29,15 +29,15 @@ public class ChatController {
     }
 
     @PostMapping()
-    ResponseEntity<?> createChat(@RequestBody ChatRequest chat) {
-        chatService.createChat(chat);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    ResponseEntity<ChatResponse> createChat(@RequestBody ChatRequest chat) {
+        ChatResponse createdChat = chatService.createChat(chat);
+        return new ResponseEntity<>(createdChat, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{chatId}/members/add/{userId}")
     ResponseEntity<?> addMemberWithId(@PathVariable UUID chatId, @PathVariable UUID userId) {
-        chatService.addMemberWithId(userId, chatId);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        ChatResponse patchedChat = chatService.addMemberWithId(userId, chatId);
+        return new ResponseEntity<>(patchedChat, HttpStatus.OK);
     }
 
     @PatchMapping("/{chatId}/members/remove/{userId}")

@@ -27,8 +27,8 @@ public class MessageController {
 
     @PostMapping
     ResponseEntity<?> createMessage(@RequestBody @Validated MessageRequest messageRequest) {
-        messageService.addMessage(messageRequest);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        MessageResponse createdMessage = messageService.addMessage(messageRequest);
+        return new ResponseEntity<>(createdMessage, HttpStatus.CREATED);
     }
 
     @DeleteMapping(MESSAGE_PATH_ID)

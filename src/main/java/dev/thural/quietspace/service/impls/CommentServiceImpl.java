@@ -41,7 +41,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void createComment(CommentRequest comment) {
+    public CommentResponse createComment(CommentRequest comment) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User loggedUser = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
@@ -56,7 +56,7 @@ public class CommentServiceImpl implements CommentService {
         Comment commentEntity = commentMapper.commentRequestToEntity(comment);
         commentEntity.setUser(loggedUser);
         commentEntity.setPost(foundPost.orElse(null));
-        commentMapper.commentEntityToResponse(commentRepository.save(commentEntity));
+        return commentMapper.commentEntityToResponse(commentRepository.save(commentEntity));
     }
 
     @Override
@@ -69,7 +69,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void updateComment(UUID commentId, CommentRequest comment) {
+    public CommentResponse updateComment(UUID commentId, CommentRequest comment) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User loggedUser = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
@@ -79,9 +79,9 @@ public class CommentServiceImpl implements CommentService {
 
         if (existingComment.getUser().equals(loggedUser)) {
             existingComment.setText(comment.getText());
-            commentRepository.save(existingComment);
+            Comment patchedComment = commentRepository.save(existingComment);
+            return commentMapper.commentEntityToResponse(patchedComment);
         } else throw new AccessDeniedException("comment author does not belong to current user");
-
     }
 
     @Override
@@ -106,7 +106,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void patchComment(UUID commentId, CommentRequest comment) {
+    public CommentResponse patchComment(UUID commentId, CommentRequest comment) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User loggedUser = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
@@ -116,7 +116,8 @@ public class CommentServiceImpl implements CommentService {
 
         if (existingComment.getUser().equals(loggedUser)) {
             if (StringUtils.hasText(comment.getText())) existingComment.setText(comment.getText());
-            commentRepository.save(existingComment);
+            Comment patchedComment = commentRepository.save(existingComment);
+            return commentMapper.commentEntityToResponse(patchedComment);
         } else throw new AccessDeniedException("comment author does not belong to current user");
 
     }

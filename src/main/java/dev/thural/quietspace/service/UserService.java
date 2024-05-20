@@ -21,7 +21,7 @@ public interface UserService {
 
     void deleteUser(UUID userId, String authHeader);
 
-    void patchUser(UserRequest userRequest);
+    UserResponse patchUser(UserRequest userRequest);
 
     Optional<UserResponse> getLoggedUserResponse();
 

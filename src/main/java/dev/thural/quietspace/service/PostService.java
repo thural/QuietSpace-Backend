@@ -13,15 +13,15 @@ public interface PostService {
 
     Page<PostResponse> getAllPosts(Integer pageNumber, Integer pageSize);
 
-    void addPost(PostRequest post);
+    PostResponse addPost(PostRequest post);
 
     Optional<PostResponse> getPostById(UUID id);
 
-    void updatePost(UUID id, PostRequest post);
+    PostResponse updatePost(UUID id, PostRequest post);
 
     void deletePost(UUID id);
 
-    void patchPost(UUID id, PostRequest post);
+    PostResponse patchPost(UUID id, PostRequest post);
 
     void votePostPoll(VoteRequest voteRequest);
 
