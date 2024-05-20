@@ -8,10 +8,10 @@ import dev.thural.quietspace.model.response.FollowResponse;
 import dev.thural.quietspace.repository.FollowRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.FollowService;
+import dev.thural.quietspace.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -25,16 +25,11 @@ public class FollowServiceImpl implements FollowService {
     private final FollowMapper followMapper;
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
-
-    private User getUserFromSecurityContext() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findUserEntityByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
-    }
+    private final UserService userService;
 
     @Override
     public Page<FollowResponse> listFollowings(Integer pageNumber, Integer pageSize) {
-        User user = getUserFromSecurityContext();
+        User user = userService.getLoggedUser();
 
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         Page<Follow> userPage = followRepository.findAllByFollowingId(user.getId(), pageRequest);
@@ -44,7 +39,7 @@ public class FollowServiceImpl implements FollowService {
 
     @Override
     public Page<FollowResponse> listFollowers(Integer pageNumber, Integer pageSize) {
-        User user = getUserFromSecurityContext();
+        User user = userService.getLoggedUser();
 
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         Page<Follow> userPage = followRepository.findAllByFollowerId(user.getId(), pageRequest);
@@ -54,7 +49,7 @@ public class FollowServiceImpl implements FollowService {
 
     @Override
     public void toggleFollow(UUID followedUserId) {
-        User user = getUserFromSecurityContext();
+        User user = userService.getLoggedUser();
 
         if (followRepository.existsByFollowerIdAndFollowingId(user.getId(), followedUserId)) {
             followRepository.deleteByFollowerIdAndFollowingId(user.getId(), followedUserId);

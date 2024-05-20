@@ -64,14 +64,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserResponse> getLoggedUserResponse() {
-        return getLoggedUser().map(userMapper::userEntityToResponse);
-        // TODO: fix jwt expire error
+        UserResponse userResponse = userMapper.userEntityToResponse(getLoggedUser());
+        return Optional.of(userResponse);
     }
 
     @Override
-    public Optional<User> getLoggedUser() {
+    public User getLoggedUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findUserEntityByEmail(email);
+        return userRepository.findUserEntityByEmail(email).orElseThrow(UserNotFoundException::new);
     }
 
     @Override
@@ -83,13 +83,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserResponse> getUserById(UUID id) {
+    public Optional<UserResponse> getUserResponseById(UUID id) {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
 
         UserResponse userResponse = userMapper.userEntityToResponse(user);
         return Optional.of(userResponse);
+    }
+
+    @Override
+    public Optional<User> getUserById(UUID userId) {
+        User foundUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
+        return Optional.of(foundUser);
     }
 
     @Override

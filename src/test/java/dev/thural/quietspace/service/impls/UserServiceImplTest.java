@@ -44,7 +44,7 @@ class UserServiceImplTest {
     void findByIdTest(){
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        Optional <UserResponse> foundUser = userService.getUserById(userId);
+        Optional <UserResponse> foundUser = userService.getUserResponseById(userId);
         assertThat(foundUser).isNotNull();
 
         verify(userRepository, times(1)).findById(userId);

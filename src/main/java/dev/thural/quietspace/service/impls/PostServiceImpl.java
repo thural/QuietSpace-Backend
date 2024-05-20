@@ -1,20 +1,18 @@
 package dev.thural.quietspace.service.impls;
 
 import dev.thural.quietspace.entity.*;
-import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.custom.PostMapper;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
-import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.service.PostService;
+import dev.thural.quietspace.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -27,7 +25,7 @@ import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final PostMapper postMapper;
 
     public final String AUTHOR_MISMATCH_MESSAGE = "post author mismatch with current user";
@@ -40,7 +38,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponse addPost(PostRequest post) {
-        User loggedUser = getUserFromSecurityContext();
+        User loggedUser = userService.getLoggedUser();
         if (!loggedUser.getId().equals(post.getUserId()))
             throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
         Post postEntity = postMapper.postRequestToEntity(post);
@@ -50,18 +48,12 @@ public class PostServiceImpl implements PostService {
     }
 
     public String getVotedPollOptionLabel(Poll poll){
-        UUID userId = getUserFromSecurityContext().getId();
+        UUID userId = userService.getLoggedUser().getId();
 
         return poll.getOptions().stream()
                .filter(option -> option.getVotes().contains(userId))
                .findAny()
                 .map(PollOption::getLabel).orElse("not voted");
-    }
-
-    private User getUserFromSecurityContext() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findUserEntityByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
     }
 
     @Override
@@ -73,7 +65,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponse updatePost(UUID postId, PostRequest post) {
-        User loggedUser = getUserFromSecurityContext();
+        User loggedUser = userService.getLoggedUser();
         Post existingPost = findPostEntityById(postId);
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
         if (postExistsByLoggedUser) {
@@ -85,7 +77,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponse patchPost(UUID postId, PostRequest post) {
-        User loggedUser = getUserFromSecurityContext();
+        User loggedUser = userService.getLoggedUser();
         Post existingPost = findPostEntityById(postId);
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
         if (postExistsByLoggedUser) {
@@ -117,7 +109,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void deletePost(UUID postId) {
-        User loggedUser = getUserFromSecurityContext();
+        User loggedUser = userService.getLoggedUser();
         Post existingPost = findPostEntityById(postId);
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
         if (postExistsByLoggedUser) postRepository.deleteById(postId);

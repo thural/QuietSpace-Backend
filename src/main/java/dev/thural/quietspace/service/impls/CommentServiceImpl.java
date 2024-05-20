@@ -3,20 +3,18 @@ package dev.thural.quietspace.service.impls;
 import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.custom.CommentMapper;
 import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.repository.CommentRepository;
 import dev.thural.quietspace.repository.PostRepository;
-import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.CommentService;
+import dev.thural.quietspace.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -30,21 +28,19 @@ import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 public class CommentServiceImpl implements CommentService {
 
     private final CommentMapper commentMapper;
+    private final UserService userService;
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
 
     @Override
-    public Page<dev.thural.quietspace.model.response.CommentResponse> getCommentsByPost(UUID postId, Integer pageNumber, Integer pageSize) {
+    public Page<CommentResponse> getCommentsByPost(UUID postId, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         return commentRepository.findAllByPostId(postId, pageRequest).map(commentMapper::commentEntityToResponse);
     }
 
     @Override
     public CommentResponse createComment(CommentRequest comment) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User loggedUser = userRepository.findUserEntityByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
+        User loggedUser = userService.getLoggedUser();
 
         Optional<Post> foundPost = postRepository.findById(comment.getPostId());
 
@@ -60,20 +56,17 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Optional<dev.thural.quietspace.model.response.CommentResponse> getCommentById(UUID commentId) {
+    public Optional<CommentResponse> getCommentById(UUID commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        dev.thural.quietspace.model.response.CommentResponse commentResponse = commentMapper.commentEntityToResponse(comment);
+        CommentResponse commentResponse = commentMapper.commentEntityToResponse(comment);
         return Optional.of(commentResponse);
     }
 
     @Override
     public CommentResponse updateComment(UUID commentId, CommentRequest comment) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User loggedUser = userRepository.findUserEntityByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
-
+        User loggedUser = userService.getLoggedUser();
         Comment existingComment = commentRepository.findById(commentId)
                 .orElseThrow(EntityNotFoundException::new);
 
@@ -86,9 +79,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void deleteComment(UUID commentId) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User loggedUser = userRepository.findUserEntityByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
+        User loggedUser = userService.getLoggedUser();
 
         Comment existingComment = commentRepository.findById(commentId)
                 .orElseThrow(EntityNotFoundException::new);
@@ -107,9 +98,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentResponse patchComment(UUID commentId, CommentRequest comment) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User loggedUser = userRepository.findUserEntityByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
+        User loggedUser = userService.getLoggedUser();
 
         Comment existingComment = commentRepository.findById(commentId)
                 .orElseThrow(EntityNotFoundException::new);
@@ -119,7 +108,6 @@ public class CommentServiceImpl implements CommentService {
             Comment patchedComment = commentRepository.save(existingComment);
             return commentMapper.commentEntityToResponse(patchedComment);
         } else throw new AccessDeniedException("comment author does not belong to current user");
-
     }
 
 }

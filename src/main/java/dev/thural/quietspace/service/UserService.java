@@ -17,7 +17,9 @@ public interface UserService {
 
     List<User> getUsersFromIdList(List<UUID> userIds);
 
-    Optional<UserResponse> getUserById(UUID id);
+    Optional<UserResponse> getUserResponseById(UUID id);
+
+    Optional<User> getUserById(UUID userId);
 
     void deleteUser(UUID userId, String authHeader);
 
@@ -25,6 +27,6 @@ public interface UserService {
 
     Optional<UserResponse> getLoggedUserResponse();
 
-    Optional<User> getLoggedUser();
+    User getLoggedUser();
 
 }

@@ -52,7 +52,7 @@ public class ChatMapper {
     }
 
     private List<UserResponse> getChatMembers(Chat chat){
-        User loggedUser = userService.getLoggedUser().orElse(null);
+        User loggedUser = userService.getLoggedUser();
         return chat.getUsers().stream()
                 .filter(user -> !user.equals(loggedUser))
                 .map(userMapper::userEntityToResponse).toList();

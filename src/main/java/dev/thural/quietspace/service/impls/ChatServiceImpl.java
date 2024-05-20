@@ -9,12 +9,10 @@ import dev.thural.quietspace.mapper.custom.ChatMapper;
 import dev.thural.quietspace.model.request.ChatRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.repository.ChatRepository;
-import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.ChatService;
 import dev.thural.quietspace.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -27,14 +25,12 @@ public class ChatServiceImpl implements ChatService {
 
     private final UserService userService;
     private final ChatRepository chatRepository;
-    private final UserRepository userRepository;
     private final ChatMapper chatMapper;
 
 
     @Override
     public List<ChatResponse> getChatsByUserId(UUID memberId) {
-
-        User loggedUser = getLoggedUser();
+        User loggedUser = userService.getLoggedUser();
 
         if (!loggedUser.getId().equals(memberId))
             throw new UnauthorizedException("user mismatch with the chat member");
@@ -57,7 +53,8 @@ public class ChatServiceImpl implements ChatService {
     public ChatResponse addMemberWithId(UUID memberId, UUID chatId) {
 
         Chat foundChat = findChatById(chatId);
-        User foundMember = getUserById(memberId);
+        User foundMember = userService.getUserById(memberId)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
         List<User> members = foundChat.getUsers();
 
         members.add(foundMember);
@@ -86,7 +83,7 @@ public class ChatServiceImpl implements ChatService {
     public ChatResponse createChat(ChatRequest chatRequest) {
 
         List<User> userList = userService.getUsersFromIdList(chatRequest.getUserIds());
-        User loggedUser = getLoggedUser();
+        User loggedUser = userService.getLoggedUser();
 
         if (!userList.contains(loggedUser))
             throw new UnauthorizedException("requesting user is not member of requested chat");
@@ -110,23 +107,13 @@ public class ChatServiceImpl implements ChatService {
 
 
     private User getUserById(UUID memberId) {
-        return userRepository
-                .findById(memberId)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
-    }
-
-
-    private User getLoggedUser() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        return userRepository
-                .findUserEntityByEmail(email)
+        return userService.getUserById(memberId)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
     }
 
 
     private Chat findChatById(UUID chatId) {
-        User loggedUser = getLoggedUser();
+        User loggedUser = userService.getLoggedUser();
 
         Chat foundChat = chatRepository.findById(chatId)
                 .orElseThrow(EntityNotFoundException::new);

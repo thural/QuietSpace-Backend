@@ -80,7 +80,7 @@ public class UserControllerTest {
 
     @Test
     void getUserById() throws Exception {
-        given(userService.getUserById(any())).willReturn(Optional.of(testUserResponse));
+        given(userService.getUserResponseById(any())).willReturn(Optional.of(testUserResponse));
 
         mockMvc.perform(get(UserController.USER_PATH + "/" + testUserResponse.getId())
                         .accept(MediaType.APPLICATION_JSON))
@@ -109,14 +109,14 @@ public class UserControllerTest {
 
     @Test
     void userByIdNotFound() throws Exception {
-        given(userService.getUserById(userId)).willReturn(Optional.empty());
+        given(userService.getUserResponseById(userId)).willReturn(Optional.empty());
 
         mockMvc.perform(get(UserController.USER_PATH + "/" + userId)
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isNotFound());
 
-        verify(userService).getUserById(uuidArgumentCaptor.capture());
+        verify(userService).getUserResponseById(uuidArgumentCaptor.capture());
     }
 
 }

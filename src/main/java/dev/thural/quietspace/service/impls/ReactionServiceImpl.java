@@ -2,17 +2,15 @@ package dev.thural.quietspace.service.impls;
 
 import dev.thural.quietspace.entity.Reaction;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.custom.ReactionMapper;
 import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.repository.ReactionRepository;
-import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.ReactionService;
+import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.utils.enums.ContentType;
 import dev.thural.quietspace.utils.enums.LikeType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,13 +21,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ReactionServiceImpl implements ReactionService {
 
-    private final UserRepository userRepository;
     private final ReactionRepository reactionRepository;
     private final ReactionMapper reactionMapper;
+    private final UserService userService;
 
     @Override
     public void handleReaction(ReactionRequest reaction) {
-        User user = getUserFromSecurityContext();
+        User user = userService.getLoggedUser();
         Reaction foundReaction = reactionRepository
                 .findByContentIdAndUserId(reaction.getContentId(), user.getId())
                 .orElse(null);
@@ -46,7 +44,7 @@ public class ReactionServiceImpl implements ReactionService {
 
     @Override
     public Optional<ReactionResponse> getUserReactionByContentId(UUID contentId) {
-        User user = getUserFromSecurityContext();
+        User user = userService.getLoggedUser();
         Optional<Reaction> userReaction = reactionRepository.findByContentIdAndUserId(contentId, user.getId());
         return userReaction.map(reactionMapper::reactionEntityToResponse);
     }
@@ -87,12 +85,6 @@ public class ReactionServiceImpl implements ReactionService {
         return reactionRepository.findAllByUserIdAndContentType(userId, contentType)
                 .stream().map(reactionMapper::reactionEntityToResponse)
                 .toList();
-    }
-
-    private User getUserFromSecurityContext() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findUserEntityByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
     }
 
 }

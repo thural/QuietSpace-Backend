@@ -47,7 +47,7 @@ public class UserController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
-        return userService.getUserById(userId)
+        return userService.getUserResponseById(userId)
                 .map(user -> ResponseEntity.ok().headers(headers).body(user))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
