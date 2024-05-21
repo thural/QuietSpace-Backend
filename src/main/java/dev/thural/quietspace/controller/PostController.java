@@ -80,7 +80,7 @@ public class PostController {
 
     @PostMapping("/vote-poll")
     ResponseEntity<?> votePoll(@RequestBody VoteRequest voteRequest) {
-        postService.votePostPoll(voteRequest);
+        postService.votetPoll(voteRequest);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

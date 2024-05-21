@@ -3,6 +3,7 @@ package dev.thural.quietspace.mapper.custom;
 import dev.thural.quietspace.entity.Poll;
 import dev.thural.quietspace.entity.PollOption;
 import dev.thural.quietspace.entity.Post;
+import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.model.request.PollRequest;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.response.OptionResponse;
@@ -10,6 +11,7 @@ import dev.thural.quietspace.model.response.PollResponse;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.service.ReactionService;
+import dev.thural.quietspace.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -22,9 +24,11 @@ import java.util.UUID;
 public class PostMapper {
 
     private final ReactionService reactionService;
+    private final UserService userService;
 
     public Post postRequestToEntity(PostRequest postRequest) {
         Post post = Post.builder()
+                .user(getLoggedUser())
                 .title(postRequest.getTitle())
                 .text(postRequest.getText())
                 .build();
@@ -114,5 +118,11 @@ public class PostMapper {
                 .map(PollOption::getLabel)
                 .orElse("not voted");
     }
+
+    private User getLoggedUser(){
+        return userService.getLoggedUser();
+    }
+
+
 
 }

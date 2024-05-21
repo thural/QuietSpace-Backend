@@ -84,10 +84,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserResponse> getUserResponseById(UUID id) {
-
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
-
         UserResponse userResponse = userMapper.userEntityToResponse(user);
         return Optional.of(userResponse);
     }
@@ -101,43 +99,29 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(UUID userId, String authHeader) {
-
-        boolean isDeleted = false;
         String token = authHeader.substring(7);
+        User loggedUser = getLoggedUser();
 
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User loggedUser = userRepository.findUserEntityByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
+        if (!loggedUser.getRole().equals("admin") && !loggedUser.getId().equals(userId))
+            throw new UnauthorizedException("user denied access to delete the resource");
 
-        if (loggedUser.getRole().equals("admin")){
-            userRepository.deleteById(userId);
-            isDeleted = true;
-        } else if (loggedUser.getId().equals(userId)) {
-            userRepository.deleteById(userId);
-            isDeleted =  true;
-        }
+        userRepository.deleteById(userId);
 
-        if (isDeleted) tokenRepository.save(Token.builder()
+        tokenRepository.save(Token.builder()
                 .jwtToken(token)
                 .email(loggedUser.getEmail())
                 .build()
         );
-
     }
 
     @Override
     public UserResponse patchUser(UserRequest userRequest) {
 
-        User requestedUser = userRepository.findUserEntityByEmail(userRequest.getEmail())
-                .orElseThrow(UserNotFoundException::new);
-
         boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains("ADMIN");
         // TODO: use enum types fot authorities
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User loggedUser = userRepository.findUserEntityByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
+        User loggedUser = getLoggedUser();
 
-        if (!isAdmin && !requestedUser.getEmail().equals(loggedUser.getEmail()))
+        if (!isAdmin && !userRequest.getEmail().equals(loggedUser.getEmail()))
             throw new UnauthorizedException("logged user has no access to requested resource");
 
         if (StringUtils.hasText(userRequest.getUsername()))
@@ -147,8 +131,7 @@ public class UserServiceImpl implements UserService {
         if (StringUtils.hasText(userRequest.getPassword()))
             loggedUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
-        User patchedUser = userRepository.save(loggedUser);
-        return userMapper.userEntityToResponse(patchedUser);
+        return userMapper.userEntityToResponse(userRepository.save(loggedUser));
     }
 
 }
