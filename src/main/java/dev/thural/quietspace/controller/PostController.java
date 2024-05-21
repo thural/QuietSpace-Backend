@@ -35,6 +35,13 @@ public class PostController {
         return postService.getAllPosts(pageNumber, pageSize);
     }
 
+    @GetMapping("/search")
+    Page<PostResponse> getPostsByQuery(@RequestParam(name = "query", required = true) String query,
+                                       @RequestParam(name = "page-number", required = false) Integer pageNumber,
+                                       @RequestParam(name = "page-size", required = false) Integer pageSize) {
+        return postService.getAllByQuery(query, pageNumber, pageSize);
+    }
+
     @PostMapping
     ResponseEntity<?> createPost(@RequestBody @Validated PostRequest post) {
         PostResponse createdPost = postService.addPost(post);

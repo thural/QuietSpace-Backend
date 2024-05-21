@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
 import java.util.Optional;
 import java.util.UUID;
 
+import static dev.thural.quietspace.utils.PagingProvider.BY_CREATED_DATE_ASC;
 import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 
 @Service
@@ -36,7 +37,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Page<CommentResponse> getCommentsByPost(UUID postId, Integer pageNumber, Integer pageSize) {
-        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, BY_CREATED_DATE_ASC);
         return commentRepository.findAllByPostId(postId, pageRequest).map(commentMapper::commentEntityToResponse);
     }
 

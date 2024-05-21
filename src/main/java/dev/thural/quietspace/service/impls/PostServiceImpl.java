@@ -124,6 +124,12 @@ public class PostServiceImpl implements PostService {
         return postPage.map(postMapper::postEntityToResponse);
     }
 
+    @Override
+    public Page<PostResponse> getAllByQuery(String query, Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
+        return postRepository.findAllByQuery(query, pageRequest).map(postMapper::postEntityToResponse);
+    }
+
     private boolean isPostExistsByLoggedUser(Post existingPost, User loggedUser) {
         return existingPost.getUser().equals(loggedUser);
     }

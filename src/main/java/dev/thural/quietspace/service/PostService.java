@@ -29,4 +29,5 @@ public interface PostService {
 
     Page<PostResponse> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize);
 
+    Page<PostResponse> getAllByQuery(String query, Integer pageNumber, Integer pageSize);
 }
