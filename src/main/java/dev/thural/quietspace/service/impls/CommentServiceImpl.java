@@ -3,6 +3,7 @@ package dev.thural.quietspace.service.impls;
 import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.exception.UnauthorizedException;
 import dev.thural.quietspace.mapper.custom.CommentMapper;
 import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
@@ -11,6 +12,7 @@ import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.service.CommentService;
 import dev.thural.quietspace.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,19 +41,27 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    public Page<CommentResponse> getCommentsByUser(UUID userId, Integer pageNumber, Integer pageSize) {
+
+        if (!userService.getLoggedUser().getId().equals(userId))
+            throw new UnauthorizedException("user has no access to requested resource");
+
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
+        return commentRepository.findAllByUserId(userId, pageRequest).map(commentMapper::commentEntityToResponse);
+    }
+
+    @Override
     public CommentResponse createComment(CommentRequest comment) {
         User loggedUser = userService.getLoggedUser();
 
         Optional<Post> foundPost = postRepository.findById(comment.getPostId());
 
         if (!loggedUser.getId().equals(comment.getUserId()))
-            throw new AccessDeniedException("resource does not belong to current user");
+            throw new UnauthorizedException("resource does not belong to current user");
         if (foundPost.isEmpty())
             throw new EntityNotFoundException("post does not exist");
 
         Comment commentEntity = commentMapper.commentRequestToEntity(comment);
-        commentEntity.setUser(loggedUser);
-        commentEntity.setPost(foundPost.orElse(null));
         return commentMapper.commentEntityToResponse(commentRepository.save(commentEntity));
     }
 
@@ -78,6 +88,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public void deleteComment(UUID commentId) {
         User loggedUser = userService.getLoggedUser();
 
@@ -86,6 +97,7 @@ public class CommentServiceImpl implements CommentService {
 
         if (existingComment.getUser().getId().equals(loggedUser.getId())) {
             commentRepository.deleteAllByParentId(commentId);
+            System.out.println("DELETE COMMENT WAS CALLED");
             commentRepository.deleteById(commentId);
         } else throw new AccessDeniedException("comment author does not belong to current user");
     }

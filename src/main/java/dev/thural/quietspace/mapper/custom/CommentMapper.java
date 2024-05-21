@@ -49,7 +49,7 @@ public class CommentMapper {
                 .createDate(comment.getCreateDate())
                 .updateDate(comment.getUpdateDate())
                 .likeCount(getLikeCount(comment.getId()))
-                .replyCount(getReplyCount(comment.getParentId(), comment.getPost()))
+                .replyCount(getReplyCount(comment.getId(), comment.getPost()))
                 .build();
     };
 

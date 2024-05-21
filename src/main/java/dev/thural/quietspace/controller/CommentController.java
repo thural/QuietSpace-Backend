@@ -36,6 +36,13 @@ public class CommentController {
         return commentService.getCommentsByPost(postId, pageNumber, pageSize);
     }
 
+    @GetMapping("/user/{userId}")
+    Page<CommentResponse> getCommentsByUserId(@PathVariable UUID userId,
+                                              @RequestParam(required = false) Integer pageNumber,
+                                              @RequestParam(required = false) Integer pageSize) {
+        return commentService.getCommentsByUser(userId, pageNumber, pageSize);
+    }
+
     @GetMapping(COMMENT_PATH_ID + "/replies")
     Page<CommentResponse> getCommentRepliesById(@PathVariable UUID commentId,
                                               @RequestParam(required = false) Integer pageNumber,
@@ -65,7 +72,7 @@ public class CommentController {
     @DeleteMapping(COMMENT_PATH_ID)
     ResponseEntity<?> deleteComment(@PathVariable UUID commentId) {
         commentService.deleteComment(commentId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PatchMapping(COMMENT_PATH_ID)

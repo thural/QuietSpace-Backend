@@ -23,4 +23,5 @@ public interface CommentService {
 
     CommentResponse patchComment(UUID id, CommentRequest comment);
 
+    Page<CommentResponse> getCommentsByUser(UUID userId, Integer pageNumber, Integer pageSize);
 }
