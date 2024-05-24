@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -48,6 +49,7 @@ public class FollowServiceImpl implements FollowService {
     }
 
     @Override
+    @Transactional
     public void toggleFollow(UUID followedUserId) {
         User user = userService.getLoggedUser();
 
@@ -61,6 +63,9 @@ public class FollowServiceImpl implements FollowService {
 
         User followedUser = userRepository.findById(followedUserId)
                     .orElseThrow(() -> new UserNotFoundException("user not found with id: " + followedUserId));
+
+        System.out.println("FOLLOWED user id: " + followedUser.getId());
+        System.out.println("FOLLOWING user id: " + followingUser.getId());
 
         Follow newFollowEntity = Follow.builder()
                     .follower(followingUser)

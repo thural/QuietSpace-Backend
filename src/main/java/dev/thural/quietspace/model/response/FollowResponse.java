@@ -1,7 +1,8 @@
 package dev.thural.quietspace.model.response;
 
-import dev.thural.quietspace.entity.User;
 import lombok.*;
+
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -10,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 public class FollowResponse {
 
-    private User followingId;
-    private User followerId;
+    private UUID followingId;
+    private UUID followerId;
 
 }

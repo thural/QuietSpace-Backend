@@ -16,7 +16,7 @@ import java.util.UUID;
 public class FollowController {
 
     public static final String FOLLOW_PATH_ID = "/{userId}";
-    public static final String FOLLOW_USER_TOGGLE = FOLLOW_PATH_ID + "/toggleFollow";
+    public static final String FOLLOW_USER_TOGGLE = FOLLOW_PATH_ID + "/toggle-follow";
 
     private final FollowService followService;
 

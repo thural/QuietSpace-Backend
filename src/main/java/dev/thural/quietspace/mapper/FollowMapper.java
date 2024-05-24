@@ -10,5 +10,7 @@ public interface FollowMapper {
     @Mapping(target = "id", ignore = true)
     Follow followResponseToEntity(FollowResponse followResponse);
 
+    @Mapping(target = "followingId", source = "following.id")
+    @Mapping(target = "followerId", source = "follower.id")
     FollowResponse followEntityToResponse(Follow followEntity);
 }
