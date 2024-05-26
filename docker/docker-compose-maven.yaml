@@ -17,23 +17,20 @@ services:
     ports:
       - ${EXP_DB_PORT_NUMBER}:${DB_PORT_NUMBER}
 
-  quietspace-monolith-dev:
+  quietspace-monolith-maven:
     build:
-      context: .
-      dockerfile: ./docker/dev/Dockerfile
-    image: thural/quietspace:monolith-dev
+      context: ..
+      dockerfile: maven/Dockerfile
+    image: thural/quietspace:monolith
     container_name: ${SERVER_HOST_NAME}
     depends_on:
       - quietspace-monolith-db
     env_file:
-      - .env
+      - ../.env
     networks:
       - monolith-network
     ports:
-      - ${EXP_SERVER_PORT_NUMBER}:${SERVER_PORT_NUMBER}
-    volumes:
-      - ./:/app
-      - /target
+      - ${SERVER_PORT_NUMBER}:${SERVER_PORT_NUMBER}
 
 volumes:
   quietspace_monolith_data:

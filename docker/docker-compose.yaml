@@ -7,6 +7,8 @@ services:
     restart: on-failure
     volumes:
       - quietspace_monolith_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - #      - ./mysql:/var/lib/mysql (for in folder data storage)
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
@@ -17,16 +19,25 @@ services:
     ports:
       - ${EXP_DB_PORT_NUMBER}:${DB_PORT_NUMBER}
 
-  quietspace-monolith-maven:
+  quietspace-monolith:
     build:
-      context: .
-      dockerfile: ./docker/maven/Dockerfile
+      context: ..
+      dockerfile: prod/Dockerfile
     image: thural/quietspace:monolith
     container_name: ${SERVER_HOST_NAME}
     depends_on:
       - quietspace-monolith-db
     env_file:
-      - .env
+      - ../.env
+    environment:
+      DB_USER_PASSWORD: ${DB_USER_PASSWORD}
+      DB_USER_USERNAME: ${DB_USER_USERNAME}
+      DB_PORT_NUMBER: ${DB_PORT_NUMBER}
+      DB_NAME: ${DB_NAME}
+      DB_URL: ${DB_URL}
+      DB_HOST_NAME: ${DB_HOST_NAME}
+      APP_VERSION: ${APP_VERSION}
+      ACTIVE_PROFILE: ${ACTIVE_PROFILE}
     networks:
       - monolith-network
     ports:

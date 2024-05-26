@@ -17,29 +17,23 @@ services:
     ports:
       - ${EXP_DB_PORT_NUMBER}:${DB_PORT_NUMBER}
 
-  quietspace-monolith:
+  quietspace-monolith-dev:
     build:
-      context: .
-      dockerfile: ./docker/prod/Dockerfile
-    image: thural/quietspace:monolith
+      context: ..
+      dockerfile: dev/Dockerfile
+    image: thural/quietspace:monolith-dev
     container_name: ${SERVER_HOST_NAME}
     depends_on:
       - quietspace-monolith-db
     env_file:
-      - .env
-    environment:
-      DB_USER_PASSWORD: ${DB_USER_PASSWORD}
-      DB_USER_USERNAME: ${DB_USER_USERNAME}
-      DB_PORT_NUMBER: ${DB_PORT_NUMBER}
-      DB_NAME: ${DB_NAME}
-      DB_URL: ${DB_URL}
-      DB_HOST_NAME: ${DB_HOST_NAME}
-      APP_VERSION: ${APP_VERSION}
-      ACTIVE_PROFILE: ${ACTIVE_PROFILE}
+      - ../.env
     networks:
       - monolith-network
     ports:
-      - ${SERVER_PORT_NUMBER}:${SERVER_PORT_NUMBER}
+      - ${EXP_SERVER_PORT_NUMBER}:${SERVER_PORT_NUMBER}
+    volumes:
+      - ./:/app
+      - /target
 
 volumes:
   quietspace_monolith_data:
