@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -27,7 +26,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
@@ -128,8 +126,6 @@ public class UserServiceImpl implements UserService {
             loggedUser.setUsername(userRequest.getUsername());
         if (StringUtils.hasText(userRequest.getEmail()))
             loggedUser.setEmail(userRequest.getEmail());
-        if (StringUtils.hasText(userRequest.getPassword()))
-            loggedUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
         return userMapper.userEntityToResponse(userRepository.save(loggedUser));
     }
