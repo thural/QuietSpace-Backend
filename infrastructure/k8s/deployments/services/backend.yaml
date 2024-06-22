@@ -21,17 +21,17 @@ spec:
             - name: DB_USER_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: mysql-secret
-                  key: USER
+                  name: common-secret
+                  key: BACKEND_DB_USER
             - name: DB_USER_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: mysql-secret
-                  key: USER-PASSWORD
+                  name: common-secret
+                  key: BACKEND_DB_USER-PASSWORD
             - name: DB_URL
               valueFrom:
                 configMapKeyRef:
-                  name: mysql-config
+                  name: common-config
                   key: mysql-url
 ---
 
