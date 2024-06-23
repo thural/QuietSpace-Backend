@@ -4,7 +4,6 @@ import dev.thural.quietspace.model.response.FollowResponse;
 import dev.thural.quietspace.service.FollowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,18 +23,22 @@ public class FollowController {
     @PostMapping(FOLLOW_USER_TOGGLE)
     ResponseEntity<?> toggleFollow(@PathVariable UUID userId) {
         followService.toggleFollow(userId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/followings")
-    Page<FollowResponse> listFollowings(@RequestParam(name = "page-number", required = false) Integer pageNumber,
-                                        @RequestParam(name = "page-size", required = false) Integer pageSize) {
+    Page<FollowResponse> listFollowings(
+            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+            @RequestParam(name = "page-size", required = false) Integer pageSize
+    ) {
         return followService.listFollowings(pageNumber, pageSize);
     }
 
     @GetMapping("/followers")
-    Page<FollowResponse> listFollowers(@RequestParam(name = "page-number", required = false) Integer pageNumber,
-                                       @RequestParam(name = "page-size", required = false) Integer pageSize) {
+    Page<FollowResponse> listFollowers(
+            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+            @RequestParam(name = "page-size", required = false) Integer pageSize
+    ) {
         return followService.listFollowers(pageNumber, pageSize);
     }
 

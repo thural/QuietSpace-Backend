@@ -7,7 +7,6 @@ import dev.thural.quietspace.service.MessageService;
 import dev.thural.quietspace.service.ReactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -26,29 +25,29 @@ public class MessageController {
 
 
     @PostMapping
-    ResponseEntity<?> createMessage(@RequestBody @Validated MessageRequest messageRequest) {
-        MessageResponse createdMessage = messageService.addMessage(messageRequest);
-        return new ResponseEntity<>(createdMessage, HttpStatus.CREATED);
+    ResponseEntity<MessageResponse> createMessage(@RequestBody @Validated MessageRequest messageRequest) {
+        return ResponseEntity.ok(messageService.addMessage(messageRequest));
     }
 
     @DeleteMapping(MESSAGE_PATH_ID)
     ResponseEntity<?> deleteMessage(@PathVariable UUID messageId) {
         messageService.deleteMessage(messageId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/chat/{chatId}")
     Page<MessageResponse> getMessagesByChatId(
             @RequestParam(name = "page-number", required = false) Integer pageNumber,
             @RequestParam(name = "page-size", required = false) Integer pageSize,
-            @PathVariable UUID chatId) {
+            @PathVariable UUID chatId
+    ) {
         return messageService.getMessagesByChatId(pageNumber, pageSize, chatId);
     }
 
     @PostMapping("/toggle-reaction")
     ResponseEntity<?> toggleMessageLike(ReactionRequest reaction) {
         reactionService.handleReaction(reaction);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
 }

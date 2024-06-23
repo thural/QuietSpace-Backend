@@ -9,13 +9,11 @@ import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.utils.enums.ContentType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -30,56 +28,61 @@ public class CommentController {
 
 
     @GetMapping("/post/{postId}")
-    Page<CommentResponse> getCommentsByPostId(@PathVariable UUID postId,
-                                              @RequestParam(required = false) Integer pageNumber,
-                                              @RequestParam(required = false) Integer pageSize) {
+    Page<CommentResponse> getCommentsByPostId(
+            @PathVariable UUID postId,
+            @RequestParam(required = false) Integer pageNumber,
+            @RequestParam(required = false) Integer pageSize
+    ) {
         return commentService.getCommentsByPost(postId, pageNumber, pageSize);
     }
 
     @GetMapping("/user/{userId}")
-    Page<CommentResponse> getCommentsByUserId(@PathVariable UUID userId,
-                                              @RequestParam(required = false) Integer pageNumber,
-                                              @RequestParam(required = false) Integer pageSize) {
+    Page<CommentResponse> getCommentsByUserId(
+            @PathVariable UUID userId,
+            @RequestParam(required = false) Integer pageNumber,
+            @RequestParam(required = false) Integer pageSize
+    ) {
         return commentService.getCommentsByUser(userId, pageNumber, pageSize);
     }
 
     @GetMapping(COMMENT_PATH_ID + "/replies")
-    Page<CommentResponse> getCommentRepliesById(@PathVariable UUID commentId,
-                                              @RequestParam(required = false) Integer pageNumber,
-                                              @RequestParam(required = false) Integer pageSize) {
+    Page<CommentResponse> getCommentRepliesById(
+            @PathVariable UUID commentId,
+            @RequestParam(required = false) Integer pageNumber,
+            @RequestParam(required = false) Integer pageSize
+    ) {
         return commentService.getRepliesByParentId(commentId, pageNumber, pageSize);
     }
 
     @GetMapping(COMMENT_PATH_ID)
-    CommentResponse getCommentById(@PathVariable UUID commentId) {
-        Optional<CommentResponse> optionalComment = commentService.getCommentById(commentId);
-        return optionalComment.orElse(null);
+    ResponseEntity<CommentResponse> getCommentById(@PathVariable UUID commentId) {
+        return commentService.getCommentById(commentId)
+                .map(comment -> ResponseEntity.ok().body(comment))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    ResponseEntity<?> createComment(@RequestBody @Validated CommentRequest comment) {
-        CommentResponse createdComment = commentService.createComment(comment);
-        return new ResponseEntity<>(createdComment, HttpStatus.CREATED);
+    ResponseEntity<CommentResponse> createComment(@RequestBody @Validated CommentRequest comment) {
+        return ResponseEntity.ok(commentService.createComment(comment));
     }
 
     @PutMapping(COMMENT_PATH_ID)
-    ResponseEntity<?> putComment(@PathVariable UUID commentId,
-                                 @RequestBody @Validated CommentRequest comment) {
-        CommentResponse patchedComment = commentService.updateComment(commentId, comment);
-        return new ResponseEntity<>(patchedComment, HttpStatus.NO_CONTENT);
+    ResponseEntity<CommentResponse> putComment(
+            @PathVariable UUID commentId,
+            @RequestBody @Validated CommentRequest comment
+    ) {
+        return ResponseEntity.ok(commentService.updateComment(commentId, comment));
     }
 
     @DeleteMapping(COMMENT_PATH_ID)
     ResponseEntity<?> deleteComment(@PathVariable UUID commentId) {
         commentService.deleteComment(commentId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping(COMMENT_PATH_ID)
-    ResponseEntity<?> patchComment(@PathVariable UUID commentId,
-                                   @RequestBody CommentRequest comment) {
-        CommentResponse patchedComment = commentService.patchComment(commentId, comment);
-        return new ResponseEntity<>(patchedComment, HttpStatus.OK);
+    ResponseEntity<CommentResponse> patchComment(@PathVariable UUID commentId, @RequestBody CommentRequest comment) {
+        return ResponseEntity.ok(commentService.patchComment(commentId, comment));
     }
 
     @GetMapping(value = COMMENT_PATH_ID + "/likes")
@@ -90,7 +93,7 @@ public class CommentController {
     @PostMapping("/toggle-reaction")
     ResponseEntity<?> toggleCommentLike(@RequestBody ReactionRequest reaction) {
         reactionService.handleReaction(reaction);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
 }

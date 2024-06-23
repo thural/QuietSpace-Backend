@@ -10,13 +10,11 @@ import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.utils.enums.ContentType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -30,48 +28,48 @@ public class PostController {
     private final ReactionService reactionService;
 
     @GetMapping
-    Page<PostResponse> getAllPosts(@RequestParam(name = "page-number", required = false) Integer pageNumber,
-                                   @RequestParam(name = "page-size", required = false) Integer pageSize) {
+    Page<PostResponse> getAllPosts(
+            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+            @RequestParam(name = "page-size", required = false) Integer pageSize
+    ) {
         return postService.getAllPosts(pageNumber, pageSize);
     }
 
     @GetMapping("/search")
-    Page<PostResponse> getPostsByQuery(@RequestParam(name = "query", required = true) String query,
-                                       @RequestParam(name = "page-number", required = false) Integer pageNumber,
-                                       @RequestParam(name = "page-size", required = false) Integer pageSize) {
+    Page<PostResponse> getPostsByQuery(
+            @RequestParam(name = "query", required = true) String query,
+            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+            @RequestParam(name = "page-size", required = false) Integer pageSize
+    ) {
         return postService.getAllByQuery(query, pageNumber, pageSize);
     }
 
     @PostMapping
-    ResponseEntity<?> createPost(@RequestBody @Validated PostRequest post) {
-        PostResponse createdPost = postService.addPost(post);
-        return new ResponseEntity<>(createdPost,HttpStatus.CREATED);
+    ResponseEntity<PostResponse> createPost(@RequestBody @Validated PostRequest post) {
+        return ResponseEntity.ok(postService.addPost(post));
     }
 
     @GetMapping(POST_PATH_ID)
-    ResponseEntity<?> getPostById(@PathVariable UUID postId) {
-        Optional<PostResponse> optionalPost = postService.getPostById(postId);
-        return new ResponseEntity<>(optionalPost.orElse(null), HttpStatus.OK);
+    ResponseEntity<PostResponse> getPostById(@PathVariable UUID postId) {
+        return postService.getPostById(postId)
+                .map(post -> ResponseEntity.ok().body(post))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping(POST_PATH_ID)
-    ResponseEntity<?> putPost(@PathVariable UUID postId,
-                              @RequestBody @Validated PostRequest post) {
-        PostResponse updatedPost = postService.updatePost(postId, post);
-        return new ResponseEntity<>(updatedPost, HttpStatus.OK);
+    ResponseEntity<PostResponse> putPost(@PathVariable UUID postId, @RequestBody @Validated PostRequest post) {
+        return ResponseEntity.ok(postService.updatePost(postId, post));
     }
 
     @DeleteMapping(POST_PATH_ID)
     ResponseEntity<?> deletePost(@PathVariable UUID postId) {
         postService.deletePost(postId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping(POST_PATH_ID)
-    ResponseEntity<?> patchPost(@PathVariable UUID postId,
-                                @RequestBody PostRequest post) {
-        postService.patchPost(postId, post);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    ResponseEntity<PostResponse> patchPost(@PathVariable UUID postId, @RequestBody PostRequest post) {
+        return ResponseEntity.ok(postService.patchPost(postId, post));
     }
 
     @GetMapping(POST_PATH_ID + "/likes")
@@ -82,13 +80,13 @@ public class PostController {
     @PostMapping("/toggle-reaction")
     ResponseEntity<?> togglePostLike(@RequestBody ReactionRequest reaction) {
         reactionService.handleReaction(reaction);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/vote-poll")
     ResponseEntity<?> votePoll(@RequestBody VoteRequest voteRequest) {
         postService.votetPoll(voteRequest);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
 }

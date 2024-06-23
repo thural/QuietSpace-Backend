@@ -4,7 +4,6 @@ import dev.thural.quietspace.model.request.ChatRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.service.ChatService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,26 +29,24 @@ public class ChatController {
 
     @PostMapping()
     ResponseEntity<ChatResponse> createChat(@RequestBody ChatRequest chat) {
-        ChatResponse createdChat = chatService.createChat(chat);
-        return new ResponseEntity<>(createdChat, HttpStatus.CREATED);
+        return ResponseEntity.ok(chatService.createChat(chat));
     }
 
     @PatchMapping("/{chatId}/members/add/{userId}")
-    ResponseEntity<?> addMemberWithId(@PathVariable UUID chatId, @PathVariable UUID userId) {
-        ChatResponse patchedChat = chatService.addMemberWithId(userId, chatId);
-        return new ResponseEntity<>(patchedChat, HttpStatus.OK);
+    ResponseEntity<ChatResponse> addMemberWithId(@PathVariable UUID chatId, @PathVariable UUID userId) {
+        return ResponseEntity.ok(chatService.addMemberWithId(userId, chatId));
     }
 
     @PatchMapping("/{chatId}/members/remove/{userId}")
     ResponseEntity<?> removeMemberWithId(@PathVariable UUID chatId, @PathVariable UUID userId) {
         chatService.removeMemberWithId(userId, chatId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{chatId}")
     ResponseEntity<?> deleteChatWithId(@PathVariable("chatId") UUID chatId) {
         chatService.deleteChatById(chatId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.noContent().build();
     }
 
 }
