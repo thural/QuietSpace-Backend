@@ -30,9 +30,4 @@ public class UserRequest {
     @Size(min = 1, max = 32)
     private String email;
 
-    @NotNull
-    @NotBlank
-    @Size(min = 8, max = 32)
-    private String password;
-
 }

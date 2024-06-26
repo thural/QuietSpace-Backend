@@ -113,6 +113,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User createUser(UserRequest userRequest) {
+        return userRepository.save(userMapper.userRequestToEntity(userRequest));
+    }
+
+    @Override
     public UserResponse patchUser(UserRequest userRequest) {
 
         boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains("ADMIN");

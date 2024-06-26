@@ -23,6 +23,8 @@ public interface UserService {
 
     void deleteUser(UUID userId, String authHeader);
 
+    User createUser(UserRequest userRequest);
+
     UserResponse patchUser(UserRequest userRequest);
 
     Optional<UserResponse> getLoggedUserResponse();

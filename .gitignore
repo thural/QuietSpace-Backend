@@ -34,5 +34,8 @@ build/
 
 ### ENV files ###
 .env
+
+### other files ###
 /quietspace
 /quietspace.log
+/infrastructure/keycloak/realms/realm-export.json

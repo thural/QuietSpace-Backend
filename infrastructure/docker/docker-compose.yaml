@@ -63,8 +63,6 @@ services:
     hostname: ${KEYCLOAK_HOST}
     image: quay.io/keycloak/keycloak:24.0.3
     restart: on-failure
-    volumes:
-      - realms-data/:/opt/keycloak/data/import/
     command: [ "start-dev", "--import-realm" ]
     environment:
       DB_VENDOR: MYSQL
@@ -80,6 +78,9 @@ services:
       - ${KEYCLOAK_PORT}:8080
     depends_on:
       - keycloak-db
+    volumes:
+      - realms-data/:/opt/keycloak/data/import/
+      - ../../target/quietspace-0.0.1-SNAPSHOT.jar:opt/keycloak/providers/keycloak-listener.jar
 
 volumes:
   quietspace_monolith_data:
