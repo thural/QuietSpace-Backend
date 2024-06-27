@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(userId);
 
         tokenRepository.save(Token.builder()
-                .jwtToken(token)
+                .token(token)
                 .email(loggedUser.getEmail())
                 .build()
         );

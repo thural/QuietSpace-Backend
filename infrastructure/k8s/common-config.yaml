@@ -4,6 +4,3 @@ metadata:
   name: common-config
 data:
   mysql-url: mysql-service
-  VITE_KEYCLOAK_URL: keycloak-service
-  VITE_KEYCLOAK_REALM: "quietspace"
-  VITE_KEYCLOAK_CLIENT: "quietspace-client"

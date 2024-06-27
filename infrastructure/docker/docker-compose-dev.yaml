@@ -19,8 +19,8 @@ services:
 
   quietspace-monolith-dev:
     build:
-      context: ../../
-      dockerfile: ./infrastructure/docker/buildfiles/dev/Dockerfile
+      context: ../..
+      dockerfile: dev/Dockerfile
     image: thural/quietspace:monolith-dev
     container_name: ${SERVER_HOST_NAME}
     depends_on:
@@ -35,51 +35,10 @@ services:
       - ./:/app
       - /target
 
-  keycloak-db:
-    container_name: ${KEYCLOAK_DB_HOST}
-    hostname: ${KEYCLOAK_DB_HOST}
-    image: mysql:5.7
-    restart: on-failure
-    volumes:
-      - keycloak_db_data:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: ${KEYCLOAK_DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${KEYCLOAK_DB_NAME}
-      MYSQL_USER: ${KEYCLOAK_DB_USER}
-      MYSQL_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
-    networks:
-      - monolith-network
-
-  keycloak:
-    container_name: ${KEYCLOAK_HOST}
-    hostname: ${KEYCLOAK_HOST}
-    image: quay.io/keycloak/keycloak:24.0.3
-    restart: on-failure
-    volumes:
-      - realms-data/:/opt/keycloak/data/import/
-    command: [ "start-dev", "--import-realm" ]
-    environment:
-      DB_VENDOR: MYSQL
-      DB_ADDR: mysql
-      DB_DATABASE: ${KEYCLOAK_DB_NAME}
-      DB_USER: ${KEYCLOAK_DB_USER}
-      DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
-      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-    networks:
-      - monolith-network
-    ports:
-      - ${KEYCLOAK_PORT}:8080
-    depends_on:
-      - keycloak-db
-
 volumes:
   quietspace_monolith_data:
-  keycloak_db_data:
-  realms-data:
 
 networks:
   monolith-network:
     name: monolith-network
     driver: bridge
-    external: true

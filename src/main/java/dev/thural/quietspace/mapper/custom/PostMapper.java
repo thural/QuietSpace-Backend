@@ -33,7 +33,7 @@ public class PostMapper {
                 .text(postRequest.getText())
                 .build();
 
-        if(postRequest.getPoll() == null) return post;
+        if (postRequest.getPoll() == null) return post;
 
         PollRequest pollRequest = postRequest.getPoll();
 
@@ -56,8 +56,8 @@ public class PostMapper {
         return post;
     }
 
-   public PostResponse postEntityToResponse(Post post) {
-        Integer commentCount = post.getComments().size();
+    public PostResponse postEntityToResponse(Post post) {
+        Integer commentCount = post.getComments() != null ? post.getComments().size() : 0;
         Integer postLikeCount = reactionService.getLikeCountByContentId(post.getId());
         Integer dislikeCount = reactionService.getDislikeCountByContentId(post.getId());
         ReactionResponse userReaction = reactionService.getUserReactionByContentId(post.getId())
@@ -98,20 +98,20 @@ public class PostMapper {
         return postResponse;
     }
 
-    private Integer getVoteCount(Poll poll){
+    private Integer getVoteCount(Poll poll) {
         return poll.getOptions().stream()
                 .map(option -> option.getVotes().size())
                 .reduce(0, Integer::sum);
     }
 
-    private String getVoteShare(PollOption option){
+    private String getVoteShare(PollOption option) {
         Integer totalVoteCount = getVoteCount(option.getPoll());
-        int optionVoteNum = option.getVotes().size();
+        int optionVoteNum = option.getVotes() != null ? option.getVotes().size() : 0;
         if (totalVoteCount < 1) return "0%";
-        return (optionVoteNum * 100/totalVoteCount) +  "%";
+        return (optionVoteNum * 100 / totalVoteCount) + "%";
     }
 
-    private String getVotedPollOptionLabel(Poll poll, UUID userId){
+    private String getVotedPollOptionLabel(Poll poll, UUID userId) {
         return poll.getOptions().stream()
                 .filter(option -> option.getVotes().contains(userId))
                 .findFirst()
@@ -119,10 +119,9 @@ public class PostMapper {
                 .orElse("not voted");
     }
 
-    private User getLoggedUser(){
+    private User getLoggedUser() {
         return userService.getLoggedUser();
     }
-
 
 
 }
