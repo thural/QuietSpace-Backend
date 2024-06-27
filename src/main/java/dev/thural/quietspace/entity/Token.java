@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -25,10 +26,19 @@ public class Token {
 
     @NotNull
     @NotBlank
-    private String jwtToken;
+    @Column(unique = true)
+    private String token;
 
     @NotNull
     @NotBlank
     private String email;
+
+    @ManyToOne
+    @JoinColumn(name = "userId", nullable = false)
+    private User user;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime expiresAt;
+    private LocalDateTime validatedAt;
 
 }

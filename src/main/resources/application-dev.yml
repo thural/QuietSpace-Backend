@@ -1,19 +1,13 @@
 spring:
-
   devtools:
     livereload.enabled: true
     restart:
       enabled: true
-
-  application:
-    name: quietspace-backend
-
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/quietspace
     username: ${DB_USER_USERNAME}
     password: ${DB_USER_PASSWORD}
-
   jpa:
     properties:
       hibernate:
@@ -25,13 +19,11 @@ spring:
     database: mysql
     open-in-view: true
     show-sql: true
-
   flyway:
     enabled: false
-
 logging:
-#  file:
-#    name: quietspace.log
+  #  file:
+  #    name: quietspace.log
   level:
     root: WARN
     org.hibernate.orm.jdbc.bind: TRACE
@@ -42,6 +34,5 @@ logging:
     rollingpolicy:
       max-file-size: 2MB
       max-history: 3
-
 server:
   port: 8080

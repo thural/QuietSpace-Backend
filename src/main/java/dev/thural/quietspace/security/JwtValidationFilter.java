@@ -1,7 +1,6 @@
-package dev.thural.quietspace.config;
+package dev.thural.quietspace.security;
 
 import dev.thural.quietspace.repository.TokenRepository;
-import dev.thural.quietspace.utils.JwtProvider;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,6 +22,7 @@ import java.io.IOException;
 public class JwtValidationFilter extends OncePerRequestFilter {
     private final TokenRepository tokenRepository;
     private final UserDetailsService userDetailsService;
+    private final JwtService jwtService;
 
 
     @Override
@@ -31,26 +31,26 @@ public class JwtValidationFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
 
-        if (!StringUtils.hasText(authHeader) || !authHeader.startsWith("Bearer")){
+        if (!StringUtils.hasText(authHeader) || !authHeader.startsWith("Bearer")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (tokenRepository.existsByJwtToken(authHeader.substring(7))){
+        if (tokenRepository.existsByToken(authHeader.substring(7))) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String userEmail = JwtProvider.extractUsername(authHeader.substring(7));
+        String userEmail = jwtService.extractUsername(authHeader.substring(7));
 
-        if (userEmail == null || SecurityContextHolder.getContext().getAuthentication() != null){
+        if (userEmail == null || SecurityContextHolder.getContext().getAuthentication() != null) {
             filterChain.doFilter(request, response);
             return;
         }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
 
-        if (JwtProvider.isTokenValid(authHeader.substring(7), userDetails)) {
+        if (jwtService.isTokenValid(authHeader.substring(7), userDetails)) {
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
                     userDetails.getPassword(),

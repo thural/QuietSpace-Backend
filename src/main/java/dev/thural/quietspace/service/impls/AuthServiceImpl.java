@@ -9,7 +9,7 @@ import dev.thural.quietspace.model.response.AuthResponse;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.AuthService;
-import dev.thural.quietspace.utils.JwtProvider;
+import dev.thural.quietspace.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -35,6 +35,7 @@ public class AuthServiceImpl implements AuthService {
     private final TokenRepository tokenRepository;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
+    private final JwtService jwtService;
 
 
     @Override
@@ -46,7 +47,7 @@ public class AuthServiceImpl implements AuthService {
 
         Authentication authentication = generateAuthentication(user.getEmail(), userPassword);
 
-        String token = JwtProvider.generateToken(authentication);
+        String token = jwtService.generateToken((UserDetails) authentication);
         String userId = savedUser.getId().toString();
         return new AuthResponse(UUID.randomUUID(), token, userId, "register success");
     }
@@ -58,11 +59,11 @@ public class AuthServiceImpl implements AuthService {
         Authentication authentication = generateAuthentication(userEmail, userPassword);
         String token;
 
-        if(tokenRepository.existsByEmail(userEmail)){
-            token = tokenRepository.getByEmail(userEmail).getJwtToken();
+        if (tokenRepository.existsByEmail(userEmail)) {
+            token = tokenRepository.getByEmail(userEmail).getToken();
             tokenRepository.deleteByEmail(userEmail);
         } else {
-            token = JwtProvider.generateToken(authentication);
+            token = jwtService.generateToken((UserDetails) authentication);
         }
 
         Optional<User> optionalUser = userRepository.findUserEntityByEmail(userEmail);
@@ -100,9 +101,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void addToBlacklist(String authHeader, String email) {
         String token = authHeader.substring(7);
-        boolean isBlacklisted = tokenRepository.existsByJwtToken(token);
+        boolean isBlacklisted = tokenRepository.existsByToken(token);
         if (!isBlacklisted) tokenRepository.save(Token.builder()
-                .jwtToken(token)
+                .token(token)
                 .email(email)
                 .build()
         );
@@ -112,7 +113,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean isBlacklisted(String authHeader) {
         String token = authHeader.substring(7);
-        return tokenRepository.existsByJwtToken(token);
+        return tokenRepository.existsByToken(token);
     }
 
 }
