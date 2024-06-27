@@ -23,7 +23,7 @@ public interface PostService {
 
     PostResponse patchPost(UUID id, PostRequest post);
 
-    void votetPoll(VoteRequest voteRequest);
+    void votePoll(VoteRequest voteRequest);
 
     String getVotedPollOptionLabel(Poll poll);
 

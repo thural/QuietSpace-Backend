@@ -19,14 +19,14 @@ services:
 
   quietspace-monolith-maven:
     build:
-      context: ..
+      context: ../..
       dockerfile: maven/Dockerfile
     image: thural/quietspace:monolith
     container_name: ${SERVER_HOST_NAME}
     depends_on:
       - quietspace-monolith-db
     env_file:
-      - ../.env
+      - ../../.env
     networks:
       - monolith-network
     ports:

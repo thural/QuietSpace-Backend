@@ -21,8 +21,8 @@ services:
 
   quietspace-monolith:
     build:
-      context: ../
-      dockerfile: ./docker/prod/Dockerfile
+      context: ../..
+      dockerfile: buildfiles/prod/Dockerfile
     image: thural/quietspace:monolith
     container_name: ${SERVER_HOST_NAME}
     depends_on:

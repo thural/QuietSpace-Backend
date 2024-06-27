@@ -46,12 +46,12 @@ public class PostServiceImpl implements PostService {
         );
     }
 
-    public String getVotedPollOptionLabel(Poll poll){
+    public String getVotedPollOptionLabel(Poll poll) {
         UUID userId = userService.getLoggedUser().getId();
 
         return poll.getOptions().stream()
-               .filter(option -> option.getVotes().contains(userId))
-               .findAny()
+                .filter(option -> option.getVotes().contains(userId))
+                .findAny()
                 .map(PollOption::getLabel).orElse("not voted");
     }
 
@@ -84,11 +84,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void votetPoll(VoteRequest voteRequest) {
+    public void votePoll(VoteRequest voteRequest) {
         Post foundPost = postRepository.findById(voteRequest.getPostId())
                 .orElseThrow(EntityNotFoundException::new);
 
-        if(foundPost.getPoll().getOptions().stream()
+        if (foundPost.getPoll().getOptions().stream()
                 .anyMatch(option -> option.getVotes().contains(voteRequest.getUserId()))) return;
 
         foundPost.getPoll().getOptions().stream()

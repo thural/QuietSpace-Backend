@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping( "/api/v1/posts")
+@RequestMapping("/api/v1/posts")
 public class PostController {
 
     public static final String POST_PATH_ID = "/{postId}";
@@ -45,7 +45,7 @@ public class PostController {
     @PostMapping
     ResponseEntity<?> createPost(@RequestBody @Validated PostRequest post) {
         PostResponse createdPost = postService.addPost(post);
-        return new ResponseEntity<>(createdPost,HttpStatus.CREATED);
+        return new ResponseEntity<>(createdPost, HttpStatus.CREATED);
     }
 
     @GetMapping(POST_PATH_ID)
@@ -87,7 +87,7 @@ public class PostController {
 
     @PostMapping("/vote-poll")
     ResponseEntity<?> votePoll(@RequestBody VoteRequest voteRequest) {
-        postService.votetPoll(voteRequest);
+        postService.votePoll(voteRequest);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
