@@ -11,17 +11,15 @@ import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,8 +28,8 @@ import java.util.UUID;
 @Transactional
 public class AuthServiceImpl implements AuthService {
 
+    private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
-    private final UserDetailsService userDetailsService;
     private final TokenRepository tokenRepository;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
@@ -39,35 +37,46 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public AuthResponse register(UserRequest user) {
-        String userPassword = user.getPassword();
-        user.setPassword(passwordEncoder.encode(userPassword));
+    public AuthResponse register(UserRequest userRequest) {
 
-        User savedUser = userRepository.save(userMapper.userRequestToEntity(user));
+        String userPassword = userRequest.getPassword();
+        userRequest.setPassword(passwordEncoder.encode(userPassword));
+        User savedUser = userRepository.save(userMapper.userRequestToEntity(userRequest));
 
-        Authentication authentication = generateAuthentication(user.getEmail(), userPassword);
+        var auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(userRequest.getEmail(), userPassword)
+        );
+        var claims = new HashMap<String, Object>();
+        var user = (User) auth.getPrincipal();
+        claims.put("fullName", user.getFullName());
+        String token = jwtService.generateToken(claims, user);
 
-        String token = jwtService.generateToken((UserDetails) authentication);
         String userId = savedUser.getId().toString();
         return new AuthResponse(UUID.randomUUID(), token, userId, "register success");
+
     }
 
     @Override
     public AuthResponse login(LoginRequest loginRequest) {
         String userEmail = loginRequest.getEmail();
         String userPassword = loginRequest.getPassword();
-        Authentication authentication = generateAuthentication(userEmail, userPassword);
-        String token;
 
-        if (tokenRepository.existsByEmail(userEmail)) {
-            token = tokenRepository.getByEmail(userEmail).getToken();
+
+        var auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(userEmail, userPassword)
+        );
+        var claims = new HashMap<String, Object>();
+        var user = ((User) auth.getPrincipal());
+        claims.put("fullName", user.getFullName());
+        String token = jwtService.generateToken(claims, user);
+
+        Optional<Token> existingToken = tokenRepository.getByEmail(userEmail);
+        if (existingToken.isPresent()) {
+            if (jwtService.isTokenValid(existingToken.get().getToken(), user))
+                token = existingToken.get().getToken();
             tokenRepository.deleteByEmail(userEmail);
-        } else {
-            token = jwtService.generateToken((UserDetails) authentication);
         }
 
-        Optional<User> optionalUser = userRepository.findUserEntityByEmail(userEmail);
-        User user = optionalUser.orElseThrow(() -> new AuthenticationCredentialsNotFoundException("login failed"));
         return new AuthResponse(UUID.randomUUID(), token, user.getId().toString(), "login success");
     }
 
@@ -84,18 +93,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Authentication generateAuthentication(String email, String password) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-
-        if (userDetails == null)
-            throw new BadCredentialsException("invalid username");
-
-        if (!passwordEncoder.matches(password, userDetails.getPassword()))
-            throw new BadCredentialsException("invalid password");
-
-        return new UsernamePasswordAuthenticationToken(
-                userDetails,
-                userDetails.getPassword(),
-                userDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(email, password);
     }
 
     @Override

@@ -53,7 +53,7 @@ public class AuthenticationService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .accountLocked(false)
-                .enabled(false)
+                .enabled(true) // TODO: rollback to false value after testing
                 .role(RoleType.USER.toString())
                 .roles(List.of(userRole))
                 .build();

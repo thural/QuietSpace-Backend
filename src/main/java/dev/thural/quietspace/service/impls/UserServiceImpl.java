@@ -11,7 +11,10 @@ import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.mapper.UserMapper;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.UserService;
+import dev.thural.quietspace.utils.enums.RoleType;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +29,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
@@ -68,6 +72,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getLoggedUser() {
+        log.info("current user name {}", SecurityContextHolder.getContext().getAuthentication().getName());
+
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findUserEntityByEmail(email).orElseThrow(UserNotFoundException::new);
     }
@@ -100,7 +106,7 @@ public class UserServiceImpl implements UserService {
         String token = authHeader.substring(7);
         User loggedUser = getLoggedUser();
 
-        if (!loggedUser.getRole().equals("admin") && !loggedUser.getId().equals(userId))
+        if (!loggedUser.getRole().equals(RoleType.ADMIN.toString()) && !loggedUser.getId().equals(userId))
             throw new UnauthorizedException("user denied access to delete the resource");
 
         userRepository.deleteById(userId);
