@@ -8,8 +8,10 @@ import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.EmailService;
 import dev.thural.quietspace.utils.enums.EmailTemplateName;
+import dev.thural.quietspace.utils.enums.RoleType;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +27,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationService {
 
     private final UserRepository userRepository;
@@ -35,20 +38,23 @@ public class AuthenticationService {
     private final EmailService emailService;
     private final TokenRepository tokenRepository;
 
-    @Value("${application.mailing.frontend.activation-url}")
+    @Value("${spring.application.mailing.frontend.activation-url}")
     private String activationUrl;
 
     public void register(RegistrationRequest request) throws MessagingException {
-        var userRole = roleRepository.findByName("USER")
+        log.info("Registering new user with email: {}", request.getEmail());
+        var userRole = roleRepository.findByName(RoleType.USER.toString())
                 // todo - better exception handling
                 .orElseThrow(() -> new IllegalStateException("ROLE USER was not initiated"));
         var user = User.builder()
+                .username(request.getUsername())
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .accountLocked(false)
                 .enabled(false)
+                .role(RoleType.USER.toString())
                 .roles(List.of(userRole))
                 .build();
         userRepository.save(user);
@@ -107,8 +113,8 @@ public class AuthenticationService {
     }
 
     private void sendValidationEmail(User user) throws MessagingException {
+        log.info("sending to email address: {}", user.getEmail());
         var newToken = generateAndSaveActivationToken(user);
-
         emailService.sendEmail(
                 user.getEmail(),
                 user.getFullName(),
