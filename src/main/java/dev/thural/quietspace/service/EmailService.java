@@ -34,18 +34,21 @@ public class EmailService {
             String activationCode,
             String subject
     ) throws MessagingException {
+
         String templateName;
         if (emailTemplate == null) {
             templateName = "confirm-email";
         } else {
             templateName = emailTemplate.name();
         }
+
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(
                 mimeMessage,
                 MULTIPART_MODE_MIXED,
                 UTF_8.name()
         );
+
         Map<String, Object> properties = new HashMap<>();
         properties.put("username", username);
         properties.put("confirmationUrl", confirmationUrl);
@@ -54,7 +57,7 @@ public class EmailService {
         Context context = new Context();
         context.setVariables(properties);
 
-        helper.setFrom("contact@aliboucoding.com");
+        helper.setFrom("tural.musaibov@gmail.com");
         helper.setTo(to);
         helper.setSubject(subject);
 
