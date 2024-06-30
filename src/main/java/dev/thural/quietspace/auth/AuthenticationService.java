@@ -1,5 +1,6 @@
 package dev.thural.quietspace.auth;
 
+import dev.thural.quietspace.entity.Role;
 import dev.thural.quietspace.entity.Token;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.repository.RoleRepository;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -41,12 +44,14 @@ public class AuthenticationService {
     @Value("${spring.application.mailing.frontend.activation-url}")
     private String activationUrl;
 
-    public void register(RegistrationRequest request) throws MessagingException {
+    public AuthenticationResponse register(RegistrationRequest request) throws MessagingException {
         log.info("Registering new user with email: {}", request.getEmail());
-        var userRole = roleRepository.findByName(RoleType.USER.toString())
+
+        Role userRole = roleRepository.findByName(RoleType.USER.toString())
                 // todo - better exception handling
                 .orElseThrow(() -> new IllegalStateException("ROLE USER was not initiated"));
-        var user = User.builder()
+
+        User user = User.builder()
                 .username(request.getUsername())
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
@@ -57,8 +62,24 @@ public class AuthenticationService {
                 .role(RoleType.USER.toString())
                 .roles(List.of(userRole))
                 .build();
-        userRepository.save(user);
+
+        User savedUser = userRepository.save(user);
         sendValidationEmail(user);
+
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
+
+        var claims = new HashMap<String, Object>();
+        claims.put("fullName", user.getFullName());
+        String token = jwtService.generateToken(claims, user);
+
+        return AuthenticationResponse.builder()
+                .id(UUID.randomUUID())
+                .message("registration successful")
+                .token(token)
+                .userId(savedUser.getId().toString())
+                .build();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -75,6 +96,9 @@ public class AuthenticationService {
 
         var jwtToken = jwtService.generateToken(claims, (User) auth.getPrincipal());
         return AuthenticationResponse.builder()
+                .id(UUID.randomUUID())
+                .message("authentication successful")
+                .userId(user.getId().toString())
                 .token(jwtToken)
                 .build();
     }

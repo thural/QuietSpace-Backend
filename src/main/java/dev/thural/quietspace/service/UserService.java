@@ -1,7 +1,7 @@
 package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.model.request.UserRequest;
+import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
 import org.springframework.data.domain.Page;
 
@@ -23,9 +23,9 @@ public interface UserService {
 
     void deleteUser(UUID userId, String authHeader);
 
-    User createUser(UserRequest userRequest);
+    User createUser(UserRegisterRequest userRegisterRequest);
 
-    UserResponse patchUser(UserRequest userRequest);
+    UserResponse patchUser(UserRegisterRequest userRegisterRequest);
 
     Optional<UserResponse> getLoggedUserResponse();
 

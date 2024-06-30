@@ -21,7 +21,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
 
-    private final JwtFilter jwtAuthFilter;
+    private final JwtValidationFilter jwtAuthFilter;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
     private final AuthenticationProvider authenticationProvider;
 

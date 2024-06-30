@@ -1,6 +1,6 @@
 package dev.thural.quietspace.controller;
 
-import dev.thural.quietspace.model.request.UserRequest;
+import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.model.response.UserResponse;
@@ -63,8 +63,8 @@ public class UserController {
     }
 
     @PatchMapping
-    ResponseEntity<UserResponse> patchUser(@RequestBody UserRequest userRequest) {
-        return ResponseEntity.ok(userService.patchUser(userRequest));
+    ResponseEntity<UserResponse> patchUser(@RequestBody UserRegisterRequest userRegisterRequest) {
+        return ResponseEntity.ok(userService.patchUser(userRegisterRequest));
     }
 
     @GetMapping("/profile")

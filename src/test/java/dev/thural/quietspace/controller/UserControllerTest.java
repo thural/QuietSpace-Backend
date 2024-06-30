@@ -1,7 +1,7 @@
 package dev.thural.quietspace.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.model.request.UserRequest;
+import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.service.CommentService;
@@ -47,7 +47,7 @@ public class UserControllerTest {
     @Captor
     ArgumentCaptor<UUID> uuidArgumentCaptor;
     @Captor
-    ArgumentCaptor<UserRequest> userArgumentCaptor;
+    ArgumentCaptor<UserRegisterRequest> userArgumentCaptor;
 
     @MockBean
     UserService userService;
@@ -62,16 +62,15 @@ public class UserControllerTest {
     UserController userController;
 
     UUID userId;
-    UserRequest testUserRequest;
+    UserRegisterRequest testUserRegisterRequest;
     UserResponse testUserResponse;
-
 
 
     @BeforeEach
     void setUp() {
         this.userId = UUID.randomUUID();
 
-        this.testUserRequest = UserRequest.builder()
+        this.testUserRegisterRequest = UserRegisterRequest.builder()
                 .username("user")
                 .role("user")
                 .email("user@email.com")
@@ -92,19 +91,19 @@ public class UserControllerTest {
 
     @Test
     void patchUser() throws Exception {
-        testUserRequest.setUsername("testUserUpdated");
-        testUserRequest.setPassword("testPasswordUpdated");
+        testUserRegisterRequest.setUsername("testUserUpdated");
+        testUserRegisterRequest.setPassword("testPasswordUpdated");
 
-        mockMvc.perform(patch(UserController.USER_PATH, testUserRequest)
+        mockMvc.perform(patch(UserController.USER_PATH, testUserRegisterRequest)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testUserRequest)))
+                        .content(objectMapper.writeValueAsString(testUserRegisterRequest)))
                 .andExpect(status().isNoContent());
 
         verify(userService).patchUser(userArgumentCaptor.capture());
 
-        assertThat(testUserRequest.getUsername()).isEqualTo(userArgumentCaptor.getValue().getUsername());
-        assertThat(testUserRequest.getPassword()).isEqualTo(userArgumentCaptor.getValue().getPassword());
+        assertThat(testUserRegisterRequest.getUsername()).isEqualTo(userArgumentCaptor.getValue().getUsername());
+        assertThat(testUserRegisterRequest.getPassword()).isEqualTo(userArgumentCaptor.getValue().getPassword());
     }
 
     @Test

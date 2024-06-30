@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.UserMapper;
-import dev.thural.quietspace.model.request.UserRequest;
+import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -122,11 +122,11 @@ class UserControllerIT {
     @Test
     void testUpdateExistingUser() {
         User user = userRepository.findUserEntityByEmail("tural@email.com").orElseThrow();
-        UserRequest userRequest = userMapper.userEntityToRequest(user);
+        UserRegisterRequest userRegisterRequest = userMapper.userEntityToRequest(user);
         final String updatedName = "updatedName";
-        userRequest.setUsername(updatedName);
+        userRegisterRequest.setUsername(updatedName);
 
-        ResponseEntity<?> response = userController.patchUser(userRequest);
+        ResponseEntity<?> response = userController.patchUser(userRegisterRequest);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
 
         User updatedUser = userRepository.findById(user.getId()).orElse(null);
@@ -137,7 +137,7 @@ class UserControllerIT {
     @WithUserDetails("tural@email.com")
     @Test
     void testUpdateNotFound() {
-        assertThrows(UserNotFoundException.class, () -> userController.patchUser(UserRequest.builder().build()));
+        assertThrows(UserNotFoundException.class, () -> userController.patchUser(UserRegisterRequest.builder().build()));
     }
 
     @WithUserDetails("tural@email.com")

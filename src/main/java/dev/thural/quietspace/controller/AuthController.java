@@ -1,6 +1,6 @@
 package dev.thural.quietspace.controller;
 
-import dev.thural.quietspace.model.request.UserRequest;
+import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.request.LoginRequest;
 import dev.thural.quietspace.model.response.AuthResponse;
 import dev.thural.quietspace.service.AuthService;
@@ -17,7 +17,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    ResponseEntity<?> signupUser(@Validated @RequestBody UserRequest user) {
+    ResponseEntity<?> signupUser(@Validated @RequestBody UserRegisterRequest user) {
         AuthResponse authResponse = authService.register(user);
         return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
     }

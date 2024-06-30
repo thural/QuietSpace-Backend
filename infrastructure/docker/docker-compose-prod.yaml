@@ -2,12 +2,11 @@ version: '3.8'
 services:
 
   quietspace-monolith-db:
-    container_name: ${DB_HOST_NAME}
     image: mysql:8.0
     restart: on-failure
     volumes:
       - quietspace_monolith_data:/var/lib/mysql
-      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
       #      - ./mysql:/var/lib/mysql (for in folder data storage)
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
@@ -22,13 +21,12 @@ services:
   quietspace-monolith:
     build:
       context: ../..
-      dockerfile: buildfiles/prod/Dockerfile
+      dockerfile: ./buildfiles/prod/Dockerfile
     image: thural/quietspace:monolith
-    container_name: ${SERVER_HOST_NAME}
     depends_on:
       - quietspace-monolith-db
     env_file:
-      - .env
+      - ./.env
     environment:
       DB_USER_PASSWORD: ${DB_USER_PASSWORD}
       DB_USER_USERNAME: ${DB_USER_USERNAME}

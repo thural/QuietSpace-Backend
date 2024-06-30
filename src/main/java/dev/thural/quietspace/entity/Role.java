@@ -8,6 +8,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Getter
@@ -38,4 +39,15 @@ public class Role {
     @LastModifiedDate
     @Column(insertable = false)
     private LocalDateTime lastModifiedDate;
+
+    @PrePersist
+    private void onCreate() {
+        createdDate = LocalDateTime.now();
+        lastModifiedDate = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    private void onUpdate() {
+        lastModifiedDate = LocalDateTime.now();
+    }
 }

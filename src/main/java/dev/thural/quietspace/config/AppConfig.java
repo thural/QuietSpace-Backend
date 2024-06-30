@@ -1,14 +1,18 @@
 package dev.thural.quietspace.config;
 
+import dev.thural.quietspace.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
@@ -20,14 +24,24 @@ import java.util.Collections;
 
 @Configuration
 @RequiredArgsConstructor
-public class BeansConfig {
+@Slf4j
+public class AppConfig {
+    private final UserRepository userRepository;
 
-    private final UserDetailsService userDetailsService;
+    @Bean
+    @Primary
+    public UserDetailsService userDetailsService() {
+        return username -> {
+            log.info("username in user details method: {}", username);
+            return userRepository.findUserByUsername(username).orElseThrow(
+                    () -> new UsernameNotFoundException("user not found with the email"));
+        };
+    }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setUserDetailsService(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
@@ -38,21 +52,11 @@ public class BeansConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public ApplicationAuditAware auditorAware() {
-        return new ApplicationAuditAware();
-    }
-
-    @Bean
     public CorsFilter corsFilter() {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         final CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+        config.setAllowedOrigins(Collections.singletonList("http://localhost:5000"));
         config.setAllowedHeaders(Arrays.asList(
                 HttpHeaders.ORIGIN,
                 HttpHeaders.CONTENT_TYPE,
@@ -68,7 +72,10 @@ public class BeansConfig {
         ));
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
-
     }
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }

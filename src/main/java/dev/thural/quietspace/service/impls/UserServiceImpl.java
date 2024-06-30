@@ -3,7 +3,7 @@ package dev.thural.quietspace.service.impls;
 import dev.thural.quietspace.entity.Token;
 import dev.thural.quietspace.exception.UnauthorizedException;
 import dev.thural.quietspace.exception.UserNotFoundException;
-import dev.thural.quietspace.model.request.UserRequest;
+import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.utils.PagingProvider;
@@ -119,24 +119,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(UserRequest userRequest) {
-        return userRepository.save(userMapper.userRequestToEntity(userRequest));
+    public User createUser(UserRegisterRequest userRegisterRequest) {
+        return userRepository.save(userMapper.userRequestToEntity(userRegisterRequest));
     }
 
     @Override
-    public UserResponse patchUser(UserRequest userRequest) {
+    public UserResponse patchUser(UserRegisterRequest userRegisterRequest) {
 
         boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains("ADMIN");
         // TODO: use enum types fot authorities
         User loggedUser = getLoggedUser();
 
-        if (!isAdmin && !userRequest.getEmail().equals(loggedUser.getEmail()))
+        if (!isAdmin && !userRegisterRequest.getEmail().equals(loggedUser.getEmail()))
             throw new UnauthorizedException("logged user has no access to requested resource");
 
-        if (StringUtils.hasText(userRequest.getUsername()))
-            loggedUser.setUsername(userRequest.getUsername());
-        if (StringUtils.hasText(userRequest.getEmail()))
-            loggedUser.setEmail(userRequest.getEmail());
+        if (StringUtils.hasText(userRegisterRequest.getUsername()))
+            loggedUser.setUsername(userRegisterRequest.getUsername());
+        if (StringUtils.hasText(userRegisterRequest.getEmail()))
+            loggedUser.setEmail(userRegisterRequest.getEmail());
 
         return userMapper.userEntityToResponse(userRepository.save(loggedUser));
     }
