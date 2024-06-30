@@ -3,8 +3,8 @@ spring:
     default: default
     active: ${ACTIVE_PROFILE}
   mail:
-    host: localhost
-    port: 1025
+    host: ${MAILDEV_HOST}
+    port: ${MAILDEV_PORT}}
     username: thural
     password: thural
     properties:
@@ -27,7 +27,4 @@ spring:
           expiration: 604800000 # 7 days
     mailing:
       frontend:
-        activation-url: http://localhost:5000/activate-account
-    file:
-      uploads:
-        photos-output-path: ./uploads
+        activation-url: http://${FRONTEND_HOST}:${FRONTEND_PORT}/activate-account

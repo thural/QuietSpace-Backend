@@ -16,7 +16,7 @@ services:
     networks:
       - monolith-network
     ports:
-      - ${EXP_DB_PORT_NUMBER}:${DB_PORT_NUMBER}
+      - ${DB_PORT_NUMBER}:"3306"
 
   quietspace-monolith:
     build:
@@ -39,14 +39,24 @@ services:
     networks:
       - monolith-network
     ports:
-      - ${SERVER_PORT_NUMBER}:${SERVER_PORT_NUMBER}
+      - ${SERVER_PORT_NUMBER}:"8080"
+
+  quietspace-frontend:
+    image: thural/quietspace:frontend
+    env_file:
+      - ./.env
+    networks:
+      - monolith-network
+    ports:
+      - ${FRONTEND_PORT}:"80"
 
   mail-dev:
-    container_name: mail-dev-bsn
     image: maildev/maildev
+    networks:
+      - monolith-network
     ports:
-      - 1080:1080
-      - 1025:1025
+      - "1080:1080"
+      - ${MAILDEV_PORT}:"1025"
 
 volumes:
   quietspace_monolith_data:
