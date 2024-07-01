@@ -1,11 +1,14 @@
 spring:
+  application:
+    urls:
+      frontend: "http://localhost:5000"
   devtools:
     livereload.enabled: true
     restart:
       enabled: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/quietspace
+    url: jdbc:mysql://0.0.0.0:3306/quietspace
     username: ${DB_USER_USERNAME}
     password: ${DB_USER_PASSWORD}
   jpa:
@@ -15,7 +18,7 @@ spring:
         show_sql: true
         format_sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     database: mysql
     open-in-view: true
     show-sql: true

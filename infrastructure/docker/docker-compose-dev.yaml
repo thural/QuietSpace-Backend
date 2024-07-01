@@ -14,12 +14,12 @@ services:
     networks:
       - monolith-network
     ports:
-      - ${DB_PORT_NUMBER}:"3306"
+      - "3306:3306"
 
   quietspace-monolith-dev:
     build:
       context: ../..
-      dockerfile: dev/Dockerfile
+      dockerfile: ./infrastructure/docker/buildfiles/dev/Dockerfile
     image: thural/quietspace:monolith-dev
     depends_on:
       - quietspace-monolith-db
@@ -28,7 +28,7 @@ services:
     networks:
       - monolith-network
     ports:
-      - ${SERVER_PORT_NUMBER}:"8080"
+      - "8080:8080"
     volumes:
       - ./:/app
       - /target
@@ -39,7 +39,7 @@ services:
       - monolith-network
     ports:
       - "1080:1080"
-      - ${MAILDEV_PORT}:"1025"
+      - "1025:1025"
 
 volumes:
   quietspace_monolith_data:
@@ -48,3 +48,4 @@ networks:
   monolith-network:
     name: monolith-network
     driver: bridge
+    external: true
