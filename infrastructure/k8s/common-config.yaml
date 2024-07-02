@@ -3,4 +3,5 @@ kind: ConfigMap
 metadata:
   name: common-config
 data:
-  mysql-url: mysql-service
+  mysql-url: "mysql-service"
+  backend-url: "backend-service"

@@ -17,6 +17,10 @@ spec:
           image: mysql:8.0
           ports:
             - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
           env:
             - name: MYSQL_USER
               valueFrom:
@@ -28,6 +32,10 @@ spec:
                 secretKeyRef:
                   name: common-secret
                   key: BACKEND_DB_USER-PASSWORD
+      volumes:
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: mysql-pvc
 ---
 
 apiVersion: v1
@@ -39,5 +47,6 @@ spec:
     app: mysql
   ports:
     - protocol: TCP
-      port: 3307
+      port: 3306
       targetPort: 3306
+

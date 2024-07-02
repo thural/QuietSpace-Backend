@@ -16,7 +16,7 @@ spec:
         - name: frontend
           image: thural/quietspace:frontend
           ports:
-            - containerPort: 5000
+            - containerPort: 80
           envFrom:
             - configMapRef:
                 name: common-config
@@ -27,11 +27,11 @@ kind: Service
 metadata:
   name: frontend-service
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: frontend
   ports:
     - protocol: TCP
       port: 5000
-      targetPort: 5000
+      targetPort: 80
       nodePort: 30000

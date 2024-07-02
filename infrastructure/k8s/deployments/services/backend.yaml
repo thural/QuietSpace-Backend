@@ -16,7 +16,7 @@ spec:
         - name: backend
           image: thural/quietspace:monolith
           ports:
-            - containerPort: 8181
+            - containerPort: 8080
           env:
             - name: DB_USER_USERNAME
               valueFrom:
@@ -45,6 +45,6 @@ spec:
     app: backend
   ports:
     - protocol: TCP
-      port: 8181
-      targetPort: 8181
+      port: 8080
+      targetPort: 8080
       nodePort: 32000
