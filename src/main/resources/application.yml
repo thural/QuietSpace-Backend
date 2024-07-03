@@ -4,7 +4,7 @@ spring:
     active: ${ACTIVE_PROFILE}
   mail:
     host: ${MAILDEV_HOST}
-    port: ${MAILDEV_PORT}}
+    port: ${MAILDEV_PORT}
     username: thural
     password: thural
     properties:
@@ -21,10 +21,10 @@ spring:
     name: quietspace-backend
     security:
       jwt:
-        secret-key: ${SECRET_KEY}
+        secret-key: ${JWT_SECRET_KEY}
         expiration: 86400000 # a day
         refresh-token:
           expiration: 604800000 # 7 days
     mailing:
       frontend:
-        activation-url: http://${FRONTEND_HOST}:${FRONTEND_PORT}/activate-account
+        activation-url: ${ACTIVATION_URL}

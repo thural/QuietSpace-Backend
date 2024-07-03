@@ -15,24 +15,14 @@ spec:
       containers:
         - name: backend
           image: thural/quietspace:monolith
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
-          env:
-            - name: DB_USER_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: common-secret
-                  key: BACKEND_DB_USER
-            - name: DB_USER_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: common-secret
-                  key: BACKEND_DB_USER-PASSWORD
-            - name: DB_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: common-config
-                  key: mysql-url
+          envFrom:
+            - configMapRef:
+                name: common-config
+            - secretRef:
+                name: common-secret
 ---
 
 apiVersion: v1
@@ -47,4 +37,4 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
-      nodePort: 32000
+      nodePort: 31000

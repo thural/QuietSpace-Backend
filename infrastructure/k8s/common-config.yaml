@@ -5,3 +5,14 @@ metadata:
 data:
   mysql-url: "mysql-service"
   backend-url: "backend-service"
+
+  DB_URL: "jdbc:mysql://mysql-service/quietspace"
+  FRONTEND_URL: "http://frontend-service"
+  ACTIVATION_URL: "http://frontend-service/activate-account"
+
+  ACTIVE_PROFILE: "k8s"
+  BACKEND_PORT: "8080"
+  MAILDEV_PORT: "1025"
+  MAILDEV_HOST: "mail-dev"
+
+  EMAIL_ADDRESS: "tural.musaibov@gmail.com"

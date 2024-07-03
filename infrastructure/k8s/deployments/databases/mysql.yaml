@@ -22,16 +22,26 @@ spec:
             - name: mysql-data
               mountPath: /var/lib/mysql
           env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  key: MYSQL_DATABASE
+                  name: common-secret
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: MYSQL_ROOT_PASSWORD
+                  name: common-secret
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
                   name: common-secret
-                  key: BACKEND_DB_USER
+                  key: MYSQL_USER
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: common-secret
-                  key: BACKEND_DB_USER-PASSWORD
+                  key: MYSQL_PASSWORD
       volumes:
         - name: mysql-data
           persistentVolumeClaim:

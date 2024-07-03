@@ -62,7 +62,7 @@ public class AppConfig {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         final CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Collections.singletonList(FRONTEND_URL));
+        config.setAllowedOriginPatterns(Collections.singletonList("*"));
         config.setAllowedHeaders(Arrays.asList(
                 HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
                 HttpHeaders.CACHE_CONTROL,
