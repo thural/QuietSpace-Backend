@@ -48,11 +48,9 @@ class UserServiceImplTest {
     @InjectMocks
     UserServiceImpl userService;
 
-    UUID userId;
-
-    User user;
-
-    UserRegisterRequest registerRequest;
+    private UUID userId;
+    private User user;
+    private UserRegisterRequest registerRequest;
 
     @BeforeEach
     void initMockData() {
