@@ -3,9 +3,12 @@ package dev.thural.quietspace.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
+import dev.thural.quietspace.repository.RoleRepository;
 import dev.thural.quietspace.repository.TokenRepository;
+import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.CommentService;
 import dev.thural.quietspace.service.PostService;
+import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,6 +60,12 @@ public class UserControllerTest {
     PostService postService;
     @MockBean
     CommentService commentService;
+    @MockBean
+    ReactionService reactionService;
+    @MockBean
+    JwtService jwtService;
+    @MockBean
+    RoleRepository roleRepository;
 
     @InjectMocks
     UserController userController;
@@ -75,11 +84,18 @@ public class UserControllerTest {
                 .role("user")
                 .email("user@email.com")
                 .build();
+
+        this.testUserResponse = UserResponse.builder()
+                .id(UUID.randomUUID())
+                .username("user")
+                .email("user@email.com")
+                .role("USER")
+                .build();
     }
 
     @Test
     void getUserById() throws Exception {
-        given(userService.getUserResponseById(any())).willReturn(Optional.of(testUserResponse));
+        given(userService.getUserResponseById(any())).willReturn(Optional.ofNullable(testUserResponse));
 
         mockMvc.perform(get(UserController.USER_PATH + "/" + testUserResponse.getId())
                         .accept(MediaType.APPLICATION_JSON))
@@ -94,11 +110,13 @@ public class UserControllerTest {
         testUserRegisterRequest.setUsername("testUserUpdated");
         testUserRegisterRequest.setPassword("testPasswordUpdated");
 
+        String userBodyJson = objectMapper.writeValueAsString(testUserRegisterRequest);
+
         mockMvc.perform(patch(UserController.USER_PATH, testUserRegisterRequest)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testUserRegisterRequest)))
-                .andExpect(status().isNoContent());
+                        .content(userBodyJson))
+                .andExpect(status().isOk());
 
         verify(userService).patchUser(userArgumentCaptor.capture());
 

@@ -17,15 +17,4 @@ public class QuietspaceApplication {
         SpringApplication.run(QuietspaceApplication.class, args);
     }
 
-    @Bean
-    public CommandLineRunner runner(RoleRepository roleRepository) {
-        return args -> {
-            if (roleRepository.findByName(RoleType.USER.toString()).isEmpty()) {
-                roleRepository.save(Role.builder()
-                        .name(RoleType.USER.toString())
-                        .build());
-            }
-        };
-    }
-
 }

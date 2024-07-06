@@ -22,6 +22,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/posts")
 public class PostController {
 
+    public static final String POST_PATH = "api/v1/posts";
     public static final String POST_PATH_ID = "/{postId}";
 
     private final PostService postService;
