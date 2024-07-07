@@ -59,18 +59,15 @@ public class FollowServiceImpl implements FollowService {
         }
 
         User followingUser = userRepository.findById(user.getId())
-                    .orElseThrow(() -> new UserNotFoundException("user not found with id: " + user.getId()));
+                .orElseThrow(() -> new UserNotFoundException("user not found with id: " + user.getId()));
 
         User followedUser = userRepository.findById(followedUserId)
-                    .orElseThrow(() -> new UserNotFoundException("user not found with id: " + followedUserId));
-
-        System.out.println("FOLLOWED user id: " + followedUser.getId());
-        System.out.println("FOLLOWING user id: " + followingUser.getId());
+                .orElseThrow(() -> new UserNotFoundException("user not found with id: " + followedUserId));
 
         Follow newFollowEntity = Follow.builder()
-                    .follower(followingUser)
-                    .following(followedUser)
-                    .build();
+                .follower(followingUser)
+                .following(followedUser)
+                .build();
         followRepository.save(newFollowEntity);
     }
 

@@ -15,8 +15,11 @@ import dev.thural.quietspace.utils.enums.RoleType;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -125,19 +128,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse patchUser(UserRegisterRequest userRegisterRequest) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains("ADMIN");
-        // TODO: use enum types fot authorities
+        log.info("granted authorities in patchUser: {}", auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .reduce(" ", String::concat));
+
+        boolean hasAdminRole = auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_".concat(RoleType.ADMIN.toString())));
+
         User loggedUser = getLoggedUser();
-
-        if (!isAdmin && !userRegisterRequest.getEmail().equals(loggedUser.getEmail()))
+        if (!hasAdminRole && !userRegisterRequest.getEmail().equals(loggedUser.getEmail()))
             throw new UnauthorizedException("logged user has no access to requested resource");
 
-        if (StringUtils.hasText(userRegisterRequest.getUsername()))
-            loggedUser.setUsername(userRegisterRequest.getUsername());
-        if (StringUtils.hasText(userRegisterRequest.getEmail()))
-            loggedUser.setEmail(userRegisterRequest.getEmail());
-
+        BeanUtils.copyProperties(loggedUser, userRegisterRequest);
         return userMapper.userEntityToResponse(userRepository.save(loggedUser));
     }
 

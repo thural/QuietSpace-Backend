@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface CommentService {
 
-    Page<CommentResponse> getCommentsByPost(UUID postId, Integer pageNumber, Integer pageSize);
+    Page<CommentResponse> getCommentsByPostId(UUID postId, Integer pageNumber, Integer pageSize);
 
     CommentResponse createComment(CommentRequest comment);
 
@@ -23,5 +23,5 @@ public interface CommentService {
 
     CommentResponse patchComment(UUID id, CommentRequest comment);
 
-    Page<CommentResponse> getCommentsByUser(UUID userId, Integer pageNumber, Integer pageSize);
+    Page<CommentResponse> getCommentsByUserId(UUID userId, Integer pageNumber, Integer pageSize);
 }

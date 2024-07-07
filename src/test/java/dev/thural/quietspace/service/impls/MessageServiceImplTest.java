@@ -3,7 +3,6 @@ package dev.thural.quietspace.service.impls;
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.mapper.MessageMapper;
 import dev.thural.quietspace.mapper.MessageMapperImpl;
 import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.MessageResponse;
@@ -17,9 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
@@ -39,7 +36,7 @@ class MessageServiceImplTest {
     private ChatRepository chatRepository;
     @Mock
     private UserService userService;
-    
+
     @Spy
     private MessageMapperImpl messageMapper;
 

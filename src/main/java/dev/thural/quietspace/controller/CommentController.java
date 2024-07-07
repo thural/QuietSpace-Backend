@@ -33,7 +33,7 @@ public class CommentController {
             @RequestParam(required = false) Integer pageNumber,
             @RequestParam(required = false) Integer pageSize
     ) {
-        return commentService.getCommentsByPost(postId, pageNumber, pageSize);
+        return commentService.getCommentsByPostId(postId, pageNumber, pageSize);
     }
 
     @GetMapping("/user/{userId}")
@@ -42,7 +42,7 @@ public class CommentController {
             @RequestParam(required = false) Integer pageNumber,
             @RequestParam(required = false) Integer pageSize
     ) {
-        return commentService.getCommentsByUser(userId, pageNumber, pageSize);
+        return commentService.getCommentsByUserId(userId, pageNumber, pageSize);
     }
 
     @GetMapping(COMMENT_PATH_ID + "/replies")

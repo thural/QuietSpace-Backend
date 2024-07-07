@@ -2,7 +2,7 @@ package dev.thural.quietspace.service.impls;
 
 import dev.thural.quietspace.entity.Token;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.mapper.UserMapper;
+import dev.thural.quietspace.mapper.UserMapperImpl;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.TokenRepository;
@@ -11,7 +11,6 @@ import dev.thural.quietspace.utils.PagingProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -43,7 +42,7 @@ class UserServiceImplTest {
     SecurityContext securityContext;
 
     @Spy
-    private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+    private UserMapperImpl userMapper;
 
     @InjectMocks
     UserServiceImpl userService;

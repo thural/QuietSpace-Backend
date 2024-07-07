@@ -14,6 +14,7 @@ import dev.thural.quietspace.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
@@ -26,6 +27,7 @@ import java.util.UUID;
 import static dev.thural.quietspace.utils.PagingProvider.BY_CREATED_DATE_ASC;
 import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
@@ -36,13 +38,13 @@ public class CommentServiceImpl implements CommentService {
     private final PostRepository postRepository;
 
     @Override
-    public Page<CommentResponse> getCommentsByPost(UUID postId, Integer pageNumber, Integer pageSize) {
+    public Page<CommentResponse> getCommentsByPostId(UUID postId, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, BY_CREATED_DATE_ASC);
         return commentRepository.findAllByPostId(postId, pageRequest).map(commentMapper::commentEntityToResponse);
     }
 
     @Override
-    public Page<CommentResponse> getCommentsByUser(UUID userId, Integer pageNumber, Integer pageSize) {
+    public Page<CommentResponse> getCommentsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
 
         if (!userService.getLoggedUser().getId().equals(userId))
             throw new UnauthorizedException("user has no access to requested resource");
@@ -97,8 +99,9 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(EntityNotFoundException::new);
 
         if (existingComment.getUser().getId().equals(loggedUser.getId())) {
-            commentRepository.deleteAllByParentId(commentId);
-            System.out.println("DELETE COMMENT WAS CALLED");
+            log.info("deleting comment {}", existingComment.getId());
+            if (existingComment.getParentId() != null)
+                commentRepository.deleteAllByParentId(existingComment.getParentId());
             commentRepository.deleteById(commentId);
         } else throw new AccessDeniedException("comment author does not belong to current user");
     }
