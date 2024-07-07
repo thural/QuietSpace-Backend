@@ -44,15 +44,15 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public void deleteChatById(UUID chatId) {
-        getChatById(chatId);
-        if (chatRepository.existsById(chatId)) chatRepository.deleteById(chatId);
+        findChatEntityById(chatId);
+        chatRepository.deleteById(chatId);
     }
 
 
     @Override
     public ChatResponse addMemberWithId(UUID memberId, UUID chatId) {
 
-        Chat foundChat = findChatById(chatId);
+        Chat foundChat = findChatEntityById(chatId);
         User foundMember = userService.getUserById(memberId)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
         List<User> members = foundChat.getUsers();
@@ -68,14 +68,13 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void removeMemberWithId(UUID memberId, UUID chatId) {
 
-        Chat foundChat = findChatById(chatId);
+        Chat foundChat = findChatEntityById(chatId);
         User foundMember = getUserById(memberId);
         List<User> members = foundChat.getUsers();
 
         members.remove(foundMember);
         foundChat.setUsers(members);
         chatRepository.save(foundChat);
-
     }
 
 
@@ -101,7 +100,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatResponse getChatById(UUID chatId) {
-        Chat foundChat = findChatById(chatId);
+        Chat foundChat = findChatEntityById(chatId);
         return chatMapper.chatEntityToResponse(foundChat);
     }
 
@@ -112,7 +111,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
 
-    private Chat findChatById(UUID chatId) {
+    public Chat findChatEntityById(UUID chatId) {
         User loggedUser = userService.getLoggedUser();
 
         Chat foundChat = chatRepository.findById(chatId)
