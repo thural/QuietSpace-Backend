@@ -59,7 +59,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public Page<MessageResponse> getMessagesByChatId(Integer pageNumber, Integer pageSize, UUID chatId) {
-        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize,null);
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         Page<Message> messagePage = messageRepository.findAllByChatId(chatId, pageRequest);
         return messagePage.map(messageMapper::messageEntityToDto);
     }

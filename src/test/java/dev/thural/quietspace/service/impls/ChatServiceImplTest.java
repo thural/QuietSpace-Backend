@@ -83,7 +83,8 @@ public class ChatServiceImplTest {
         when(userService.getLoggedUser()).thenReturn(user);
         when(chatRepository.findById(chat.getId())).thenReturn(Optional.of(chat));
 
-        chatService.findChatEntityById(chat.getId());
+        Chat foundChat = chatService.findChatEntityById(chat.getId());
+        assertThat(foundChat).isEqualTo(chat);
 
         verify(userService, times(1)).getLoggedUser();
         verify(chatRepository, times(1)).findById(chat.getId());
@@ -96,7 +97,6 @@ public class ChatServiceImplTest {
         when(chatMapper.chatEntityToResponse(any(Chat.class))).thenReturn(chatResponse);
 
         List<ChatResponse> chats = chatService.getChatsByUserId(userId);
-
         assertThat(chats).isEqualTo(List.of(chatResponse));
 
         verify(userService, times(1)).getLoggedUser();
@@ -119,7 +119,6 @@ public class ChatServiceImplTest {
     void testAddMember() {
         when(userService.getLoggedUser()).thenReturn(user);
         when(chatRepository.findById(chat.getId())).thenReturn(Optional.of(chat));
-
         when(userService.getUserById(memberId)).thenReturn(Optional.of(member));
         when(chatRepository.save(any(Chat.class))).thenReturn(chat);
         when(chatMapper.chatEntityToResponse(chat)).thenReturn(chatResponse);
@@ -153,11 +152,11 @@ public class ChatServiceImplTest {
         when(chatMapper.chatRequestToEntity(chatRequest)).thenReturn(chat);
         when(chatRepository.save(chat)).thenReturn(chat);
 
-        chatService.createChat(chatRequest);
+        ChatResponse createdChat = chatService.createChat(chatRequest);
+        assertThat(createdChat).isEqualTo(chatResponse);
 
         verify(chatRepository, times(1)).findAllByUsersIn(userList);
         verify(chatRepository, times(1)).save(chat);
     }
 
 }
-
