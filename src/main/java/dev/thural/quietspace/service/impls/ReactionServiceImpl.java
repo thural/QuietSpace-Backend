@@ -50,27 +50,15 @@ public class ReactionServiceImpl implements ReactionService {
     }
 
     @Override
-    public List<ReactionResponse> getLikesByContentId(UUID contentId) {
+    public List<ReactionResponse> getReactionsByContentIdAndLikeType(UUID contentId, LikeType likeType) {
         return reactionRepository.findAllByContentIdAndLikeType(contentId, LikeType.LIKE)
                 .stream().map(reactionMapper::reactionEntityToResponse)
                 .toList();
     }
 
     @Override
-    public List<ReactionResponse> getDislikesByContentId(UUID contentId) {
-        return reactionRepository.findAllByContentIdAndLikeType(contentId, LikeType.DISLIKE)
-                .stream().map(reactionMapper::reactionEntityToResponse)
-                .toList();
-    }
-
-    @Override
-    public Integer getLikeCountByContentId(UUID contentId) {
+    public Integer getLikeCountByContentIdAndLikeType(UUID contentId, LikeType likeType) {
         return reactionRepository.countByContentIdAndLikeType(contentId, LikeType.LIKE);
-    }
-
-    @Override
-    public Integer getDislikeCountByContentId(UUID contentId) {
-        return reactionRepository.countByContentIdAndLikeType(contentId, LikeType.DISLIKE);
     }
 
     @Override

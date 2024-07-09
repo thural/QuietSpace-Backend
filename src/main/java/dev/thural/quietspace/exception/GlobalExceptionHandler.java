@@ -1,7 +1,6 @@
-package dev.thural.quietspace.controller;
+package dev.thural.quietspace.exception;
 
 import dev.thural.quietspace.model.response.ErrorResponse;
-import dev.thural.quietspace.exception.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,7 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
-public class CustomExceptionHandler {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<?> handleNotFoundException() {

@@ -1,6 +1,7 @@
 package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.model.request.UserRegisterRequest;
+import dev.thural.quietspace.model.response.FollowResponse;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.model.response.UserResponse;
@@ -22,9 +23,12 @@ public class UserController {
 
     public static final String USER_PATH = "/api/v1/users";
     public static final String USER_PATH_ID = "/{userId}";
+    public static final String FOLLOW_PATH_ID = "follow/{userId}";
+    public static final String FOLLOW_USER_TOGGLE = FOLLOW_PATH_ID + "/toggle-follow";
 
     private final UserService userService;
     private final PostService postService;
+    private final FollowService followService;
     private final ReactionService reactionService;
 
     @GetMapping
@@ -81,6 +85,28 @@ public class UserController {
             @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {
         return postService.getPostsByUserId(userId, pageNumber, pageSize);
+    }
+
+    @PostMapping(FOLLOW_USER_TOGGLE)
+    ResponseEntity<?> toggleFollow(@PathVariable UUID userId) {
+        followService.toggleFollow(userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/followings")
+    Page<FollowResponse> listFollowings(
+            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+            @RequestParam(name = "page-size", required = false) Integer pageSize
+    ) {
+        return followService.listFollowings(pageNumber, pageSize);
+    }
+
+    @GetMapping("/followers")
+    Page<FollowResponse> listFollowers(
+            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+            @RequestParam(name = "page-size", required = false) Integer pageSize
+    ) {
+        return followService.listFollowers(pageNumber, pageSize);
     }
 
     @GetMapping(USER_PATH_ID + "/post-likes")

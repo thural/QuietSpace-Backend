@@ -1,4 +1,4 @@
-package dev.thural.quietspace.controller;
+package dev.thural.quietspace.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
