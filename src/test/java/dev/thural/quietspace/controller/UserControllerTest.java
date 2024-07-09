@@ -6,23 +6,18 @@ import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.RoleRepository;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
-import dev.thural.quietspace.service.CommentService;
-import dev.thural.quietspace.service.PostService;
-import dev.thural.quietspace.service.ReactionService;
-import dev.thural.quietspace.service.UserService;
+import dev.thural.quietspace.service.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -30,62 +25,65 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@WebMvcTest(UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
+@WithMockUser(username = "user", roles = "USER", authorities = "USER, ADMIN")
 public class UserControllerTest {
 
-    @Autowired
-    ObjectMapper objectMapper;
-    @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Captor
     ArgumentCaptor<UUID> uuidArgumentCaptor;
     @Captor
     ArgumentCaptor<UserRegisterRequest> userArgumentCaptor;
 
-    @MockBean
+    @Mock
     UserService userService;
-    @MockBean
+    @Mock
     TokenRepository tokenRepository;
-    @MockBean
+    @Mock
     PostService postService;
-    @MockBean
+    @Mock
     CommentService commentService;
-    @MockBean
+    @Mock
     ReactionService reactionService;
-    @MockBean
+    @Mock
     JwtService jwtService;
-    @MockBean
+    @Mock
     RoleRepository roleRepository;
+    @Mock
+    FollowService followService;
+
+    @Spy
+    ObjectMapper objectMapper;
 
     @InjectMocks
     UserController userController;
 
     UUID userId;
-    UserRegisterRequest testUserRegisterRequest;
-    UserResponse testUserResponse;
+    UserRegisterRequest registerRequest;
+    UserResponse userResponse;
 
 
     @BeforeEach
     void setUp() {
+
+        this.mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
+
         this.userId = UUID.randomUUID();
 
-        this.testUserRegisterRequest = UserRegisterRequest.builder()
+        this.registerRequest = UserRegisterRequest.builder()
                 .username("user")
                 .role("user")
                 .email("user@email.com")
                 .build();
 
-        this.testUserResponse = UserResponse.builder()
+        this.userResponse = UserResponse.builder()
                 .id(UUID.randomUUID())
                 .username("user")
                 .email("user@email.com")
@@ -94,39 +92,77 @@ public class UserControllerTest {
     }
 
     @Test
-    void getUserById() throws Exception {
-        given(userService.getUserResponseById(any())).willReturn(Optional.ofNullable(testUserResponse));
+    @WithAnonymousUser
+    void listUsersPaginated() throws Exception {
 
-        mockMvc.perform(get(UserController.USER_PATH + "/" + testUserResponse.getId())
+        mockMvc.perform(get(UserController.USER_PATH)
+                        .param("page-number", "0")
+                        .param("page-size", "10")
+                        .param("username", "user"))
+                .andExpect(status().isOk());
+
+        verify(userService, times(1)).listUsers("user", 0, 10);
+    }
+
+    @Test
+    void listUsersPaginatedQuery() throws Exception {
+
+        mockMvc.perform(get(UserController.USER_PATH + "/search")
+                        .param("query", "user")
+                        .param("page-number", "0")
+                        .param("page-size", "10"))
+                .andExpect(status().isOk());
+
+        verify(userService).listUsersByQuery("user", 0, 10);
+    }
+
+
+    @Test
+    void getUserById() throws Exception {
+        when(userService.getUserResponseById(any())).thenReturn(Optional.of(userResponse));
+
+        mockMvc.perform(get(UserController.USER_PATH + "/" + userResponse.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id", is(testUserResponse.getId().toString())))
-                .andExpect(jsonPath("$.username", is(testUserResponse.getUsername())));
+                .andExpect(jsonPath("$.id", is(userResponse.getId().toString())))
+                .andExpect(jsonPath("$.username", is(userResponse.getUsername())));
+
+        verify(userService, times(1)).getUserResponseById(uuidArgumentCaptor.capture());
+    }
+
+    @Test
+    void deleteUserById() throws Exception {
+        doNothing().when(userService).deleteUser(any(), any());
+
+        mockMvc.perform(delete(UserController.USER_PATH + "/" + userId)
+                        .requestAttr("Authorization", "Bearer dhj3h32hd2k")
+                )
+                .andExpect(status().isNoContent());
     }
 
     @Test
     void patchUser() throws Exception {
-        testUserRegisterRequest.setUsername("testUserUpdated");
-        testUserRegisterRequest.setPassword("testPasswordUpdated");
+        registerRequest.setUsername("testUserUpdated");
+        registerRequest.setPassword("testPasswordUpdated");
 
-        String userBodyJson = objectMapper.writeValueAsString(testUserRegisterRequest);
+        String userBodyJson = objectMapper.writeValueAsString(registerRequest);
 
-        mockMvc.perform(patch(UserController.USER_PATH, testUserRegisterRequest)
+        mockMvc.perform(patch(UserController.USER_PATH, registerRequest)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(userBodyJson))
+                        .content(userBodyJson)
+                )
                 .andExpect(status().isOk());
 
         verify(userService).patchUser(userArgumentCaptor.capture());
 
-        assertThat(testUserRegisterRequest.getUsername()).isEqualTo(userArgumentCaptor.getValue().getUsername());
-        assertThat(testUserRegisterRequest.getPassword()).isEqualTo(userArgumentCaptor.getValue().getPassword());
+        assertThat(registerRequest.getUsername()).isEqualTo(userArgumentCaptor.getValue().getUsername());
+        assertThat(registerRequest.getPassword()).isEqualTo(userArgumentCaptor.getValue().getPassword());
     }
 
     @Test
     void userByIdNotFound() throws Exception {
-        given(userService.getUserResponseById(userId)).willReturn(Optional.empty());
 
         mockMvc.perform(get(UserController.USER_PATH + "/" + userId)
                         .accept(MediaType.APPLICATION_JSON)
@@ -135,5 +171,19 @@ public class UserControllerTest {
 
         verify(userService).getUserResponseById(uuidArgumentCaptor.capture());
     }
+
+    @Test
+    void getAuthenticatedUser() throws Exception {
+        when(userService.getLoggedUserResponse()).thenReturn(Optional.of(userResponse));
+
+        mockMvc.perform(get(UserController.USER_PATH + "/" + "profile")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.username", is(userResponse.getUsername())))
+                .andExpect(status().isOk());
+
+        verify(userService, times(1)).getLoggedUserResponse();
+    }
+
 
 }

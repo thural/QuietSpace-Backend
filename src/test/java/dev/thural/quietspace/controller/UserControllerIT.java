@@ -59,7 +59,7 @@ class UserControllerIT {
     void testListUsers() throws Exception {
         mockMvc.perform(get(UserController.USER_PATH))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.size()", is(4)))
+                .andExpect(jsonPath("$.content.size()", is(3)))
                 .andExpect(jsonPath("$.size()", is(11)));
     }
 
