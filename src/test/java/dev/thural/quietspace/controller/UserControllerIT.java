@@ -48,6 +48,7 @@ class UserControllerIT {
     ObjectMapper objectMapper;
     @Autowired
     WebApplicationContext wac;
+
     MockMvc mockMvc;
 
     @BeforeEach
@@ -80,8 +81,6 @@ class UserControllerIT {
                         .content(objectMapper.writeValueAsString(userResponse)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.length()", is(3))).andReturn();
-
-        System.out.println(result.getResponse().getContentAsString());
     }
 
     @Test
@@ -147,7 +146,7 @@ class UserControllerIT {
     void testDeleteUser() {
         User user = userRepository.findAll().get(0);
 
-        ResponseEntity<?> response = userController.deleteUser("auth header", user.getId());
+        ResponseEntity<?> response = userController.deleteUser(user.getId());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
         assertThat(userRepository.findById(user.getId())).isEmpty();

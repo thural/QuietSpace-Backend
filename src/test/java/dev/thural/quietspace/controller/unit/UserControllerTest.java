@@ -119,7 +119,7 @@ public class UserControllerTest {
 
     @Test
     void getUserById() throws Exception {
-        when(userService.getUserResponseById(any())).thenReturn(Optional.of(userResponse));
+        when(userService.getUserResponseById(uuidArgumentCaptor.capture())).thenReturn(Optional.of(userResponse));
 
         mockMvc.perform(get(UserController.USER_PATH + "/" + userResponse.getId())
                         .accept(MediaType.APPLICATION_JSON))
