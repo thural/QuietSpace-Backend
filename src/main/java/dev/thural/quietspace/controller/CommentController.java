@@ -21,6 +21,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/comments")
 public class CommentController {
 
+    public static final String COMMENT_PATH = "/api/v1/comments";
     public static final String COMMENT_PATH_ID = "/{commentId}";
 
     private final CommentService commentService;
@@ -30,8 +31,8 @@ public class CommentController {
     @GetMapping("/post/{postId}")
     Page<CommentResponse> getCommentsByPostId(
             @PathVariable UUID postId,
-            @RequestParam(required = false) Integer pageNumber,
-            @RequestParam(required = false) Integer pageSize
+            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+            @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {
         return commentService.getCommentsByPostId(postId, pageNumber, pageSize);
     }
@@ -39,8 +40,8 @@ public class CommentController {
     @GetMapping("/user/{userId}")
     Page<CommentResponse> getCommentsByUserId(
             @PathVariable UUID userId,
-            @RequestParam(required = false) Integer pageNumber,
-            @RequestParam(required = false) Integer pageSize
+            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+            @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {
         return commentService.getCommentsByUserId(userId, pageNumber, pageSize);
     }
@@ -48,8 +49,8 @@ public class CommentController {
     @GetMapping(COMMENT_PATH_ID + "/replies")
     Page<CommentResponse> getCommentRepliesById(
             @PathVariable UUID commentId,
-            @RequestParam(required = false) Integer pageNumber,
-            @RequestParam(required = false) Integer pageSize
+            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+            @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {
         return commentService.getRepliesByParentId(commentId, pageNumber, pageSize);
     }
