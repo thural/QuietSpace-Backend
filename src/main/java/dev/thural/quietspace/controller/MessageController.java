@@ -18,6 +18,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/messages")
 public class MessageController {
 
+    public static final String MESSAGE_PATH = "/api/v1/messages";
     public static final String MESSAGE_PATH_ID = "/{messageId}";
 
     private final MessageService messageService;

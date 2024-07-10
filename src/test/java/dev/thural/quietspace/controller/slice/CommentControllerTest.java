@@ -1,15 +1,13 @@
-package dev.thural.quietspace.controller;
+package dev.thural.quietspace.controller.slice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.thural.quietspace.controller.CommentController;
 import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.mapper.custom.CommentMapper;
 import dev.thural.quietspace.model.request.CommentRequest;
-import dev.thural.quietspace.model.request.PostRequest;
-import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
-import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.repository.CommentRepository;
 import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.repository.TokenRepository;
@@ -25,13 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.token.TokenService;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.*;
 
@@ -74,9 +68,6 @@ class CommentControllerTest {
     @Captor
     ArgumentCaptor<CommentRequest> commentRequestCaptor;
 
-    private PostRequest postRequest;
-    private VoteRequest voteRequest;
-    private PostResponse postResponse;
     private Comment comment;
     private CommentResponse commentResponse;
     private CommentRequest commentRequest;
@@ -98,25 +89,6 @@ class CommentControllerTest {
                 .id(UUID.randomUUID())
                 .user(user)
                 .text("sample text")
-                .build();
-
-        this.postRequest = PostRequest.builder()
-                .userId(user.getId())
-                .text("sample text")
-                .title("sample title")
-                .poll(null)
-                .build();
-
-        this.postResponse = PostResponse.builder()
-                .id(post.getId())
-                .text(post.getText())
-                .username(post.getUser().getUsername())
-                .title(post.getTitle())
-                .build();
-
-        this.voteRequest = VoteRequest.builder()
-                .postId(post.getId())
-                .userId(UUID.randomUUID())
                 .build();
 
         this.comment = Comment.builder()
