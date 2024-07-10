@@ -1,6 +1,5 @@
 package dev.thural.quietspace.service.impls;
 
-import dev.thural.quietspace.entity.Token;
 import dev.thural.quietspace.exception.UnauthorizedException;
 import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
@@ -105,20 +104,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(UUID userId, String authHeader) {
-        String token = authHeader.substring(7);
+    public void deleteUserById(UUID userId) {
         User loggedUser = getLoggedUser();
 
         if (!loggedUser.getRole().equals(RoleType.ADMIN.toString()) && !loggedUser.getId().equals(userId))
             throw new UnauthorizedException("user denied access to delete the resource");
 
         userRepository.deleteById(userId);
-
-        tokenRepository.save(Token.builder()
-                .token(token)
-                .email(loggedUser.getEmail())
-                .build()
-        );
     }
 
     @Override

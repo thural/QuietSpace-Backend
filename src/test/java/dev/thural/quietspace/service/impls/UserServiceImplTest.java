@@ -147,7 +147,7 @@ class UserServiceImplTest {
 
         SecurityContextHolder.setContext(securityContext);
 
-        userService.deleteUser(userId, "Bearer randomMockToken");
+        userService.deleteUserById(userId);
 
         verify(userRepository, times(1)).findUserByUsername(any());
         verify(userRepository, times(1)).deleteById(userId);

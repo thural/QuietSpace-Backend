@@ -60,9 +60,8 @@ public class UserController {
     }
 
     @DeleteMapping(USER_PATH_ID)
-    ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String authHeader,
-                                 @PathVariable UUID userId) {
-        userService.deleteUser(userId, authHeader);
+    ResponseEntity<?> deleteUser(@PathVariable UUID userId) {
+        userService.deleteUserById(userId);
         return ResponseEntity.noContent().build();
     }
 

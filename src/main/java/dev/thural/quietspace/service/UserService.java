@@ -21,7 +21,7 @@ public interface UserService {
 
     Optional<User> getUserById(UUID userId);
 
-    void deleteUser(UUID userId, String authHeader);
+    void deleteUserById(UUID userId);
 
     User createUser(UserRegisterRequest userRegisterRequest);
 

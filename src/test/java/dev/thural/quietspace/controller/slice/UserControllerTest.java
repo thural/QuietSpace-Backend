@@ -1,4 +1,4 @@
-package dev.thural.quietspace.controller.unit;
+package dev.thural.quietspace.controller.slice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.controller.UserController;
@@ -10,71 +10,63 @@ import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @AutoConfigureMockMvc(addFilters = false)
-@ExtendWith(MockitoExtension.class)
-@WithMockUser(username = "user", roles = "USER", authorities = "USER, ADMIN")
+@WebMvcTest(controllers = UserController.class)
 public class UserControllerTest {
 
+    @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    ObjectMapper objectMapper;
 
     @Captor
     ArgumentCaptor<UUID> uuidArgumentCaptor;
     @Captor
     ArgumentCaptor<UserRegisterRequest> userArgumentCaptor;
 
-    @Mock
+    @MockBean
     UserService userService;
-    @Mock
+    @MockBean
     TokenRepository tokenRepository;
-    @Mock
+    @MockBean
     PostService postService;
-    @Mock
+    @MockBean
     CommentService commentService;
-    @Mock
+    @MockBean
     ReactionService reactionService;
-    @Mock
+    @MockBean
     JwtService jwtService;
-    @Mock
+    @MockBean
     RoleRepository roleRepository;
-    @Mock
+    @MockBean
     FollowService followService;
 
-    @Spy
-    ObjectMapper objectMapper;
-
-    @InjectMocks
-    UserController userController;
-
-    UUID userId;
-    UserRegisterRequest registerRequest;
-    UserResponse userResponse;
+    private UUID userId;
+    private UserRegisterRequest registerRequest;
+    private UserResponse userResponse;
 
 
     @BeforeEach
     void setUp() {
-
-        this.mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
 
         this.userId = UUID.randomUUID();
 
@@ -120,9 +112,9 @@ public class UserControllerTest {
 
     @Test
     void getUserById() throws Exception {
-        when(userService.getUserResponseById(uuidArgumentCaptor.capture())).thenReturn(Optional.of(userResponse));
+        when(userService.getUserResponseById(userId)).thenReturn(Optional.of(userResponse));
 
-        mockMvc.perform(get(UserController.USER_PATH + "/" + userResponse.getId())
+        mockMvc.perform(get(UserController.USER_PATH + "/" + userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -130,16 +122,16 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.username", is(userResponse.getUsername())));
 
         verify(userService, times(1)).getUserResponseById(uuidArgumentCaptor.capture());
+        assertThat(userId).isEqualTo(uuidArgumentCaptor.getValue());
     }
 
     @Test
     void deleteUserById() throws Exception {
-        doNothing().when(userService).deleteUserById(any());
 
-        mockMvc.perform(delete(UserController.USER_PATH + "/" + userId)
-                        .requestAttr("Authorization", "Bearer dhj3h32hd2k")
-                )
+        mockMvc.perform(delete(UserController.USER_PATH + "/" + userId))
                 .andExpect(status().isNoContent());
+        verify(userService, times(1)).deleteUserById(uuidArgumentCaptor.capture());
+        assertThat(userId).isEqualTo(uuidArgumentCaptor.getValue());
     }
 
     @Test
@@ -152,8 +144,7 @@ public class UserControllerTest {
         mockMvc.perform(patch(UserController.USER_PATH, registerRequest)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(userBodyJson)
-                )
+                        .content(userBodyJson))
                 .andExpect(status().isOk());
 
         verify(userService).patchUser(userArgumentCaptor.capture());
@@ -165,12 +156,11 @@ public class UserControllerTest {
     @Test
     void userByIdNotFound() throws Exception {
 
-        mockMvc.perform(get(UserController.USER_PATH + "/" + userId)
-                        .accept(MediaType.APPLICATION_JSON)
-                )
+        mockMvc.perform(get(UserController.USER_PATH + "/" + userId))
                 .andExpect(status().isNotFound());
 
         verify(userService).getUserResponseById(uuidArgumentCaptor.capture());
+        assertThat(userId).isEqualTo(uuidArgumentCaptor.getValue());
     }
 
     @Test
