@@ -15,16 +15,17 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ChatController {
 
+    public static final String CHAT_PATH = "/api/v1/chats";
     private final ChatService chatService;
 
     @GetMapping("/{chatId}")
-    ChatResponse getSingleChatById(@PathVariable UUID chatId) {
-        return chatService.getChatById(chatId);
+    ResponseEntity<ChatResponse> getSingleChatById(@PathVariable UUID chatId) {
+        return ResponseEntity.ok(chatService.getChatById(chatId));
     }
 
     @GetMapping("/members/{userId}")
-    List<ChatResponse> getChatsByMemberId(@PathVariable UUID userId) {
-        return chatService.getChatsByUserId(userId);
+    ResponseEntity<List<ChatResponse>> getChatsByMemberId(@PathVariable UUID userId) {
+        return ResponseEntity.ok(chatService.getChatsByUserId(userId));
     }
 
     @PostMapping()
@@ -33,7 +34,7 @@ public class ChatController {
     }
 
     @PatchMapping("/{chatId}/members/add/{userId}")
-    ResponseEntity<ChatResponse> addMemberWithId(@PathVariable UUID chatId, @PathVariable UUID userId) {
+    ResponseEntity<ChatResponse> addMemberWithId(@PathVariable UUID userId, @PathVariable UUID chatId) {
         return ResponseEntity.ok(chatService.addMemberWithId(userId, chatId));
     }
 
