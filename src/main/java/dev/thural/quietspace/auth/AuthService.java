@@ -30,7 +30,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AuthenticationService {
+public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -43,7 +43,7 @@ public class AuthenticationService {
     @Value("${spring.application.mailing.frontend.activation-url}")
     private String activationUrl;
 
-    public AuthenticationResponse register(RegistrationRequest request) throws MessagingException {
+    public AuthResponse register(RegistrationRequest request) throws MessagingException {
         log.info("Registering new user with email: {}", request.getEmail());
 
         Role userRole = roleRepository.findByName(RoleType.USER.toString())
@@ -73,7 +73,7 @@ public class AuthenticationService {
         claims.put("fullName", user.getFullName());
         String token = jwtService.generateToken(claims, user);
 
-        return AuthenticationResponse.builder()
+        return AuthResponse.builder()
                 .id(UUID.randomUUID())
                 .message("registration successful")
                 .token(token)
@@ -81,7 +81,7 @@ public class AuthenticationService {
                 .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthResponse authenticate(AuthRequest request) {
         var auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -94,7 +94,7 @@ public class AuthenticationService {
         claims.put("fullName", user.getFullName());
 
         var jwtToken = jwtService.generateToken(claims, (User) auth.getPrincipal());
-        return AuthenticationResponse.builder()
+        return AuthResponse.builder()
                 .id(UUID.randomUUID())
                 .message("authentication successful")
                 .userId(user.getId().toString())

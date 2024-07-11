@@ -4,9 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.controller.UserController;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
-import dev.thural.quietspace.repository.RoleRepository;
-import dev.thural.quietspace.repository.TokenRepository;
-import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,33 +35,19 @@ public class UserControllerTest {
 
     private MockMvc mockMvc;
 
+    @Spy
+    ObjectMapper objectMapper;
+
+    @Mock
+    UserService userService;
+
+    @InjectMocks
+    UserController userController;
+
     @Captor
     ArgumentCaptor<UUID> uuidArgumentCaptor;
     @Captor
     ArgumentCaptor<UserRegisterRequest> userArgumentCaptor;
-
-    @Mock
-    UserService userService;
-    @Mock
-    TokenRepository tokenRepository;
-    @Mock
-    PostService postService;
-    @Mock
-    CommentService commentService;
-    @Mock
-    ReactionService reactionService;
-    @Mock
-    JwtService jwtService;
-    @Mock
-    RoleRepository roleRepository;
-    @Mock
-    FollowService followService;
-
-    @Spy
-    ObjectMapper objectMapper;
-
-    @InjectMocks
-    UserController userController;
 
     UUID userId;
     UserRegisterRequest registerRequest;

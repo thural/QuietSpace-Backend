@@ -12,24 +12,24 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("auth")
 @RequiredArgsConstructor
 @Tag(name = "Authentication")
-public class AuthenticationController {
+public class AuthController {
 
-    private final AuthenticationService service;
+    private final AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid RegistrationRequest request) throws MessagingException {
-        service.register(request);
+        authService.register(request);
         return ResponseEntity.accepted().build();
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
-        return ResponseEntity.ok(service.authenticate(request));
+    public ResponseEntity<AuthResponse> authenticate(@RequestBody AuthRequest request) {
+        return ResponseEntity.ok(authService.authenticate(request));
     }
 
     @GetMapping("/activate-account")
     public void confirm(@RequestParam String token) throws MessagingException {
-        service.activateAccount(token);
+        authService.activateAccount(token);
     }
 
     @PostMapping("/signout")
@@ -37,5 +37,5 @@ public class AuthenticationController {
         // TODO: implement logout method
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    
+
 }

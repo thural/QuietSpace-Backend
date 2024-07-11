@@ -9,7 +9,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
-public class AuthenticationResponse {
+public class AuthResponse {
 
     private UUID id;
     private String token;
