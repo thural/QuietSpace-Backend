@@ -1,37 +1,37 @@
 package dev.thural.quietspace.repository;
 
-import dev.thural.quietspace.entity.Post;
+import dev.thural.quietspace.entity.Role;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.utils.enums.RoleType;
-import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.domain.Page;
 
 import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class PostRepositoryTest {
+class RoleRepositoryTest {
 
     @Autowired
     UserRepository userRepository;
     @Autowired
-    PostRepository postRepository;
+    RoleRepository roleRepository;
 
     private final User user = User.builder()
             .email("user@email.com")
+            .role(RoleType.USER.toString())
             .username("user")
             .firstname("firstname")
             .lastname("lastname")
-            .role(RoleType.USER.toString())
             .password("78921731")
             .accountLocked(false)
             .username("test user")
@@ -39,41 +39,40 @@ class PostRepositoryTest {
             .updateDate(OffsetDateTime.now())
             .build();
 
-    private final Post post = Post.builder()
-            .text("sample text")
-            .user(user)
-            .createDate(OffsetDateTime.now())
-            .updateDate(OffsetDateTime.now())
+    private final Role adminRole = Role.builder()
+            .name(RoleType.ADMIN.toString())
+            .user(List.of(user))
+            .createdDate(OffsetDateTime.now())
+            .lastModifiedDate(OffsetDateTime.now())
             .build();
 
     private User savedUser;
-    private Post savedPost;
+    private Role savedRole;
 
     @BeforeEach
     void setUp() {
         this.savedUser = userRepository.save(user);
-        this.savedPost = postRepository.save(post);
+        this.savedRole = roleRepository.save(adminRole);
+        // USER role is bootstrapped on spring context load
     }
 
     @AfterEach
     void tearDown() {
-        userRepository.delete(user);
-        postRepository.delete(post);
+        this.userRepository.delete(savedUser);
+        this.roleRepository.delete(savedRole);
     }
 
     @Test
-    void testGetPostsByUserId() {
-        Page<Post> list = postRepository.findAllByUserId(user.getId(), null);
-
-        assertThat(list.toList().size()).isEqualTo(1);
-        assertThat(list.toList().get(0)).isEqualTo(savedPost);
+    void findByName() {
+        Optional<Role> role = roleRepository.findByName(RoleType.ADMIN.toString());
+        assertTrue(role.isPresent());
+        assertEquals(RoleType.ADMIN.name(), role.get().getName());
     }
 
     @Test
-    void testFindAllByQuery() {
-        Page<Post> list = postRepository.findAllByQuery("samp", null);
-
-        assertThat(list.toList().size()).isEqualTo(1);
-        assertThat(list.toList().get(0)).isEqualTo(savedPost);
+    void findUserRole() {
+        Optional<Role> role = roleRepository.findByName(RoleType.USER.toString());
+        assertTrue(role.isPresent());
+        assertEquals(RoleType.USER.name(), role.get().getName());
     }
 }

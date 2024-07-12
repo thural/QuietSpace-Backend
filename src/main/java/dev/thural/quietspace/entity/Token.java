@@ -7,7 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
@@ -37,8 +37,14 @@ public class Token {
     @JoinColumn(name = "userId", nullable = false)
     private User user;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime expiresAt;
-    private LocalDateTime validatedAt;
+    @NotNull
+    private OffsetDateTime createDate;
+    private OffsetDateTime expireDate;
+    private OffsetDateTime validateDate;
+
+    @PrePersist
+    private void onCreate() {
+        createDate = OffsetDateTime.now();
+    }
 
 }

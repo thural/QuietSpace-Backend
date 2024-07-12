@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -107,7 +108,7 @@ public class AuthService {
         Token savedToken = tokenRepository.findByToken(token)
                 // todo exception has to be defined
                 .orElseThrow(() -> new RuntimeException("Invalid token"));
-        if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
+        if (OffsetDateTime.now().isAfter(savedToken.getExpireDate())) {
             sendValidationEmail(savedToken.getUser());
             throw new RuntimeException("Activation token has expired. A new token has been send to the same email address");
         }
@@ -117,7 +118,7 @@ public class AuthService {
         user.setEnabled(true);
         userRepository.save(user);
 
-        savedToken.setValidatedAt(LocalDateTime.now());
+        savedToken.setValidateDate(OffsetDateTime.now());
         tokenRepository.save(savedToken);
     }
 
@@ -126,8 +127,8 @@ public class AuthService {
         String generatedToken = generateActivationCode(6);
         var token = Token.builder()
                 .token(generatedToken)
-                .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(15))
+                .createDate(OffsetDateTime.now())
+                .expireDate(OffsetDateTime.now().plusMinutes(15))
                 .user(user)
                 .build();
         tokenRepository.save(token);

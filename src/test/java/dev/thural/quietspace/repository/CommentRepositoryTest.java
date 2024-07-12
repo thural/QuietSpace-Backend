@@ -1,9 +1,9 @@
 package dev.thural.quietspace.repository;
 
+import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.utils.enums.RoleType;
-import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,18 +13,20 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class PostRepositoryTest {
+class CommentRepositoryTest {
 
     @Autowired
     UserRepository userRepository;
     @Autowired
     PostRepository postRepository;
+    @Autowired
+    CommentRepository commentRepository;
 
     private final User user = User.builder()
             .email("user@email.com")
@@ -46,34 +48,63 @@ class PostRepositoryTest {
             .updateDate(OffsetDateTime.now())
             .build();
 
+    private final Comment comment = Comment.builder()
+            .user(user)
+            .post(post)
+            .text("sample text")
+            .parentId(UUID.randomUUID())
+            .build();
+
     private User savedUser;
     private Post savedPost;
+    private Comment savedComment;
 
     @BeforeEach
     void setUp() {
         this.savedUser = userRepository.save(user);
         this.savedPost = postRepository.save(post);
+        this.savedComment = commentRepository.save(comment);
     }
 
     @AfterEach
     void tearDown() {
         userRepository.delete(user);
         postRepository.delete(post);
+        commentRepository.delete(comment);
     }
 
     @Test
-    void testGetPostsByUserId() {
-        Page<Post> list = postRepository.findAllByUserId(user.getId(), null);
-
-        assertThat(list.toList().size()).isEqualTo(1);
-        assertThat(list.toList().get(0)).isEqualTo(savedPost);
+    void findAllByPostId() {
+        Page<Comment> commentPage = commentRepository.findAllByPostId(post.getId(), null);
+        assertThat(commentPage.toList().size()).isEqualTo(1);
+        assertThat(commentPage.toList().get(0)).isEqualTo(savedComment);
     }
 
     @Test
-    void testFindAllByQuery() {
-        Page<Post> list = postRepository.findAllByQuery("samp", null);
+    void countByParentIdAndPost() {
+        Integer commentCount = commentRepository.countByParentIdAndPost(comment.getParentId(), savedPost);
+        assertThat(commentCount).isEqualTo(1);
+    }
 
-        assertThat(list.toList().size()).isEqualTo(1);
-        assertThat(list.toList().get(0)).isEqualTo(savedPost);
+    @Test
+    void deleteAllByParentId() {
+        commentRepository.deleteAllByParentId(comment.getParentId());
+        Integer commentCount = commentRepository.countByParentIdAndPost(comment.getParentId(), savedPost);
+        assertThat(commentCount).isEqualTo(0);
+
+    }
+
+    @Test
+    void findAllByParentId() {
+        Page<Comment> commentPage = commentRepository.findAllByParentId(comment.getParentId(), null);
+        assertThat(commentPage.toList().size()).isEqualTo(1);
+        assertThat(commentPage.toList().get(0)).isEqualTo(savedComment);
+    }
+
+    @Test
+    void findAllByUserId() {
+        Page<Comment> commentPage = commentRepository.findAllByUserId(user.getId(), null);
+        assertThat(commentPage.toList().size()).isEqualTo(1);
+        assertThat(commentPage.toList().get(0)).isEqualTo(savedComment);
     }
 }

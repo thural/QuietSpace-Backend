@@ -15,8 +15,6 @@ public interface ReactionRepository extends JpaRepository<Reaction, UUID> {
 
     List<Reaction> findAllByUserId(UUID userId);
 
-    List<Reaction> findAllByContentIdAndUserId(UUID contentId, UUID userId);
-
     boolean existsByContentIdAndUserId(UUID contentId, UUID userId);
 
     Optional<Reaction> findByContentIdAndUserId(UUID commentId, UUID id);
@@ -26,9 +24,7 @@ public interface ReactionRepository extends JpaRepository<Reaction, UUID> {
     List<Reaction> findAllByContentIdAndContentType(UUID contentId, ContentType contentType);
 
     List<Reaction> findAllByUserIdAndContentType(UUID userId, ContentType contentType);
-
-    List<Reaction> findAllByContentIdAndContentTypeAndLikeType(UUID contentId, ContentType type, LikeType likeType);
-
+    
     Integer countByContentIdAndLikeType(UUID contentId, LikeType likeType);
 
     List<Reaction> findAllByContentIdAndLikeType(UUID contentId, LikeType likeType);

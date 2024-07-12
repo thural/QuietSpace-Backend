@@ -33,20 +33,20 @@ public class Role {
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdDate;
+    private OffsetDateTime createdDate;
 
     @LastModifiedDate
     @Column(insertable = false)
-    private LocalDateTime lastModifiedDate;
+    private OffsetDateTime lastModifiedDate;
 
     @PrePersist
     private void onCreate() {
-        createdDate = LocalDateTime.now();
-        lastModifiedDate = LocalDateTime.now();
+        createdDate = OffsetDateTime.now();
+        lastModifiedDate = OffsetDateTime.now();
     }
 
     @PreUpdate
     private void onUpdate() {
-        lastModifiedDate = LocalDateTime.now();
+        lastModifiedDate = OffsetDateTime.now();
     }
 }

@@ -1,6 +1,5 @@
 package dev.thural.quietspace.repository;
 
-import dev.thural.quietspace.entity.Role;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.utils.enums.RoleType;
 import jakarta.validation.ConstraintViolationException;
@@ -8,22 +7,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 
-
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -31,7 +22,6 @@ class UserRepositoryTest {
 
     @Autowired
     UserRepository userRepository;
-
     @Autowired
     RoleRepository roleRepository;
 
