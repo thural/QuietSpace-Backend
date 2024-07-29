@@ -106,8 +106,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUserById(UUID userId) {
         User loggedUser = getLoggedUser();
+        boolean hasAdminRole = loggedUser.getRoles().stream()
+                .anyMatch(role -> role.getName().equals(RoleType.ADMIN.name()));
 
-        if (!loggedUser.getRole().equals(RoleType.ADMIN.toString()) && !loggedUser.getId().equals(userId))
+        if (!hasAdminRole && !loggedUser.getId().equals(userId))
             throw new UnauthorizedException("user denied access to delete the resource");
 
         userRepository.deleteById(userId);

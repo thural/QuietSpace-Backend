@@ -1,6 +1,8 @@
 package dev.thural.quietspace.entity;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +14,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.security.Principal;
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -40,11 +41,6 @@ public class User implements UserDetails, Principal {
 
     @Version
     private Integer version;
-
-    @NotNull
-    @NotBlank
-    @Column(length = 16)
-    private String role;
 
     @NotNull
     @NotBlank
@@ -111,7 +107,7 @@ public class User implements UserDetails, Principal {
 
     private String firstname;
     private String lastname;
-    private LocalDate dateOfBirth;
+    private OffsetDateTime dateOfBirth;
     private boolean accountLocked;
     private boolean enabled;
 

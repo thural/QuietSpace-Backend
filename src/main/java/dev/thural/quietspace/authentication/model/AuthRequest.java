@@ -1,4 +1,4 @@
-package dev.thural.quietspace.auth;
+package dev.thural.quietspace.authentication.model;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;

@@ -57,7 +57,6 @@ public class AuthServiceImpl implements AuthService {
                         .lastname(user.getLastname())
                         .password(user.getPassword())
                         .email(user.getEmail())
-                        .role(user.getRole())
                         .roles(List.of(userRole))
                         .accountLocked(false)
                         .enabled(true) // TODO: rollback to false value after testing

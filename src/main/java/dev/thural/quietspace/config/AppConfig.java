@@ -39,8 +39,11 @@ public class AppConfig {
     public UserDetailsService userDetailsService() {
         return username -> {
             log.info("username in user details method: {}", username);
-            return userRepository.findUserByUsername(username).orElseThrow(
-                    () -> new UsernameNotFoundException("user not found with the email"));
+            return userRepository.findUserEntityByEmail(username).orElseGet(
+                    () -> userRepository.findUserByUsername(username)
+                            .orElseThrow(
+                                    () -> new UsernameNotFoundException("user not found with the email"))
+            );
         };
     }
 

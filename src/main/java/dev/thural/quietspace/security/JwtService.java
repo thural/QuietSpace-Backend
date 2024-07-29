@@ -50,8 +50,8 @@ public class JwtService {
             long expiration
     ) {
         var authorities = userDetails.getAuthorities()
-                .stream().
-                map(GrantedAuthority::getAuthority)
+                .stream()
+                .map(GrantedAuthority::getAuthority)
                 .toList();
 
         log.info("username during token generation: {}", userDetails.getUsername());

@@ -1,6 +1,7 @@
 package dev.thural.quietspace.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -31,6 +32,7 @@ public class Token {
 
     @NotNull
     @NotBlank
+    @Email
     private String email;
 
     @ManyToOne

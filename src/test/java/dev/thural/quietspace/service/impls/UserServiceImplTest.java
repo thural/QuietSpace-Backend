@@ -35,8 +35,6 @@ class UserServiceImplTest {
     @Mock
     UserRepository userRepository;
     @Mock
-    TokenRepository tokenRepository;
-    @Mock
     Authentication authentication;
     @Mock
     SecurityContext securityContext;
@@ -151,7 +149,6 @@ class UserServiceImplTest {
 
         verify(userRepository, times(1)).findUserByUsername(any());
         verify(userRepository, times(1)).deleteById(userId);
-        verify(tokenRepository, times(1)).save(any(Token.class));
     }
 
     @Test

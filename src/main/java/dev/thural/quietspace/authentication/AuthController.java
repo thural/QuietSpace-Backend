@@ -1,5 +1,8 @@
-package dev.thural.quietspace.auth;
+package dev.thural.quietspace.authentication;
 
+import dev.thural.quietspace.authentication.model.AuthRequest;
+import dev.thural.quietspace.authentication.model.AuthResponse;
+import dev.thural.quietspace.authentication.model.RegistrationRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
@@ -9,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("auth")
+@RequestMapping("api/v1/auth")
 @RequiredArgsConstructor
 @Tag(name = "Authentication")
 public class AuthController {
@@ -34,7 +37,7 @@ public class AuthController {
 
     @PostMapping("/signout")
     ResponseEntity<?> logoutUser(@RequestHeader("Authorization") String authHeader) {
-        // TODO: implement logout method
+        authService.signout(authHeader);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

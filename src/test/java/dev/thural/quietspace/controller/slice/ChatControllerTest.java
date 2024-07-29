@@ -2,7 +2,6 @@ package dev.thural.quietspace.controller.slice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.controller.ChatController;
-import dev.thural.quietspace.controller.MessageController;
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.entity.User;
@@ -27,12 +26,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
