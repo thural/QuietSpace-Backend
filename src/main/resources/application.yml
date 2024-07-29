@@ -11,7 +11,7 @@ spring:
       mail:
         smtp:
           trust: "*"
-        auth: true
+          auth: true
         starttls:
           enabled: true
         connectiontimeout: 5000

@@ -39,7 +39,7 @@ public class EmailService {
         if (emailTemplate == null) {
             templateName = "confirm-email";
         } else {
-            templateName = emailTemplate.name();
+            templateName = emailTemplate.getName();
         }
 
         MimeMessage mimeMessage = mailSender.createMimeMessage();
@@ -66,5 +66,7 @@ public class EmailService {
         helper.setText(template, true);
 
         mailSender.send(mimeMessage);
+
+        log.info("sent email to {}", to);
     }
 }
