@@ -50,7 +50,7 @@ class FollowServiceImplTest {
                 .id(UUID.randomUUID())
                 .username("user1")
                 .email("user1@email.com")
-                .role("user")
+
                 .password("pAsSword")
                 .build();
 
@@ -58,7 +58,6 @@ class FollowServiceImplTest {
                 .id(UUID.randomUUID())
                 .username("user2")
                 .email("user2@email.com")
-                .role("user")
                 .password("pAsSWord")
                 .build();
 
@@ -72,7 +71,7 @@ class FollowServiceImplTest {
     @Test
     void listFollowings() {
         PageRequest pageRequest = buildPageRequest(1, 50, null);
-        when(userService.getLoggedUser()).thenReturn(user1);
+        when(userService.getSignedUser()).thenReturn(user1);
         when(followRepository.findAllByFollowingId(user1.getId(), pageRequest)).thenReturn(new PageImpl<>(List.of(follow)));
         when(followMapper.followEntityToResponse(any(Follow.class))).thenReturn(FollowResponse.builder().build());
 
@@ -86,7 +85,7 @@ class FollowServiceImplTest {
         PageRequest pageRequest = buildPageRequest(1, 50, null);
         when(followRepository.findAllByFollowerId(user2.getId(), pageRequest)).thenReturn(new PageImpl<>(List.of(follow)));
         when(followMapper.followEntityToResponse(any(Follow.class))).thenReturn(FollowResponse.builder().build());
-        when(userService.getLoggedUser()).thenReturn(user2);
+        when(userService.getSignedUser()).thenReturn(user2);
 
         Page<FollowResponse> followersPage = followService.listFollowers(1, 50);
         assertThat(followersPage.getContent()).hasSize(1);
@@ -94,7 +93,7 @@ class FollowServiceImplTest {
 
     @Test
     void toggleFollowExisting() {
-        when(userService.getLoggedUser()).thenReturn(user1);
+        when(userService.getSignedUser()).thenReturn(user1);
         when(followRepository.existsByFollowerIdAndFollowingId(user1.getId(), user2.getId())).thenReturn(true);
 
         followService.toggleFollow(user2.getId());
@@ -105,7 +104,7 @@ class FollowServiceImplTest {
 
     @Test
     void toggleFollowNew() {
-        when(userService.getLoggedUser()).thenReturn(user1);
+        when(userService.getSignedUser()).thenReturn(user1);
         when(followRepository.existsByFollowerIdAndFollowingId(user1.getId(), user2.getId())).thenReturn(false);
         when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
         when(userRepository.findById(user2.getId())).thenReturn(Optional.of(user2));

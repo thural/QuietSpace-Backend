@@ -44,7 +44,7 @@ public class PostMapper {
                 .build();
 
         List<PollOption> options = pollRequest.getOptions().stream()
-                .map(option -> PollOption.builder()
+                .<PollOption>map(option -> PollOption.builder()
                         .label(option)
                         .poll(newPoll)
                         .votes(new HashSet<>())
@@ -121,8 +121,7 @@ public class PostMapper {
     }
 
     private User getLoggedUser() {
-        return userService.getLoggedUser();
+        return userService.getSignedUser();
     }
-
 
 }

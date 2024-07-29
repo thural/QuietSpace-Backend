@@ -1,39 +1,27 @@
 package dev.thural.quietspace.entity;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import jakarta.persistence.*;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-import java.time.OffsetDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
+@SuperBuilder
 @AllArgsConstructor
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
-public class PollOption {
-
-    @Id
-    @JdbcTypeCode(SqlTypes.CHAR)
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false)
-    private UUID id;
-
-    @Version
-    private Integer version;
+@NoArgsConstructor
+public class PollOption extends BaseEntity {
 
     @NotNull
     @JsonIgnore
@@ -46,23 +34,5 @@ public class PollOption {
     @NotNull
     @ElementCollection
     private Set<UUID> votes = new HashSet<>();
-
-    @NotNull
-    @Column(updatable = false)
-    private OffsetDateTime createDate;
-
-    @NotNull
-    private OffsetDateTime updateDate;
-
-    @PrePersist
-    private void onCreate() {
-        createDate = OffsetDateTime.now();
-        updateDate = OffsetDateTime.now();
-    }
-
-    @PreUpdate
-    private void onUpdate() {
-        updateDate = OffsetDateTime.now();
-    }
 
 }

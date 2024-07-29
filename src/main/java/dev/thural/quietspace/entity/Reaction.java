@@ -1,37 +1,26 @@
 package dev.thural.quietspace.entity;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import dev.thural.quietspace.utils.enums.ContentType;
 import dev.thural.quietspace.utils.enums.LikeType;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
-public class Reaction {
-
-    @Id
-    @JdbcTypeCode(SqlTypes.CHAR)
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false)
-    private UUID id;
-
-    @Version
-    private Integer version;
+public class Reaction extends BaseEntity {
 
     @NotNull
     private UUID userId;
@@ -47,23 +36,5 @@ public class Reaction {
 
     @Enumerated(EnumType.STRING)
     private LikeType likeType;
-
-    @NotNull
-    @Column(updatable = false)
-    private OffsetDateTime createDate;
-
-    @NotNull
-    private OffsetDateTime updateDate;
-
-    @PrePersist
-    private void onCreate() {
-        createDate = OffsetDateTime.now();
-        updateDate = OffsetDateTime.now();
-    }
-
-    @PreUpdate
-    private void onUpdate() {
-        updateDate = OffsetDateTime.now();
-    }
 
 }

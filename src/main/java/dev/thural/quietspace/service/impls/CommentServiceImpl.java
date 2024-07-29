@@ -46,7 +46,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Page<CommentResponse> getCommentsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
 
-        if (!userService.getLoggedUser().getId().equals(userId))
+        if (!userService.getSignedUser().getId().equals(userId))
             throw new UnauthorizedException("user has no access to requested resource");
 
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
@@ -55,7 +55,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentResponse createComment(CommentRequest comment) {
-        User loggedUser = userService.getLoggedUser();
+        User loggedUser = userService.getSignedUser();
 
         Optional<Post> foundPost = postRepository.findById(comment.getPostId());
 
@@ -79,7 +79,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentResponse updateComment(UUID commentId, CommentRequest comment) {
-        User loggedUser = userService.getLoggedUser();
+        User loggedUser = userService.getSignedUser();
         Comment existingComment = commentRepository.findById(commentId)
                 .orElseThrow(EntityNotFoundException::new);
 
@@ -93,7 +93,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public void deleteComment(UUID commentId) {
-        User loggedUser = userService.getLoggedUser();
+        User loggedUser = userService.getSignedUser();
 
         Comment existingComment = commentRepository.findById(commentId)
                 .orElseThrow(EntityNotFoundException::new);
@@ -114,7 +114,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentResponse patchComment(UUID commentId, CommentRequest comment) {
-        User loggedUser = userService.getLoggedUser();
+        User loggedUser = userService.getSignedUser();
 
         Comment existingComment = commentRepository.findById(commentId)
                 .orElseThrow(EntityNotFoundException::new);

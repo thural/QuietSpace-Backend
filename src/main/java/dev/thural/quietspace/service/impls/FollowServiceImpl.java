@@ -30,7 +30,7 @@ public class FollowServiceImpl implements FollowService {
 
     @Override
     public Page<FollowResponse> listFollowings(Integer pageNumber, Integer pageSize) {
-        User user = userService.getLoggedUser();
+        User user = userService.getSignedUser();
 
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         Page<Follow> userPage = followRepository.findAllByFollowingId(user.getId(), pageRequest);
@@ -40,7 +40,7 @@ public class FollowServiceImpl implements FollowService {
 
     @Override
     public Page<FollowResponse> listFollowers(Integer pageNumber, Integer pageSize) {
-        User user = userService.getLoggedUser();
+        User user = userService.getSignedUser();
 
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         Page<Follow> userPage = followRepository.findAllByFollowerId(user.getId(), pageRequest);
@@ -51,7 +51,7 @@ public class FollowServiceImpl implements FollowService {
     @Override
     @Transactional
     public void toggleFollow(UUID followedUserId) {
-        User user = userService.getLoggedUser();
+        User user = userService.getSignedUser();
 
         if (followRepository.existsByFollowerIdAndFollowingId(user.getId(), followedUserId)) {
             followRepository.deleteByFollowerIdAndFollowingId(user.getId(), followedUserId);

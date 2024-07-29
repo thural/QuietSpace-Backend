@@ -28,7 +28,6 @@ class RoleRepositoryTest {
 
     private final User user = User.builder()
             .email("user@email.com")
-            .role(RoleType.USER.toString())
             .username("user")
             .firstname("firstname")
             .lastname("lastname")

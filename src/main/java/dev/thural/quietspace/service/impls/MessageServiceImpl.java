@@ -32,7 +32,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public MessageResponse addMessage(MessageRequest messageRequest) {
-        User loggedUser = userService.getLoggedUser();
+        User loggedUser = userService.getSignedUser();
 
         Chat parentChat = chatRepository.findById(messageRequest.getChatId())
                 .orElseThrow(EntityNotFoundException::new);
@@ -47,7 +47,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public void deleteMessage(UUID messageId) {
-        User loggedUser = userService.getLoggedUser();
+        User loggedUser = userService.getSignedUser();
 
         Message existingMessage = messageRepository.findById(messageId)
                 .orElseThrow(EntityNotFoundException::new);

@@ -3,7 +3,6 @@ package dev.thural.quietspace.repository;
 import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.utils.enums.RoleType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +32,6 @@ class CommentRepositoryTest {
             .username("user")
             .firstname("firstname")
             .lastname("lastname")
-            .role(RoleType.USER.toString())
             .password("78921731")
             .accountLocked(false)
             .username("test user")

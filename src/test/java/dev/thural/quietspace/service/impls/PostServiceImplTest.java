@@ -53,7 +53,6 @@ public class PostServiceImplTest {
                 .id(userId)
                 .username("user")
                 .email("user@email.com")
-                .role("admin")
                 .password("pAsSword")
                 .build();
 
@@ -123,7 +122,7 @@ public class PostServiceImplTest {
 
     @Test
     void testAddPostById() {
-        when(userService.getLoggedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user);
         when(postMapper.postRequestToEntity(any(PostRequest.class))).thenReturn(post);
         when(postMapper.postEntityToResponse(post)).thenReturn(postResponse);
         when(postRepository.save(any(Post.class))).thenReturn(post);
@@ -136,7 +135,7 @@ public class PostServiceImplTest {
 
     @Test
     void testGetVotedOptionLabel() {
-        when(userService.getLoggedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user);
 
         String optionLabel = postService.getVotedPollOptionLabel(poll);
 
@@ -156,7 +155,7 @@ public class PostServiceImplTest {
 
     @Test
     void testUpdatePost() {
-        when(userService.getLoggedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user);
         when(postRepository.findById(post.getId())).thenReturn(Optional.ofNullable(post));
         when(postMapper.postEntityToResponse(post)).thenReturn(postResponse);
         when(postRepository.save(any(Post.class))).thenReturn(post);
@@ -180,7 +179,7 @@ public class PostServiceImplTest {
 
     @Test
     void testDeletePost() {
-        when(userService.getLoggedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user);
         when(postRepository.findById(post.getId())).thenReturn(Optional.ofNullable(post));
 
         postService.deletePost(post.getId());

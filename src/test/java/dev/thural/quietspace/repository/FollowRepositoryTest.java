@@ -2,7 +2,6 @@ package dev.thural.quietspace.repository;
 
 import dev.thural.quietspace.entity.Follow;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.utils.enums.RoleType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +25,6 @@ class FollowRepositoryTest {
 
     private final User user1 = User.builder()
             .email("user1@email.com")
-            .role(RoleType.USER.toString())
             .username("user1")
             .firstname("firstname1")
             .lastname("lastname1")
@@ -38,7 +36,6 @@ class FollowRepositoryTest {
 
     private final User user2 = User.builder()
             .email("user2@email.com")
-            .role(RoleType.USER.toString())
             .username("user2")
             .firstname("firstname2")
             .lastname("lastname2")

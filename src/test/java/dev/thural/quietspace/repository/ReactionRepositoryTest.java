@@ -5,7 +5,6 @@ import dev.thural.quietspace.entity.Reaction;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.utils.enums.ContentType;
 import dev.thural.quietspace.utils.enums.LikeType;
-import dev.thural.quietspace.utils.enums.RoleType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,6 @@ class ReactionRepositoryTest {
 
     private final User user = User.builder()
             .email("user@email.com")
-            .role(RoleType.USER.toString())
             .username("user")
             .firstname("firstname")
             .lastname("lastname")

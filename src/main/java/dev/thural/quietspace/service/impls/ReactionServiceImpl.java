@@ -27,7 +27,7 @@ public class ReactionServiceImpl implements ReactionService {
 
     @Override
     public void handleReaction(ReactionRequest reaction) {
-        User user = userService.getLoggedUser();
+        User user = userService.getSignedUser();
         Reaction foundReaction = reactionRepository
                 .findByContentIdAndUserId(reaction.getContentId(), user.getId())
                 .orElse(null);
@@ -44,7 +44,7 @@ public class ReactionServiceImpl implements ReactionService {
 
     @Override
     public Optional<ReactionResponse> getUserReactionByContentId(UUID contentId) {
-        User user = userService.getLoggedUser();
+        User user = userService.getSignedUser();
         Optional<Reaction> userReaction = reactionRepository.findByContentIdAndUserId(contentId, user.getId());
         return userReaction.map(reactionMapper::reactionEntityToResponse);
     }

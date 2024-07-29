@@ -1,28 +1,24 @@
 package dev.thural.quietspace.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.List;
 
+@Entity
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
+@SuperBuilder
 @AllArgsConstructor
-@Entity
-@EntityListeners(AuditingEntityListener.class)
-public class Role {
-
-    @Id
-    @GeneratedValue
-    private Integer id;
+@NoArgsConstructor
+public class Role extends BaseEntity {
 
     @Column(unique = true)
     private String name;
@@ -31,22 +27,4 @@ public class Role {
     @JsonIgnore
     private List<User> user;
 
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private OffsetDateTime createdDate;
-
-    @LastModifiedDate
-    @Column(insertable = false)
-    private OffsetDateTime lastModifiedDate;
-
-    @PrePersist
-    private void onCreate() {
-        createdDate = OffsetDateTime.now();
-        lastModifiedDate = OffsetDateTime.now();
-    }
-
-    @PreUpdate
-    private void onUpdate() {
-        lastModifiedDate = OffsetDateTime.now();
-    }
 }

@@ -68,12 +68,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserResponse> getLoggedUserResponse() {
-        UserResponse userResponse = userMapper.userEntityToResponse(getLoggedUser());
+        UserResponse userResponse = userMapper.userEntityToResponse(getSignedUser());
         return Optional.of(userResponse);
     }
 
     @Override
-    public User getLoggedUser() {
+    public User getSignedUser() {
         log.info("current user name {}", SecurityContextHolder.getContext().getAuthentication().getName());
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -105,19 +105,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUserById(UUID userId) {
-        User loggedUser = getLoggedUser();
-        boolean hasAdminRole = loggedUser.getRoles().stream()
-                .anyMatch(role -> role.getName().equals(RoleType.ADMIN.name()));
+        User signedUser = getSignedUser();
+        boolean hasAdminRole = isHasAdminRole(signedUser);
 
-        if (!hasAdminRole && !loggedUser.getId().equals(userId))
+        if (!hasAdminRole && !signedUser.getId().equals(userId))
             throw new UnauthorizedException("user denied access to delete the resource");
 
         userRepository.deleteById(userId);
-    }
-
-    @Override
-    public User createUser(UserRegisterRequest userRegisterRequest) {
-        return userRepository.save(userMapper.userRequestToEntity(userRegisterRequest));
     }
 
     @Override
@@ -128,15 +122,19 @@ public class UserServiceImpl implements UserService {
                 .map(GrantedAuthority::getAuthority)
                 .reduce(" ", String::concat));
 
-        boolean hasAdminRole = auth != null && auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_".concat(RoleType.ADMIN.toString())));
+        User signedUser = getSignedUser();
+        boolean hasAdminRole = isHasAdminRole(signedUser);
 
-        User loggedUser = getLoggedUser();
-        if (!hasAdminRole && !userRegisterRequest.getEmail().equals(loggedUser.getEmail()))
-            throw new UnauthorizedException("logged user has no access to requested resource");
+        if (!hasAdminRole && !userRegisterRequest.getEmail().equals(signedUser.getEmail()))
+            throw new UnauthorizedException("signed user has no access to requested resource");
 
-        BeanUtils.copyProperties(loggedUser, userRegisterRequest);
-        return userMapper.userEntityToResponse(userRepository.save(loggedUser));
+        BeanUtils.copyProperties(signedUser, userRegisterRequest);
+        return userMapper.userEntityToResponse(userRepository.save(signedUser));
+    }
+
+    private static boolean isHasAdminRole(User signedUser) {
+        return signedUser.getRoles().stream()
+                .anyMatch(role -> role.getName().equals("ROLE_".concat(RoleType.ADMIN.name())));
     }
 
 }

@@ -56,7 +56,6 @@ class MessageServiceImplTest {
                 .id(UUID.randomUUID())
                 .username("user")
                 .email("user@email.com")
-                .role("admin")
                 .password("pAsSword")
                 .build();
 
@@ -82,7 +81,7 @@ class MessageServiceImplTest {
 
     @Test
     void testAddMessage() {
-        when(userService.getLoggedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user);
         when(chatRepository.findById(messageRequest.getChatId())).thenReturn(Optional.of(chat));
         when(messageRepository.save(any(Message.class))).thenReturn(message);
 
@@ -96,7 +95,7 @@ class MessageServiceImplTest {
 
     @Test
     void testDeleteMessage() {
-        when(userService.getLoggedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user);
         when(messageRepository.findById(message.getId())).thenReturn(Optional.of(message));
 
         messageService.deleteMessage(message.getId());

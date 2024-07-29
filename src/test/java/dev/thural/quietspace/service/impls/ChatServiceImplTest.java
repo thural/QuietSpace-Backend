@@ -50,7 +50,6 @@ public class ChatServiceImplTest {
                 .id(userId)
                 .username("user")
                 .email("user@email.com")
-                .role("admin")
                 .password("pAsSword")
                 .build();
 
@@ -58,7 +57,6 @@ public class ChatServiceImplTest {
                 .id(userId)
                 .username("member")
                 .email("member@email.com")
-                .role("user")
                 .password("pAsSWord")
                 .build();
 
@@ -80,44 +78,44 @@ public class ChatServiceImplTest {
 
     @Test
     void testFindChatById() {
-        when(userService.getLoggedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user);
         when(chatRepository.findById(chat.getId())).thenReturn(Optional.of(chat));
 
         Chat foundChat = chatService.findChatEntityById(chat.getId());
         assertThat(foundChat).isEqualTo(chat);
 
-        verify(userService, times(1)).getLoggedUser();
+        verify(userService, times(1)).getSignedUser();
         verify(chatRepository, times(1)).findById(chat.getId());
     }
 
     @Test
     void testGetChatsByUserId() {
-        when(userService.getLoggedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user);
         when(chatRepository.findAllByUsersId(userId)).thenReturn(List.of(chat));
         when(chatMapper.chatEntityToResponse(any(Chat.class))).thenReturn(chatResponse);
 
         List<ChatResponse> chats = chatService.getChatsByUserId(userId);
         assertThat(chats).isEqualTo(List.of(chatResponse));
 
-        verify(userService, times(1)).getLoggedUser();
+        verify(userService, times(1)).getSignedUser();
         verify(chatMapper, times(1)).chatEntityToResponse(any(Chat.class));
         verify(chatRepository, times(1)).findAllByUsersId(userId);
     }
 
     @Test
     void testDeleteChatById() {
-        when(userService.getLoggedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user);
         when(chatRepository.findById(chat.getId())).thenReturn(Optional.of(chat));
 
         chatService.deleteChatById(chat.getId());
 
-        verify(userService, times(1)).getLoggedUser();
+        verify(userService, times(1)).getSignedUser();
         verify(chatRepository, times(1)).deleteById(chat.getId());
     }
 
     @Test
     void testAddMember() {
-        when(userService.getLoggedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user);
         when(chatRepository.findById(chat.getId())).thenReturn(Optional.of(chat));
         when(userService.getUserById(memberId)).thenReturn(Optional.of(member));
         when(chatRepository.save(any(Chat.class))).thenReturn(chat);
@@ -132,20 +130,20 @@ public class ChatServiceImplTest {
 
     @Test
     void testRemoveMember() {
-        when(userService.getLoggedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user);
         when(chatRepository.findById(chat.getId())).thenReturn(Optional.of(chat));
         when(userService.getUserById(userId)).thenReturn(Optional.of(user));
         when(chatRepository.save(any(Chat.class))).thenReturn(chat);
 
         chatService.removeMemberWithId(userId, chat.getId());
 
-        verify(userService, times(1)).getLoggedUser();
+        verify(userService, times(1)).getSignedUser();
         verify(chatRepository, times(1)).save(chat);
     }
 
     @Test
     void testCreateChat() {
-        when(userService.getLoggedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user);
         when(userService.getUsersFromIdList(anyList())).thenReturn(userList);
         when(chatRepository.findAllByUsersIn(userList)).thenReturn(List.of());
         when(chatMapper.chatEntityToResponse(chat)).thenReturn(chatResponse);

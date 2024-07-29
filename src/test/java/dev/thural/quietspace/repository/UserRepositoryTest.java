@@ -1,7 +1,6 @@
 package dev.thural.quietspace.repository;
 
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.utils.enums.RoleType;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +26,6 @@ class UserRepositoryTest {
 
     private final User user = User.builder()
             .email("user@email.com")
-            .role(RoleType.USER.toString())
             .username("user")
             .firstname("firstname")
             .lastname("lastname")

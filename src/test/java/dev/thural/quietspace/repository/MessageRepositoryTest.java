@@ -3,7 +3,6 @@ package dev.thural.quietspace.repository;
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.utils.enums.RoleType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +29,6 @@ class MessageRepositoryTest {
 
     private final User user = User.builder()
             .email("user@email.com")
-            .role(RoleType.USER.toString())
             .username("user")
             .firstname("firstname")
             .lastname("lastname")

@@ -22,13 +22,13 @@ public class ChatMapper {
     private final UserService userService;
     private final MessageService messageService;
 
-    public Chat chatRequestToEntity(ChatRequest chatRequest){
+    public Chat chatRequestToEntity(ChatRequest chatRequest) {
         return Chat.builder()
                 .users(getUserListFromRequest(chatRequest))
                 .build();
     }
 
-    public ChatResponse chatEntityToResponse(Chat chat){
+    public ChatResponse chatEntityToResponse(Chat chat) {
         return ChatResponse.builder()
                 .id(chat.getId())
                 .userIds(getUserIdsFromChat(chat))
@@ -39,20 +39,20 @@ public class ChatMapper {
                 .build();
     }
 
-    private MessageResponse getLastMessage(Chat chat){
+    private MessageResponse getLastMessage(Chat chat) {
         return messageService.getLastMessageByChat(chat).orElse(null);
     }
 
-    private List<UUID> getUserIdsFromChat(Chat chat){
+    private List<UUID> getUserIdsFromChat(Chat chat) {
         return chat.getUsers().stream().map(User::getId).toList();
     }
 
-    private List<User> getUserListFromRequest(ChatRequest chatRequest){
+    private List<User> getUserListFromRequest(ChatRequest chatRequest) {
         return userService.getUsersFromIdList(chatRequest.getUserIds());
     }
 
-    private List<UserResponse> getChatMembers(Chat chat){
-        User loggedUser = userService.getLoggedUser();
+    private List<UserResponse> getChatMembers(Chat chat) {
+        User loggedUser = userService.getSignedUser();
         return chat.getUsers().stream()
                 .filter(user -> !user.equals(loggedUser))
                 .map(userMapper::userEntityToResponse).toList();

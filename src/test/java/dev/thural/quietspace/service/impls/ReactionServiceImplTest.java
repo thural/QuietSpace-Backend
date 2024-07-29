@@ -51,7 +51,6 @@ class ReactionServiceImplTest {
                 .id(userId)
                 .username("user")
                 .email("user@email.com")
-                .role("admin")
                 .password("pAsSword")
                 .build();
 
@@ -74,7 +73,7 @@ class ReactionServiceImplTest {
 
     @Test
     void testHandleReactionRemoveLike() {
-        when(userService.getLoggedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user);
         when(reactionRepository.findByContentIdAndUserId(contentId, userId)).thenReturn(Optional.of(reaction));
 
         reactionService.handleReaction(reactionRequest);
@@ -84,7 +83,7 @@ class ReactionServiceImplTest {
 
     @Test
     void testHandleReactionAddLike() {
-        when(userService.getLoggedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user);
         when(reactionMapper.reactionRequestToEntity(any(ReactionRequest.class))).thenReturn(reaction);
         when(reactionRepository.findByContentIdAndUserId(any(UUID.class), any(UUID.class))).thenReturn(Optional.empty());
 
@@ -99,7 +98,7 @@ class ReactionServiceImplTest {
 
     @Test
     void getUserReactionByContentId() {
-        when(userService.getLoggedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user);
         when(reactionRepository.findByContentIdAndUserId(contentId, userId)).thenReturn(Optional.of(reaction));
         when(reactionMapper.reactionEntityToResponse(any(Reaction.class))).thenReturn(ReactionResponse.builder().build());
 

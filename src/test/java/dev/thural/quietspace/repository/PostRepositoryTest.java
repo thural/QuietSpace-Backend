@@ -2,8 +2,6 @@ package dev.thural.quietspace.repository;
 
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.utils.enums.RoleType;
-import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +13,6 @@ import org.springframework.data.domain.Page;
 import java.time.OffsetDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -31,7 +28,6 @@ class PostRepositoryTest {
             .username("user")
             .firstname("firstname")
             .lastname("lastname")
-            .role(RoleType.USER.toString())
             .password("78921731")
             .accountLocked(false)
             .username("test user")
@@ -71,7 +67,7 @@ class PostRepositoryTest {
 
     @Test
     void testFindAllByQuery() {
-        Page<Post> list = postRepository.findAllByQuery("samp", null);
+        Page<Post> list = postRepository.findAllByQuery("sample", null);
 
         assertThat(list.toList().size()).isEqualTo(1);
         assertThat(list.toList().get(0)).isEqualTo(savedPost);

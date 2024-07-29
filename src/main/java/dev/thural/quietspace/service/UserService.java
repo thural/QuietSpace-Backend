@@ -23,12 +23,10 @@ public interface UserService {
 
     void deleteUserById(UUID userId);
 
-    User createUser(UserRegisterRequest userRegisterRequest);
-
     UserResponse patchUser(UserRegisterRequest userRegisterRequest);
 
     Optional<UserResponse> getLoggedUserResponse();
 
-    User getLoggedUser();
+    User getSignedUser();
 
 }

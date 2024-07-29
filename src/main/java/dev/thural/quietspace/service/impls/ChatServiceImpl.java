@@ -30,7 +30,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public List<ChatResponse> getChatsByUserId(UUID memberId) {
-        User loggedUser = userService.getLoggedUser();
+        User loggedUser = userService.getSignedUser();
 
         if (!loggedUser.getId().equals(memberId))
             throw new UnauthorizedException("user mismatch with the chat member");
@@ -82,7 +82,7 @@ public class ChatServiceImpl implements ChatService {
     public ChatResponse createChat(ChatRequest chatRequest) {
 
         List<User> userList = userService.getUsersFromIdList(chatRequest.getUserIds());
-        User loggedUser = userService.getLoggedUser();
+        User loggedUser = userService.getSignedUser();
 
         if (!userList.contains(loggedUser))
             throw new UnauthorizedException("requesting user is not member of requested chat");
@@ -112,7 +112,7 @@ public class ChatServiceImpl implements ChatService {
 
 
     public Chat findChatEntityById(UUID chatId) {
-        User loggedUser = userService.getLoggedUser();
+        User loggedUser = userService.getSignedUser();
 
         Chat foundChat = chatRepository.findById(chatId)
                 .orElseThrow(EntityNotFoundException::new);

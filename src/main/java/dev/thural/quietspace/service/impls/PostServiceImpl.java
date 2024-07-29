@@ -38,7 +38,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponse addPost(PostRequest post) {
-        User loggedUser = userService.getLoggedUser();
+        User loggedUser = userService.getSignedUser();
         if (!loggedUser.getId().equals(post.getUserId()))
             throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
         return postMapper.postEntityToResponse(
@@ -47,7 +47,7 @@ public class PostServiceImpl implements PostService {
     }
 
     public String getVotedPollOptionLabel(Poll poll) {
-        UUID userId = userService.getLoggedUser().getId();
+        UUID userId = userService.getSignedUser().getId();
 
         return poll.getOptions().stream()
                 .filter(option -> option.getVotes().contains(userId))
@@ -63,7 +63,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponse updatePost(UUID postId, PostRequest post) {
-        User loggedUser = userService.getLoggedUser();
+        User loggedUser = userService.getSignedUser();
         Post existingPost = findPostEntityById(postId);
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
         if (postExistsByLoggedUser) {
@@ -74,7 +74,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponse patchPost(UUID postId, PostRequest post) {
-        User loggedUser = userService.getLoggedUser();
+        User loggedUser = userService.getSignedUser();
         Post existingPost = findPostEntityById(postId);
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
         if (postExistsByLoggedUser) {
@@ -105,7 +105,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void deletePost(UUID postId) {
-        User loggedUser = userService.getLoggedUser();
+        User loggedUser = userService.getSignedUser();
         Post existingPost = findPostEntityById(postId);
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
         if (postExistsByLoggedUser) postRepository.deleteById(postId);

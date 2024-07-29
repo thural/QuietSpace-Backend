@@ -1,11 +1,9 @@
 package dev.thural.quietspace.service.impls;
 
-import dev.thural.quietspace.entity.Token;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.mapper.UserMapperImpl;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
-import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.utils.PagingProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,7 +55,6 @@ class UserServiceImplTest {
                 .id(userId)
                 .username("user")
                 .email("user@email.com")
-                .role("admin")
                 .password("pAsSword")
                 .build();
 
@@ -65,7 +62,6 @@ class UserServiceImplTest {
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
                 .email(user.getEmail())
-                .role(user.getRole())
                 .password(user.getPassword())
                 .build();
     }
@@ -117,18 +113,18 @@ class UserServiceImplTest {
 
     @Test
     @WithMockUser(username = "user", roles = "USER")
-    void testGetLoggedUser() {
+    void testGetSignedUser() {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
 
-        User loggedUser = userService.getLoggedUser();
+        User loggedUser = userService.getSignedUser();
         assertThat(loggedUser).isInstanceOf(User.class);
 
         verify(userRepository, times(1)).findUserByUsername(any());
     }
 
     @Test
-    void testGetLoggedUserResponse() {
+    void testGetSignedUserResponse() {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
 
@@ -149,16 +145,6 @@ class UserServiceImplTest {
 
         verify(userRepository, times(1)).findUserByUsername(any());
         verify(userRepository, times(1)).deleteById(userId);
-    }
-
-    @Test
-    void testCreateUser() {
-        when(userRepository.save(any(User.class))).thenReturn(user);
-
-        User savedUser = userService.createUser(registerRequest);
-
-        assertThat(savedUser).isInstanceOf(User.class);
-        verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test
