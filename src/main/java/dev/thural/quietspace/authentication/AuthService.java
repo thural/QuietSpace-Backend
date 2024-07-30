@@ -6,6 +6,7 @@ import dev.thural.quietspace.authentication.model.RegistrationRequest;
 import dev.thural.quietspace.entity.Role;
 import dev.thural.quietspace.entity.Token;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.repository.RoleRepository;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.repository.UserRepository;
@@ -31,7 +32,6 @@ import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -65,8 +65,6 @@ public class AuthService {
                 .enabled(false)
                 .roles(List.of(userRole))
                 .build();
-
-        log.info("user email: {}", user.getEmail());
 
         User savedUser = userRepository.save(user);
         sendValidationEmail(savedUser);
@@ -120,6 +118,8 @@ public class AuthService {
         String currentUserName = SecurityContextHolder.getContext()
                 .getAuthentication().getName();
 
+        log.info("current username from security context on signing out: {}", currentUserName);
+
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             addToBlacklist(authHeader, currentUserName);
             SecurityContextHolder.clearContext();
@@ -141,7 +141,7 @@ public class AuthService {
     }
 
     private void sendValidationEmail(User user) throws MessagingException {
-        log.info("sending to email address: {}", user.getEmail());
+        log.info("sending activation code to email address: {}", user.getEmail());
         String newActivationCode = generateAndSaveActivationToken(user);
 
         emailService.sendEmail(
@@ -169,15 +169,20 @@ public class AuthService {
         return generatedCode.toString();
     }
 
+    public void addToBlacklist(String authHeader, String username) {
+        String jwtToken = authHeader.substring(7);
+        boolean isBlacklisted = tokenRepository.existsByToken(jwtToken);
+        User user = userRepository.findUserByUsername(username)
+                .orElseThrow(UserNotFoundException::new);
+        if (!isBlacklisted) saveToken(jwtToken, user);
+    }
 
-    public void addToBlacklist(String authHeader, String email) {
-        String token = authHeader.substring(7);
-        boolean isBlacklisted = tokenRepository.existsByToken(token);
-        if (!isBlacklisted) tokenRepository.save(Token.builder()
-                .token(token)
-                .email(email)
-                .build()
-        );
+    private void saveToken(String jwtToken, User user) {
+        tokenRepository.save(Token.builder()
+                .token(jwtToken)
+                .email(user.getEmail())
+                .user(user)
+                .build());
     }
 
     public AuthResponse refreshToken(String authHeader) {
@@ -189,28 +194,26 @@ public class AuthService {
                 .build();
 
         if (!StringUtils.hasText(authHeader) || !authHeader.startsWith("Bearer ")) return authResponse;
-
         if (tokenRepository.existsByToken(refreshToken)) return authResponse;
 
         String username = jwtService.extractUsername(refreshToken);
-
         log.info("extracted username during jwt filtering: {}", username);
+        if (username == null) return authResponse;
 
-        if (username != null) {
-            User user = userRepository.findUserByUsername(username).orElseThrow();
+        User user = userRepository.findUserByUsername(username).orElseThrow();
+        if (!jwtService.isTokenValid(refreshToken, user)) return authResponse;
 
-            if (jwtService.isTokenValid(refreshToken, user)) {
-                var claims = new HashMap<String, Object>();
-                claims.put("fullName", user.getFullName());
-                String accessToken = jwtService.generateToken(claims, user);
-                return AuthResponse.builder()
-                        .accessToken(accessToken)
-                        .refreshToken(refreshToken)
-                        .message("token was refreshed")
-                        .userId(String.valueOf(user.getId()))
-                        .build();
-            }
-        }
-        return authResponse;
+        addToBlacklist(authHeader, user.getUsername());
+        var claims = new HashMap<String, Object>();
+        claims.put("fullName", user.getFullName());
+        String newAccessToken = jwtService.generateToken(claims, user);
+        String newRefreshToken = jwtService.generateRefreshToken(claims, user);
+
+        return AuthResponse.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .message("token was refreshed")
+                .userId(String.valueOf(user.getId()))
+                .build();
     }
 }

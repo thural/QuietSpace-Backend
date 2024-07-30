@@ -22,9 +22,9 @@ spring:
     security:
       jwt:
         secret-key: ${JWT_SECRET_KEY}
-        expiration: 86400000 # a day
+        expiration: 3600000 # an hour
         refresh-token:
-          expiration: 604800000 # 7 days
+          expiration: 86400000 # one day
     mailing:
       frontend:
         activation-url: ${ACTIVATION_URL}

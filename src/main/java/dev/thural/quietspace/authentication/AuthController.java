@@ -36,7 +36,7 @@ public class AuthController {
     }
 
     @PostMapping("/signout")
-    ResponseEntity<?> logoutUser(@RequestHeader("Authorization") String authHeader) {
+    ResponseEntity<?> signout(@RequestHeader("Authorization") String authHeader) {
         authService.signout(authHeader);
         return new ResponseEntity<>(HttpStatus.OK);
     }
