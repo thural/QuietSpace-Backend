@@ -25,6 +25,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.security.SecureRandom;
 import java.time.OffsetDateTime;
@@ -84,14 +85,15 @@ public class AuthService {
         User user = ((User) auth.getPrincipal());
         claims.put("fullName", user.getFullName());
 
-        String jwtToken = jwtService.generateToken(claims, user);
-        log.info("generated jwt token during authentication: {}", jwtToken);
+        String jwtAccessToken = jwtService.generateToken(claims, user);
+        String jwtRefreshToken = jwtService.generateRefreshToken(claims, user);
+        log.info("generated jwt token during authentication: {}", jwtAccessToken);
 
         return AuthResponse.builder()
-                .id(UUID.randomUUID())
                 .message("authentication was successful")
                 .userId(user.getId().toString())
-                .token(jwtToken)
+                .accessToken(jwtAccessToken)
+                .refreshToken(jwtRefreshToken)
                 .build();
     }
 
@@ -176,5 +178,39 @@ public class AuthService {
                 .email(email)
                 .build()
         );
+    }
+
+    public AuthResponse refreshToken(String authHeader) {
+        String refreshToken = authHeader.substring(7);
+
+        AuthResponse authResponse = AuthResponse.builder()
+                .refreshToken(refreshToken)
+                .message("token refresh was failed")
+                .build();
+
+        if (!StringUtils.hasText(authHeader) || !authHeader.startsWith("Bearer ")) return authResponse;
+
+        if (tokenRepository.existsByToken(refreshToken)) return authResponse;
+
+        String username = jwtService.extractUsername(refreshToken);
+
+        log.info("extracted username during jwt filtering: {}", username);
+
+        if (username != null) {
+            User user = userRepository.findUserByUsername(username).orElseThrow();
+
+            if (jwtService.isTokenValid(refreshToken, user)) {
+                var claims = new HashMap<String, Object>();
+                claims.put("fullName", user.getFullName());
+                String accessToken = jwtService.generateToken(claims, user);
+                return AuthResponse.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .message("token was refreshed")
+                        .userId(String.valueOf(user.getId()))
+                        .build();
+            }
+        }
+        return authResponse;
     }
 }

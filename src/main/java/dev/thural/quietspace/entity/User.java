@@ -28,7 +28,7 @@ import static jakarta.persistence.FetchType.EAGER;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User extends BaseEntity implements UserDetails, Principal {
-
+    
     @NotNull
     @NotBlank
     @Column(length = 32, unique = true)

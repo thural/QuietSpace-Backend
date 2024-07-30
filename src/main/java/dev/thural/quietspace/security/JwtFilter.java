@@ -38,12 +38,14 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (tokenRepository.existsByToken(authHeader.substring(7))) {
+        String jwtToken = authHeader.substring(7);
+
+        if (tokenRepository.existsByToken(jwtToken)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String username = jwtService.extractUsername(authHeader.substring(7));
+        String username = jwtService.extractUsername(jwtToken);
 
         log.info("extracted username during jwt filtering: {}", username);
 
@@ -54,7 +56,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-        if (jwtService.isTokenValid(authHeader.substring(7), userDetails)) {
+        if (jwtService.isTokenValid(jwtToken, userDetails)) {
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
                     userDetails.getPassword(),
