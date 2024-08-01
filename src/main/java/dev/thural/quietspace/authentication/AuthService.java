@@ -200,18 +200,15 @@ public class AuthService {
         log.info("extracted username during jwt filtering: {}", username);
         if (username == null) return authResponse;
 
-        User user = userRepository.findUserByUsername(username).orElseThrow();
+        User user = userRepository.findUserByUsername(username).orElseThrow(UserNotFoundException::new);
         if (!jwtService.isTokenValid(refreshToken, user)) return authResponse;
 
-        addToBlacklist(authHeader, user.getUsername());
         var claims = new HashMap<String, Object>();
         claims.put("fullName", user.getFullName());
         String newAccessToken = jwtService.generateToken(claims, user);
-        String newRefreshToken = jwtService.generateRefreshToken(claims, user);
 
         return AuthResponse.builder()
                 .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken)
                 .message("token was refreshed")
                 .userId(String.valueOf(user.getId()))
                 .build();

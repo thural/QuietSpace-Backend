@@ -23,7 +23,7 @@ public class UserController {
 
     public static final String USER_PATH = "/api/v1/users";
     public static final String USER_PATH_ID = "/{userId}";
-    public static final String FOLLOW_PATH_ID = "follow/{userId}";
+    public static final String FOLLOW_PATH_ID = "/follow/{userId}";
     public static final String FOLLOW_USER_TOGGLE = FOLLOW_PATH_ID + "/toggle-follow";
 
     private final UserService userService;
