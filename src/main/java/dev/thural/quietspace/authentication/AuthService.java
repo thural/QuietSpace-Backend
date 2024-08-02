@@ -6,6 +6,7 @@ import dev.thural.quietspace.authentication.model.RegistrationRequest;
 import dev.thural.quietspace.entity.Role;
 import dev.thural.quietspace.entity.Token;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.exception.ActivationTokenException;
 import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.repository.RoleRepository;
 import dev.thural.quietspace.repository.TokenRepository;
@@ -98,7 +99,7 @@ public class AuthService {
     @Transactional
     public void activateAccount(String token) throws MessagingException {
         Token existingToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
+                .orElseThrow(() -> new ActivationTokenException("Invalid token, please try again"));
 
         if (OffsetDateTime.now().isAfter(existingToken.getExpireDate())) {
             sendValidationEmail(existingToken.getUser());
@@ -212,5 +213,11 @@ public class AuthService {
                 .message("token was refreshed")
                 .userId(String.valueOf(user.getId()))
                 .build();
+    }
+
+    public void resendActivationToken(String email) throws MessagingException {
+        User foundUser = userRepository
+                .findUserEntityByEmail(email).orElseThrow(UserNotFoundException::new);
+        sendValidationEmail(foundUser);
     }
 }

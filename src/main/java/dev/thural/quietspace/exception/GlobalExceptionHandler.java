@@ -156,4 +156,17 @@ public class GlobalExceptionHandler {
                 );
     }
 
+    @ExceptionHandler(ActivationTokenException.class)
+    public ResponseEntity<ErrorResponse> handleActivationTokenExceptions(RuntimeException e) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        return new ResponseEntity<>(
+                ErrorResponse.builder()
+                        .status(status.name())
+                        .message("token not found: " + e.getMessage())
+                        .code(HttpStatus.BAD_REQUEST.value())
+                        .timestamp(new Date())
+                        .build(), status);
+    }
+
 }

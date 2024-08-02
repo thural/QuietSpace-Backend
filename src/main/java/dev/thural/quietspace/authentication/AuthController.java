@@ -31,8 +31,9 @@ public class AuthController {
     }
 
     @GetMapping("/activate-account")
-    public void confirm(@RequestParam String token) throws MessagingException {
+    public ResponseEntity<?> confirm(@RequestParam String token) throws MessagingException {
         authService.activateAccount(token);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/signout")
@@ -44,6 +45,12 @@ public class AuthController {
     @PostMapping("/refresh-token")
     ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String authHeader) {
         return ResponseEntity.ok(authService.refreshToken(authHeader));
+    }
+
+    @PostMapping("/resend-code")
+    ResponseEntity<?> resendActivationEmail(@RequestParam String email) throws MessagingException {
+        authService.resendActivationToken(email);
+        return ResponseEntity.ok().build();
     }
 
 }
