@@ -22,7 +22,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid RegistrationRequest request) throws MessagingException {
         authService.register(request);
-        return ResponseEntity.accepted().build();
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/authenticate")
@@ -30,7 +30,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.authenticate(request));
     }
 
-    @GetMapping("/activate-account")
+    @PostMapping("/activate-account")
     public ResponseEntity<?> confirm(@RequestParam String token) throws MessagingException {
         authService.activateAccount(token);
         return ResponseEntity.ok().build();

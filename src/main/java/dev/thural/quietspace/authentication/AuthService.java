@@ -218,6 +218,8 @@ public class AuthService {
     public void resendActivationToken(String email) throws MessagingException {
         User foundUser = userRepository
                 .findUserEntityByEmail(email).orElseThrow(UserNotFoundException::new);
+        if (foundUser.isEnabled())
+            throw new ActivationTokenException("invalid request: account has already been activated");
         sendValidationEmail(foundUser);
     }
 }
