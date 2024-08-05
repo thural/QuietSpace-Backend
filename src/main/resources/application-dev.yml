@@ -18,7 +18,7 @@ spring:
         show_sql: true
         format_sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     database: mysql
     open-in-view: true
     show-sql: true
@@ -29,6 +29,8 @@ logging:
   #    name: quietspace.log
   level:
     root: INFO
+    org.springframework.messaging: TRACE
+    org.springframework.web.socket: TRACE
     org.hibernate.orm.jdbc.bind: TRACE
     dev.thural.quietspace.service: ERROR
     org.hibernate.sql: DEBUG

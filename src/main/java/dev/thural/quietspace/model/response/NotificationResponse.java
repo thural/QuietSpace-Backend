@@ -1,6 +1,5 @@
 package dev.thural.quietspace.model.response;
 
-import dev.thural.quietspace.utils.enums.LikeType;
 import dev.thural.quietspace.utils.enums.NotificationType;
 import lombok.*;
 

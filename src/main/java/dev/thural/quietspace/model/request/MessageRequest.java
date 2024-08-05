@@ -21,6 +21,9 @@ public class MessageRequest {
     private UUID senderId;
 
     @NotNull
+    private UUID recipientId;
+
+    @NotNull
     @NotBlank
     @Size(min = 1, max = 1000)
     private String text;

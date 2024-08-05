@@ -1,6 +1,7 @@
 package dev.thural.quietspace.exception;
 
 import dev.thural.quietspace.model.response.ErrorResponse;
+import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,15 +20,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<?> handleNotFoundException() {
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<?> handleNotFoundException(RuntimeException e) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        return ResponseEntity.status(status)
+                .body(ErrorResponse.builder()
+                        .status(status.name())
+                        .message(e.getMessage())
+                        .timestamp(new Date())
+                        .build());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(TransactionSystemException.class)
     ResponseEntity<?> handleJPAViolations(TransactionSystemException exception) {
         ResponseEntity.BodyBuilder responseEntity = ResponseEntity.badRequest();
 
@@ -61,9 +70,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(RuntimeException e) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
-
         return new ResponseEntity<>(ErrorResponse.builder()
-                .code(400)
                 .status(status.name())
                 .message(e.getMessage())
                 .build(), status);
@@ -72,101 +79,98 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(RuntimeException e) {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
-
-        return new ResponseEntity<>(ErrorResponse.builder()
-                .code(401)
+        return ResponseEntity.badRequest().body(ErrorResponse.builder()
                 .status(status.name())
                 .message(e.getMessage())
-                .build(), status);
+                .build());
     }
 
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorizedException(RuntimeException e) {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
-
-        return new ResponseEntity<>(ErrorResponse.builder()
-                .code(401)
-                .status(status.name())
-                .message(e.getMessage())
-                .build(), status);
+        return ResponseEntity.status(status)
+                .body(ErrorResponse.builder()
+                        .status(status.name())
+                        .message(e.getMessage())
+                        .build());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(RuntimeException e) {
         HttpStatus status = HttpStatus.FORBIDDEN;
-
-        return new ResponseEntity<>(ErrorResponse.builder()
-                .code(403)
-                .status(status.name())
-                .message(e.getMessage())
-                .build(), status);
+        return ResponseEntity.status(status)
+                .body(ErrorResponse.builder()
+                        .status(status.name())
+                        .message(e.getMessage())
+                        .timestamp(new Date())
+                        .build());
     }
 
 
     @ExceptionHandler(CustomDataNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCustomDataNotFoundExceptions(RuntimeException e) {
         HttpStatus status = HttpStatus.NOT_FOUND;
-
-        return new ResponseEntity<>(ErrorResponse.builder()
-                .code(404)
-                .status(status.name())
-                .message(e.getMessage())
-                .build(), status);
+        return ResponseEntity.status(status)
+                .body(ErrorResponse.builder()
+                        .status(status.name())
+                        .message(e.getMessage())
+                        .timestamp(new Date())
+                        .build());
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundExceptions(RuntimeException e) {
         HttpStatus status = HttpStatus.NOT_FOUND;
-
-        return new ResponseEntity<>(
-                ErrorResponse.builder()
+        return ResponseEntity.status(status)
+                .body(ErrorResponse.builder()
                         .status(status.name())
-                        .message("the requested resource not found: " + e.getMessage())
-                        .code(404)
+                        .message(e.getMessage())
                         .timestamp(new Date())
-                        .build(), status);
+                        .build());
     }
 
     @ExceptionHandler(CustomParameterConstraintException.class)
     public ResponseEntity<ErrorResponse> handleCustomParameterConstraintExceptions(RuntimeException e) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
-
-        return new ResponseEntity<>(
-                ErrorResponse.builder()
-                        .code(400)
-                        .message("A parameter constraint error occurred: " + e.getMessage())
+        return ResponseEntity.status(status)
+                .body(ErrorResponse.builder()
                         .status(status.name())
-                        .build(),
-                status);
+                        .message(e.getMessage())
+                        .timestamp(new Date())
+                        .build());
     }
 
     @ExceptionHandler(CustomErrorException.class)
-    public ResponseEntity<ErrorResponse> handleCustomErrorExceptions(RuntimeException e) {
-        CustomErrorException customErrorException = (CustomErrorException) e;
-
-        HttpStatus status = customErrorException.getStatus();
-
-        return ResponseEntity.internalServerError()
+    public ResponseEntity<ErrorResponse> handleCustomErrorExceptions(CustomErrorException e) {
+        HttpStatus status = e.getStatus();
+        return ResponseEntity.status(status)
                 .body(ErrorResponse.builder()
-                        .code(500)
                         .status(status.name())
-                        .message("An unexpected error occurred: " + e.getMessage())
+                        .message(e.getMessage())
                         .timestamp(new Date())
-                        .build()
-                );
+                        .build());
     }
 
     @ExceptionHandler(ActivationTokenException.class)
     public ResponseEntity<ErrorResponse> handleActivationTokenExceptions(RuntimeException e) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
-
-        return new ResponseEntity<>(
-                ErrorResponse.builder()
+        return ResponseEntity.status(status)
+                .body(ErrorResponse.builder()
                         .status(status.name())
-                        .message("token not found: " + e.getMessage())
-                        .code(HttpStatus.BAD_REQUEST.value())
+                        .message(e.getMessage())
                         .timestamp(new Date())
-                        .build(), status);
+                        .build());
+    }
+
+    @ExceptionHandler(MessagingException.class)
+    public ResponseEntity<ErrorResponse> handleMailingException(RuntimeException e) {
+        HttpStatus status = INTERNAL_SERVER_ERROR;
+        return ResponseEntity.status(status)
+                .body(ErrorResponse.builder()
+                        .status(status.name())
+                        .message(e.getMessage())
+                        .timestamp(new Date())
+                        .build());
     }
 
 }

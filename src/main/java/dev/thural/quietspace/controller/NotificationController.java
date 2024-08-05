@@ -1,16 +1,10 @@
 package dev.thural.quietspace.controller;
 
-import dev.thural.quietspace.model.request.MessageRequest;
-import dev.thural.quietspace.model.request.ReactionRequest;
-import dev.thural.quietspace.model.response.MessageResponse;
 import dev.thural.quietspace.model.response.NotificationResponse;
-import dev.thural.quietspace.service.MessageService;
 import dev.thural.quietspace.service.NotificationService;
-import dev.thural.quietspace.service.ReactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
