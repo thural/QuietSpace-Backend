@@ -1,6 +1,7 @@
 package dev.thural.quietspace.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import dev.thural.quietspace.utils.enums.StatusType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,7 +29,7 @@ import static jakarta.persistence.FetchType.EAGER;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User extends BaseEntity implements UserDetails, Principal {
-    
+
     @NotNull
     @NotBlank
     @Column(length = 32, unique = true)
@@ -65,12 +66,10 @@ public class User extends BaseEntity implements UserDetails, Principal {
     private List<Message> messages;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Follow> followings;
+    private List<User> followings;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Follow> followers;
+    private List<User> followers;
 
 
     @JsonIgnore
@@ -83,6 +82,8 @@ public class User extends BaseEntity implements UserDetails, Principal {
     private boolean accountLocked;
     @JsonIgnore
     private boolean enabled;
+    @JsonIgnore
+    private StatusType statusType;
 
     @ManyToMany(fetch = EAGER)
     private List<Role> roles;
@@ -136,6 +137,11 @@ public class User extends BaseEntity implements UserDetails, Principal {
 
     public String getFullName() {
         return firstname + " " + lastname;
+    }
+
+    @PrePersist
+    void onCreate() {
+        setStatusType(StatusType.ONLINE);
     }
 
 }

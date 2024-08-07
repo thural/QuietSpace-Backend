@@ -16,7 +16,7 @@ public class MessageResponse {
     private UUID chatId;
     private String text;
     private UUID senderId;
-    private String username;
+    private String senderName;
     private OffsetDateTime createDate;
     private OffsetDateTime updateDate;
 

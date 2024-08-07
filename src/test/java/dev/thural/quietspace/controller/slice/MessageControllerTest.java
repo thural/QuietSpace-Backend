@@ -69,7 +69,6 @@ class MessageControllerTest {
                 .id(UUID.randomUUID())
                 .username("user")
                 .email("user@email.com")
-                .role("admin")
                 .password("pAsSword")
                 .build();
 
@@ -88,7 +87,7 @@ class MessageControllerTest {
                 .text("sample text")
                 .chatId(chat.getId())
                 .senderId(user.getId())
-                .username(user.getUsername())
+                .senderName(user.getUsername())
                 .build();
 
         this.messageRequest = MessageRequest.builder()
@@ -106,7 +105,7 @@ class MessageControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(messageRequest)))
-                .andExpect(jsonPath("$.username", is(messageResponse.getUsername())))
+                .andExpect(jsonPath("$.username", is(messageResponse.getSenderName())))
                 .andExpect(jsonPath("$.text", is(messageResponse.getText())))
                 .andExpect(jsonPath("$.id", is(messageResponse.getId().toString())))
                 .andExpect(jsonPath("$.senderId", is(messageResponse.getSenderId().toString())))

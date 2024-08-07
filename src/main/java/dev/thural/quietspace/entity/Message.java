@@ -1,15 +1,14 @@
 package dev.thural.quietspace.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
-import java.time.OffsetDateTime;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -25,6 +24,10 @@ public class Message extends BaseEntity {
     @NotNull
     @ManyToOne
     private User sender;
+
+    @NotNull
+    @ManyToOne
+    private User recipient;
 
     @NotNull
     @NotBlank

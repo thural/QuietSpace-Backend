@@ -41,8 +41,6 @@ class RoleRepositoryTest {
     private final Role adminRole = Role.builder()
             .name(RoleType.ADMIN.toString())
             .user(List.of(user))
-            .createdDate(OffsetDateTime.now())
-            .lastModifiedDate(OffsetDateTime.now())
             .build();
 
     private User savedUser;

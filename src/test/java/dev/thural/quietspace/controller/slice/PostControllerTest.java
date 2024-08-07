@@ -74,7 +74,6 @@ class PostControllerTest {
                 .id(userId)
                 .username("user")
                 .email("user@email.com")
-                .role("admin")
                 .password("pAsSword")
                 .build();
 
