@@ -1,5 +1,6 @@
 package dev.thural.quietspace.model.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import dev.thural.quietspace.utils.enums.NotificationType;
 import lombok.*;
 
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class NotificationResponse {
 
     private UUID id;

@@ -12,10 +12,11 @@ public interface MessageService {
 
     MessageResponse addMessage(MessageRequest messageRequest);
 
-    void deleteMessage(UUID id);
+    Optional<MessageResponse> deleteMessage(UUID id);
 
     Page<MessageResponse> getMessagesByChatId(Integer pageNumber, Integer pageSize, UUID chatId);
 
     Optional<MessageResponse> getLastMessageByChat(Chat chat);
 
+    Optional<MessageResponse> setMessageSeen(UUID messageId);
 }

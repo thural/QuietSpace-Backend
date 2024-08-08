@@ -1,7 +1,9 @@
 package dev.thural.quietspace.entity;
 
+import dev.thural.quietspace.utils.enums.StatusType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -32,5 +34,13 @@ public class Message extends BaseEntity {
     @NotNull
     @NotBlank
     private String text;
+
+    @NotNull
+    private Boolean seen;
+
+    @PrePersist
+    void onCreate() {
+        setSeen(false);
+    }
 
 }

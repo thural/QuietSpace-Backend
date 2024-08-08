@@ -9,11 +9,10 @@ import org.mapstruct.Mapping;
 @Mapper
 public interface MessageMapper {
     @Mapping(target = "id", ignore = true)
-    Message messageRequestToEntity(MessageRequest messageRequest);
+    Message toEntity(MessageRequest messageRequest);
 
     @Mapping(target = "chatId", source = "chat.id")
     @Mapping(target = "senderId", source = "sender.id")
-    @Mapping(target = "username", source = "sender.username")
-    MessageResponse messageEntityToDto(Message messageEntity);
+    MessageResponse toResponse(Message messageEntity);
 
 }

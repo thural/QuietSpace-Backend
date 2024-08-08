@@ -5,9 +5,11 @@ import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.exception.CustomErrorException;
 import dev.thural.quietspace.exception.UnauthorizedException;
 import dev.thural.quietspace.exception.UserNotFoundException;
+import dev.thural.quietspace.mapper.UserMapper;
 import dev.thural.quietspace.mapper.custom.ChatMapper;
 import dev.thural.quietspace.model.request.ChatRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
+import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.ChatRepository;
 import dev.thural.quietspace.service.ChatService;
 import dev.thural.quietspace.service.UserService;
@@ -26,6 +28,7 @@ public class ChatServiceImpl implements ChatService {
     private final UserService userService;
     private final ChatRepository chatRepository;
     private final ChatMapper chatMapper;
+    private final UserMapper userMapper;
 
 
     @Override
@@ -50,23 +53,23 @@ public class ChatServiceImpl implements ChatService {
 
 
     @Override
-    public ChatResponse addMemberWithId(UUID memberId, UUID chatId) {
-
+    public UserResponse addMemberWithId(UUID memberId, UUID chatId) {
+        
         Chat foundChat = findChatEntityById(chatId);
         User foundMember = userService.getUserById(memberId)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
-        List<User> members = foundChat.getUsers();
+                .orElseThrow(UserNotFoundException::new);
 
+        List<User> members = foundChat.getUsers();
         members.add(foundMember);
         foundChat.setUsers(members);
-        Chat patchedChat = chatRepository.save(foundChat);
 
-        return chatMapper.chatEntityToResponse(patchedChat);
+        chatRepository.save(foundChat);
+        return userMapper.userEntityToResponse(foundMember);
     }
 
 
     @Override
-    public void removeMemberWithId(UUID memberId, UUID chatId) {
+    public List<UserResponse> removeMemberWithId(UUID memberId, UUID chatId) {
 
         Chat foundChat = findChatEntityById(chatId);
         User foundMember = getUserById(memberId);
@@ -75,6 +78,8 @@ public class ChatServiceImpl implements ChatService {
         members.remove(foundMember);
         foundChat.setUsers(members);
         chatRepository.save(foundChat);
+
+        return members.stream().map(userMapper::userEntityToResponse).toList();
     }
 
 

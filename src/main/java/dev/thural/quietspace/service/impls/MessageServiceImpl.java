@@ -37,37 +37,55 @@ public class MessageServiceImpl implements MessageService {
         Chat parentChat = chatRepository.findById(messageRequest.getChatId())
                 .orElseThrow(EntityNotFoundException::new);
 
-        Message newMessage = messageMapper.messageRequestToEntity(messageRequest);
+        Message newMessage = messageMapper.toEntity(messageRequest);
 
         newMessage.setSender(loggedUser);
         newMessage.setChat(parentChat);
 
-        return messageMapper.messageEntityToDto(messageRepository.save(newMessage));
+        return messageMapper.toResponse(messageRepository.save(newMessage));
     }
 
     @Override
-    public void deleteMessage(UUID messageId) {
-        User loggedUser = userService.getSignedUser();
+    public Optional<MessageResponse> deleteMessage(UUID messageId) {
+        Message existingMessage = findMessageOrElseThrow(messageId);
+        checkResourceAccess(existingMessage.getSender().getId());
 
-        Message existingMessage = messageRepository.findById(messageId)
+        messageRepository.deleteById(messageId);
+        return Optional.of(messageMapper.toResponse(existingMessage));
+    }
+
+    private Message findMessageOrElseThrow(UUID messageId) {
+        return messageRepository.findById(messageId)
                 .orElseThrow(EntityNotFoundException::new);
+    }
 
-        if (existingMessage.getSender().getId().equals(loggedUser.getId())) {
-            messageRepository.deleteById(messageId);
-        } else throw new AccessDeniedException("message does not belong to current user");
+    private void checkResourceAccess(UUID userId) {
+        User loggedUser = userService.getSignedUser();
+        if (!userId.equals(loggedUser.getId()))
+            throw new AccessDeniedException("message does not belong to current user");
     }
 
     @Override
     public Page<MessageResponse> getMessagesByChatId(Integer pageNumber, Integer pageSize, UUID chatId) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         Page<Message> messagePage = messageRepository.findAllByChatId(chatId, pageRequest);
-        return messagePage.map(messageMapper::messageEntityToDto);
+        return messagePage.map(messageMapper::toResponse);
     }
 
     @Override
     public Optional<MessageResponse> getLastMessageByChat(Chat chat) {
         return messageRepository.findFirstByChatOrderByCreateDateDesc(chat)
-                .map(messageMapper::messageEntityToDto);
+                .map(messageMapper::toResponse);
+    }
+
+    @Override
+    public Optional<MessageResponse> setMessageSeen(UUID messageId) {
+        Message existingMessage = findMessageOrElseThrow(messageId);
+        checkResourceAccess(existingMessage.getId());
+        existingMessage.setSeen(true);
+        
+        Message savedMessage = messageRepository.save(existingMessage);
+        return Optional.ofNullable(messageMapper.toResponse(savedMessage));
     }
 
 }

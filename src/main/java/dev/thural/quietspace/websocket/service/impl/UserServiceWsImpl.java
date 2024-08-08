@@ -1,6 +1,5 @@
 package dev.thural.quietspace.websocket.service.impl;
 
-import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.mapper.UserMapper;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.UserRepository;
@@ -20,8 +19,8 @@ public class UserServiceWsImpl implements UserServiceWs {
     private final UserMapper userMapper;
 
     @Override
-    public void disconnect(UserRepresentation user) {
-        userRepository.findUserEntityByEmail(user.getEmail())
+    public void setOnlineStatus(String userEmail, StatusType type) {
+        userRepository.findUserEntityByEmail(userEmail)
                 .ifPresent((storedUser) -> {
                     storedUser.setStatusType(StatusType.OFFLINE);
                     userRepository.save(storedUser);
@@ -29,10 +28,14 @@ public class UserServiceWsImpl implements UserServiceWs {
     }
 
     @Override
-    public List<UserResponse> findConnectedFollowings(User user) {
-        return user.getFollowings().stream()
-                .filter(following -> following.getStatusType().equals(StatusType.ONLINE))
-                .map(userMapper::userEntityToResponse)
-                .toList();
+    public List<UserResponse> findConnectedFollowings(UserRepresentation user) {
+        return userRepository.findUserEntityByEmail(user.getEmail()).map(
+                foundUser -> foundUser.getFollowings()
+                        .stream()
+                        .filter(following -> following.getStatusType().equals(StatusType.ONLINE))
+                        .map(userMapper::userEntityToResponse)
+                        .toList()
+        ).orElse(List.of());
     }
+
 }

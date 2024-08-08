@@ -2,6 +2,7 @@ package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.model.request.ChatRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
+import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,7 @@ public class ChatController {
     }
 
     @PatchMapping("/{chatId}/members/add/{userId}")
-    ResponseEntity<ChatResponse> addMemberWithId(@PathVariable UUID userId, @PathVariable UUID chatId) {
+    ResponseEntity<UserResponse> addMemberWithId(@PathVariable UUID userId, @PathVariable UUID chatId) {
         return ResponseEntity.ok(chatService.addMemberWithId(userId, chatId));
     }
 
