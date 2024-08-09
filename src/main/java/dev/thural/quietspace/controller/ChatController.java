@@ -29,7 +29,7 @@ public class ChatController {
         return ResponseEntity.ok(chatService.getChatsByUserId(userId));
     }
 
-    @PostMapping()
+    @PostMapping
     ResponseEntity<ChatResponse> createChat(@RequestBody ChatRequest chat) {
         return ResponseEntity.ok(chatService.createChat(chat));
     }

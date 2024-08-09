@@ -5,6 +5,7 @@ import dev.thural.quietspace.utils.enums.NotificationType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -39,5 +40,10 @@ public class Notification extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
+
+    @PrePersist
+    void initDefaultValues() {
+        setIsSeen(false);
+    }
 
 }
