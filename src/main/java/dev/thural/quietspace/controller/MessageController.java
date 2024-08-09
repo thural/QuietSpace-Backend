@@ -1,10 +1,8 @@
 package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.model.request.MessageRequest;
-import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.MessageResponse;
 import dev.thural.quietspace.service.MessageService;
-import dev.thural.quietspace.service.ReactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,9 +20,8 @@ public class MessageController {
 
     public static final String MESSAGE_PATH = "/api/v1/messages";
     public static final String MESSAGE_PATH_ID = "/{messageId}";
-    
+
     private final MessageService messageService;
-    private final ReactionService reactionService;
 
 
     @PostMapping
@@ -45,12 +42,6 @@ public class MessageController {
             @PathVariable UUID chatId
     ) {
         return messageService.getMessagesByChatId(pageNumber, pageSize, chatId);
-    }
-
-    @PostMapping("/toggle-reaction")
-    ResponseEntity<?> toggleMessageLike(ReactionRequest reaction) {
-        reactionService.handleReaction(reaction);
-        return ResponseEntity.ok().build();
     }
 
 }

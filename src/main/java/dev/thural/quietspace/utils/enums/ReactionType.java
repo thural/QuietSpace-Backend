@@ -3,6 +3,6 @@ package dev.thural.quietspace.utils.enums;
 import lombok.Getter;
 
 @Getter
-public enum LikeType {
+public enum ReactionType {
     LIKE, DISLIKE
 }

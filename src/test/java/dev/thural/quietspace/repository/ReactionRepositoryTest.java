@@ -4,7 +4,7 @@ import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.Reaction;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.utils.enums.ContentType;
-import dev.thural.quietspace.utils.enums.LikeType;
+import dev.thural.quietspace.utils.enums.ReactionType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,7 +52,7 @@ class ReactionRepositoryTest {
             .userId(null)
             .contentId(null)
             .contentType(ContentType.POST)
-            .likeType(LikeType.LIKE)
+            .reactionType(ReactionType.LIKE)
             .username(user.getUsername())
             .createDate(OffsetDateTime.now())
             .updateDate(OffsetDateTime.now())
@@ -128,13 +128,13 @@ class ReactionRepositoryTest {
 
     @Test
     void countByContentIdAndLikeType() {
-        long count = reactionRepository.countByContentIdAndLikeType(post.getId(), LikeType.LIKE);
+        long count = reactionRepository.countByContentIdAndReactionType(post.getId(), ReactionType.LIKE);
         assertThat(count).isEqualTo(1);
     }
 
     @Test
     void findAllByContentIdAndLikeType() {
-        List<Reaction> reactions = reactionRepository.findAllByContentIdAndLikeType(post.getId(), LikeType.LIKE);
+        List<Reaction> reactions = reactionRepository.findAllByContentIdAndReactionType(post.getId(), ReactionType.LIKE);
         assertThat(reactions.size()).isEqualTo(1);
         assertThat(reactions.get(0)).isEqualTo(savedReaction);
     }

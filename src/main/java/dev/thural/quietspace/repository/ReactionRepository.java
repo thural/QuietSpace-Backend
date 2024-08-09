@@ -2,7 +2,7 @@ package dev.thural.quietspace.repository;
 
 import dev.thural.quietspace.entity.Reaction;
 import dev.thural.quietspace.utils.enums.ContentType;
-import dev.thural.quietspace.utils.enums.LikeType;
+import dev.thural.quietspace.utils.enums.ReactionType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -24,8 +24,8 @@ public interface ReactionRepository extends JpaRepository<Reaction, UUID> {
     List<Reaction> findAllByContentIdAndContentType(UUID contentId, ContentType contentType);
 
     List<Reaction> findAllByUserIdAndContentType(UUID userId, ContentType contentType);
-    
-    Integer countByContentIdAndLikeType(UUID contentId, LikeType likeType);
 
-    List<Reaction> findAllByContentIdAndLikeType(UUID contentId, LikeType likeType);
+    Integer countByContentIdAndReactionType(UUID contentId, ReactionType reactionType);
+
+    List<Reaction> findAllByContentIdAndReactionType(UUID contentId, ReactionType reactionType);
 }

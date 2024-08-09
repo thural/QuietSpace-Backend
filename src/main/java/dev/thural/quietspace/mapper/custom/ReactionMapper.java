@@ -16,28 +16,28 @@ public class ReactionMapper {
 
     private final UserRepository userRepository;
 
-    public Reaction reactionRequestToEntity(ReactionRequest reaction){
+    public Reaction reactionRequestToEntity(ReactionRequest reaction) {
         return Reaction.builder()
                 .userId(reaction.getUserId())
                 .username(getUserNameById(reaction.getUserId()))
                 .contentId(reaction.getContentId())
                 .contentType(reaction.getContentType())
-                .likeType(reaction.getLikeType())
+                .reactionType(reaction.getReactionType())
                 .build();
     }
 
-    public ReactionResponse reactionEntityToResponse(Reaction reaction){
+    public ReactionResponse reactionEntityToResponse(Reaction reaction) {
         return ReactionResponse.builder()
                 .id(reaction.getId())
                 .contentId(reaction.getContentId())
-                .likeType(reaction.getLikeType())
+                .reactionType(reaction.getReactionType())
                 .userId(reaction.getUserId())
                 .username(reaction.getUsername())
                 .updateDate(reaction.getUpdateDate())
                 .build();
     }
 
-    String getUserNameById(UUID userId){
+    String getUserNameById(UUID userId) {
         return userRepository.findById(userId).map(User::getUsername).orElse(null);
     }
 

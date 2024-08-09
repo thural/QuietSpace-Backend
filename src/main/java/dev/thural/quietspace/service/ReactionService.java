@@ -3,7 +3,7 @@ package dev.thural.quietspace.service;
 import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.utils.enums.ContentType;
-import dev.thural.quietspace.utils.enums.LikeType;
+import dev.thural.quietspace.utils.enums.ReactionType;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,12 +15,12 @@ public interface ReactionService {
 
     Optional<ReactionResponse> getUserReactionByContentId(UUID contentId);
 
-    List<ReactionResponse> getReactionsByContentIdAndLikeType(UUID contentId, LikeType likeType);
+    List<ReactionResponse> getReactionsByContentIdAndReactionType(UUID contentId, ReactionType reactionType);
 
-    Integer getLikeCountByContentIdAndLikeType(UUID contentId, LikeType likeType);
+    Integer getLikeCountByContentIdAndReactionType(UUID contentId, ReactionType reactionType);
 
-    List<ReactionResponse> getReactionsByContentId(UUID contentId, ContentType type);
+    List<ReactionResponse> getReactionsByContentIdAndContentType(UUID contentId, ContentType type);
 
-    List<ReactionResponse> getReactionsByUserId(UUID userId, ContentType contentType);
+    List<ReactionResponse> getReactionsByUserIdAndContentType(UUID userId, ContentType contentType);
 
 }

@@ -39,7 +39,7 @@ public class Message extends BaseEntity {
     private Boolean seen;
 
     @PrePersist
-    void onCreate() {
+    void setSeenStatus() {
         setSeen(false);
     }
 

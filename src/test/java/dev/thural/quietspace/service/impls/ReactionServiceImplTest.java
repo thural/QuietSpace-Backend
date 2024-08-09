@@ -8,7 +8,7 @@ import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.repository.ReactionRepository;
 import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.utils.enums.ContentType;
-import dev.thural.quietspace.utils.enums.LikeType;
+import dev.thural.quietspace.utils.enums.ReactionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,7 +56,7 @@ class ReactionServiceImplTest {
 
         this.reaction = Reaction.builder()
                 .id(UUID.randomUUID())
-                .likeType(LikeType.LIKE)
+                .reactionType(ReactionType.LIKE)
                 .contentType(ContentType.POST)
                 .contentId(contentId)
                 .userId(userId)
@@ -67,7 +67,7 @@ class ReactionServiceImplTest {
                 .contentId(contentId)
                 .contentType(reaction.getContentType())
                 .userId(userId)
-                .likeType(reaction.getLikeType())
+                .reactionType(reaction.getReactionType())
                 .build();
     }
 
@@ -109,18 +109,18 @@ class ReactionServiceImplTest {
 
     @Test
     void getLikesByContentId() {
-        when(reactionRepository.findAllByContentIdAndLikeType(contentId, LikeType.LIKE)).thenReturn(List.of(reaction));
+        when(reactionRepository.findAllByContentIdAndReactionType(contentId, ReactionType.LIKE)).thenReturn(List.of(reaction));
         when(reactionMapper.reactionEntityToResponse(any(Reaction.class))).thenReturn(ReactionResponse.builder().build());
 
-        reactionService.getReactionsByContentIdAndLikeType(contentId, LikeType.LIKE);
-        assertThat(reactionService.getReactionsByContentIdAndLikeType(contentId, LikeType.LIKE)).size().isEqualTo(1);
+        reactionService.getReactionsByContentIdAndReactionType(contentId, ReactionType.LIKE);
+        assertThat(reactionService.getReactionsByContentIdAndReactionType(contentId, ReactionType.LIKE)).size().isEqualTo(1);
     }
 
     @Test
     void getLikeCountByContentId() {
-        when(reactionRepository.countByContentIdAndLikeType(contentId, LikeType.LIKE)).thenReturn(3);
-        reactionService.getLikeCountByContentIdAndLikeType(contentId, LikeType.LIKE);
-        assertThat(reactionService.getLikeCountByContentIdAndLikeType(contentId, LikeType.LIKE)).isEqualTo(3);
+        when(reactionRepository.countByContentIdAndReactionType(contentId, ReactionType.LIKE)).thenReturn(3);
+        reactionService.getLikeCountByContentIdAndReactionType(contentId, ReactionType.LIKE);
+        assertThat(reactionService.getLikeCountByContentIdAndReactionType(contentId, ReactionType.LIKE)).isEqualTo(3);
     }
 
     @Test
@@ -128,8 +128,8 @@ class ReactionServiceImplTest {
         when(reactionRepository.findAllByContentIdAndContentType(contentId, ContentType.POST)).thenReturn(List.of(reaction));
         when(reactionMapper.reactionEntityToResponse(any(Reaction.class))).thenReturn(ReactionResponse.builder().build());
 
-        reactionService.getReactionsByContentId(contentId, ContentType.POST);
-        assertThat(reactionService.getReactionsByContentId(contentId, ContentType.POST)).isNotEmpty();
+        reactionService.getReactionsByContentIdAndContentType(contentId, ContentType.POST);
+        assertThat(reactionService.getReactionsByContentIdAndContentType(contentId, ContentType.POST)).isNotEmpty();
     }
 
     @Test
@@ -137,7 +137,7 @@ class ReactionServiceImplTest {
         when(reactionRepository.findAllByUserIdAndContentType(userId, ContentType.POST)).thenReturn(List.of(reaction));
         when(reactionMapper.reactionEntityToResponse(any(Reaction.class))).thenReturn(ReactionResponse.builder().build());
 
-        reactionService.getReactionsByUserId(userId, ContentType.POST);
-        assertThat(reactionService.getReactionsByUserId(userId, ContentType.POST)).isNotEmpty();
+        reactionService.getReactionsByUserIdAndContentType(userId, ContentType.POST);
+        assertThat(reactionService.getReactionsByUserIdAndContentType(userId, ContentType.POST)).isNotEmpty();
     }
 }

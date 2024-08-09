@@ -1,6 +1,7 @@
 package dev.thural.quietspace.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import dev.thural.quietspace.utils.enums.RoleType;
 import dev.thural.quietspace.utils.enums.StatusType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -140,8 +141,10 @@ public class User extends BaseEntity implements UserDetails, Principal {
     }
 
     @PrePersist
-    void onCreate() {
-        setStatusType(StatusType.ONLINE);
+    void initAccount() {
+        setEnabled(false);
+        setAccountLocked(false);
+        setStatusType(StatusType.OFFLINE);
     }
 
 }

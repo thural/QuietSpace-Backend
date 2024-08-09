@@ -1,19 +1,14 @@
 package dev.thural.quietspace.controller;
 
-import dev.thural.quietspace.model.request.ReactionRequest;
-import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.model.request.CommentRequest;
-import dev.thural.quietspace.model.response.ReactionResponse;
+import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.service.CommentService;
-import dev.thural.quietspace.service.ReactionService;
-import dev.thural.quietspace.utils.enums.ContentType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -25,7 +20,6 @@ public class CommentController {
     public static final String COMMENT_PATH_ID = "/{commentId}";
 
     private final CommentService commentService;
-    private final ReactionService reactionService;
 
 
     @GetMapping("/post/{postId}")
@@ -84,17 +78,6 @@ public class CommentController {
     @PatchMapping(COMMENT_PATH_ID)
     ResponseEntity<CommentResponse> patchComment(@PathVariable UUID commentId, @RequestBody CommentRequest comment) {
         return ResponseEntity.ok(commentService.patchComment(commentId, comment));
-    }
-
-    @GetMapping(value = COMMENT_PATH_ID + "/likes")
-    List<ReactionResponse> getCommentLikesById(@PathVariable UUID commentId) {
-        return reactionService.getReactionsByContentId(commentId, ContentType.COMMENT);
-    }
-
-    @PostMapping("/toggle-reaction")
-    ResponseEntity<?> toggleCommentLike(@RequestBody ReactionRequest reaction) {
-        reactionService.handleReaction(reaction);
-        return ResponseEntity.ok().build();
     }
 
 }

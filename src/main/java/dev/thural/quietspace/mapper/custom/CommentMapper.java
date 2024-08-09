@@ -11,7 +11,7 @@ import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.repository.ReactionRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.ReactionService;
-import dev.thural.quietspace.utils.enums.LikeType;
+import dev.thural.quietspace.utils.enums.ReactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -28,16 +28,18 @@ public class CommentMapper {
     private final ReactionService reactionService;
 
 
-    public Comment commentRequestToEntity(CommentRequest comment){
+    public Comment commentRequestToEntity(CommentRequest comment) {
         return Comment.builder()
                 .parentId(comment.getParentId())
                 .text(comment.getText())
                 .user(getUserById(comment.getUserId()))
                 .post(getPostById(comment.getPostId()))
                 .build();
-    };
+    }
 
-    public CommentResponse commentEntityToResponse(Comment comment){
+    ;
+
+    public CommentResponse commentEntityToResponse(Comment comment) {
         return CommentResponse.builder()
                 .id(comment.getId())
                 .parentId(comment.getParentId())
@@ -51,25 +53,27 @@ public class CommentMapper {
                 .likeCount(getLikeCount(comment.getId()))
                 .replyCount(getReplyCount(comment.getId(), comment.getPost()))
                 .build();
-    };
+    }
 
-    private Post getPostById(UUID postId){
+    ;
+
+    private Post getPostById(UUID postId) {
         return postRepository.findById(postId).orElse(null);
     }
 
-    private User getUserById(UUID userId){
+    private User getUserById(UUID userId) {
         return userRepository.findById(userId).orElse(null);
     }
 
-    private Integer getReplyCount(UUID parentId, Post post){
+    private Integer getReplyCount(UUID parentId, Post post) {
         return commentRepository.countByParentIdAndPost(parentId, post);
     }
 
-    private Integer getLikeCount(UUID commentId){
-        return reactionRepository.countByContentIdAndLikeType(commentId, LikeType.LIKE);
+    private Integer getLikeCount(UUID commentId) {
+        return reactionRepository.countByContentIdAndReactionType(commentId, ReactionType.LIKE);
     }
 
-    private ReactionResponse getUserReaction(UUID commentId){
+    private ReactionResponse getUserReaction(UUID commentId) {
         return reactionService.getUserReactionByContentId(commentId).orElse(null);
     }
 

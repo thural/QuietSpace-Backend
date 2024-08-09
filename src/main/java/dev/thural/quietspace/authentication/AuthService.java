@@ -12,9 +12,11 @@ import dev.thural.quietspace.repository.RoleRepository;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.security.JwtService;
+import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.service.impls.EmailService;
 import dev.thural.quietspace.utils.enums.EmailTemplateName;
 import dev.thural.quietspace.utils.enums.RoleType;
+import dev.thural.quietspace.utils.enums.StatusType;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +25,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +41,7 @@ import java.util.List;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -51,7 +53,7 @@ public class AuthService {
     private String activationUrl;
 
     public void register(RegistrationRequest request) throws MessagingException {
-        log.info("Registering new user with email: {}", request.getEmail());
+        log.info("registering new user with email: {}", request.getEmail());
 
         Role userRole = roleRepository.findByName(RoleType.USER.toString())
                 .orElseThrow(() -> new IllegalStateException("ROLE USER has not been initiated"));
@@ -88,6 +90,7 @@ public class AuthService {
         String jwtRefreshToken = jwtService.generateRefreshToken(claims, user);
         log.info("generated jwt token during authentication: {}", jwtAccessToken);
 
+        setOnlineStatus(user.getEmail(), StatusType.ONLINE);
         return AuthResponse.builder()
                 .message("authentication was successful")
                 .userId(user.getId().toString())
@@ -99,15 +102,15 @@ public class AuthService {
     @Transactional
     public void activateAccount(String token) throws MessagingException {
         Token existingToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new ActivationTokenException("Invalid token, please try again"));
+                .orElseThrow(() -> new ActivationTokenException("invalid token, please try again"));
 
         if (OffsetDateTime.now().isAfter(existingToken.getExpireDate())) {
             sendValidationEmail(existingToken.getUser());
-            throw new RuntimeException("Activation token has expired. A new token has been sent");
+            throw new RuntimeException("activation token has expired... a new token has been sent");
         }
 
         User user = userRepository.findById(existingToken.getUser().getId())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(UserNotFoundException::new);
         user.setEnabled(true);
         userRepository.save(user);
 
@@ -123,6 +126,7 @@ public class AuthService {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             addToBlacklist(authHeader, currentUserName);
+            setOnlineStatus(StatusType.OFFLINE);
             SecurityContextHolder.clearContext();
         }
     }
@@ -222,4 +226,20 @@ public class AuthService {
             throw new ActivationTokenException("invalid request: account has already been activated");
         sendValidationEmail(foundUser);
     }
+
+    private void setOnlineStatus(StatusType type) {
+        // TODO: consider user settings after implementation
+        User user = userService.getSignedUser();
+        user.setStatusType(type);
+        userRepository.save(user);
+    }
+
+    private void setOnlineStatus(String email, StatusType type) {
+        // TODO: consider user settings after implementation
+        User user = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(UserNotFoundException::new);
+        user.setStatusType(type);
+        userRepository.save(user);
+    }
+
 }

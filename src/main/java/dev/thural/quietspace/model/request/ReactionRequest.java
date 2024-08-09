@@ -1,7 +1,7 @@
 package dev.thural.quietspace.model.request;
 
 import dev.thural.quietspace.utils.enums.ContentType;
-import dev.thural.quietspace.utils.enums.LikeType;
+import dev.thural.quietspace.utils.enums.ReactionType;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -25,6 +25,6 @@ public class ReactionRequest {
     private ContentType contentType;
 
     @NotNull
-    private LikeType likeType;
+    private ReactionType reactionType;
 
 }

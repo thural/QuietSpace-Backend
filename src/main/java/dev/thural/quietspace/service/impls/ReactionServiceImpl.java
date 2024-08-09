@@ -9,7 +9,7 @@ import dev.thural.quietspace.repository.ReactionRepository;
 import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.utils.enums.ContentType;
-import dev.thural.quietspace.utils.enums.LikeType;
+import dev.thural.quietspace.utils.enums.ReactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,10 +34,10 @@ public class ReactionServiceImpl implements ReactionService {
 
         if (foundReaction == null) {
             reactionRepository.save(reactionMapper.reactionRequestToEntity(reaction));
-        } else if (reaction.getLikeType().equals(foundReaction.getLikeType())) {
+        } else if (reaction.getReactionType().equals(foundReaction.getReactionType())) {
             reactionRepository.deleteById(foundReaction.getId());
         } else {
-            foundReaction.setLikeType(reaction.getLikeType());
+            foundReaction.setReactionType(reaction.getReactionType());
             reactionRepository.save(foundReaction);
         }
     }
@@ -50,29 +50,26 @@ public class ReactionServiceImpl implements ReactionService {
     }
 
     @Override
-    public List<ReactionResponse> getReactionsByContentIdAndLikeType(UUID contentId, LikeType likeType) {
-        return reactionRepository.findAllByContentIdAndLikeType(contentId, LikeType.LIKE)
-                .stream().map(reactionMapper::reactionEntityToResponse)
-                .toList();
+    public List<ReactionResponse> getReactionsByContentIdAndReactionType(UUID contentId, ReactionType reactionType) {
+        return reactionRepository.findAllByContentIdAndReactionType(contentId, ReactionType.LIKE)
+                .stream().map(reactionMapper::reactionEntityToResponse).toList();
     }
 
     @Override
-    public Integer getLikeCountByContentIdAndLikeType(UUID contentId, LikeType likeType) {
-        return reactionRepository.countByContentIdAndLikeType(contentId, LikeType.LIKE);
+    public Integer getLikeCountByContentIdAndReactionType(UUID contentId, ReactionType reactionType) {
+        return reactionRepository.countByContentIdAndReactionType(contentId, ReactionType.LIKE);
     }
 
     @Override
-    public List<ReactionResponse> getReactionsByContentId(UUID contentId, ContentType type) {
+    public List<ReactionResponse> getReactionsByContentIdAndContentType(UUID contentId, ContentType type) {
         return reactionRepository.findAllByContentIdAndContentType(contentId, type)
-                .stream().map(reactionMapper::reactionEntityToResponse)
-                .toList();
+                .stream().map(reactionMapper::reactionEntityToResponse).toList();
     }
 
     @Override
-    public List<ReactionResponse> getReactionsByUserId(UUID userId, ContentType contentType) {
+    public List<ReactionResponse> getReactionsByUserIdAndContentType(UUID userId, ContentType contentType) {
         return reactionRepository.findAllByUserIdAndContentType(userId, contentType)
-                .stream().map(reactionMapper::reactionEntityToResponse)
-                .toList();
+                .stream().map(reactionMapper::reactionEntityToResponse).toList();
     }
 
 }

@@ -3,17 +3,17 @@ package dev.thural.quietspace.controller;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.FollowResponse;
 import dev.thural.quietspace.model.response.PostResponse;
-import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.model.response.UserResponse;
-import dev.thural.quietspace.service.*;
-import dev.thural.quietspace.utils.enums.ContentType;
+import dev.thural.quietspace.service.FollowService;
+import dev.thural.quietspace.service.PostService;
+import dev.thural.quietspace.service.ReactionService;
+import dev.thural.quietspace.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import lombok.RequiredArgsConstructor;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -29,7 +29,6 @@ public class UserController {
     private final UserService userService;
     private final PostService postService;
     private final FollowService followService;
-    private final ReactionService reactionService;
 
     @GetMapping
     Page<UserResponse> listUsers(
@@ -106,16 +105,6 @@ public class UserController {
             @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {
         return followService.listFollowers(pageNumber, pageSize);
-    }
-
-    @GetMapping(USER_PATH_ID + "/post-likes")
-    List<ReactionResponse> getPostLikesByUserId(@PathVariable UUID userId) {
-        return reactionService.getReactionsByUserId(userId, ContentType.POST);
-    }
-
-    @GetMapping(USER_PATH_ID + "/comment-likes")
-    List<ReactionResponse> getCommentLikesByUserId(@PathVariable UUID userId) {
-        return reactionService.getReactionsByUserId(userId, ContentType.COMMENT);
     }
 
 }
