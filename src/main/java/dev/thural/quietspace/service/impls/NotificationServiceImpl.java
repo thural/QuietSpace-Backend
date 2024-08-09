@@ -11,7 +11,9 @@ import dev.thural.quietspace.repository.NotificationRepository;
 import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.UserService;
+import dev.thural.quietspace.utils.enums.ContentType;
 import dev.thural.quietspace.utils.enums.NotificationType;
+import dev.thural.quietspace.utils.enums.ReactionType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -90,6 +92,13 @@ public class NotificationServiceImpl implements NotificationService {
             template.convertAndSendToUser(notification.getUserId().toString(), NOTIFICATION_SUBJECT_PATH, notification);
         } catch (Exception exception) {
             log.info("failed to notify {} to user {}", notification.getNotificationType(), notification.getUserId());
+        }
+    }
+
+    public void processNotificationByReaction(ContentType type, UUID contentId) {
+        switch (type) {
+            case COMMENT -> processNotification(NotificationType.COMMENT_REACTION, contentId);
+            case POST -> processNotification(NotificationType.POST_REACTION, contentId);
         }
     }
 

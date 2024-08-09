@@ -2,8 +2,10 @@ package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.ReactionResponse;
+import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.utils.enums.ContentType;
+import dev.thural.quietspace.utils.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ReactionController {
     private final ReactionService reactionService;
+    private final NotificationService notificationService;
 
     @GetMapping("/user")
     Page<ReactionResponse> getReactionsByUserId(
@@ -38,8 +41,9 @@ public class ReactionController {
     }
 
     @PostMapping("/toggle-reaction")
-    ResponseEntity<?> toggleCommentLike(@RequestBody ReactionRequest reaction) {
+    ResponseEntity<?> toggleReaction(@RequestBody ReactionRequest reaction) {
         reactionService.handleReaction(reaction);
+        notificationService.processNotificationByReaction(reaction.getContentType(), reaction.getContentId());
         return ResponseEntity.ok().build();
     }
 

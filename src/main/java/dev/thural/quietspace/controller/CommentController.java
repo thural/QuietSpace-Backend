@@ -3,6 +3,8 @@ package dev.thural.quietspace.controller;
 import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.service.CommentService;
+import dev.thural.quietspace.service.NotificationService;
+import dev.thural.quietspace.utils.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ public class CommentController {
     public static final String COMMENT_PATH_ID = "/{commentId}";
 
     private final CommentService commentService;
+    private final NotificationService notificationService;
 
 
     @GetMapping("/post/{postId}")
@@ -58,7 +61,9 @@ public class CommentController {
 
     @PostMapping
     ResponseEntity<CommentResponse> createComment(@RequestBody @Validated CommentRequest comment) {
-        return ResponseEntity.ok(commentService.createComment(comment));
+        CommentResponse response = commentService.createComment(comment);
+        notificationService.processNotification(NotificationType.COMMENT, comment.getPostId());
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping(COMMENT_PATH_ID)
