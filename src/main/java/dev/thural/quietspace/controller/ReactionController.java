@@ -5,10 +5,10 @@ import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.utils.enums.ContentType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -18,13 +18,23 @@ public class ReactionController {
     private final ReactionService reactionService;
 
     @GetMapping("/user")
-    List<ReactionResponse> getReactionsByUserId(@RequestParam UUID userId, @RequestParam ContentType contentType) {
-        return reactionService.getReactionsByUserIdAndContentType(userId, contentType);
+    Page<ReactionResponse> getReactionsByUserId(
+            @RequestParam UUID userId,
+            @RequestParam ContentType contentType,
+            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+            @RequestParam(name = "page-size", required = false) Integer pageSize
+    ) {
+        return reactionService.getReactionsByUserIdAndContentType(userId, contentType, pageNumber, pageSize);
     }
 
     @GetMapping("/content")
-    List<ReactionResponse> getReactionsByContentId(@RequestParam UUID contentId, @RequestParam ContentType contentType) {
-        return reactionService.getReactionsByContentIdAndContentType(contentId, contentType);
+    Page<ReactionResponse> getReactionsByContentId(
+            @RequestParam UUID contentId,
+            @RequestParam ContentType contentType,
+            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+            @RequestParam(name = "page-size", required = false) Integer pageSize
+    ) {
+        return reactionService.getReactionsByContentIdAndContentType(contentId, contentType, pageNumber, pageSize);
     }
 
     @PostMapping("/toggle-reaction")

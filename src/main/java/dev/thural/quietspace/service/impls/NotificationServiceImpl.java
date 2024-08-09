@@ -1,5 +1,6 @@
 package dev.thural.quietspace.service.impls;
 
+import dev.thural.quietspace.entity.Notification;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.mapper.custom.NotificationMapper;
 import dev.thural.quietspace.model.response.NotificationResponse;
@@ -58,4 +59,5 @@ public class NotificationServiceImpl implements NotificationService {
         User signedUser = userService.getSignedUser();
         return notificationRepository.countByUserIdAndIsSeen(signedUser.getId(), false);
     }
+
 }

@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,16 +80,16 @@ class ReactionRepositoryTest {
 
     @Test
     void findAllByContentId() {
-        List<Reaction> reactions = reactionRepository.findAllByContentId(savedReaction.getContentId());
-        assertThat(reactions.size()).isEqualTo(1);
-        assertThat(reactions.get(0)).isEqualTo(savedReaction);
+        Page<Reaction> reactions = reactionRepository.findAllByContentId(savedReaction.getContentId(), null);
+        assertThat(reactions.toList().size()).isEqualTo(1);
+        assertThat(reactions.toList().getFirst()).isEqualTo(savedReaction);
     }
 
     @Test
     void findAllByUserId() {
-        List<Reaction> reactions = reactionRepository.findAllByUserId(savedUser.getId());
-        assertThat(reactions.size()).isEqualTo(1);
-        assertThat(reactions.get(0)).isEqualTo(savedReaction);
+        Page<Reaction> reactions = reactionRepository.findAllByUserId(savedUser.getId(), null);
+        assertThat(reactions.toList().size()).isEqualTo(1);
+        assertThat(reactions.toList().getFirst()).isEqualTo(savedReaction);
     }
 
     @Test
@@ -107,23 +107,23 @@ class ReactionRepositoryTest {
 
     @Test
     void findAllByContentTypeAndUserId() {
-        List<Reaction> reactions = reactionRepository.findAllByContentTypeAndUserId(ContentType.POST, savedUser.getId());
-        assertThat(reactions.size()).isEqualTo(1);
-        assertThat(reactions.get(0)).isEqualTo(savedReaction);
+        Page<Reaction> reactions = reactionRepository.findAllByContentTypeAndUserId(ContentType.POST, savedUser.getId(), null);
+        assertThat(reactions.toList().size()).isEqualTo(1);
+        assertThat(reactions.toList().getFirst()).isEqualTo(savedReaction);
     }
 
     @Test
     void findAllByContentIdAndContentType() {
-        List<Reaction> reactions = reactionRepository.findAllByContentId(savedReaction.getContentId());
-        assertThat(reactions.size()).isEqualTo(1);
-        assertThat(reactions.get(0)).isEqualTo(savedReaction);
+        Page<Reaction> reactions = reactionRepository.findAllByContentId(savedReaction.getContentId(), null);
+        assertThat(reactions.toList().size()).isEqualTo(1);
+        assertThat(reactions.toList().getFirst()).isEqualTo(savedReaction);
     }
 
     @Test
     void findAllByUserIdAndContentType() {
-        List<Reaction> reactions = reactionRepository.findAllByUserIdAndContentType(savedUser.getId(), ContentType.POST);
-        assertThat(reactions.size()).isEqualTo(1);
-        assertThat(reactions.get(0)).isEqualTo(savedReaction);
+        Page<Reaction> reactions = reactionRepository.findAllByUserIdAndContentType(savedUser.getId(), ContentType.POST, null);
+        assertThat(reactions.toList().size()).isEqualTo(1);
+        assertThat(reactions.toList().getFirst()).isEqualTo(savedReaction);
     }
 
     @Test
@@ -134,8 +134,8 @@ class ReactionRepositoryTest {
 
     @Test
     void findAllByContentIdAndLikeType() {
-        List<Reaction> reactions = reactionRepository.findAllByContentIdAndReactionType(post.getId(), ReactionType.LIKE);
-        assertThat(reactions.size()).isEqualTo(1);
-        assertThat(reactions.get(0)).isEqualTo(savedReaction);
+        Page<Reaction> reactions = reactionRepository.findAllByContentIdAndReactionType(post.getId(), ReactionType.LIKE, null);
+        assertThat(reactions.toList().size()).isEqualTo(1);
+        assertThat(reactions.toList().getFirst()).isEqualTo(savedReaction);
     }
 }

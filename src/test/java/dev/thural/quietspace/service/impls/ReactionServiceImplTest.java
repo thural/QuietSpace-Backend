@@ -15,11 +15,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static dev.thural.quietspace.utils.PagingProvider.DEFAULT_SORT_OPTION;
+import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -77,7 +80,6 @@ class ReactionServiceImplTest {
         when(reactionRepository.findByContentIdAndUserId(contentId, userId)).thenReturn(Optional.of(reaction));
 
         reactionService.handleReaction(reactionRequest);
-
         verify(reactionRepository, times(1)).deleteById(reaction.getId());
     }
 
@@ -102,42 +104,44 @@ class ReactionServiceImplTest {
         when(reactionRepository.findByContentIdAndUserId(contentId, userId)).thenReturn(Optional.of(reaction));
         when(reactionMapper.reactionEntityToResponse(any(Reaction.class))).thenReturn(ReactionResponse.builder().build());
 
-        reactionService.getUserReactionByContentId(contentId);
-
         assertThat(reactionService.getUserReactionByContentId(contentId)).isNotEmpty();
     }
 
     @Test
     void getLikesByContentId() {
-        when(reactionRepository.findAllByContentIdAndReactionType(contentId, ReactionType.LIKE)).thenReturn(List.of(reaction));
+        PageRequest pageRequest = buildPageRequest(1, 25, DEFAULT_SORT_OPTION);
+        when(reactionRepository.findAllByContentIdAndReactionType(contentId, ReactionType.LIKE, pageRequest)).thenReturn(Page.empty());
         when(reactionMapper.reactionEntityToResponse(any(Reaction.class))).thenReturn(ReactionResponse.builder().build());
 
-        reactionService.getReactionsByContentIdAndReactionType(contentId, ReactionType.LIKE);
-        assertThat(reactionService.getReactionsByContentIdAndReactionType(contentId, ReactionType.LIKE)).size().isEqualTo(1);
+        Page<ReactionResponse> responsePage = reactionService.getReactionsByContentIdAndReactionType(contentId, ReactionType.LIKE, 1, 25);
+        assertThat(responsePage).size().isEqualTo(1);
     }
 
     @Test
     void getLikeCountByContentId() {
         when(reactionRepository.countByContentIdAndReactionType(contentId, ReactionType.LIKE)).thenReturn(3);
-        reactionService.getLikeCountByContentIdAndReactionType(contentId, ReactionType.LIKE);
-        assertThat(reactionService.getLikeCountByContentIdAndReactionType(contentId, ReactionType.LIKE)).isEqualTo(3);
+        Integer likeCount = reactionService.getLikeCountByContentIdAndReactionType(contentId, ReactionType.LIKE);
+
+        assertThat(likeCount).isEqualTo(3);
     }
 
     @Test
     void getReactionsByContentId() {
-        when(reactionRepository.findAllByContentIdAndContentType(contentId, ContentType.POST)).thenReturn(List.of(reaction));
+        PageRequest pageRequest = buildPageRequest(1, 25, DEFAULT_SORT_OPTION);
+        when(reactionRepository.findAllByContentIdAndContentType(contentId, ContentType.POST, pageRequest)).thenReturn(Page.empty());
         when(reactionMapper.reactionEntityToResponse(any(Reaction.class))).thenReturn(ReactionResponse.builder().build());
 
-        reactionService.getReactionsByContentIdAndContentType(contentId, ContentType.POST);
-        assertThat(reactionService.getReactionsByContentIdAndContentType(contentId, ContentType.POST)).isNotEmpty();
+        Page<ReactionResponse> responsePage = reactionService.getReactionsByContentIdAndContentType(contentId, ContentType.POST, 1, 25);
+        assertThat(responsePage).isNotEmpty();
     }
 
     @Test
     void getReactionsByUserId() {
-        when(reactionRepository.findAllByUserIdAndContentType(userId, ContentType.POST)).thenReturn(List.of(reaction));
+        PageRequest pageRequest = buildPageRequest(1, 25, DEFAULT_SORT_OPTION);
+        when(reactionRepository.findAllByUserIdAndContentType(userId, ContentType.POST, pageRequest)).thenReturn(Page.empty());
         when(reactionMapper.reactionEntityToResponse(any(Reaction.class))).thenReturn(ReactionResponse.builder().build());
 
-        reactionService.getReactionsByUserIdAndContentType(userId, ContentType.POST);
-        assertThat(reactionService.getReactionsByUserIdAndContentType(userId, ContentType.POST)).isNotEmpty();
+        Page<ReactionResponse> responsePage = reactionService.getReactionsByUserIdAndContentType(userId, ContentType.POST, 1, 25);
+        assertThat(responsePage).isNotEmpty();
     }
 }

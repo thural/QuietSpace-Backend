@@ -21,7 +21,7 @@ public class NotificationController {
 
 
     @PostMapping("/seen/{contentId}")
-    ResponseEntity<?> handleSeen(UUID contentId) {
+    ResponseEntity<?> handleSeen(@PathVariable UUID contentId) {
         notificationService.handleSeen(contentId);
         return ResponseEntity.accepted().build();
     }
@@ -38,7 +38,7 @@ public class NotificationController {
     Page<NotificationResponse> getNotificationsByType(
             @RequestParam Integer pageNumber,
             @RequestParam Integer pageSize,
-            String notificationType
+            @PathVariable String notificationType
     ) {
         return notificationService.getNotificationsByType(pageNumber, pageSize, notificationType);
     }

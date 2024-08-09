@@ -11,11 +11,15 @@ import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.utils.enums.ContentType;
 import dev.thural.quietspace.utils.enums.ReactionType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static dev.thural.quietspace.utils.PagingProvider.DEFAULT_SORT_OPTION;
+import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -50,9 +54,10 @@ public class ReactionServiceImpl implements ReactionService {
     }
 
     @Override
-    public List<ReactionResponse> getReactionsByContentIdAndReactionType(UUID contentId, ReactionType reactionType) {
-        return reactionRepository.findAllByContentIdAndReactionType(contentId, ReactionType.LIKE)
-                .stream().map(reactionMapper::reactionEntityToResponse).toList();
+    public Page<ReactionResponse> getReactionsByContentIdAndReactionType(UUID contentId, ReactionType reactionType, Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
+        return reactionRepository.findAllByContentIdAndReactionType(contentId, ReactionType.LIKE, pageRequest)
+                .map(reactionMapper::reactionEntityToResponse);
     }
 
     @Override
@@ -61,15 +66,17 @@ public class ReactionServiceImpl implements ReactionService {
     }
 
     @Override
-    public List<ReactionResponse> getReactionsByContentIdAndContentType(UUID contentId, ContentType type) {
-        return reactionRepository.findAllByContentIdAndContentType(contentId, type)
-                .stream().map(reactionMapper::reactionEntityToResponse).toList();
+    public Page<ReactionResponse> getReactionsByContentIdAndContentType(UUID contentId, ContentType type, Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
+        return reactionRepository.findAllByContentIdAndContentType(contentId, type, pageRequest)
+                .map(reactionMapper::reactionEntityToResponse);
     }
 
     @Override
-    public List<ReactionResponse> getReactionsByUserIdAndContentType(UUID userId, ContentType contentType) {
-        return reactionRepository.findAllByUserIdAndContentType(userId, contentType)
-                .stream().map(reactionMapper::reactionEntityToResponse).toList();
+    public Page<ReactionResponse> getReactionsByUserIdAndContentType(UUID userId, ContentType contentType, Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
+        return reactionRepository.findAllByUserIdAndContentType(userId, contentType, pageRequest)
+                .map(reactionMapper::reactionEntityToResponse);
     }
 
 }
