@@ -16,6 +16,7 @@ public class CustomErrorException extends RuntimeException {
 
     public CustomErrorException(String message) {
         super(message);
+        this.status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
     public CustomErrorException(HttpStatus status, String message) {

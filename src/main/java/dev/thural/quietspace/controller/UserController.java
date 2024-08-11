@@ -1,12 +1,9 @@
 package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.model.request.UserRegisterRequest;
-import dev.thural.quietspace.model.response.FollowResponse;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.UserResponse;
-import dev.thural.quietspace.service.FollowService;
 import dev.thural.quietspace.service.PostService;
-import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,11 +21,10 @@ public class UserController {
     public static final String USER_PATH = "/api/v1/users";
     public static final String USER_PATH_ID = "/{userId}";
     public static final String FOLLOW_PATH_ID = "/follow/{userId}";
-    public static final String FOLLOW_USER_TOGGLE = FOLLOW_PATH_ID + "/toggle-follow";
+    public static final String FOLLOW_USER_TOGGLE_PATH = FOLLOW_PATH_ID + "/toggle-follow";
 
     private final UserService userService;
     private final PostService postService;
-    private final FollowService followService;
 
     @GetMapping
     Page<UserResponse> listUsers(
@@ -85,26 +81,32 @@ public class UserController {
         return postService.getPostsByUserId(userId, pageNumber, pageSize);
     }
 
-    @PostMapping(FOLLOW_USER_TOGGLE)
+    @PostMapping(FOLLOW_USER_TOGGLE_PATH)
     ResponseEntity<?> toggleFollow(@PathVariable UUID userId) {
-        followService.toggleFollow(userId);
+        userService.toggleFollow(userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/followers/remove/{userId}")
+    ResponseEntity<?> removeFollower(@PathVariable UUID userId) {
+        userService.removeFollower(userId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/followings")
-    Page<FollowResponse> listFollowings(
+    Page<UserResponse> listFollowings(
             @RequestParam(name = "page-number", required = false) Integer pageNumber,
             @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {
-        return followService.listFollowings(pageNumber, pageSize);
+        return userService.listFollowings(pageNumber, pageSize);
     }
 
     @GetMapping("/followers")
-    Page<FollowResponse> listFollowers(
+    Page<UserResponse> listFollowers(
             @RequestParam(name = "page-number", required = false) Integer pageNumber,
             @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {
-        return followService.listFollowers(pageNumber, pageSize);
+        return userService.listFollowers(pageNumber, pageSize);
     }
 
 }

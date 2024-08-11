@@ -1,7 +1,6 @@
 package dev.thural.quietspace.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import dev.thural.quietspace.utils.enums.RoleType;
 import dev.thural.quietspace.utils.enums.StatusType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -17,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.security.Principal;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,11 +66,19 @@ public class User extends BaseEntity implements UserDetails, Principal {
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Message> messages;
 
-    @JsonIgnore
-    private List<User> followings;
 
     @JsonIgnore
-    private List<User> followers;
+    @ManyToMany
+    @JoinTable(
+            name = "user_followings",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "followings_id")
+    )
+    private List<User> followings = new ArrayList<>();
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "followings")
+    private List<User> followers = new ArrayList<>();
 
 
     @JsonIgnore

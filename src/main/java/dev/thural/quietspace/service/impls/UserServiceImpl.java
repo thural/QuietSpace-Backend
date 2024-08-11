@@ -1,15 +1,16 @@
 package dev.thural.quietspace.service.impls;
 
+import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.exception.CustomErrorException;
 import dev.thural.quietspace.exception.UnauthorizedException;
 import dev.thural.quietspace.exception.UserNotFoundException;
+import dev.thural.quietspace.mapper.UserMapper;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
-import dev.thural.quietspace.repository.TokenRepository;
-import dev.thural.quietspace.utils.PagingProvider;
-import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.mapper.UserMapper;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.UserService;
+import dev.thural.quietspace.utils.ListToPage;
+import dev.thural.quietspace.utils.PagingProvider;
 import dev.thural.quietspace.utils.enums.RoleType;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -17,15 +18,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static dev.thural.quietspace.utils.PagingProvider.DEFAULT_SORT_OPTION;
+import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -34,12 +40,11 @@ public class UserServiceImpl implements UserService {
     private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserMapper userMapper;
     private final UserRepository userRepository;
-    private final TokenRepository tokenRepository;
 
     @Override
     public Page<UserResponse> listUsers(String username, Integer pageNumber, Integer pageSize) {
 
-        PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, null);
+        PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
         Page<User> userPage;
 
         if (StringUtils.hasText(username)) {
@@ -54,7 +59,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserResponse> listUsersByQuery(String query, Integer pageNumber, Integer pageSize) {
 
-        PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, null);
+        PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
         Page<User> userPage;
 
         if (StringUtils.hasText(query)) {
@@ -84,14 +89,14 @@ public class UserServiceImpl implements UserService {
     public List<User> getUsersFromIdList(List<UUID> userIds) {
         return userIds.stream()
                 .map(userId -> userRepository.findById(userId)
-                        .orElseThrow(() -> new UserNotFoundException("user not found")))
+                        .orElseThrow(UserNotFoundException::new))
                 .toList();
     }
 
     @Override
     public Optional<UserResponse> getUserResponseById(UUID id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
+                .orElseThrow(UserNotFoundException::new);
         UserResponse userResponse = userMapper.userEntityToResponse(user);
         return Optional.of(userResponse);
     }
@@ -99,7 +104,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> getUserById(UUID userId) {
         User foundUser = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
+                .orElseThrow(UserNotFoundException::new);
         return Optional.of(foundUser);
     }
 
@@ -135,6 +140,55 @@ public class UserServiceImpl implements UserService {
     private static boolean isHasAdminRole(User signedUser) {
         return signedUser.getRoles().stream()
                 .anyMatch(role -> role.getName().equals("ROLE_".concat(RoleType.ADMIN.name())));
+    }
+
+    @Override
+    public Page<UserResponse> listFollowings(Integer pageNumber, Integer pageSize) {
+        User user = getSignedUser();
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
+        Page<User> userPage = new ListToPage<User>().convert(user.getFollowings(), pageRequest);
+        return userPage.map(userMapper::userEntityToResponse);
+    }
+
+    @Override
+    public Page<UserResponse> listFollowers(Integer pageNumber, Integer pageSize) {
+        User user = getSignedUser();
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
+        Page<User> userPage = new ListToPage<User>().convert(user.getFollowers(), pageRequest);
+        return userPage.map(userMapper::userEntityToResponse);
+    }
+
+    @Override
+    @Transactional
+    public void toggleFollow(UUID followedUserId) {
+        User user = getSignedUser();
+        if (user.getId().equals(followedUserId))
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, "users can't unfollow themselves");
+        User followedUser = userRepository.findById(followedUserId)
+                .orElseThrow(UserNotFoundException::new);
+
+        if (user.getFollowings().contains(followedUser)) {
+            user.getFollowings().remove(followedUser);
+            followedUser.getFollowers().remove(user);
+        } else {
+            user.getFollowings().add(followedUser);
+            followedUser.getFollowers().add(user);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void removeFollower(UUID followingUserId) {
+        User user = getSignedUser();
+        if (user.getId().equals(followingUserId))
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, "users can't unfollow themselves");
+        User followingUser = userRepository.findById(followingUserId)
+                .orElseThrow(UserNotFoundException::new);
+
+        if (user.getFollowers().contains(followingUser)) {
+            user.getFollowers().remove(followingUser);
+            followingUser.getFollowings().remove(user);
+        } else throw new CustomErrorException("user is not found in followers");
     }
 
 }

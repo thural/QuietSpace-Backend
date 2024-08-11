@@ -4,6 +4,7 @@ import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +28,13 @@ public interface UserService {
 
     Optional<UserResponse> getLoggedUserResponse();
 
+    Page<UserResponse> listFollowings(Integer pageNumber, Integer pageSize);
+
+    Page<UserResponse> listFollowers(Integer pageNumber, Integer pageSize);
+
+    void toggleFollow(UUID followedUserId);
+
     User getSignedUser();
 
+    void removeFollower(UUID followingUserId);
 }
