@@ -3,9 +3,12 @@ package dev.thural.quietspace.controller;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.UserResponse;
+import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.PostService;
 import dev.thural.quietspace.service.UserService;
+import dev.thural.quietspace.utils.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
@@ -25,6 +29,7 @@ public class UserController {
 
     private final UserService userService;
     private final PostService postService;
+    private final NotificationService notificationService;
 
     @GetMapping
     Page<UserResponse> listUsers(
@@ -84,6 +89,8 @@ public class UserController {
     @PostMapping(FOLLOW_USER_TOGGLE_PATH)
     ResponseEntity<?> toggleFollow(@PathVariable UUID userId) {
         userService.toggleFollow(userId);
+        notificationService.processNotification(NotificationType.FOLLOW_REQUEST, userId);
+        log.info("toggle follow for userId: {}", userId);
         return ResponseEntity.ok().build();
     }
 

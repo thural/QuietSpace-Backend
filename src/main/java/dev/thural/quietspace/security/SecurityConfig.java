@@ -34,8 +34,8 @@ public class SecurityConfig {
                         req.requestMatchers(
                                         "/ws",
                                         "/ws/**",
-                                        "api/v1/auth/**",
                                         "api/v1/ws/**",
+                                        "api/v1/auth/**",
                                         "/hello/**",
                                         "/v2/api-docs",
                                         "/v3/api-docs",
@@ -54,7 +54,7 @@ public class SecurityConfig {
                                 .authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-//                .exceptionHandling((exception) -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
+                .exceptionHandling((exception) -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

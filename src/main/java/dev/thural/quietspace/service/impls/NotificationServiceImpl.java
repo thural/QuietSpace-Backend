@@ -4,6 +4,7 @@ import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Notification;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.custom.NotificationMapper;
 import dev.thural.quietspace.model.response.NotificationResponse;
 import dev.thural.quietspace.repository.CommentRepository;
@@ -13,11 +14,11 @@ import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.utils.enums.ContentType;
 import dev.thural.quietspace.utils.enums.NotificationType;
-import dev.thural.quietspace.utils.enums.ReactionType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +39,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final PostRepository postRepository;
     private final SimpMessagingTemplate template;
 
-    private static final String NOTIFICATION_SUBJECT_PATH = "/private/notification";
+    private static final String NOTIFICATION_SUBJECT_PATH = "/private/notifications";
 
     @Override
     public void handleSeen(UUID contentId) {
@@ -75,8 +76,11 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     public void processNotification(NotificationType type, UUID contentId) {
+
         UUID signedUserId = userService.getSignedUser().getId();
         UUID recipientId = getRecipientId(type, contentId);
+        String recipientName = userService.getUserById(recipientId)
+                .map(User::getUsername).orElseThrow(UserNotFoundException::new);
 
         var notification = notificationRepository.save(
                 Notification
@@ -89,9 +93,11 @@ public class NotificationServiceImpl implements NotificationService {
         );
 
         try {
-            template.convertAndSendToUser(notification.getUserId().toString(), NOTIFICATION_SUBJECT_PATH, notification);
-        } catch (Exception exception) {
-            log.info("failed to notify {} to user {}", notification.getNotificationType(), notification.getUserId());
+            log.info("notified {} user {}", notification.getNotificationType(), notification.getUserId());
+            template.convertAndSendToUser(recipientName, "/notifications", notification);
+            System.out.println("notification was sent to user: " + recipientName);
+        } catch (MessagingException exception) {
+            log.info("failed to notify {} user {}", notification.getNotificationType(), notification.getUserId());
         }
     }
 

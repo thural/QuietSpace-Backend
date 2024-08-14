@@ -79,10 +79,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getSignedUser() {
-        log.info("current user name {}", SecurityContextHolder.getContext().getAuthentication().getName());
+        log.info("current user name in Spring SecurityContext {}", SecurityContextHolder.getContext().getAuthentication().getName());
 
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findUserByUsername(email).orElseThrow(UserNotFoundException::new);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findUserByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
     @Override

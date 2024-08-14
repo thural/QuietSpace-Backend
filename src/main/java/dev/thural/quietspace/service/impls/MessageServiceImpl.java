@@ -3,7 +3,7 @@ package dev.thural.quietspace.service.impls;
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.mapper.MessageMapper;
+import dev.thural.quietspace.mapper.custom.MessageMapper;
 import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.MessageResponse;
 import dev.thural.quietspace.repository.ChatRepository;
@@ -12,6 +12,7 @@ import dev.thural.quietspace.service.MessageService;
 import dev.thural.quietspace.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService {
@@ -32,6 +34,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public MessageResponse addMessage(MessageRequest messageRequest) {
+        log.info("message at addMessage method: {}", messageRequest.getText());
         User loggedUser = userService.getSignedUser();
 
         Chat parentChat = chatRepository.findById(messageRequest.getChatId())
@@ -83,7 +86,7 @@ public class MessageServiceImpl implements MessageService {
         Message existingMessage = findMessageOrElseThrow(messageId);
         checkResourceAccess(existingMessage.getId());
         existingMessage.setSeen(true);
-        
+
         Message savedMessage = messageRepository.save(existingMessage);
         return Optional.ofNullable(messageMapper.toResponse(savedMessage));
     }
