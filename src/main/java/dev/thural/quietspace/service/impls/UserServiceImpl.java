@@ -12,6 +12,8 @@ import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.utils.ListToPage;
 import dev.thural.quietspace.utils.PagingProvider;
 import dev.thural.quietspace.utils.enums.RoleType;
+import dev.thural.quietspace.utils.enums.StatusType;
+import dev.thural.quietspace.websocket.model.UserRepresentation;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -189,6 +191,26 @@ public class UserServiceImpl implements UserService {
             user.getFollowers().remove(followingUser);
             followingUser.getFollowings().remove(user);
         } else throw new CustomErrorException("user is not found in followers");
+    }
+
+    @Override
+    public void setOnlineStatus(String userEmail, StatusType type) {
+        userRepository.findUserEntityByEmail(userEmail)
+                .ifPresent((storedUser) -> {
+                    storedUser.setStatusType(StatusType.OFFLINE);
+                    userRepository.save(storedUser);
+                });
+    }
+
+    @Override
+    public List<UserResponse> findConnectedFollowings(UserRepresentation user) {
+        return userRepository.findUserEntityByEmail(user.getEmail()).map(
+                foundUser -> foundUser.getFollowings()
+                        .stream()
+                        .filter(following -> following.getStatusType().equals(StatusType.ONLINE))
+                        .map(userMapper::userEntityToResponse)
+                        .toList()
+        ).orElse(List.of());
     }
 
 }

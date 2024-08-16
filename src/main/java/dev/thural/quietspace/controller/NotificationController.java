@@ -28,8 +28,8 @@ public class NotificationController {
 
     @GetMapping
     Page<NotificationResponse> getAllNotifications(
-            @RequestParam Integer pageNumber,
-            @RequestParam Integer pageSize
+            @RequestParam(required = false) Integer pageNumber,
+            @RequestParam(required = false) Integer pageSize
     ) {
         return notificationService.getAllNotifications(pageNumber, pageSize);
     }

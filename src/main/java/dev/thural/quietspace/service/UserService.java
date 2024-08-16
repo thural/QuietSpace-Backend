@@ -3,6 +3,8 @@ package dev.thural.quietspace.service;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
+import dev.thural.quietspace.utils.enums.StatusType;
+import dev.thural.quietspace.websocket.model.UserRepresentation;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,4 +39,8 @@ public interface UserService {
     User getSignedUser();
 
     void removeFollower(UUID followingUserId);
+
+    void setOnlineStatus(String userEmail, StatusType type);
+
+    List<UserResponse> findConnectedFollowings(UserRepresentation user);
 }

@@ -12,9 +12,11 @@ import java.io.IOException;
 public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
 
     @Override
-    public void commence(HttpServletRequest request,
-                         HttpServletResponse response,
-                         AuthenticationException e) throws IOException {
+    public void commence(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException e
+    ) throws IOException {
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
         String responseToClient = "{\"code\":" + response.getStatus() + ",\"message\":\"" + e.getMessage() + "\"}";
         response.setHeader("Content-Type", "application/json");

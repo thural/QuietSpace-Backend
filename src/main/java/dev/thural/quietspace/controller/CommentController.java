@@ -71,11 +71,13 @@ public class CommentController {
             @PathVariable UUID commentId,
             @RequestBody @Validated CommentRequest comment
     ) {
+        // TODO: broadcast the update over socket
         return ResponseEntity.ok(commentService.updateComment(commentId, comment));
     }
 
     @DeleteMapping(COMMENT_PATH_ID)
     ResponseEntity<?> deleteComment(@PathVariable UUID commentId) {
+        // TODO: broadcast the update over socket
         commentService.deleteComment(commentId);
         return ResponseEntity.noContent().build();
     }

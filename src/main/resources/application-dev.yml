@@ -33,6 +33,7 @@ logging:
     org.springframework.web.socket: TRACE
     org.hibernate.orm.jdbc.bind: TRACE
     dev.thural.quietspace.service: ERROR
+    org.springframework.security: DEBUG
     org.hibernate.sql: DEBUG
     org.springframework.web.servlet.handler.HandlerMappingIntrospector: ERROR
   logback:

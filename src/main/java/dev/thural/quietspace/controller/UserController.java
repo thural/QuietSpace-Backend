@@ -7,13 +7,21 @@ import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.PostService;
 import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.utils.enums.NotificationType;
+import dev.thural.quietspace.utils.enums.StatusType;
+import dev.thural.quietspace.websocket.model.UserRepresentation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -25,9 +33,11 @@ public class UserController {
     public static final String USER_PATH = "/api/v1/users";
     public static final String USER_PATH_ID = "/{userId}";
     public static final String FOLLOW_PATH_ID = "/follow/{userId}";
+    public static final String ONLINE_USERS_PATH = "/user/onlineUsers";
     public static final String FOLLOW_USER_TOGGLE_PATH = FOLLOW_PATH_ID + "/toggle-follow";
 
     private final UserService userService;
+    private final SimpMessagingTemplate template;
     private final PostService postService;
     private final NotificationService notificationService;
 
@@ -114,6 +124,22 @@ public class UserController {
             @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {
         return userService.listFollowers(pageNumber, pageSize);
+    }
+
+
+    // TODO: send to specific list of users instead of broadcasting to all
+    @MessageMapping("/user/setOnlineStatus")
+    @SendTo("/user/public")
+    public UserRepresentation goOffline(@Payload @Valid UserRepresentation user) {
+        userService.setOnlineStatus(user.getEmail(), StatusType.OFFLINE);
+        return user;
+    }
+
+    // TODO: get user from socket session instead of payload
+    @MessageMapping(ONLINE_USERS_PATH)
+    public void getOnlineUsers(@Payload @Valid UserRepresentation user) {
+        List<UserResponse> onLineUsers = userService.findConnectedFollowings(user);
+        template.convertAndSendToUser(String.valueOf(user.getEmail()), ONLINE_USERS_PATH, onLineUsers);
     }
 
 }
