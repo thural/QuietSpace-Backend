@@ -39,6 +39,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final CustomHandshakeHandler handshakeHandler;
 
     @Value("${spring.application.urls.frontend}")
     private String FRONTEND_URL;
@@ -54,7 +55,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
                 .setAllowedOrigins(FRONTEND_URL)
-//                .setHandshakeHandler(handshakeHandler)
+                .setHandshakeHandler(handshakeHandler)
                 .withSockJS();
     }
 

@@ -27,7 +27,7 @@ class CustomHandshakeHandler extends DefaultHandshakeHandler {
     ) {
         User user = userService.getSignedUser();
         log.info("username at CustomHandshakeHandler: {}", user.getName());
-        return new StompPrincipal(user.getName());
+        return new StompPrincipal(user.getId().toString());
     }
 
 }

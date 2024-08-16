@@ -1,9 +1,9 @@
 package dev.thural.quietspace.websocket.event.listener;
 
+import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.utils.enums.EventType;
 import dev.thural.quietspace.utils.enums.StatusType;
 import dev.thural.quietspace.websocket.event.message.BaseEvent;
-import dev.thural.quietspace.websocket.service.UserServiceWs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -22,7 +22,7 @@ import java.security.Principal;
 public class SocketEventListener {
 
     private final SimpMessageSendingOperations messageTemplate;
-    private final UserServiceWs userService;
+    private final UserService userService;
 
     String extractUsernameFromSocketEvent(AbstractSubProtocolEvent event) {
         SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.wrap(event.getMessage());
