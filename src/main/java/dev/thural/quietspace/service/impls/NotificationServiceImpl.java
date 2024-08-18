@@ -94,7 +94,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         try {
             log.info("notified {} user {}", notification.getNotificationType(), notification.getUserId());
-            template.convertAndSendToUser(recipientName, NOTIFICATION_SUBJECT_PATH, notification);
+            template.convertAndSendToUser(recipientId.toString(), NOTIFICATION_SUBJECT_PATH, notification);
             System.out.println("notification was sent to user: " + recipientName);
         } catch (MessagingException exception) {
             log.info("failed to notify {} user {}", notification.getNotificationType(), notification.getUserId());

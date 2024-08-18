@@ -54,7 +54,7 @@ public class SecurityConfig {
                                 .authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-                .exceptionHandling((exception) -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
+//                .exceptionHandling((exception) -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

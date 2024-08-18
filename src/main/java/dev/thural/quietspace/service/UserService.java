@@ -4,9 +4,7 @@ import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.utils.enums.StatusType;
-import dev.thural.quietspace.websocket.model.UserRepresentation;
 import org.springframework.data.domain.Page;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,5 +40,5 @@ public interface UserService {
 
     void setOnlineStatus(String userEmail, StatusType type);
 
-    List<UserResponse> findConnectedFollowings(UserRepresentation user);
+    List<UserResponse> findConnectedFollowings();
 }

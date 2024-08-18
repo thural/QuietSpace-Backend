@@ -1,5 +1,6 @@
 package dev.thural.quietspace.controller;
 
+import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.UserResponse;
@@ -135,11 +136,12 @@ public class UserController {
         return user;
     }
 
-    // TODO: get user from socket session instead of payload
+    // TODO: get user from socket session instead
     @MessageMapping(ONLINE_USERS_PATH)
-    public void getOnlineUsers(@Payload @Valid UserRepresentation user) {
-        List<UserResponse> onLineUsers = userService.findConnectedFollowings(user);
-        template.convertAndSendToUser(String.valueOf(user.getEmail()), ONLINE_USERS_PATH, onLineUsers);
+    public void getOnlineUsers() {
+        User signedUser = userService.getSignedUser();
+        List<UserResponse> onLineUsers = userService.findConnectedFollowings();
+        template.convertAndSendToUser(signedUser.getId().toString(), ONLINE_USERS_PATH, onLineUsers);
     }
 
 }

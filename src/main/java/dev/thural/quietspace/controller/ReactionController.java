@@ -5,7 +5,6 @@ import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.utils.enums.ContentType;
-import dev.thural.quietspace.utils.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +20,7 @@ public class ReactionController {
     private final NotificationService notificationService;
 
     @GetMapping("/user")
-    Page<ReactionResponse> getReactionsByUserId(
+    Page<ReactionResponse> getReactionsByUser(
             @RequestParam UUID userId,
             @RequestParam ContentType contentType,
             @RequestParam(name = "page-number", required = false) Integer pageNumber,
@@ -31,7 +30,7 @@ public class ReactionController {
     }
 
     @GetMapping("/content")
-    Page<ReactionResponse> getReactionsByContentId(
+    Page<ReactionResponse> getReactionsByContent(
             @RequestParam UUID contentId,
             @RequestParam ContentType contentType,
             @RequestParam(name = "page-number", required = false) Integer pageNumber,

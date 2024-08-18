@@ -13,7 +13,6 @@ import dev.thural.quietspace.utils.ListToPage;
 import dev.thural.quietspace.utils.PagingProvider;
 import dev.thural.quietspace.utils.enums.RoleType;
 import dev.thural.quietspace.utils.enums.StatusType;
-import dev.thural.quietspace.websocket.model.UserRepresentation;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -203,14 +202,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserResponse> findConnectedFollowings(UserRepresentation user) {
-        return userRepository.findUserEntityByEmail(user.getEmail()).map(
-                foundUser -> foundUser.getFollowings()
-                        .stream()
-                        .filter(following -> following.getStatusType().equals(StatusType.ONLINE))
-                        .map(userMapper::userEntityToResponse)
-                        .toList()
-        ).orElse(List.of());
+    public List<UserResponse> findConnectedFollowings() {
+        User signedUser = getSignedUser();
+        return signedUser.getFollowings()
+                .stream()
+                .filter(following -> following.getStatusType().equals(StatusType.ONLINE))
+                .map(userMapper::userEntityToResponse).toList();
     }
 
 }

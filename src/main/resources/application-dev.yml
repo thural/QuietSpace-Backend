@@ -31,10 +31,10 @@ logging:
     root: INFO
     org.springframework.messaging: TRACE
     org.springframework.web.socket: TRACE
-    org.hibernate.orm.jdbc.bind: TRACE
-    dev.thural.quietspace.service: ERROR
+    org.hibernate.orm.jdbc.bind: ERROR
+    dev.thural.quietspace.service: DEBUG
     org.springframework.security: DEBUG
-    org.hibernate.sql: DEBUG
+    org.hibernate.sql: ERROR
     org.springframework.web.servlet.handler.HandlerMappingIntrospector: ERROR
   logback:
     rollingpolicy:
