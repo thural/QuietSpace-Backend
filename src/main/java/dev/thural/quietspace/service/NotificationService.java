@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface NotificationService {
 
-    void handleSeen(UUID contentId);
+    void handleSeen(UUID notificationId);
 
     void processNotification(NotificationType type, UUID contentId);
 

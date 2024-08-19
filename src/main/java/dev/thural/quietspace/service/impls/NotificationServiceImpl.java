@@ -13,7 +13,9 @@ import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.utils.enums.ContentType;
+import dev.thural.quietspace.utils.enums.EventType;
 import dev.thural.quietspace.utils.enums.NotificationType;
+import dev.thural.quietspace.websocket.event.message.NotificationEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+import static dev.thural.quietspace.controller.NotificationController.NOTIFICATION_EVENT_PATH;
+import static dev.thural.quietspace.controller.NotificationController.NOTIFICATION_SUBJECT_PATH;
 import static dev.thural.quietspace.utils.PagingProvider.DEFAULT_SORT_OPTION;
 import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 
@@ -39,16 +43,24 @@ public class NotificationServiceImpl implements NotificationService {
     private final PostRepository postRepository;
     private final SimpMessagingTemplate template;
 
-    private static final String NOTIFICATION_SUBJECT_PATH = "/private/notifications";
-
     @Override
-    public void handleSeen(UUID contentId) {
-        User signedUser = userService.getSignedUser();
-        notificationRepository.findByContentIdAndUserId(contentId, signedUser.getId())
+    public void handleSeen(UUID notificationId) {
+        log.info("setting notification with id {} as seen ...", notificationId);
+        
+        User user = userService.getSignedUser();
+        notificationRepository.findByContentIdAndUserId(notificationId, user.getId())
                 .map(entity -> {
                     entity.setIsSeen(true);
                     return entity;
                 }).ifPresent(notificationRepository::save);
+
+        var event = NotificationEvent.builder()
+                .actorId(user.getId())
+                .notificationId(notificationId)
+                .type(EventType.SEEN_NOTIFICATION)
+                .build();
+
+        template.convertAndSendToUser(user.getId().toString(), NOTIFICATION_EVENT_PATH, event);
     }
 
     @Override
@@ -92,12 +104,14 @@ public class NotificationServiceImpl implements NotificationService {
                         .build()
         );
 
+        var response = notificationMapper.toResponse(notification);
+
         try {
-            log.info("notified {} user {}", notification.getNotificationType(), notification.getUserId());
-            template.convertAndSendToUser(recipientId.toString(), NOTIFICATION_SUBJECT_PATH, notification);
+            log.info("notified {} user {}", response.getType(), response.getActorId());
+            template.convertAndSendToUser(recipientId.toString(), NOTIFICATION_SUBJECT_PATH, response);
             System.out.println("notification was sent to user: " + recipientName);
         } catch (MessagingException exception) {
-            log.info("failed to notify {} user {}", notification.getNotificationType(), notification.getUserId());
+            log.info("failed to notify {} user {}", response.getType(), response.getActorId());
         }
     }
 

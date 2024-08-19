@@ -18,6 +18,7 @@ public class NotificationResponse {
     private UUID id;
     private UUID actorId;
     private UUID contentId;
+    private Boolean isSeen;
     private String username;
     private NotificationType type;
     private OffsetDateTime updateDate;

@@ -34,6 +34,7 @@ public class MessageMapper {
                 .builder()
                 .text(message.getText())
                 .id(message.getId())
+                .isSeen(message.getIsSeen())
                 .chatId(message.getChat().getId())
                 .senderId(message.getSender().getId())
                 .recipientId(message.getRecipient().getId())

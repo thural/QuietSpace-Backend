@@ -1,6 +1,5 @@
 package dev.thural.quietspace.entity;
 
-import dev.thural.quietspace.utils.enums.StatusType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
@@ -36,11 +35,11 @@ public class Message extends BaseEntity {
     private String text;
 
     @NotNull
-    private Boolean seen;
+    private Boolean isSeen;
 
     @PrePersist
-    void setSeenStatus() {
-        setSeen(false);
+    void initFields() {
+        setIsSeen(false);
     }
 
 }

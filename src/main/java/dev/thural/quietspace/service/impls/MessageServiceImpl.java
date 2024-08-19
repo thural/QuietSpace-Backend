@@ -84,8 +84,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public Optional<MessageResponse> setMessageSeen(UUID messageId) {
         Message existingMessage = findMessageOrElseThrow(messageId);
-        checkResourceAccess(existingMessage.getId());
-        existingMessage.setSeen(true);
+        existingMessage.setIsSeen(true);
 
         Message savedMessage = messageRepository.save(existingMessage);
         return Optional.ofNullable(messageMapper.toResponse(savedMessage));

@@ -21,6 +21,7 @@ public class NotificationMapper {
         return NotificationResponse.builder()
                 .id(notification.getId())
                 .actorId(foundUser.getId())
+                .isSeen(notification.getIsSeen())
                 .contentId(notification.getContentId())
                 .type(notification.getNotificationType())
                 .username(foundUser.getUsername())
