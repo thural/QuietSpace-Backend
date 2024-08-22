@@ -16,6 +16,7 @@ import dev.thural.quietspace.utils.enums.ContentType;
 import dev.thural.quietspace.utils.enums.EventType;
 import dev.thural.quietspace.utils.enums.NotificationType;
 import dev.thural.quietspace.websocket.event.message.NotificationEvent;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.UUID;
 
@@ -46,13 +48,17 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void handleSeen(UUID notificationId) {
         log.info("setting notification with id {} as seen ...", notificationId);
-        
         User user = userService.getSignedUser();
-        notificationRepository.findByContentIdAndUserId(notificationId, user.getId())
-                .map(entity -> {
-                    entity.setIsSeen(true);
-                    return entity;
-                }).ifPresent(notificationRepository::save);
+        var notification = notificationRepository.findById(notificationId)
+                .orElseThrow(EntityNotFoundException::new);
+
+        if (!notification.getUserId().equals(user.getId()))
+            throw new ResourceAccessException("user is denied access for requested resource");
+
+        if (!notification.getIsSeen()) {
+            notification.setIsSeen(true);
+            notificationRepository.save(notification);
+        }
 
         var event = NotificationEvent.builder()
                 .actorId(user.getId())
@@ -88,7 +94,6 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     public void processNotification(NotificationType type, UUID contentId) {
-
         UUID signedUserId = userService.getSignedUser().getId();
         UUID recipientId = getRecipientId(type, contentId);
         String recipientName = userService.getUserById(recipientId)
@@ -109,7 +114,6 @@ public class NotificationServiceImpl implements NotificationService {
         try {
             log.info("notified {} user {}", response.getType(), response.getActorId());
             template.convertAndSendToUser(recipientId.toString(), NOTIFICATION_SUBJECT_PATH, response);
-            System.out.println("notification was sent to user: " + recipientName);
         } catch (MessagingException exception) {
             log.info("failed to notify {} user {}", response.getType(), response.getActorId());
         }

@@ -151,6 +151,7 @@ public class ChatController {
                 .build();
 
         template.convertAndSendToUser(message.getSenderId().toString(), CHAT_EVENT_PATH, chatEvent);
+        template.convertAndSendToUser(message.getRecipientId().toString(), CHAT_EVENT_PATH, chatEvent);
     }
 
 

@@ -15,7 +15,7 @@ public class PollRequest {
 
     private OffsetDateTime dueDate;
 
-    @NotNull
+    @NotNull(message = "poll options can not be null")
     private List<String> options;
 
 }

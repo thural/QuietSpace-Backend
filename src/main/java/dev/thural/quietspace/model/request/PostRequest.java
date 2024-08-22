@@ -14,14 +14,14 @@ import java.util.UUID;
 @Builder
 public class PostRequest {
 
-    @NotNull
+    @NotNull(message = "user id can not be null")
     private UUID userId;
 
     private String title;
 
-    @NotNull
-    @NotBlank
-    @Size(min = 1, max = 1000)
+    @NotNull(message = "text content can not be null")
+    @NotBlank(message = "post text can not be null")
+    @Size(min = 1, max = 1000, message = "at least 1 and max 1000 characters expected")
     private String text;
 
     private PollRequest poll;

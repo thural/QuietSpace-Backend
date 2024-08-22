@@ -14,18 +14,18 @@ import java.util.UUID;
 @Builder
 public class MessageRequest {
 
-    @NotNull
+    @NotNull(message = "chat id can not be null")
     private UUID chatId;
 
-    @NotNull
+    @NotNull(message = "sender id can not be null")
     private UUID senderId;
 
     @NotNull
     private UUID recipientId;
 
-    @NotNull
-    @NotBlank
-    @Size(min = 1, max = 1000)
+    @NotNull(message = "text content can not be null")
+    @NotBlank(message = "text content can not be blank")
+    @Size(min = 1, max = 1000, message = "at lest 1 and max 1000 characters expected")
     private String text;
 
 }

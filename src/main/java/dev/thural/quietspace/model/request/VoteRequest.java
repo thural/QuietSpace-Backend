@@ -12,13 +12,13 @@ import java.util.UUID;
 @Builder
 public class VoteRequest {
 
-    @NotNull
+    @NotNull(message = "user id can not be null")
     private UUID userId;
 
-    @NotNull
+    @NotNull(message = "post id can not be null")
     private UUID postId;
 
-    @NotNull
+    @NotNull(message = "vote label can not be null")
     private String option;
 
 }

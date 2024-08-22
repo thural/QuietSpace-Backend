@@ -13,7 +13,7 @@ import java.util.UUID;
 @Builder
 public class ChatRequest {
 
-    @NotNull
+    @NotNull(message = "at least two members required to create the chat")
     private List<UUID> userIds;
 
 }
