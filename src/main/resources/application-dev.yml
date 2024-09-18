@@ -1,7 +1,7 @@
 spring:
   application:
     urls:
-      frontend: "http://localhost:5000"
+      frontend: http://${FRONTEND_HOST}:${FRONTEND_PORT}
   devtools:
     livereload.enabled: true
     restart:
@@ -18,12 +18,13 @@ spring:
         show_sql: true
         format_sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     database: mysql
     open-in-view: true
     show-sql: true
   flyway:
-    enabled: false
+    enabled: true
+    validate-on-migrate: true
 logging:
   #  file:
   #    name: quietspace.log

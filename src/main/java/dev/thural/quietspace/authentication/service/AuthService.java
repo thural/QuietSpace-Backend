@@ -1,4 +1,4 @@
-package dev.thural.quietspace.authentication;
+package dev.thural.quietspace.authentication.service;
 
 import dev.thural.quietspace.authentication.model.AuthRequest;
 import dev.thural.quietspace.authentication.model.AuthResponse;

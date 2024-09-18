@@ -164,7 +164,8 @@ public class UserServiceImpl implements UserService {
     public void toggleFollow(UUID followedUserId) {
         User user = getSignedUser();
         if (user.getId().equals(followedUserId))
-            throw new CustomErrorException(HttpStatus.BAD_REQUEST, "users can't unfollow themselves");
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST,
+                    "users can't unfollow themselves");
         User followedUser = userRepository.findById(followedUserId)
                 .orElseThrow(UserNotFoundException::new);
 
@@ -182,7 +183,8 @@ public class UserServiceImpl implements UserService {
     public void removeFollower(UUID followingUserId) {
         User user = getSignedUser();
         if (user.getId().equals(followingUserId))
-            throw new CustomErrorException(HttpStatus.BAD_REQUEST, "users can't unfollow themselves");
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST,
+                    "users can't unfollow themselves");
         User followingUser = userRepository.findById(followingUserId)
                 .orElseThrow(UserNotFoundException::new);
 

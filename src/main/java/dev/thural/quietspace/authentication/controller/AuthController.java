@@ -3,6 +3,7 @@ package dev.thural.quietspace.authentication.controller;
 import dev.thural.quietspace.authentication.model.AuthRequest;
 import dev.thural.quietspace.authentication.model.AuthResponse;
 import dev.thural.quietspace.authentication.model.RegistrationRequest;
+import dev.thural.quietspace.authentication.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication")
 public class AuthController {
 
-    private final dev.thural.quietspace.authentication.AuthService authService;
+    private final AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid RegistrationRequest request) throws MessagingException {

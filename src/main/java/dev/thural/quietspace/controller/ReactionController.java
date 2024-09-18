@@ -5,6 +5,7 @@ import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.utils.enums.ContentType;
+import dev.thural.quietspace.utils.enums.ReactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +45,11 @@ public class ReactionController {
         reactionService.handleReaction(reaction);
         notificationService.processNotificationByReaction(reaction.getContentType(), reaction.getContentId());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/count")
+    ResponseEntity<Integer> countByContentIdAndReactionType(@RequestParam UUID contentId, @RequestParam ReactionType type) {
+        return ResponseEntity.ok(reactionService.countByContentIdAndReactionType(contentId, type));
     }
 
 }

@@ -17,7 +17,7 @@ public interface ReactionService {
 
     Page<ReactionResponse> getReactionsByContentIdAndReactionType(UUID contentId, ReactionType reactionType, Integer pageNumber, Integer pageSize);
 
-    Integer getLikeCountByContentIdAndReactionType(UUID contentId, ReactionType reactionType);
+    Integer countByContentIdAndReactionType(UUID contentId, ReactionType reactionType);
 
     Page<ReactionResponse> getReactionsByContentIdAndContentType(UUID contentId, ContentType type, Integer pageNumber, Integer pageSize);
 

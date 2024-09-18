@@ -120,7 +120,7 @@ class ReactionServiceImplTest {
     @Test
     void getLikeCountByContentId() {
         when(reactionRepository.countByContentIdAndReactionType(contentId, ReactionType.LIKE)).thenReturn(3);
-        Integer likeCount = reactionService.getLikeCountByContentIdAndReactionType(contentId, ReactionType.LIKE);
+        Integer likeCount = reactionService.countByContentIdAndReactionType(contentId, ReactionType.LIKE);
 
         assertThat(likeCount).isEqualTo(3);
     }

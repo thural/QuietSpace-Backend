@@ -2,14 +2,14 @@ package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.model.response.NotificationResponse;
 import dev.thural.quietspace.service.NotificationService;
-import dev.thural.quietspace.service.UserService;
+import dev.thural.quietspace.utils.enums.ContentType;
+import dev.thural.quietspace.utils.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -28,8 +28,6 @@ public class NotificationController {
     public static final String NOTIFICATION_SEEN_PATH = NOTIFICATION_SUBJECT_PATH + "/seen/{notificationId}";
 
     private final NotificationService notificationService;
-    private final SimpMessagingTemplate template;
-    private final UserService userService;
 
 
     @PostMapping("/seen/{contentId}")
@@ -63,6 +61,18 @@ public class NotificationController {
     @GetMapping("/count-pending")
     ResponseEntity<Integer> getCountOfPendingNotifications() {
         return ResponseEntity.ok(notificationService.getCountOfPendingNotifications());
+    }
+
+    @PostMapping("/process")
+    ResponseEntity<?> processNotification(NotificationType type, UUID contentId) {
+        notificationService.processNotification(type, contentId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/process-reaction")
+    ResponseEntity<?> processNotificationByReaction(@RequestParam ContentType type, @RequestParam UUID contentId) {
+        notificationService.processNotificationByReaction(type, contentId);
+        return ResponseEntity.ok().build();
     }
 
 }

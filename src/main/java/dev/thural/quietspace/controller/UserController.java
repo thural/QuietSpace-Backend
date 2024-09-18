@@ -42,14 +42,6 @@ public class UserController {
     private final PostService postService;
     private final NotificationService notificationService;
 
-    @GetMapping
-    Page<UserResponse> listUsers(
-            @RequestParam(name = "username", required = false) String username,
-            @RequestParam(name = "page-number", required = false) Integer pageNumber,
-            @RequestParam(name = "page-size", required = false) Integer pageSize
-    ) {
-        return userService.listUsers(username, pageNumber, pageSize);
-    }
 
     @GetMapping("/search")
     Page<UserResponse> listUsersByQuery(

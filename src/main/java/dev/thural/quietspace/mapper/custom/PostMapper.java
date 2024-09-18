@@ -59,8 +59,8 @@ public class PostMapper {
 
     public PostResponse postEntityToResponse(Post post) {
         Integer commentCount = post.getComments() != null ? post.getComments().size() : 0;
-        Integer postLikeCount = reactionService.getLikeCountByContentIdAndReactionType(post.getId(), ReactionType.LIKE);
-        Integer dislikeCount = reactionService.getLikeCountByContentIdAndReactionType(post.getId(), ReactionType.DISLIKE);
+        Integer postLikeCount = reactionService.countByContentIdAndReactionType(post.getId(), ReactionType.LIKE);
+        Integer dislikeCount = reactionService.countByContentIdAndReactionType(post.getId(), ReactionType.DISLIKE);
         ReactionResponse userReaction = reactionService.getUserReactionByContentId(post.getId())
                 .orElse(null);
 
