@@ -4,6 +4,7 @@ import dev.thural.quietspace.entity.Poll;
 import dev.thural.quietspace.entity.PollOption;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.ReactionType;
 import dev.thural.quietspace.model.request.PollRequest;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.response.OptionResponse;
@@ -12,7 +13,6 @@ import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.service.UserService;
-import dev.thural.quietspace.utils.enums.ReactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -1,8 +1,8 @@
 package dev.thural.quietspace.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import dev.thural.quietspace.utils.enums.RoleType;
-import dev.thural.quietspace.utils.enums.StatusType;
+import dev.thural.quietspace.enums.Role;
+import dev.thural.quietspace.enums.StatusType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.security.Principal;
@@ -20,7 +19,9 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static dev.thural.quietspace.enums.Role.USER;
+import static dev.thural.quietspace.enums.StatusType.ONLINE;
 
 @Entity
 @Getter
@@ -92,15 +93,11 @@ public class User extends BaseEntity implements UserDetails, Principal {
 
 
     @NotNull
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<RoleType> roles;
+    private Role role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles
-                .stream()
-                .map(r -> new SimpleGrantedAuthority(r.name()))
-                .collect(Collectors.toList());
+        return this.role.getAuthorities();
     }
 
     @Override
@@ -146,16 +143,12 @@ public class User extends BaseEntity implements UserDetails, Principal {
         return firstname + " " + lastname;
     }
 
-    public void addRole(RoleType role) {
-        this.roles.add(role);
-    }
-
     @PrePersist
     void initAccount() {
+        setRole(USER);
         setEnabled(true);
+        setStatusType(ONLINE);
         setAccountLocked(false);
-        setStatusType(StatusType.ONLINE);
-        setRoles(new ArrayList<>(List.of(RoleType.USER)));
     }
 
 }

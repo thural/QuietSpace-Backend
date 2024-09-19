@@ -95,7 +95,7 @@ class UserServiceImplTest {
         PageRequest pageRequest = PagingProvider.buildPageRequest(1, 50, null);
         when(userRepository.findAll(pageRequest)).thenReturn(Page.empty());
 
-        Page<UserResponse> userPage = userService.listUsers("", 1, 50);
+        Page<UserResponse> userPage = userService.listUsers(1, 50);
         assertThat(userPage).isEmpty();
 
         verify(userRepository, times(1)).findAll(pageRequest);

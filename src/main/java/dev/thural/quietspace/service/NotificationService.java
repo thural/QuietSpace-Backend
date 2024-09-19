@@ -1,8 +1,8 @@
 package dev.thural.quietspace.service;
 
+import dev.thural.quietspace.enums.ContentType;
+import dev.thural.quietspace.enums.NotificationType;
 import dev.thural.quietspace.model.response.NotificationResponse;
-import dev.thural.quietspace.utils.enums.ContentType;
-import dev.thural.quietspace.utils.enums.NotificationType;
 import org.springframework.data.domain.Page;
 
 import java.util.UUID;

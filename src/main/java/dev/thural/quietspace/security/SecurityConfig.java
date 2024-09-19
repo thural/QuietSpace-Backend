@@ -3,7 +3,6 @@ package dev.thural.quietspace.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,6 +11,10 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static dev.thural.quietspace.enums.Permission.ADMIN_READ;
+import static dev.thural.quietspace.enums.Permission.USER_READ;
+import static dev.thural.quietspace.enums.Role.ADMIN;
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -30,8 +33,15 @@ public class SecurityConfig {
         http
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(req ->
-                        req.requestMatchers(
+                .authorizeHttpRequests(request ->
+                        request
+                                .requestMatchers("/admin/**")
+                                .hasRole(ADMIN.name())
+
+                                .requestMatchers(GET, "/posts/**")
+                                .hasAnyAuthority(USER_READ.name(), ADMIN_READ.name())
+
+                                .requestMatchers(
                                         "/ws",
                                         "/ws/**",
                                         "api/v1/ws/**",
@@ -49,14 +59,14 @@ public class SecurityConfig {
                                         "/swagger-ui.html"
                                 )
                                 .permitAll()
-                                .requestMatchers(HttpMethod.GET, "/admin-page/**").hasAnyAuthority("ADMIN")
+
                                 .anyRequest()
                                 .authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-//                .exceptionHandling((exception) -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .exceptionHandling((exception) -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .authenticationProvider(authenticationProvider);
 
         return http.build();
     }

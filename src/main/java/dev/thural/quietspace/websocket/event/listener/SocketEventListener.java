@@ -1,8 +1,8 @@
 package dev.thural.quietspace.websocket.event.listener;
 
+import dev.thural.quietspace.enums.EventType;
+import dev.thural.quietspace.enums.StatusType;
 import dev.thural.quietspace.service.UserService;
-import dev.thural.quietspace.utils.enums.EventType;
-import dev.thural.quietspace.utils.enums.StatusType;
 import dev.thural.quietspace.websocket.event.message.BaseEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

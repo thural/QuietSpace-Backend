@@ -95,7 +95,7 @@ public class UserControllerTest {
                         .param("username", "user"))
                 .andExpect(status().isOk());
 
-        verify(userService, times(1)).listUsers("user", 0, 10);
+        verify(userService, times(1)).listUsers(0, 10);
     }
 
     @Test

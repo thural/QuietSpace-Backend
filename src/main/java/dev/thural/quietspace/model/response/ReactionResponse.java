@@ -1,6 +1,6 @@
 package dev.thural.quietspace.model.response;
 
-import dev.thural.quietspace.utils.enums.ReactionType;
+import dev.thural.quietspace.enums.ReactionType;
 import lombok.*;
 
 import java.time.OffsetDateTime;

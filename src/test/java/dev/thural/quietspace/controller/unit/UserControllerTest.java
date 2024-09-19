@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.controller.UserController;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
-import dev.thural.quietspace.service.*;
+import dev.thural.quietspace.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -85,7 +85,7 @@ public class UserControllerTest {
                         .param("username", "user"))
                 .andExpect(status().isOk());
 
-        verify(userService, times(1)).listUsers("user", 0, 10);
+        verify(userService, times(1)).listUsers(0, 10);
     }
 
     @Test

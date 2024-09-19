@@ -3,6 +3,7 @@ package dev.thural.quietspace.mapper.custom;
 import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.ReactionType;
 import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
@@ -11,7 +12,6 @@ import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.repository.ReactionRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.ReactionService;
-import dev.thural.quietspace.utils.enums.ReactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

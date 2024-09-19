@@ -1,14 +1,14 @@
 package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.NotificationType;
+import dev.thural.quietspace.enums.StatusType;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.PostService;
 import dev.thural.quietspace.service.UserService;
-import dev.thural.quietspace.utils.enums.NotificationType;
-import dev.thural.quietspace.utils.enums.StatusType;
 import dev.thural.quietspace.websocket.model.UserRepresentation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

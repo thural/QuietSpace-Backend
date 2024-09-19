@@ -1,6 +1,6 @@
 package dev.thural.quietspace.service.impls;
 
-import dev.thural.quietspace.utils.enums.EmailTemplateName;
+import dev.thural.quietspace.enums.EmailTemplateName;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;

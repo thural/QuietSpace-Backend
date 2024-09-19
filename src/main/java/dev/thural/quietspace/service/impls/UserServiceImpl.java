@@ -1,6 +1,8 @@
 package dev.thural.quietspace.service.impls;
 
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.Role;
+import dev.thural.quietspace.enums.StatusType;
 import dev.thural.quietspace.exception.CustomErrorException;
 import dev.thural.quietspace.exception.UnauthorizedException;
 import dev.thural.quietspace.exception.UserNotFoundException;
@@ -11,8 +13,6 @@ import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.utils.ListToPage;
 import dev.thural.quietspace.utils.PagingProvider;
-import dev.thural.quietspace.utils.enums.RoleType;
-import dev.thural.quietspace.utils.enums.StatusType;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,17 +43,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public Page<UserResponse> listUsers(String username, Integer pageNumber, Integer pageSize) {
-
+    public Page<UserResponse> listUsers(Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
-        Page<User> userPage;
-
-        if (StringUtils.hasText(username)) {
-            userPage = userRepository.findAllByUsernameIsLikeIgnoreCase("%" + username + "%", pageRequest);
-        } else {
-            userPage = userRepository.findAll(pageRequest);
-        }
-
+        Page<User> userPage = userRepository.findAll(pageRequest);
         return userPage.map(userMapper::userEntityToResponse);
     }
 
@@ -139,8 +131,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private static boolean isHasAdminRole(User signedUser) {
-        return signedUser.getRoles().stream()
-                .anyMatch(role -> role.name().equals("ROLE_".concat(RoleType.ADMIN.name())));
+        return signedUser.getRole().name().equals("ROLE_".concat(Role.ADMIN.name()));
     }
 
     @Override

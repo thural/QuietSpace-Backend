@@ -4,6 +4,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 public class PagingProvider {
+
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_PAGE_SIZE = 25;
     public static final Sort DEFAULT_SORT_OPTION = Sort.by("createDate").descending();

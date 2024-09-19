@@ -1,6 +1,7 @@
 package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.entity.Message;
+import dev.thural.quietspace.enums.EventType;
 import dev.thural.quietspace.model.request.ChatRequest;
 import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
@@ -9,7 +10,6 @@ import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.MessageRepository;
 import dev.thural.quietspace.service.ChatService;
 import dev.thural.quietspace.service.MessageService;
-import dev.thural.quietspace.utils.enums.EventType;
 import dev.thural.quietspace.websocket.event.message.ChatEvent;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

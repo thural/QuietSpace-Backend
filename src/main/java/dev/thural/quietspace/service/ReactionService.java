@@ -1,9 +1,9 @@
 package dev.thural.quietspace.service;
 
+import dev.thural.quietspace.enums.ContentType;
+import dev.thural.quietspace.enums.ReactionType;
 import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.ReactionResponse;
-import dev.thural.quietspace.utils.enums.ContentType;
-import dev.thural.quietspace.utils.enums.ReactionType;
 import org.springframework.data.domain.Page;
 
 import java.util.Optional;

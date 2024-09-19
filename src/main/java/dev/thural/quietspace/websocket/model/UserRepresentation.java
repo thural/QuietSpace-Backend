@@ -1,8 +1,11 @@
 package dev.thural.quietspace.websocket.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import dev.thural.quietspace.utils.enums.StatusType;
-import jakarta.validation.constraints.*;
+import dev.thural.quietspace.enums.StatusType;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data

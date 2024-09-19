@@ -1,7 +1,7 @@
 package dev.thural.quietspace.entity;
 
-import dev.thural.quietspace.utils.enums.ContentType;
-import dev.thural.quietspace.utils.enums.NotificationType;
+import dev.thural.quietspace.enums.ContentType;
+import dev.thural.quietspace.enums.NotificationType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

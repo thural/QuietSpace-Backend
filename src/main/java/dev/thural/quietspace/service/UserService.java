@@ -1,9 +1,9 @@
 package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.StatusType;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
-import dev.thural.quietspace.utils.enums.StatusType;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public interface UserService {
 
-    Page<UserResponse> listUsers(String username, Integer pageNumber, Integer pageSize);
+    Page<UserResponse> listUsers(Integer pageNumber, Integer pageSize);
 
     Page<UserResponse> listUsersByQuery(String query, Integer pageNumber, Integer pageSize);
 

@@ -1,7 +1,7 @@
 package dev.thural.quietspace.model.request;
 
-import dev.thural.quietspace.utils.enums.ContentType;
-import dev.thural.quietspace.utils.enums.ReactionType;
+import dev.thural.quietspace.enums.ContentType;
+import dev.thural.quietspace.enums.ReactionType;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 

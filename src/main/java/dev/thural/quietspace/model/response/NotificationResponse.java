@@ -1,7 +1,7 @@
 package dev.thural.quietspace.model.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import dev.thural.quietspace.utils.enums.NotificationType;
+import dev.thural.quietspace.enums.NotificationType;
 import lombok.*;
 
 import java.time.OffsetDateTime;

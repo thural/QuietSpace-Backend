@@ -1,10 +1,10 @@
 package dev.thural.quietspace.controller;
 
+import dev.thural.quietspace.enums.NotificationType;
 import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.service.CommentService;
 import dev.thural.quietspace.service.NotificationService;
-import dev.thural.quietspace.utils.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
