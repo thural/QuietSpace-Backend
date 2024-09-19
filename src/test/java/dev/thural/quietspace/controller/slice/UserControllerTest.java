@@ -4,13 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.controller.UserController;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
-import dev.thural.quietspace.repository.RoleRepository;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
-import dev.thural.quietspace.service.*;
+import dev.thural.quietspace.service.CommentService;
+import dev.thural.quietspace.service.PostService;
+import dev.thural.quietspace.service.ReactionService;
+import dev.thural.quietspace.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -55,8 +58,6 @@ public class UserControllerTest {
     ReactionService reactionService;
     @MockBean
     JwtService jwtService;
-    @MockBean
-    RoleRepository roleRepository;
     @MockBean
     FollowService followService;
 

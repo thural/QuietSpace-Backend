@@ -1,6 +1,7 @@
 package dev.thural.quietspace.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import dev.thural.quietspace.utils.enums.RoleType;
 import dev.thural.quietspace.utils.enums.StatusType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -21,8 +22,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static jakarta.persistence.FetchType.EAGER;
-
 @Entity
 @Getter
 @Setter
@@ -31,17 +30,14 @@ import static jakarta.persistence.FetchType.EAGER;
 @NoArgsConstructor
 public class User extends BaseEntity implements UserDetails, Principal {
 
-    @NotNull
     @NotBlank
     @Column(length = 32, unique = true)
     private String username;
 
-    @NotNull
     @NotBlank
     @Column(length = 32, unique = true)
     private String email;
 
-    @NotNull
     @NotBlank
     @JsonIgnore
     private String password;
@@ -94,14 +90,16 @@ public class User extends BaseEntity implements UserDetails, Principal {
     @JsonIgnore
     private StatusType statusType;
 
-    @ManyToMany(fetch = EAGER)
-    private List<Role> roles;
+
+    @NotNull
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<RoleType> roles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles
                 .stream()
-                .map(r -> new SimpleGrantedAuthority(r.getName()))
+                .map(r -> new SimpleGrantedAuthority(r.name()))
                 .collect(Collectors.toList());
     }
 
@@ -148,11 +146,16 @@ public class User extends BaseEntity implements UserDetails, Principal {
         return firstname + " " + lastname;
     }
 
+    public void addRole(RoleType role) {
+        this.roles.add(role);
+    }
+
     @PrePersist
     void initAccount() {
-        setEnabled(false);
+        setEnabled(true);
         setAccountLocked(false);
-        setStatusType(StatusType.OFFLINE);
+        setStatusType(StatusType.ONLINE);
+        setRoles(new ArrayList<>(List.of(RoleType.USER)));
     }
 
 }

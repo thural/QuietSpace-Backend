@@ -3,19 +3,16 @@ package dev.thural.quietspace.authentication.service;
 import dev.thural.quietspace.authentication.model.AuthRequest;
 import dev.thural.quietspace.authentication.model.AuthResponse;
 import dev.thural.quietspace.authentication.model.RegistrationRequest;
-import dev.thural.quietspace.entity.Role;
 import dev.thural.quietspace.entity.Token;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.exception.ActivationTokenException;
 import dev.thural.quietspace.exception.UserNotFoundException;
-import dev.thural.quietspace.repository.RoleRepository;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.service.impls.EmailService;
 import dev.thural.quietspace.utils.enums.EmailTemplateName;
-import dev.thural.quietspace.utils.enums.RoleType;
 import dev.thural.quietspace.utils.enums.StatusType;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +30,6 @@ import org.springframework.util.StringUtils;
 import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +41,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final RoleRepository roleRepository;
     private final EmailService emailService;
     private final TokenRepository tokenRepository;
 
@@ -55,9 +50,6 @@ public class AuthService {
     public void register(RegistrationRequest request) throws MessagingException {
         log.info("registering new user with email: {}", request.getEmail());
 
-        Role userRole = roleRepository.findByName(RoleType.USER.toString())
-                .orElseThrow(() -> new IllegalStateException("ROLE USER has not been initiated"));
-
         User user = User.builder()
                 .username(request.getUsername())
                 .firstname(request.getFirstname())
@@ -66,7 +58,6 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .accountLocked(false)
                 .enabled(false)
-                .roles(List.of(userRole))
                 .build();
 
         User savedUser = userRepository.save(user);

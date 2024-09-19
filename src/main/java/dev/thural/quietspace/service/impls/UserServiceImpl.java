@@ -140,7 +140,7 @@ public class UserServiceImpl implements UserService {
 
     private static boolean isHasAdminRole(User signedUser) {
         return signedUser.getRoles().stream()
-                .anyMatch(role -> role.getName().equals("ROLE_".concat(RoleType.ADMIN.name())));
+                .anyMatch(role -> role.name().equals("ROLE_".concat(RoleType.ADMIN.name())));
     }
 
     @Override

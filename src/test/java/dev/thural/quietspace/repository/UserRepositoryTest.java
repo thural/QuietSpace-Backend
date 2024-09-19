@@ -21,8 +21,6 @@ class UserRepositoryTest {
 
     @Autowired
     UserRepository userRepository;
-    @Autowired
-    RoleRepository roleRepository;
 
     private final User user = User.builder()
             .email("user@email.com")

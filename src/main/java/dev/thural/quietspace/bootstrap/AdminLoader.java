@@ -1,29 +1,42 @@
 package dev.thural.quietspace.bootstrap;
 
-import dev.thural.quietspace.entity.Role;
-import dev.thural.quietspace.repository.RoleRepository;
+import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.utils.enums.RoleType;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
-public class RoleLoader implements CommandLineRunner {
-    private final RoleRepository roleRepository;
+@RequiredArgsConstructor
+public class AdminLoader implements CommandLineRunner {
 
-    public RoleLoader(RoleRepository roleRepository) {
-        this.roleRepository = roleRepository;
-    }
+    private final UserRepository repository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Value("${spring.custom.admin-password}")
+    String adminPassword;
 
     @Override
     public void run(String... args) throws Exception {
-        loadUserRole();
+        loadAdmin();
     }
 
-    private void loadUserRole() {
-        if (roleRepository.findByName(RoleType.USER.toString()).isEmpty()) {
-            roleRepository.save(Role.builder()
-                    .name(RoleType.USER.toString())
-                    .build());
+    @Transactional
+    private void loadAdmin() {
+        if (!repository.existsByUsernameIgnoreCase("admin")) {
+            var admin = User.builder()
+                    .password(passwordEncoder.encode(adminPassword))
+                    .email("admin@email.com")
+                    .username("admin")
+                    .enabled(true).build();
+            var savedAdmin = repository.save(admin);
+            savedAdmin.getRoles().add(RoleType.ADMIN);
         }
     }
 }

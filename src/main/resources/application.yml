@@ -1,4 +1,6 @@
 spring:
+  custom:
+    admin-password: ${ADMIN_PASSWORD}
   profiles:
     default: default
     active: ${ACTIVE_PROFILE}
@@ -22,9 +24,9 @@ spring:
     security:
       jwt:
         secret-key: ${JWT_SECRET_KEY}
-        expiration: 600000 # 10 minutes
+        expiration: 600000
         refresh-token:
-          expiration: 86400000 # one day
+          expiration: 86400000
     mailing:
       frontend:
         activation-url: ${ACTIVATION_URL}

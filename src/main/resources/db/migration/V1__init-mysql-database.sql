@@ -182,34 +182,23 @@ CREATE TABLE `reaction` (
 
 
 
-DROP TABLE IF EXISTS `role`;
-
-CREATE TABLE `role` (
-  `id` varchar(36) NOT NULL,
-  `create_date` datetime(6) NOT NULL,
-  `update_date` datetime(6) DEFAULT NULL,
-  `version` int DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `UK_8sewwnpamngi6b1dwaa88askk` (`name`)
-) engine=InnoDB;
-
-
-
 DROP TABLE IF EXISTS `token`;
 
 CREATE TABLE `token` (
-  `id` varchar(36) NOT NULL,
-  `create_date` datetime(6) NOT NULL,
-  `update_date` datetime(6) DEFAULT NULL,
   `version` int DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
+  `create_date` datetime(6) NOT NULL,
   `expire_date` datetime(6) DEFAULT NULL,
-  `token` varchar(255) DEFAULT NULL,
+  `update_date` datetime(6) DEFAULT NULL,
   `validate_date` datetime(6) DEFAULT NULL,
+  `created_by` varchar(36) DEFAULT NULL,
+  `id` varchar(36) NOT NULL,
+  `updated_by` varchar(36) DEFAULT NULL,
   `user_id` varchar(36) NOT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `token` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK_pddrhgwxnms2aceeku9s2ewy5` (`token`),
+  KEY `FKe32ek7ixanakfqsdaokm4q9y2` (`user_id`),
   CONSTRAINT `FKe32ek7ixanakfqsdaokm4q9y2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
 ) engine=InnoDB;
 
@@ -240,8 +229,9 @@ CREATE TABLE `user_followings` (
 DROP TABLE IF EXISTS `user_roles`;
 
 CREATE TABLE `user_roles` (
+  `roles` tinyint DEFAULT NULL,
   `user_id` varchar(36) NOT NULL,
-  `roles_id` varchar(36) NOT NULL,
+  KEY `FK55itppkw3i07do3h7qoclqd4k` (`user_id`),
   CONSTRAINT `FK55itppkw3i07do3h7qoclqd4k` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
-  CONSTRAINT `FKj9553ass9uctjrmh0gkqsmv0d` FOREIGN KEY (`roles_id`) REFERENCES `role` (`id`)
+  CONSTRAINT `user_roles_chk_1` CHECK ((`roles` between 0 and 2))
 ) engine=InnoDB;

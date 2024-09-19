@@ -19,4 +19,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Page<User> findAllByQuery(String query, PageRequest pageRequest);
 
     Optional<User> findUserByUsername(String username);
+
+    boolean existsByUsernameIgnoreCase(String admin);
 }
