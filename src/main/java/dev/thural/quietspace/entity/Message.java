@@ -1,5 +1,6 @@
 package dev.thural.quietspace.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
@@ -20,10 +21,12 @@ import lombok.experimental.SuperBuilder;
 public class Message extends BaseEntity {
 
     @ManyToOne
+    @JsonBackReference
     private Chat chat;
 
     @NotNull
     @ManyToOne
+    @JsonBackReference
     private User sender;
 
     @NotNull

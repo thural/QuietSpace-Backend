@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static dev.thural.quietspace.enums.StatusType.OFFLINE;
+import static dev.thural.quietspace.enums.StatusType.ONLINE;
 import static dev.thural.quietspace.utils.PagingProvider.DEFAULT_SORT_OPTION;
 import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 
@@ -189,7 +191,7 @@ public class UserServiceImpl implements UserService {
     public void setOnlineStatus(String userEmail, StatusType type) {
         userRepository.findUserEntityByEmail(userEmail)
                 .ifPresent((storedUser) -> {
-                    storedUser.setStatusType(StatusType.OFFLINE);
+                    storedUser.setStatusType(OFFLINE);
                     userRepository.save(storedUser);
                 });
     }
@@ -199,7 +201,7 @@ public class UserServiceImpl implements UserService {
         User signedUser = getSignedUser();
         return signedUser.getFollowings()
                 .stream()
-                .filter(following -> following.getStatusType().equals(StatusType.ONLINE))
+                .filter(following -> following.getStatusType().equals(ONLINE))
                 .map(userMapper::userEntityToResponse).toList();
     }
 

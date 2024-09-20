@@ -3,7 +3,6 @@ package dev.thural.quietspace.mapper.custom;
 import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.ReactionType;
 import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
@@ -16,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
+
+import static dev.thural.quietspace.enums.ReactionType.LIKE;
 
 @Component
 @RequiredArgsConstructor
@@ -70,7 +71,7 @@ public class CommentMapper {
     }
 
     private Integer getLikeCount(UUID commentId) {
-        return reactionRepository.countByContentIdAndReactionType(commentId, ReactionType.LIKE);
+        return reactionRepository.countByContentIdAndReactionType(commentId, LIKE);
     }
 
     private ReactionResponse getUserReaction(UUID commentId) {

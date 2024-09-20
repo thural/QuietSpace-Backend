@@ -1,6 +1,8 @@
 package dev.thural.quietspace.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,6 +30,7 @@ public class Post extends BaseEntity {
 
     @NotNull
     @ManyToOne
+    @JsonBackReference
     private User user;
 
     @JsonIgnore
@@ -35,6 +38,7 @@ public class Post extends BaseEntity {
     private Poll poll;
 
     @JsonIgnore
+    @JsonManagedReference
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Comment> comments;
 

@@ -31,6 +31,10 @@ import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 
+import static dev.thural.quietspace.enums.Role.USER;
+import static dev.thural.quietspace.enums.StatusType.OFFLINE;
+import static dev.thural.quietspace.enums.StatusType.ONLINE;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -58,6 +62,7 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .accountLocked(false)
                 .enabled(false)
+                .role(USER)
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -81,7 +86,7 @@ public class AuthService {
         String jwtRefreshToken = jwtService.generateRefreshToken(claims, user);
         log.info("generated jwt token during authentication: {}", jwtAccessToken);
 
-        setOnlineStatus(user.getEmail(), StatusType.ONLINE);
+        setOnlineStatus(user.getEmail(), ONLINE);
         return AuthResponse.builder()
                 .message("authentication was successful")
                 .userId(user.getId().toString())
@@ -117,7 +122,7 @@ public class AuthService {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             addToBlacklist(authHeader, currentUserName);
-            setOnlineStatus(StatusType.OFFLINE);
+            setOnlineStatus(OFFLINE);
             SecurityContextHolder.clearContext();
         }
     }

@@ -1,6 +1,5 @@
 package dev.thural.quietspace.controller;
 
-import dev.thural.quietspace.enums.NotificationType;
 import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.service.CommentService;
@@ -12,6 +11,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+
+import static dev.thural.quietspace.enums.NotificationType.COMMENT;
 
 @RestController
 @RequiredArgsConstructor
@@ -62,7 +63,7 @@ public class CommentController {
     @PostMapping
     ResponseEntity<CommentResponse> createComment(@RequestBody @Validated CommentRequest comment) {
         CommentResponse response = commentService.createComment(comment);
-        notificationService.processNotification(NotificationType.COMMENT, comment.getPostId());
+        notificationService.processNotification(COMMENT, comment.getPostId());
         return ResponseEntity.ok(response);
     }
 

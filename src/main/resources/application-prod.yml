@@ -37,13 +37,17 @@ spring:
         show_sql: false
         format_sql: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     database: mysql
     open-in-view: true
 
   flyway:
     enabled: true
+    baseline-on-migrate: true
     validate-on-migrate: true
+    baseline-description: "init"
+    baseline-version: 0
+    locations: classpath:db/migration/structure, classpath:db/migration/data
 
   sql:
     init:

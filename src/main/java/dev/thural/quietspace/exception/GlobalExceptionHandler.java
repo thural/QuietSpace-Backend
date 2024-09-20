@@ -20,14 +20,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.*;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<?> handleNotFoundException(RuntimeException e) {
-        HttpStatus status = HttpStatus.NOT_FOUND;
+        HttpStatus status = NOT_FOUND;
         return ResponseEntity.status(status)
                 .body(ErrorResponse.builder()
                         .status(status.name())
@@ -69,7 +69,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(RuntimeException e) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+        HttpStatus status = BAD_REQUEST;
         return new ResponseEntity<>(ErrorResponse.builder()
                 .status(status.name())
                 .message(e.getMessage())
@@ -78,7 +78,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(RuntimeException e) {
-        HttpStatus status = HttpStatus.UNAUTHORIZED;
+        HttpStatus status = UNAUTHORIZED;
         return ResponseEntity.badRequest().body(ErrorResponse.builder()
                 .status(status.name())
                 .message(e.getMessage())
@@ -87,7 +87,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorizedException(RuntimeException e) {
-        HttpStatus status = HttpStatus.UNAUTHORIZED;
+        HttpStatus status = UNAUTHORIZED;
         return ResponseEntity.status(status)
                 .body(ErrorResponse.builder()
                         .status(status.name())
@@ -97,7 +97,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(RuntimeException e) {
-        HttpStatus status = HttpStatus.FORBIDDEN;
+        HttpStatus status = FORBIDDEN;
         return ResponseEntity.status(status)
                 .body(ErrorResponse.builder()
                         .status(status.name())
@@ -109,7 +109,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomDataNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCustomDataNotFoundExceptions(RuntimeException e) {
-        HttpStatus status = HttpStatus.NOT_FOUND;
+        HttpStatus status = NOT_FOUND;
         return ResponseEntity.status(status)
                 .body(ErrorResponse.builder()
                         .status(status.name())
@@ -120,7 +120,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundExceptions(RuntimeException e) {
-        HttpStatus status = HttpStatus.NOT_FOUND;
+        HttpStatus status = NOT_FOUND;
         return ResponseEntity.status(status)
                 .body(ErrorResponse.builder()
                         .status(status.name())
@@ -131,7 +131,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomParameterConstraintException.class)
     public ResponseEntity<ErrorResponse> handleCustomParameterConstraintExceptions(RuntimeException e) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+        HttpStatus status = BAD_REQUEST;
         return ResponseEntity.status(status)
                 .body(ErrorResponse.builder()
                         .status(status.name())
@@ -153,7 +153,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ActivationTokenException.class)
     public ResponseEntity<ErrorResponse> handleActivationTokenExceptions(RuntimeException e) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+        HttpStatus status = BAD_REQUEST;
         return ResponseEntity.status(status)
                 .body(ErrorResponse.builder()
                         .status(status.name())

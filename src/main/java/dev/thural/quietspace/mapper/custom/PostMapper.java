@@ -4,7 +4,6 @@ import dev.thural.quietspace.entity.Poll;
 import dev.thural.quietspace.entity.PollOption;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.ReactionType;
 import dev.thural.quietspace.model.request.PollRequest;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.response.OptionResponse;
@@ -19,6 +18,9 @@ import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
+
+import static dev.thural.quietspace.enums.ReactionType.DISLIKE;
+import static dev.thural.quietspace.enums.ReactionType.LIKE;
 
 @Component
 @RequiredArgsConstructor
@@ -59,8 +61,8 @@ public class PostMapper {
 
     public PostResponse postEntityToResponse(Post post) {
         Integer commentCount = post.getComments() != null ? post.getComments().size() : 0;
-        Integer postLikeCount = reactionService.countByContentIdAndReactionType(post.getId(), ReactionType.LIKE);
-        Integer dislikeCount = reactionService.countByContentIdAndReactionType(post.getId(), ReactionType.DISLIKE);
+        Integer postLikeCount = reactionService.countByContentIdAndReactionType(post.getId(), LIKE);
+        Integer dislikeCount = reactionService.countByContentIdAndReactionType(post.getId(), DISLIKE);
         ReactionResponse userReaction = reactionService.getUserReactionByContentId(post.getId())
                 .orElse(null);
 

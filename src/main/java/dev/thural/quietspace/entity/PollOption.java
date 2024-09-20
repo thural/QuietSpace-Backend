@@ -1,5 +1,6 @@
 package dev.thural.quietspace.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -24,8 +25,9 @@ import java.util.UUID;
 public class PollOption extends BaseEntity {
 
     @NotNull
-    @JsonIgnore
     @ManyToOne
+    @JsonIgnore
+    @JsonBackReference
     private Poll poll;
 
     @NotNull

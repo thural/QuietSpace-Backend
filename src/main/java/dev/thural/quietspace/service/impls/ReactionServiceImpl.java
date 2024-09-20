@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.UUID;
 
+import static dev.thural.quietspace.enums.ReactionType.LIKE;
 import static dev.thural.quietspace.utils.PagingProvider.DEFAULT_SORT_OPTION;
 import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 
@@ -56,13 +57,13 @@ public class ReactionServiceImpl implements ReactionService {
     @Override
     public Page<ReactionResponse> getReactionsByContentIdAndReactionType(UUID contentId, ReactionType reactionType, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
-        return reactionRepository.findAllByContentIdAndReactionType(contentId, ReactionType.LIKE, pageRequest)
+        return reactionRepository.findAllByContentIdAndReactionType(contentId, LIKE, pageRequest)
                 .map(reactionMapper::reactionEntityToResponse);
     }
 
     @Override
     public Integer countByContentIdAndReactionType(UUID contentId, ReactionType reactionType) {
-        return reactionRepository.countByContentIdAndReactionType(contentId, ReactionType.LIKE);
+        return reactionRepository.countByContentIdAndReactionType(contentId, LIKE);
     }
 
     @Override

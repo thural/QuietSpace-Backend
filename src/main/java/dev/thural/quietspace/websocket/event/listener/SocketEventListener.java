@@ -1,7 +1,5 @@
 package dev.thural.quietspace.websocket.event.listener;
 
-import dev.thural.quietspace.enums.EventType;
-import dev.thural.quietspace.enums.StatusType;
 import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.websocket.event.message.BaseEvent;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +13,11 @@ import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.security.Principal;
+
+import static dev.thural.quietspace.enums.EventType.CONNECT;
+import static dev.thural.quietspace.enums.EventType.DISCONNECT;
+import static dev.thural.quietspace.enums.StatusType.OFFLINE;
+import static dev.thural.quietspace.enums.StatusType.ONLINE;
 
 @Slf4j
 @Component
@@ -36,9 +39,9 @@ public class SocketEventListener {
         String username = extractUsernameFromSocketEvent(event);
         log.info("user has disconnected with username: {}", username);
 
-        userService.setOnlineStatus(username, StatusType.OFFLINE);
+        userService.setOnlineStatus(username, OFFLINE);
         BaseEvent payload = BaseEvent.builder()
-                .message(username).type(EventType.DISCONNECT).build();
+                .message(username).type(DISCONNECT).build();
 
         // TODO: send only to followings instead of public
         messageTemplate.convertAndSend("/public", payload);
@@ -49,9 +52,9 @@ public class SocketEventListener {
         String username = extractUsernameFromSocketEvent(event);
         log.info("user has connected with username: {}", username);
 
-        userService.setOnlineStatus(username, StatusType.ONLINE);
+        userService.setOnlineStatus(username, ONLINE);
         BaseEvent payload = BaseEvent.builder()
-                .message(username).type(EventType.CONNECT).build();
+                .message(username).type(CONNECT).build();
 
         log.info("user has connected with username: {}", username);
 

@@ -35,9 +35,9 @@ public class AdminLoader implements CommandLineRunner {
                     .password(passwordEncoder.encode(adminPassword))
                     .email("admin@email.com")
                     .username("admin")
-                    .enabled(true).build();
-            var savedAdmin = repository.save(admin);
-            savedAdmin.setRole(ADMIN);
+                    .enabled(true)
+                    .role(ADMIN).build();
+            repository.save(admin);
         }
     }
 }

@@ -1,8 +1,6 @@
 package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.NotificationType;
-import dev.thural.quietspace.enums.StatusType;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.UserResponse;
@@ -24,6 +22,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+
+import static dev.thural.quietspace.enums.NotificationType.FOLLOW_REQUEST;
+import static dev.thural.quietspace.enums.StatusType.OFFLINE;
 
 @Slf4j
 @RestController
@@ -92,7 +93,7 @@ public class UserController {
     @PostMapping(FOLLOW_USER_TOGGLE_PATH)
     ResponseEntity<?> toggleFollow(@PathVariable UUID userId) {
         userService.toggleFollow(userId);
-        notificationService.processNotification(NotificationType.FOLLOW_REQUEST, userId);
+        notificationService.processNotification(FOLLOW_REQUEST, userId);
         log.info("toggle follow for userId: {}", userId);
         return ResponseEntity.ok().build();
     }
@@ -124,7 +125,7 @@ public class UserController {
     @MessageMapping("/user/setOnlineStatus")
     @SendTo("/user/public")
     public UserRepresentation goOffline(@Payload @Valid UserRepresentation user) {
-        userService.setOnlineStatus(user.getEmail(), StatusType.OFFLINE);
+        userService.setOnlineStatus(user.getEmail(), OFFLINE);
         return user;
     }
 

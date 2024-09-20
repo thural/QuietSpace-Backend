@@ -35,10 +35,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
                         request
-                                .requestMatchers("/admin/**")
+                                .requestMatchers("api/v1/admin/**")
                                 .hasRole(ADMIN.name())
 
-                                .requestMatchers(GET, "/posts/**")
+                                .requestMatchers(GET, "api/v1/posts/**")
                                 .hasAnyAuthority(USER_READ.name(), ADMIN_READ.name())
 
                                 .requestMatchers(

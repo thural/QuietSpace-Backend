@@ -59,6 +59,7 @@ public class BaseEntity {
 
     @NotNull
     @LastModifiedDate
+    @Column(insertable = false, nullable = false)
     private OffsetDateTime updateDate;
 
 

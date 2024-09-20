@@ -1,6 +1,7 @@
 package dev.thural.quietspace.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import dev.thural.quietspace.enums.Role;
 import dev.thural.quietspace.enums.StatusType;
 import jakarta.persistence.*;
@@ -20,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static dev.thural.quietspace.enums.Role.USER;
 import static dev.thural.quietspace.enums.StatusType.ONLINE;
 
 @Entity
@@ -44,14 +44,17 @@ public class User extends BaseEntity implements UserDetails, Principal {
     private String password;
 
     @JsonIgnore
+    @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Post> posts;
 
     @JsonIgnore
+    @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Comment> comments;
 
     @JsonIgnore
+    @JsonManagedReference
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(name = "user_chat",
             joinColumns = @JoinColumn(name = "chat_id", referencedColumnName = "id"),
@@ -60,6 +63,7 @@ public class User extends BaseEntity implements UserDetails, Principal {
     private List<Chat> chats;
 
     @JsonIgnore
+    @JsonManagedReference
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Message> messages;
 
@@ -145,7 +149,6 @@ public class User extends BaseEntity implements UserDetails, Principal {
 
     @PrePersist
     void initAccount() {
-        setRole(USER);
         setEnabled(true);
         setStatusType(ONLINE);
         setAccountLocked(false);

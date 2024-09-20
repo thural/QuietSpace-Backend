@@ -5,7 +5,6 @@ import dev.thural.quietspace.entity.Notification;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.ContentType;
-import dev.thural.quietspace.enums.EventType;
 import dev.thural.quietspace.enums.NotificationType;
 import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.custom.NotificationMapper;
@@ -30,6 +29,9 @@ import java.util.UUID;
 
 import static dev.thural.quietspace.controller.NotificationController.NOTIFICATION_EVENT_PATH;
 import static dev.thural.quietspace.controller.NotificationController.NOTIFICATION_SUBJECT_PATH;
+import static dev.thural.quietspace.enums.EventType.SEEN_NOTIFICATION;
+import static dev.thural.quietspace.enums.NotificationType.COMMENT_REACTION;
+import static dev.thural.quietspace.enums.NotificationType.POST_REACTION;
 import static dev.thural.quietspace.utils.PagingProvider.DEFAULT_SORT_OPTION;
 import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 
@@ -63,7 +65,7 @@ public class NotificationServiceImpl implements NotificationService {
         var event = NotificationEvent.builder()
                 .actorId(user.getId())
                 .notificationId(notificationId)
-                .type(EventType.SEEN_NOTIFICATION)
+                .type(SEEN_NOTIFICATION)
                 .build();
 
         template.convertAndSendToUser(user.getId().toString(), NOTIFICATION_EVENT_PATH, event);
@@ -121,8 +123,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     public void processNotificationByReaction(ContentType type, UUID contentId) {
         switch (type) {
-            case COMMENT -> processNotification(NotificationType.COMMENT_REACTION, contentId);
-            case POST -> processNotification(NotificationType.POST_REACTION, contentId);
+            case COMMENT -> processNotification(COMMENT_REACTION, contentId);
+            case POST -> processNotification(POST_REACTION, contentId);
         }
     }
 

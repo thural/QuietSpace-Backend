@@ -1,7 +1,6 @@
 package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.entity.Message;
-import dev.thural.quietspace.enums.EventType;
 import dev.thural.quietspace.model.request.ChatRequest;
 import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
@@ -24,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+
+import static dev.thural.quietspace.enums.EventType.*;
 
 @Slf4j
 @RestController
@@ -101,7 +102,7 @@ public class ChatController {
                     .message(e.getMessage())
                     .chatId(message.getChatId())
                     .actorId(message.getSenderId())
-                    .type(EventType.EXCEPTION)
+                    .type(EXCEPTION)
                     .build();
             template.convertAndSendToUser(message.getRecipientId().toString(), CHAT_EVENT_PATH, chatEvent);
         }
@@ -119,7 +120,7 @@ public class ChatController {
                 .chatId(foundMessage.getChat().getId())
                 .actorId(foundMessage.getSender().getId())
                 .messageId(foundMessage.getId())
-                .type(EventType.DELETE_MESSAGE)
+                .type(DELETE_MESSAGE)
                 .build();
         try {
             MessageResponse message = messageService.deleteMessage(messageId)
@@ -130,7 +131,7 @@ public class ChatController {
             template.convertAndSendToUser(message.getSenderId().toString(), CHAT_EVENT_PATH, chatevent);
         } catch (Exception e) {
             chatevent.setMessage(e.getMessage());
-            chatevent.setType(EventType.EXCEPTION);
+            chatevent.setType(EXCEPTION);
 
             template.convertAndSendToUser(chatevent.getActorId().toString(), CHAT_EVENT_PATH, chatevent);
         }
@@ -147,7 +148,7 @@ public class ChatController {
         var chatEvent = ChatEvent.builder()
                 .chatId(message.getChatId())
                 .messageId(message.getId())
-                .type(EventType.SEEN_MESSAGE)
+                .type(SEEN_MESSAGE)
                 .build();
 
         template.convertAndSendToUser(message.getSenderId().toString(), CHAT_EVENT_PATH, chatEvent);
@@ -162,7 +163,7 @@ public class ChatController {
                 .message("user has left the chat")
                 .chatId(event.getChatId())
                 .actorId(event.getActorId())
-                .type(EventType.LEFT_CHAT)
+                .type(LEFT_CHAT)
                 .build();
         try {
             // TODO: send to all chat members
@@ -171,7 +172,7 @@ public class ChatController {
 
         } catch (Exception e) {
             chatEvent.setMessage(e.getMessage());
-            chatEvent.setType(EventType.EXCEPTION);
+            chatEvent.setType(EXCEPTION);
             template.convertAndSendToUser(chatEvent.getActorId().toString(), CHAT_EVENT_PATH, chatEvent);
         }
     }
@@ -183,7 +184,7 @@ public class ChatController {
         var chatEvent = ChatEvent.builder()
                 .chatId(event.getChatId())
                 .actorId(event.getActorId())
-                .type(EventType.JOINED_CHAT)
+                .type(JOINED_CHAT)
                 .build();
         try {
             chatService.addMemberWithId(event.getRecipientId(), event.getChatId());
@@ -198,7 +199,7 @@ public class ChatController {
 
         } catch (Exception e) {
             chatEvent.setMessage(e.getMessage());
-            chatEvent.setType(EventType.EXCEPTION);
+            chatEvent.setType(EXCEPTION);
             template.convertAndSendToUser(chatEvent.getActorId().toString(), CHAT_EVENT_PATH, chatEvent);
         }
     }
