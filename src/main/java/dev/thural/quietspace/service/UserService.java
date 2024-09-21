@@ -14,7 +14,7 @@ public interface UserService {
 
     Page<UserResponse> listUsers(Integer pageNumber, Integer pageSize);
 
-    Page<UserResponse> listUsersByQuery(String query, Integer pageNumber, Integer pageSize);
+    Page<UserResponse> listUsersByUsername(String username, Integer pageNumber, Integer pageSize);
 
     List<User> getUsersFromIdList(List<UUID> userIds);
 
@@ -41,4 +41,6 @@ public interface UserService {
     void setOnlineStatus(String userEmail, StatusType type);
 
     List<UserResponse> findConnectedFollowings();
+
+    Page<UserResponse> queryUsers(String username, String firstname, String lastname, Integer pageNumber, Integer pageSize);
 }

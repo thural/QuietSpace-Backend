@@ -45,12 +45,23 @@ public class UserController {
 
 
     @GetMapping("/search")
-    Page<UserResponse> listUsersByQuery(
-            @RequestParam(name = "query", required = false) String query,
+    Page<UserResponse> listUsersBySearchTerm(
+            @RequestParam(name = "username", required = false) String username,
             @RequestParam(name = "page-number", required = false) Integer pageNumber,
             @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {
-        return userService.listUsersByQuery(query, pageNumber, pageSize);
+        return userService.listUsersByUsername(username, pageNumber, pageSize);
+    }
+
+    @GetMapping("/query")
+    Page<UserResponse> listUsersByQuery(
+            @RequestParam(name = "username", required = false) String username,
+            @RequestParam(name = "firstname", required = false) String firstname,
+            @RequestParam(name = "lastname", required = false) String lastname,
+            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+            @RequestParam(name = "page-size", required = false) Integer pageSize
+    ) {
+        return userService.queryUsers(username, firstname, lastname, pageNumber, pageSize);
     }
 
     @GetMapping(USER_PATH_ID)

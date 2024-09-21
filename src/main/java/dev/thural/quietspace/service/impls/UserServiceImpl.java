@@ -9,13 +9,13 @@ import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.UserMapper;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
+import dev.thural.quietspace.query.UserQuery;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.utils.ListToPage;
 import dev.thural.quietspace.utils.PagingProvider;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,29 +36,36 @@ import static dev.thural.quietspace.enums.StatusType.ONLINE;
 import static dev.thural.quietspace.utils.PagingProvider.DEFAULT_SORT_OPTION;
 import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserMapper userMapper;
     private final UserRepository userRepository;
+    private final UserQuery userQuery;
 
     @Override
     public Page<UserResponse> listUsers(Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
-        Page<User> userPage = userRepository.findAll(pageRequest);
-        return userPage.map(userMapper::userEntityToResponse);
+        return userRepository.findAll(pageRequest).map(userMapper::userEntityToResponse);
     }
 
     @Override
-    public Page<UserResponse> listUsersByQuery(String query, Integer pageNumber, Integer pageSize) {
+    public Page<UserResponse> queryUsers(String username, String firstname, String lastname, Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
+        return userQuery.findAllByQuery(username, firstname, lastname, pageRequest)
+                .map(userMapper::userEntityToResponse);
+    }
+
+    @Override
+    public Page<UserResponse> listUsersByUsername(String username, Integer pageNumber, Integer pageSize) {
 
         PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
         Page<User> userPage;
 
-        if (StringUtils.hasText(query)) {
-            userPage = userRepository.findAllByQuery(query, pageRequest);
+        if (StringUtils.hasText(username)) {
+            userPage = userRepository.findAllBySearchTerm(username, pageRequest);
         } else {
             userPage = userRepository.findAll(pageRequest);
         }

@@ -99,7 +99,7 @@ class UserControllerIT {
     @Test
     void testDeleteAllUsers() {
         userRepository.deleteAll();
-        Page<UserResponse> userList = userController.listUsersByQuery("", 1, 25);
+        Page<UserResponse> userList = userController.listUsersBySearchTerm("", 1, 25);
         assertThat(userList.getContent().size()).isEqualTo(0);
     }
 

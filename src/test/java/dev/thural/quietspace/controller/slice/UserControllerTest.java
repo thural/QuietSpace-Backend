@@ -107,7 +107,7 @@ public class UserControllerTest {
                         .param("page-size", "10"))
                 .andExpect(status().isOk());
 
-        verify(userService).listUsersByQuery("user", 0, 10);
+        verify(userService).listUsersByUsername("user", 0, 10);
     }
 
 
