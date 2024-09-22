@@ -97,17 +97,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserResponse> getUserResponseById(UUID id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(UserNotFoundException::new);
-        UserResponse userResponse = userMapper.userEntityToResponse(user);
-        return Optional.of(userResponse);
-    }
-
-    @Override
-    public Optional<User> getUserById(UUID userId) {
-        User foundUser = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-        return Optional.of(foundUser);
+        return userRepository.findById(id).map(userMapper::userEntityToResponse);
     }
 
     @Override
@@ -197,10 +187,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void setOnlineStatus(String userEmail, StatusType type) {
         userRepository.findUserEntityByEmail(userEmail)
-                .ifPresent((storedUser) -> {
-                    storedUser.setStatusType(OFFLINE);
-                    userRepository.save(storedUser);
-                });
+                .ifPresent(storedUser -> storedUser.setStatusType(OFFLINE));
     }
 
     @Override

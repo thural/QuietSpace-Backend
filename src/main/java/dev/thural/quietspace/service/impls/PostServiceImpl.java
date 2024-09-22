@@ -1,6 +1,9 @@
 package dev.thural.quietspace.service.impls;
 
-import dev.thural.quietspace.entity.*;
+import dev.thural.quietspace.entity.Poll;
+import dev.thural.quietspace.entity.PollOption;
+import dev.thural.quietspace.entity.Post;
+import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.mapper.custom.PostMapper;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.VoteRequest;
@@ -14,9 +17,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 
@@ -84,6 +90,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public void votePoll(VoteRequest voteRequest) {
         Post foundPost = postRepository.findById(voteRequest.getPostId())
                 .orElseThrow(EntityNotFoundException::new);
@@ -99,8 +106,6 @@ public class PostServiceImpl implements PostService {
                     votes.add(voteRequest.getUserId());
                     option.setVotes(votes);
                 });
-
-        postRepository.save(foundPost);
     }
 
     @Override

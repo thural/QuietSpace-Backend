@@ -108,10 +108,8 @@ public class AuthService {
         User user = userRepository.findById(existingToken.getUser().getId())
                 .orElseThrow(UserNotFoundException::new);
         user.setEnabled(true);
-        userRepository.save(user);
 
         existingToken.setValidateDate(OffsetDateTime.now());
-        tokenRepository.save(existingToken);
     }
 
     public void signout(String authHeader) {
@@ -230,12 +228,12 @@ public class AuthService {
         userRepository.save(user);
     }
 
+
+    @Transactional
     private void setOnlineStatus(String email, StatusType type) {
         // TODO: consider user settings after implementation
-        User user = userRepository.findUserEntityByEmail(email)
-                .orElseThrow(UserNotFoundException::new);
-        user.setStatusType(type);
-        userRepository.save(user);
+        userRepository.findUserEntityByEmail(email)
+                .ifPresent(user -> user.setStatusType(type));
     }
 
 }

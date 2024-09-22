@@ -20,8 +20,6 @@ public interface UserService {
 
     Optional<UserResponse> getUserResponseById(UUID id);
 
-    Optional<User> getUserById(UUID userId);
-
     void deleteUserById(UUID userId);
 
     UserResponse patchUser(UserRegisterRequest userRegisterRequest);

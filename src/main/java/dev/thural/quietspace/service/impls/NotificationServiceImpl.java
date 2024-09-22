@@ -23,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.ResourceAccessException;
 
 import java.util.UUID;
@@ -48,6 +49,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final SimpMessagingTemplate template;
 
     @Override
+    @Transactional
     public void handleSeen(UUID notificationId) {
         log.info("setting notification with id {} as seen ...", notificationId);
         User user = userService.getSignedUser();
@@ -57,10 +59,7 @@ public class NotificationServiceImpl implements NotificationService {
         if (!notification.getUserId().equals(user.getId()))
             throw new ResourceAccessException("user is denied access for requested resource");
 
-        if (!notification.getIsSeen()) {
-            notification.setIsSeen(true);
-            notificationRepository.save(notification);
-        }
+        if (!notification.getIsSeen()) notification.setIsSeen(true);
 
         var event = NotificationEvent.builder()
                 .actorId(user.getId())

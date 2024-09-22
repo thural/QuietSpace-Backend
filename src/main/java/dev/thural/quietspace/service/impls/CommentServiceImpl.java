@@ -70,14 +70,12 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Optional<CommentResponse> getCommentById(UUID commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(EntityNotFoundException::new);
-
-        CommentResponse commentResponse = commentMapper.commentEntityToResponse(comment);
-        return Optional.of(commentResponse);
+        return commentRepository.findById(commentId)
+                .map(commentMapper::commentEntityToResponse);
     }
 
     @Override
+    @Transactional
     public CommentResponse updateComment(UUID commentId, CommentRequest comment) {
         User loggedUser = userService.getSignedUser();
         Comment existingComment = commentRepository.findById(commentId)
@@ -85,13 +83,11 @@ public class CommentServiceImpl implements CommentService {
 
         if (existingComment.getUser().equals(loggedUser)) {
             existingComment.setText(comment.getText());
-            Comment patchedComment = commentRepository.save(existingComment);
-            return commentMapper.commentEntityToResponse(patchedComment);
+            return commentMapper.commentEntityToResponse(existingComment);
         } else throw new AccessDeniedException("comment author does not belong to current user");
     }
 
     @Override
-    @Transactional
     public void deleteComment(UUID commentId) {
         User loggedUser = userService.getSignedUser();
 
@@ -113,6 +109,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public CommentResponse patchComment(UUID commentId, CommentRequest comment) {
         User loggedUser = userService.getSignedUser();
 
@@ -121,8 +118,7 @@ public class CommentServiceImpl implements CommentService {
 
         if (existingComment.getUser().equals(loggedUser)) {
             if (StringUtils.hasText(comment.getText())) existingComment.setText(comment.getText());
-            Comment patchedComment = commentRepository.save(existingComment);
-            return commentMapper.commentEntityToResponse(patchedComment);
+            return commentMapper.commentEntityToResponse(existingComment);
         } else throw new AccessDeniedException("comment author does not belong to current user");
     }
 
