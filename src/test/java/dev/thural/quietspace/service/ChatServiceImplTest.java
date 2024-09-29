@@ -1,20 +1,25 @@
-package dev.thural.quietspace.service.impls;
+package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.mapper.UserMapper;
 import dev.thural.quietspace.mapper.custom.ChatMapper;
 import dev.thural.quietspace.model.request.ChatRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
+import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.ChatRepository;
-import dev.thural.quietspace.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.BeanUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -28,15 +33,18 @@ public class ChatServiceImplTest {
     private ChatRepository chatRepository;
     @Mock
     private ChatMapper chatMapper;
+    @Mock
+    private UserMapper userMapper;
 
     @InjectMocks
     private ChatServiceImpl chatService;
 
     private UUID userId;
     private UUID memberId;
-    private User user;
+    private User user1;
+    private UserResponse userResponse;
     private List<User> userList;
-    private User member;
+    private User user2;
     private Chat chat;
     private ChatResponse chatResponse;
     private ChatRequest chatRequest;
@@ -46,14 +54,18 @@ public class ChatServiceImplTest {
         this.userId = UUID.randomUUID();
         this.memberId = UUID.randomUUID();
 
-        this.user = User.builder()
+        this.user1 = User.builder()
                 .id(userId)
                 .username("user")
                 .email("user@email.com")
                 .password("pAsSword")
                 .build();
 
-        this.member = User.builder()
+        this.userResponse = UserResponse.builder()
+                .id(user1.getId())
+                .build();
+
+        this.user2 = User.builder()
                 .id(userId)
                 .username("member")
                 .email("member@email.com")
@@ -61,7 +73,7 @@ public class ChatServiceImplTest {
                 .build();
 
         this.userList = new ArrayList<>();
-        userList.add(user);
+        userList.add(user1);
 
         this.chat = Chat.builder()
                 .id(UUID.randomUUID())
@@ -78,7 +90,7 @@ public class ChatServiceImplTest {
 
     @Test
     void testFindChatById() {
-        when(userService.getSignedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user1);
         when(chatRepository.findById(chat.getId())).thenReturn(Optional.of(chat));
 
         Chat foundChat = chatService.findChatEntityById(chat.getId());
@@ -90,7 +102,7 @@ public class ChatServiceImplTest {
 
     @Test
     void testGetChatsByUserId() {
-        when(userService.getSignedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user1);
         when(chatRepository.findAllByUsersId(userId)).thenReturn(List.of(chat));
         when(chatMapper.chatEntityToResponse(any(Chat.class))).thenReturn(chatResponse);
 
@@ -104,7 +116,7 @@ public class ChatServiceImplTest {
 
     @Test
     void testDeleteChatById() {
-        when(userService.getSignedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user1);
         when(chatRepository.findById(chat.getId())).thenReturn(Optional.of(chat));
 
         chatService.deleteChatById(chat.getId());
@@ -115,24 +127,25 @@ public class ChatServiceImplTest {
 
     @Test
     void testAddMember() {
-        when(userService.getSignedUser()).thenReturn(user);
+        UserResponse memberResponse = new UserResponse();
+        BeanUtils.copyProperties(user2, memberResponse);
+
+        when(userService.getSignedUser()).thenReturn(user1);
         when(chatRepository.findById(chat.getId())).thenReturn(Optional.of(chat));
-        when(userService.getUserById(memberId)).thenReturn(Optional.of(member));
-        when(chatRepository.save(any(Chat.class))).thenReturn(chat);
-        when(chatMapper.chatEntityToResponse(chat)).thenReturn(chatResponse);
+        when(userService.getUserById(memberId)).thenReturn(Optional.of(user2));
+        when(userMapper.toResponse(user2)).thenReturn(memberResponse);
 
-        ChatResponse patchedChat = chatService.addMemberWithId(memberId, chat.getId());
-        assertThat(patchedChat).isEqualTo(chatResponse);
+        UserResponse addedUser = chatService.addMemberWithId(memberId, chat.getId());
+        assertThat(addedUser).isEqualTo(memberResponse);
 
-        verify(chatMapper, times(1)).chatEntityToResponse(chat);
-        verify(chatRepository, times(1)).save(chat);
+        verify(userMapper, times(1)).toResponse(user2);
     }
 
     @Test
     void testRemoveMember() {
-        when(userService.getSignedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user1);
         when(chatRepository.findById(chat.getId())).thenReturn(Optional.of(chat));
-        when(userService.getUserById(userId)).thenReturn(Optional.of(user));
+        when(userService.getUserById(userId)).thenReturn(Optional.of(user1));
         when(chatRepository.save(any(Chat.class))).thenReturn(chat);
 
         chatService.removeMemberWithId(userId, chat.getId());
@@ -143,7 +156,7 @@ public class ChatServiceImplTest {
 
     @Test
     void testCreateChat() {
-        when(userService.getSignedUser()).thenReturn(user);
+        when(userService.getSignedUser()).thenReturn(user1);
         when(userService.getUsersFromIdList(anyList())).thenReturn(userList);
         when(chatRepository.findAllByUsersIn(userList)).thenReturn(List.of());
         when(chatMapper.chatEntityToResponse(chat)).thenReturn(chatResponse);

@@ -1,4 +1,4 @@
-package dev.thural.quietspace.service.impls;
+package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.Reaction;
 import dev.thural.quietspace.entity.User;
@@ -8,7 +8,7 @@ import dev.thural.quietspace.mapper.custom.ReactionMapper;
 import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.repository.ReactionRepository;
-import dev.thural.quietspace.service.UserService;
+import dev.thural.quietspace.utils.PageUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -44,6 +45,9 @@ class ReactionServiceImplTest {
     private Reaction reaction;
     private ReactionRequest reactionRequest;
     private UUID contentId;
+
+    private PageRequest pageRequest;
+    private Page<Reaction> reactionPage;
 
     @BeforeEach
     void setUp() {
@@ -72,6 +76,9 @@ class ReactionServiceImplTest {
                 .userId(userId)
                 .reactionType(reaction.getReactionType())
                 .build();
+
+        this.pageRequest = buildPageRequest(1, 25, DEFAULT_SORT_OPTION);
+        this.reactionPage = PageUtils.pageFromList(List.of(reaction), pageRequest);
     }
 
     @Test
@@ -109,8 +116,7 @@ class ReactionServiceImplTest {
 
     @Test
     void getLikesByContentId() {
-        PageRequest pageRequest = buildPageRequest(1, 25, DEFAULT_SORT_OPTION);
-        when(reactionRepository.findAllByContentIdAndReactionType(contentId, ReactionType.LIKE, pageRequest)).thenReturn(Page.empty());
+        when(reactionRepository.findAllByContentIdAndReactionType(contentId, ReactionType.LIKE, pageRequest)).thenReturn(reactionPage);
         when(reactionMapper.reactionEntityToResponse(any(Reaction.class))).thenReturn(ReactionResponse.builder().build());
 
         Page<ReactionResponse> responsePage = reactionService.getReactionsByContentIdAndReactionType(contentId, ReactionType.LIKE, 1, 25);
@@ -127,8 +133,7 @@ class ReactionServiceImplTest {
 
     @Test
     void getReactionsByContentId() {
-        PageRequest pageRequest = buildPageRequest(1, 25, DEFAULT_SORT_OPTION);
-        when(reactionRepository.findAllByContentIdAndContentType(contentId, ContentType.POST, pageRequest)).thenReturn(Page.empty());
+        when(reactionRepository.findAllByContentIdAndContentType(contentId, ContentType.POST, pageRequest)).thenReturn(reactionPage);
         when(reactionMapper.reactionEntityToResponse(any(Reaction.class))).thenReturn(ReactionResponse.builder().build());
 
         Page<ReactionResponse> responsePage = reactionService.getReactionsByContentIdAndContentType(contentId, ContentType.POST, 1, 25);
@@ -137,8 +142,7 @@ class ReactionServiceImplTest {
 
     @Test
     void getReactionsByUserId() {
-        PageRequest pageRequest = buildPageRequest(1, 25, DEFAULT_SORT_OPTION);
-        when(reactionRepository.findAllByUserIdAndContentType(userId, ContentType.POST, pageRequest)).thenReturn(Page.empty());
+        when(reactionRepository.findAllByUserIdAndContentType(userId, ContentType.POST, pageRequest)).thenReturn(reactionPage);
         when(reactionMapper.reactionEntityToResponse(any(Reaction.class))).thenReturn(ReactionResponse.builder().build());
 
         Page<ReactionResponse> responsePage = reactionService.getReactionsByUserIdAndContentType(userId, ContentType.POST, 1, 25);

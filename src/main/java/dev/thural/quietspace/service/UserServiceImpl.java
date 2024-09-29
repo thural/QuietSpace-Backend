@@ -1,4 +1,4 @@
-package dev.thural.quietspace.service.impls;
+package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.Role;
@@ -11,8 +11,7 @@ import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.query.UserQuery;
 import dev.thural.quietspace.repository.UserRepository;
-import dev.thural.quietspace.service.UserService;
-import dev.thural.quietspace.utils.ListToPage;
+import dev.thural.quietspace.utils.PageUtils;
 import dev.thural.quietspace.utils.PagingProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,14 +47,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserResponse> listUsers(Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
-        return userRepository.findAll(pageRequest).map(userMapper::userEntityToResponse);
+        return userRepository.findAll(pageRequest).map(userMapper::toResponse);
     }
 
     @Override
     public Page<UserResponse> queryUsers(String username, String firstname, String lastname, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
         return userQuery.findAllByQuery(username, firstname, lastname, pageRequest)
-                .map(userMapper::userEntityToResponse);
+                .map(userMapper::toResponse);
+    }
+
+    @Override
+    public Optional<User> getUserById(UUID memberId) {
+        return userRepository.findById(memberId);
     }
 
     @Override
@@ -70,12 +74,12 @@ public class UserServiceImpl implements UserService {
             userPage = userRepository.findAll(pageRequest);
         }
 
-        return userPage.map(userMapper::userEntityToResponse);
+        return userPage.map(userMapper::toResponse);
     }
 
     @Override
     public Optional<UserResponse> getLoggedUserResponse() {
-        UserResponse userResponse = userMapper.userEntityToResponse(getSignedUser());
+        UserResponse userResponse = userMapper.toResponse(getSignedUser());
         return Optional.of(userResponse);
     }
 
@@ -97,7 +101,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserResponse> getUserResponseById(UUID id) {
-        return userRepository.findById(id).map(userMapper::userEntityToResponse);
+        return userRepository.findById(id).map(userMapper::toResponse);
     }
 
     @Override
@@ -126,7 +130,7 @@ public class UserServiceImpl implements UserService {
             throw new UnauthorizedException("signed user has no access to requested resource");
 
         BeanUtils.copyProperties(signedUser, userRegisterRequest);
-        return userMapper.userEntityToResponse(userRepository.save(signedUser));
+        return userMapper.toResponse(userRepository.save(signedUser));
     }
 
     private static boolean isHasAdminRole(User signedUser) {
@@ -137,16 +141,16 @@ public class UserServiceImpl implements UserService {
     public Page<UserResponse> listFollowings(Integer pageNumber, Integer pageSize) {
         User user = getSignedUser();
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
-        Page<User> userPage = new ListToPage<User>().convert(user.getFollowings(), pageRequest);
-        return userPage.map(userMapper::userEntityToResponse);
+        Page<User> userPage = new PageUtils<User>().pageFromList(user.getFollowings(), pageRequest);
+        return userPage.map(userMapper::toResponse);
     }
 
     @Override
     public Page<UserResponse> listFollowers(Integer pageNumber, Integer pageSize) {
         User user = getSignedUser();
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
-        Page<User> userPage = new ListToPage<User>().convert(user.getFollowers(), pageRequest);
-        return userPage.map(userMapper::userEntityToResponse);
+        Page<User> userPage = new PageUtils<User>().pageFromList(user.getFollowers(), pageRequest);
+        return userPage.map(userMapper::toResponse);
     }
 
     @Override
@@ -196,7 +200,7 @@ public class UserServiceImpl implements UserService {
         return signedUser.getFollowings()
                 .stream()
                 .filter(following -> following.getStatusType().equals(ONLINE))
-                .map(userMapper::userEntityToResponse).toList();
+                .map(userMapper::toResponse).toList();
     }
 
 }

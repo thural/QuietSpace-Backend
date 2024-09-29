@@ -1,4 +1,4 @@
-package dev.thural.quietspace.service.impls;
+package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
@@ -8,7 +8,6 @@ import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.repository.CommentRepository;
 import dev.thural.quietspace.repository.PostRepository;
-import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.utils.PagingProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -142,14 +141,12 @@ class CommentServiceImplTest {
     @Test
     void testUpdateComment() {
         when(userService.getSignedUser()).thenReturn(user);
-        when(commentRepository.save(comment)).thenReturn(comment);
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
         when(commentMapper.commentEntityToResponse(any(Comment.class))).thenReturn(commentResponse);
 
         CommentResponse savedComment = commentService.updateComment(comment.getId(), commentRequest);
         assertThat(savedComment).isEqualTo(commentResponse);
 
-        verify(commentRepository, times(1)).save(comment);
         verify(commentRepository, times(1)).findById(comment.getId());
     }
 
@@ -179,7 +176,6 @@ class CommentServiceImplTest {
     @Test
     void testPatchComment() {
         when(userService.getSignedUser()).thenReturn(user);
-        when(commentRepository.save(comment)).thenReturn(comment);
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
         when(commentMapper.commentEntityToResponse(comment)).thenReturn(commentResponse);
 
@@ -187,7 +183,6 @@ class CommentServiceImplTest {
         assertThat(savedComment).isEqualTo(commentResponse);
 
         verify(commentRepository, times(1)).findById(comment.getId());
-        verify(commentRepository, times(1)).save(comment);
     }
 
 }

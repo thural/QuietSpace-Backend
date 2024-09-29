@@ -1,7 +1,7 @@
 package dev.thural.quietspace.query;
 
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.utils.ListToPage;
+import dev.thural.quietspace.utils.PageUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -53,7 +53,7 @@ public class UserQuery {
         query.setMaxResults(pageable.getPageSize());
         List<User> resultList = query.getResultList();
 
-        return new ListToPage().convert(resultList, pageable);
+        return PageUtils.pageFromList(resultList, pageable);
     }
 
 

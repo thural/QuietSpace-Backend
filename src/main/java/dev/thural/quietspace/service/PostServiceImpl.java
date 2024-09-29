@@ -1,4 +1,4 @@
-package dev.thural.quietspace.service.impls;
+package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.Poll;
 import dev.thural.quietspace.entity.PollOption;
@@ -9,8 +9,6 @@ import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.repository.PostRepository;
-import dev.thural.quietspace.service.PostService;
-import dev.thural.quietspace.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

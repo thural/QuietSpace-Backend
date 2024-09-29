@@ -1,4 +1,4 @@
-package dev.thural.quietspace.service.impls;
+package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.Reaction;
 import dev.thural.quietspace.entity.User;
@@ -8,8 +8,6 @@ import dev.thural.quietspace.mapper.custom.ReactionMapper;
 import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.repository.ReactionRepository;
-import dev.thural.quietspace.service.ReactionService;
-import dev.thural.quietspace.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

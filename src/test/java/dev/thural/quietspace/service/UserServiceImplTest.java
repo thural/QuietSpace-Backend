@@ -1,6 +1,7 @@
-package dev.thural.quietspace.service.impls;
+package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.Role;
 import dev.thural.quietspace.mapper.UserMapperImpl;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
@@ -56,12 +57,14 @@ class UserServiceImplTest {
                 .username("user")
                 .email("user@email.com")
                 .password("pAsSword")
+                .role(Role.USER)
                 .build();
 
         this.registerRequest = UserRegisterRequest.builder()
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
                 .email(user.getEmail())
+                .role(user.getRole().name())
                 .password(user.getPassword())
                 .build();
     }

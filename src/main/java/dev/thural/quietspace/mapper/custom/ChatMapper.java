@@ -55,6 +55,6 @@ public class ChatMapper {
         User loggedUser = userService.getSignedUser();
         return chat.getUsers().stream()
                 .filter(user -> !user.equals(loggedUser))
-                .map(userMapper::userEntityToResponse).toList();
+                .map(userMapper::toResponse).toList();
     }
 }

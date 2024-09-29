@@ -1,15 +1,15 @@
-package dev.thural.quietspace.service.impls;
+package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.Poll;
+import dev.thural.quietspace.entity.PollOption;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.Role;
 import dev.thural.quietspace.mapper.custom.PostMapper;
 import dev.thural.quietspace.model.request.PostRequest;
-import dev.thural.quietspace.entity.PollOption;
 import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.repository.PostRepository;
-import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.utils.PagingProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,6 +53,7 @@ public class PostServiceImplTest {
                 .id(userId)
                 .username("user")
                 .email("user@email.com")
+                .role(Role.USER)
                 .password("pAsSword")
                 .build();
 
@@ -94,7 +95,8 @@ public class PostServiceImplTest {
 
         this.voteRequest = VoteRequest.builder()
                 .postId(post.getId())
-                .userId(UUID.randomUUID())
+                .option("sample label")
+                .userId(userId)
                 .build();
     }
 
@@ -173,8 +175,15 @@ public class PostServiceImplTest {
 
         postService.votePoll(voteRequest);
 
-        verify(postRepository, times(1)).findById(post.getId());
-        verify(postRepository, times(1)).save(post);
+        Set<UUID> voterIds = postRepository.findById(post.getId()).orElseThrow()
+                .getPoll().getOptions().stream()
+                .filter(option -> option.getLabel().equals(voteRequest.getOption()))
+                .findFirst().map(PollOption::getVotes).orElseThrow();
+
+        assertThat(voterIds).contains(voteRequest.getUserId());
+
+
+        verify(postRepository, times(2)).findById(post.getId());
     }
 
     @Test

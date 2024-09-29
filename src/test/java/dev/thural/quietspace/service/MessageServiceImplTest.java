@@ -1,21 +1,20 @@
-package dev.thural.quietspace.service.impls;
+package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.mapper.MessageMapperImpl;
+import dev.thural.quietspace.mapper.custom.MessageMapper;
 import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.MessageResponse;
 import dev.thural.quietspace.repository.ChatRepository;
 import dev.thural.quietspace.repository.MessageRepository;
-import dev.thural.quietspace.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -37,8 +36,8 @@ class MessageServiceImplTest {
     @Mock
     private UserService userService;
 
-    @Spy
-    private MessageMapperImpl messageMapper;
+    @Mock
+    private MessageMapper messageMapper;
 
     @InjectMocks
     private MessageServiceImpl messageService;
@@ -48,6 +47,7 @@ class MessageServiceImplTest {
     private Chat chat;
     private Message message;
     private MessageRequest messageRequest;
+    private MessageResponse messageResponse;
 
 
     @BeforeEach
@@ -74,18 +74,26 @@ class MessageServiceImplTest {
 
         this.messageRequest = MessageRequest.builder()
                 .senderId(user.getId())
-                .text("sample text")
+                .text(message.getText())
                 .chatId(chat.getId())
                 .build();
+
+        this.messageResponse = new MessageResponse();
+        BeanUtils.copyProperties(message, messageResponse);
+        messageResponse.setSenderId(user.getId());
+        messageResponse.setChatId(chat.getId());
     }
 
     @Test
     void testAddMessage() {
+        when(messageMapper.toEntity(messageRequest)).thenReturn(message);
+        when(messageMapper.toResponse(message)).thenReturn(messageResponse);
         when(userService.getSignedUser()).thenReturn(user);
         when(chatRepository.findById(messageRequest.getChatId())).thenReturn(Optional.of(chat));
         when(messageRepository.save(any(Message.class))).thenReturn(message);
 
         MessageResponse savedMessage = messageService.addMessage(messageRequest);
+
         assertThat(savedMessage).isNotNull();
         assertThat(savedMessage.getSenderId()).isEqualTo(user.getId());
         assertThat(savedMessage.getChatId()).isEqualTo(chat.getId());
@@ -97,6 +105,7 @@ class MessageServiceImplTest {
     void testDeleteMessage() {
         when(userService.getSignedUser()).thenReturn(user);
         when(messageRepository.findById(message.getId())).thenReturn(Optional.of(message));
+        when(messageMapper.toResponse(message)).thenReturn(messageResponse);
 
         messageService.deleteMessage(message.getId());
 
@@ -118,6 +127,7 @@ class MessageServiceImplTest {
     @Test
     void testGetLastMessageByChat() {
         when(messageRepository.findFirstByChatOrderByCreateDateDesc(chat)).thenReturn(Optional.ofNullable(message));
+        when(messageMapper.toResponse(message)).thenReturn(messageResponse);
 
         Optional<MessageResponse> messageResponse = messageService.getLastMessageByChat(chat);
 

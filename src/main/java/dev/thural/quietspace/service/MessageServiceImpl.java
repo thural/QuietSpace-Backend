@@ -1,4 +1,4 @@
-package dev.thural.quietspace.service.impls;
+package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.Message;
@@ -8,8 +8,6 @@ import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.MessageResponse;
 import dev.thural.quietspace.repository.ChatRepository;
 import dev.thural.quietspace.repository.MessageRepository;
-import dev.thural.quietspace.service.MessageService;
-import dev.thural.quietspace.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,17 +32,13 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public MessageResponse addMessage(MessageRequest messageRequest) {
-        log.info("message at addMessage method: {}", messageRequest.getText());
         User loggedUser = userService.getSignedUser();
-
         Chat parentChat = chatRepository.findById(messageRequest.getChatId())
                 .orElseThrow(EntityNotFoundException::new);
 
         Message newMessage = messageMapper.toEntity(messageRequest);
-
         newMessage.setSender(loggedUser);
         newMessage.setChat(parentChat);
-
         return messageMapper.toResponse(messageRepository.save(newMessage));
     }
 

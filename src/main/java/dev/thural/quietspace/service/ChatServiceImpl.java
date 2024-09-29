@@ -1,4 +1,4 @@
-package dev.thural.quietspace.service.impls;
+package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.User;
@@ -11,8 +11,6 @@ import dev.thural.quietspace.model.request.ChatRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.ChatRepository;
-import dev.thural.quietspace.service.ChatService;
-import dev.thural.quietspace.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -54,7 +52,6 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public UserResponse addMemberWithId(UUID memberId, UUID chatId) {
-        
         Chat foundChat = findChatEntityById(chatId);
         User foundMember = userService.getUserById(memberId)
                 .orElseThrow(UserNotFoundException::new);
@@ -62,9 +59,7 @@ public class ChatServiceImpl implements ChatService {
         List<User> members = foundChat.getUsers();
         members.add(foundMember);
         foundChat.setUsers(members);
-
-        chatRepository.save(foundChat);
-        return userMapper.userEntityToResponse(foundMember);
+        return userMapper.toResponse(foundMember);
     }
 
 
@@ -79,7 +74,7 @@ public class ChatServiceImpl implements ChatService {
         foundChat.setUsers(members);
         chatRepository.save(foundChat);
 
-        return members.stream().map(userMapper::userEntityToResponse).toList();
+        return members.stream().map(userMapper::toResponse).toList();
     }
 
 

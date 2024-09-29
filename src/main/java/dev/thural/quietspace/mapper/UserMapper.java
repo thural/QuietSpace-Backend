@@ -7,8 +7,8 @@ import org.mapstruct.Mapper;
 
 @Mapper
 public interface UserMapper {
-    UserResponse userEntityToResponse(User user);
+    UserResponse toResponse(User user);
 
-    UserRegisterRequest userEntityToRequest(User user);
+    UserRegisterRequest toRequest(User user);
 
 }

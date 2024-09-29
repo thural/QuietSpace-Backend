@@ -41,4 +41,6 @@ public interface UserService {
     List<UserResponse> findConnectedFollowings();
 
     Page<UserResponse> queryUsers(String username, String firstname, String lastname, Integer pageNumber, Integer pageSize);
+
+    Optional<User> getUserById(UUID memberId);
 }
