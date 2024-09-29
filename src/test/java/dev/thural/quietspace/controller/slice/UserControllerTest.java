@@ -6,10 +6,7 @@ import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
-import dev.thural.quietspace.service.CommentService;
-import dev.thural.quietspace.service.PostService;
-import dev.thural.quietspace.service.ReactionService;
-import dev.thural.quietspace.service.UserService;
+import dev.thural.quietspace.service.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -19,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -49,6 +47,10 @@ public class UserControllerTest {
     @MockBean
     UserService userService;
     @MockBean
+    NotificationService notificationService;
+    @MockBean
+    SimpMessagingTemplate simpMessagingTemplate;
+    @MockBean
     TokenRepository tokenRepository;
     @MockBean
     PostService postService;
@@ -58,8 +60,6 @@ public class UserControllerTest {
     ReactionService reactionService;
     @MockBean
     JwtService jwtService;
-    @MockBean
-    FollowService followService;
 
     private UUID userId;
     private UserRegisterRequest registerRequest;
@@ -87,27 +87,27 @@ public class UserControllerTest {
 
     @Test
     @WithAnonymousUser
-    void listUsersPaginated() throws Exception {
+    void searchUsersPaginated() throws Exception {
 
-        mockMvc.perform(get(UserController.USER_PATH)
+        mockMvc.perform(get(UserController.USER_PATH + "/search")
                         .param("page-number", "0")
                         .param("page-size", "10")
                         .param("username", "user"))
                 .andExpect(status().isOk());
 
-        verify(userService, times(1)).listUsers(0, 10);
+        verify(userService, times(1)).listUsersByUsername("user", 0, 10);
     }
 
     @Test
-    void listUsersPaginatedQuery() throws Exception {
+    void queryUsersPaginated() throws Exception {
 
-        mockMvc.perform(get(UserController.USER_PATH + "/search")
-                        .param("query", "user")
+        mockMvc.perform(get(UserController.USER_PATH + "/query")
+                        .param("username", "user")
                         .param("page-number", "0")
                         .param("page-size", "10"))
                 .andExpect(status().isOk());
 
-        verify(userService).listUsersByUsername("user", 0, 10);
+        verify(userService).queryUsers("user", null, null, 0, 10);
     }
 
 

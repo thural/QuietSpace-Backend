@@ -2,6 +2,7 @@ package dev.thural.quietspace.repository;
 
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.Role;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ class PostRepositoryTest {
             .lastname("lastname")
             .password("78921731")
             .accountLocked(false)
+            .role(Role.USER)
             .username("test user")
             .createDate(OffsetDateTime.now())
             .updateDate(OffsetDateTime.now())

@@ -5,9 +5,11 @@ import dev.thural.quietspace.controller.CommentController;
 import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.Role;
 import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.service.CommentService;
+import dev.thural.quietspace.service.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +45,9 @@ class CommentControllerTest {
     @Mock
     CommentService commentService;
 
+    @Mock
+    NotificationService notificationService;
+
     @InjectMocks
     CommentController commentController;
 
@@ -66,7 +71,7 @@ class CommentControllerTest {
                 .id(UUID.randomUUID())
                 .username("user")
                 .email("user@email.com")
-                .role("admin")
+                .role(Role.ADMIN)
                 .password("pAsSword")
                 .build();
 

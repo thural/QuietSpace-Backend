@@ -5,6 +5,7 @@ import dev.thural.quietspace.entity.Reaction;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.ContentType;
 import dev.thural.quietspace.enums.ReactionType;
+import dev.thural.quietspace.enums.Role;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,7 @@ class ReactionRepositoryTest {
             .password("78921731")
             .accountLocked(false)
             .username("test user")
+            .role(Role.USER)
             .createDate(OffsetDateTime.now())
             .updateDate(OffsetDateTime.now())
             .build();
@@ -82,14 +84,14 @@ class ReactionRepositoryTest {
     void findAllByContentId() {
         Page<Reaction> reactions = reactionRepository.findAllByContentId(savedReaction.getContentId(), null);
         assertThat(reactions.toList().size()).isEqualTo(1);
-        assertThat(reactions.toList().getFirst()).isEqualTo(savedReaction);
+        assertThat(reactions.toList().get(0)).isEqualTo(savedReaction);
     }
 
     @Test
     void findAllByUserId() {
         Page<Reaction> reactions = reactionRepository.findAllByUserId(savedUser.getId(), null);
         assertThat(reactions.toList().size()).isEqualTo(1);
-        assertThat(reactions.toList().getFirst()).isEqualTo(savedReaction);
+        assertThat(reactions.toList().get(0)).isEqualTo(savedReaction);
     }
 
     @Test
@@ -109,21 +111,21 @@ class ReactionRepositoryTest {
     void findAllByContentTypeAndUserId() {
         Page<Reaction> reactions = reactionRepository.findAllByContentTypeAndUserId(ContentType.POST, savedUser.getId(), null);
         assertThat(reactions.toList().size()).isEqualTo(1);
-        assertThat(reactions.toList().getFirst()).isEqualTo(savedReaction);
+        assertThat(reactions.toList().get(0)).isEqualTo(savedReaction);
     }
 
     @Test
     void findAllByContentIdAndContentType() {
         Page<Reaction> reactions = reactionRepository.findAllByContentId(savedReaction.getContentId(), null);
         assertThat(reactions.toList().size()).isEqualTo(1);
-        assertThat(reactions.toList().getFirst()).isEqualTo(savedReaction);
+        assertThat(reactions.toList().get(0)).isEqualTo(savedReaction);
     }
 
     @Test
     void findAllByUserIdAndContentType() {
         Page<Reaction> reactions = reactionRepository.findAllByUserIdAndContentType(savedUser.getId(), ContentType.POST, null);
         assertThat(reactions.toList().size()).isEqualTo(1);
-        assertThat(reactions.toList().getFirst()).isEqualTo(savedReaction);
+        assertThat(reactions.toList().get(0)).isEqualTo(savedReaction);
     }
 
     @Test
@@ -136,6 +138,6 @@ class ReactionRepositoryTest {
     void findAllByContentIdAndLikeType() {
         Page<Reaction> reactions = reactionRepository.findAllByContentIdAndReactionType(post.getId(), ReactionType.LIKE, null);
         assertThat(reactions.toList().size()).isEqualTo(1);
-        assertThat(reactions.toList().getFirst()).isEqualTo(savedReaction);
+        assertThat(reactions.toList().get(0)).isEqualTo(savedReaction);
     }
 }

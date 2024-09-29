@@ -12,7 +12,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -76,28 +75,16 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithAnonymousUser
-    void listUsersPaginated() throws Exception {
-
-        mockMvc.perform(get(UserController.USER_PATH)
-                        .param("page-number", "0")
-                        .param("page-size", "10")
-                        .param("username", "user"))
-                .andExpect(status().isOk());
-
-        verify(userService, times(1)).listUsers(0, 10);
-    }
-
-    @Test
-    void listUsersPaginatedQuery() throws Exception {
-
-        mockMvc.perform(get(UserController.USER_PATH + "/search")
-                        .param("query", "user")
+    void queryUsersPaginatedQuery() throws Exception {
+        mockMvc.perform(get(UserController.USER_PATH + "/query")
+                        .param("username", "admin")
+                        .param("firstname", "admin")
+                        .param("lastname", "admin")
                         .param("page-number", "0")
                         .param("page-size", "10"))
                 .andExpect(status().isOk());
 
-        verify(userService).listUsersByUsername("user", 0, 10);
+        verify(userService).queryUsers("admin", "admin", "admin", 0, 10);
     }
 
 

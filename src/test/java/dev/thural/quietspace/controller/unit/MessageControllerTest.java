@@ -5,6 +5,7 @@ import dev.thural.quietspace.controller.MessageController;
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.Role;
 import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.MessageResponse;
 import dev.thural.quietspace.service.MessageService;
@@ -64,8 +65,16 @@ class MessageControllerTest {
                 .id(UUID.randomUUID())
                 .username("user")
                 .email("user@email.com")
-                .role("admin")
+                .role(Role.ADMIN)
                 .password("pAsSword")
+                .build();
+
+        User user2 = User.builder()
+                .id(UUID.randomUUID())
+                .username("user2")
+                .email("user2@email.com")
+                .role(Role.ADMIN)
+                .password("pAsSWord")
                 .build();
 
         Chat chat = Chat.builder()
@@ -89,6 +98,7 @@ class MessageControllerTest {
         this.messageRequest = MessageRequest.builder()
                 .chatId(message.getChat().getId())
                 .senderId(message.getSender().getId())
+                .recipientId(user2.getId())
                 .text(message.getText())
                 .build();
     }
@@ -101,7 +111,7 @@ class MessageControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(messageRequest)))
-                .andExpect(jsonPath("$.username", is(messageResponse.getSenderName())))
+                .andExpect(jsonPath("$.senderName", is(messageResponse.getSenderName())))
                 .andExpect(jsonPath("$.text", is(messageResponse.getText())))
                 .andExpect(jsonPath("$.id", is(messageResponse.getId().toString())))
                 .andExpect(jsonPath("$.senderId", is(messageResponse.getSenderId().toString())))

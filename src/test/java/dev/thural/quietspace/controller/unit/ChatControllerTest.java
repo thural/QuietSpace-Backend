@@ -56,6 +56,8 @@ class ChatControllerTest {
 
     private User user1;
     private User user2;
+    private UserResponse userResponse1;
+    private UserResponse userResponse2;
     private Chat chat;
     private ChatRequest chatRequest;
     private ChatResponse chatResponse;
@@ -73,10 +75,10 @@ class ChatControllerTest {
                 .id(UUID.randomUUID())
                 .build();
 
-        UserResponse userResponse1 = UserResponse.builder()
+        this.userResponse1 = UserResponse.builder()
                 .id(user1.getId())
                 .build();
-        UserResponse userResponse2 = UserResponse.builder()
+        this.userResponse2 = UserResponse.builder()
                 .id(user2.getId())
                 .build();
 
@@ -114,7 +116,7 @@ class ChatControllerTest {
     void getSingleChatById() throws Exception {
         when(chatService.getChatById(any())).thenReturn(chatResponse);
 
-        mockMvc.perform(get(ChatController.SOCKET_CHAT_PATH + "/" + chat.getId())
+        mockMvc.perform(get(ChatController.CHAT_PATH + "/" + chat.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(chat.getId().toString())))
                 .andExpect(jsonPath("$.recentMessage.text", is(messageResponse.getText())))
@@ -132,7 +134,7 @@ class ChatControllerTest {
     void getChatsByMemberId() throws Exception {
         when(chatService.getChatsByUserId(any())).thenReturn(List.of(chatResponse));
 
-        mockMvc.perform(get(ChatController.SOCKET_CHAT_PATH + "/members/" + chat.getId())
+        mockMvc.perform(get(ChatController.CHAT_PATH + "/members/" + chat.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id", is(chat.getId().toString())))
                 .andExpect(jsonPath("$[0].recentMessage.text", is(messageResponse.getText())))
@@ -148,7 +150,7 @@ class ChatControllerTest {
     @Test
     void createChat() throws Exception {
         when(chatService.createChat(any())).thenReturn(chatResponse);
-        mockMvc.perform(post(ChatController.SOCKET_CHAT_PATH)
+        mockMvc.perform(post(ChatController.CHAT_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(chatRequest)))
@@ -165,14 +167,13 @@ class ChatControllerTest {
 
     @Test
     void addMemberWithId() throws Exception {
-        when(chatService.addMemberWithId(any(UUID.class), any(UUID.class))).thenReturn(chatResponse);
-        mockMvc.perform(patch(ChatController.SOCKET_CHAT_PATH + "/" + chat.getId() + "/members/add/" + user1.getId())
+        when(chatService.addMemberWithId(any(UUID.class), any(UUID.class))).thenReturn(userResponse1);
+        mockMvc.perform(patch(ChatController.CHAT_PATH + "/" + chat.getId() + "/members/add/" + user1.getId())
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id", is(chat.getId().toString())))
-                .andExpect(jsonPath("$.recentMessage.text", is(messageResponse.getText())))
-                .andExpect(jsonPath("$.members.size()", is(chatResponse.getMembers().size())))
-                .andExpect(jsonPath("$.members[0].id", is(chatResponse.getMembers().get(0).getId().toString())))
-                .andExpect(jsonPath("$.members[0].username", is(chatResponse.getMembers().get(0).getUsername())))
+                .andExpect(jsonPath("$.id", is(userResponse1.getId().toString())))
+                .andExpect(jsonPath("$.role", is(userResponse1.getRole())))
+                .andExpect(jsonPath("$.username", is(userResponse1.getUsername())))
+                .andExpect(jsonPath("$.email", is(userResponse1.getEmail())))
                 .andExpect(status().isOk());
 
         verify(chatService).addMemberWithId(user1.getId(), chat.getId());
@@ -180,7 +181,7 @@ class ChatControllerTest {
 
     @Test
     void removeMemberWithId() throws Exception {
-        mockMvc.perform(patch(ChatController.SOCKET_CHAT_PATH + "/" + chat.getId() + "/members/remove/" + user1.getId())
+        mockMvc.perform(patch(ChatController.CHAT_PATH + "/" + chat.getId() + "/members/remove/" + user1.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
@@ -189,7 +190,7 @@ class ChatControllerTest {
 
     @Test
     void deleteChatWithId() throws Exception {
-        mockMvc.perform(delete(ChatController.SOCKET_CHAT_PATH + "/" + chat.getId())
+        mockMvc.perform(delete(ChatController.CHAT_PATH + "/" + chat.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 

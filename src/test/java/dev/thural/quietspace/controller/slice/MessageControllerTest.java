@@ -24,12 +24,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.*;
+import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -72,6 +73,13 @@ class MessageControllerTest {
                 .password("pAsSword")
                 .build();
 
+        User user2 = User.builder()
+                .id(UUID.randomUUID())
+                .username("user2")
+                .email("user2@email.com")
+                .password("pAsSwoRd")
+                .build();
+
         Chat chat = Chat.builder()
                 .id(UUID.randomUUID())
                 .build();
@@ -93,6 +101,7 @@ class MessageControllerTest {
         this.messageRequest = MessageRequest.builder()
                 .chatId(message.getChat().getId())
                 .senderId(message.getSender().getId())
+                .recipientId(user2.getId())
                 .text(message.getText())
                 .build();
     }
@@ -105,7 +114,7 @@ class MessageControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(messageRequest)))
-                .andExpect(jsonPath("$.username", is(messageResponse.getSenderName())))
+                .andExpect(jsonPath("$.senderName", is(messageResponse.getSenderName())))
                 .andExpect(jsonPath("$.text", is(messageResponse.getText())))
                 .andExpect(jsonPath("$.id", is(messageResponse.getId().toString())))
                 .andExpect(jsonPath("$.senderId", is(messageResponse.getSenderId().toString())))
@@ -133,7 +142,7 @@ class MessageControllerTest {
                         .param("page-number", "1")
                         .param("page-size", "10")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().isOk());
 
         verify(messageService).getMessagesByChatId(1, 10, messageResponse.getId());
     }

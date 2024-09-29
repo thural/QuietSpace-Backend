@@ -129,7 +129,7 @@ public class UserServiceImpl implements UserService {
         if (!hasAdminRole && !userRegisterRequest.getEmail().equals(signedUser.getEmail()))
             throw new UnauthorizedException("signed user has no access to requested resource");
 
-        BeanUtils.copyProperties(signedUser, userRegisterRequest);
+        BeanUtils.copyProperties(userRegisterRequest, signedUser);
         return userMapper.toResponse(userRepository.save(signedUser));
     }
 
@@ -141,7 +141,7 @@ public class UserServiceImpl implements UserService {
     public Page<UserResponse> listFollowings(Integer pageNumber, Integer pageSize) {
         User user = getSignedUser();
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
-        Page<User> userPage = new PageUtils<User>().pageFromList(user.getFollowings(), pageRequest);
+        Page<User> userPage = PageUtils.pageFromList(user.getFollowings(), pageRequest);
         return userPage.map(userMapper::toResponse);
     }
 
@@ -149,7 +149,7 @@ public class UserServiceImpl implements UserService {
     public Page<UserResponse> listFollowers(Integer pageNumber, Integer pageSize) {
         User user = getSignedUser();
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
-        Page<User> userPage = new PageUtils<User>().pageFromList(user.getFollowers(), pageRequest);
+        Page<User> userPage = PageUtils.pageFromList(user.getFollowers(), pageRequest);
         return userPage.map(userMapper::toResponse);
     }
 

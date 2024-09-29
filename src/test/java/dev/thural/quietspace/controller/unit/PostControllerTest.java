@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.controller.PostController;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.Role;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
@@ -66,7 +67,7 @@ class PostControllerTest {
                 .id(userId)
                 .username("user")
                 .email("user@email.com")
-                .role("admin")
+                .role(Role.ADMIN)
                 .password("pAsSword")
                 .build();
 

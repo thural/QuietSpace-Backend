@@ -1,6 +1,7 @@
 package dev.thural.quietspace.repository;
 
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.Role;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +29,7 @@ class UserRepositoryTest {
             .firstname("firstname")
             .lastname("lastname")
             .password("78921731")
+            .role(Role.USER)
             .accountLocked(false)
             .username("test user")
             .createDate(OffsetDateTime.now())

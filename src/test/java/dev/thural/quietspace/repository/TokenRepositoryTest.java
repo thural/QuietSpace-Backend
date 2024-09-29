@@ -2,6 +2,7 @@ package dev.thural.quietspace.repository;
 
 import dev.thural.quietspace.entity.Token;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.Role;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,7 @@ class TokenRepositoryTest {
             .firstname("firstname")
             .lastname("lastname")
             .password("78921731")
+            .role(Role.USER)
             .accountLocked(false)
             .username("test user")
             .createDate(OffsetDateTime.now())

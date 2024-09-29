@@ -5,6 +5,7 @@ import dev.thural.quietspace.controller.CommentController;
 import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.Role;
 import dev.thural.quietspace.mapper.custom.CommentMapper;
 import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
@@ -13,6 +14,7 @@ import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.CommentService;
+import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,12 +29,13 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.*;
+import java.util.Optional;
+import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,6 +53,8 @@ class CommentControllerTest {
     CommentService commentService;
     @MockBean
     CommentMapper commentMapper;
+    @MockBean
+    NotificationService notificationService;
     @MockBean
     UserService userService;
     @MockBean
@@ -81,7 +86,7 @@ class CommentControllerTest {
                 .id(UUID.randomUUID())
                 .username("user")
                 .email("user@email.com")
-                .role("admin")
+                .role(Role.ADMIN)
                 .password("pAsSword")
                 .build();
 

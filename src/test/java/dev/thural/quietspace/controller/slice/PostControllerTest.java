@@ -109,7 +109,7 @@ class PostControllerTest {
                         .param("page-number", "1")
                         .param("page-size", "10")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().isOk());
 
         verify(postService, times(1)).getAllPosts(1, 10);
 
@@ -124,7 +124,7 @@ class PostControllerTest {
                         .param("page-size", "10")
                         .param("query", "sample")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().isOk());
 
         verify(postService).getAllByQuery("sample", 1, 10);
     }

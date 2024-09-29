@@ -38,6 +38,7 @@ public class ChatController {
     private final MessageService messageService;
 
     public static final String CHAT_PATH = "/api/v1/chats";
+    public static final String CHAT_REMOVE_MEMBER_PATH = "/{chatId}/members/remove/{userId}";
     public static final String SOCKET_CHAT_PATH = "/private/chat";
     public static final String CHAT_EVENT_PATH = SOCKET_CHAT_PATH + "/event";
     public static final String LEAVE_CHAT_PATH = SOCKET_CHAT_PATH + "/leave";
@@ -68,7 +69,7 @@ public class ChatController {
         return ResponseEntity.ok(chatService.addMemberWithId(userId, chatId));
     }
 
-    @PatchMapping("/{chatId}/members/remove/{userId}")
+    @PatchMapping(CHAT_REMOVE_MEMBER_PATH)
     ResponseEntity<?> removeMemberWithId(@PathVariable UUID chatId, @PathVariable UUID userId) {
         //TODO: update chat members over socket
         chatService.removeMemberWithId(userId, chatId);

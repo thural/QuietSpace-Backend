@@ -3,6 +3,7 @@ package dev.thural.quietspace.repository;
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.Role;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,20 +28,34 @@ class MessageRepositoryTest {
     @Autowired
     private MessageRepository messageRepository;
 
-    private final User user = User.builder()
-            .email("user@email.com")
-            .username("user")
-            .firstname("firstname")
-            .lastname("lastname")
+    private final User user1 = User.builder()
+            .email("user1@email.com")
+            .username("user1")
+            .firstname("firstname1")
+            .lastname("lastname1")
             .password("78921731")
             .accountLocked(false)
-            .username("test user")
+            .username("test user1")
+            .role(Role.USER)
+            .createDate(OffsetDateTime.now())
+            .updateDate(OffsetDateTime.now())
+            .build();
+
+    private final User user2 = User.builder()
+            .email("user2@email.com")
+            .username("user2")
+            .firstname("firstname2")
+            .lastname("lastname2")
+            .password("78921732")
+            .accountLocked(false)
+            .username("test user2")
+            .role(Role.USER)
             .createDate(OffsetDateTime.now())
             .updateDate(OffsetDateTime.now())
             .build();
 
     private final Chat chat = Chat.builder()
-            .users(List.of(user))
+            .users(List.of(user1))
             .createDate(OffsetDateTime.now())
             .updateDate(OffsetDateTime.now())
             .build();
@@ -48,7 +63,8 @@ class MessageRepositoryTest {
     private final Message message = Message.builder()
             .text("sample text")
             .chat(chat)
-            .sender(user)
+            .sender(user1)
+            .recipient(user2)
             .createDate(OffsetDateTime.now())
             .updateDate(OffsetDateTime.now())
             .build();
@@ -58,12 +74,16 @@ class MessageRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        this.userRepository.save(user1);
+        this.userRepository.save(user2);
         this.savedChat = chatRepository.save(chat);
         this.savedMessage = messageRepository.save(message);
     }
 
     @AfterEach
     void tearDown() {
+        this.userRepository.delete(user1);
+        this.userRepository.delete(user2);
         this.chatRepository.delete(savedChat);
         this.messageRepository.delete(savedMessage);
     }
@@ -77,19 +97,10 @@ class MessageRepositoryTest {
 
     @Test
     void findFirstByChatOrderByCreateDateDesc() {
-        final Message newMessage = Message.builder()
-                .text("latest message")
-                .chat(chat)
-                .sender(user)
-                .createDate(OffsetDateTime.now())
-                .updateDate(OffsetDateTime.now())
-                .build();
-        messageRepository.save(newMessage);
-
         Message latestMessage = messageRepository.findFirstByChatOrderByCreateDateDesc(chat)
                 .orElse(null);
 
         assertThat(latestMessage).isNotNull();
-        assertThat(latestMessage.getText()).isEqualTo(newMessage.getText());
+        assertThat(latestMessage.getText()).isEqualTo(savedMessage.getText());
     }
 }
