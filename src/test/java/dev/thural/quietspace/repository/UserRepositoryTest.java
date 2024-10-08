@@ -57,18 +57,14 @@ class UserRepositoryTest {
 
     @Test
     void getUserById() {
-        User foundUser = userRepository.findById(savedUser.getId())
-                .orElse(null);
-
+        User foundUser = userRepository.findById(savedUser.getId()).orElse(null);
         assertThat(foundUser).isNotNull();
         assertThat(foundUser.getId()).isEqualTo(savedUser.getId());
     }
 
     @Test
     void testFindUserByUsername() {
-        User userEntity = userRepository.findUserByUsername(user.getUsername())
-                .orElse(null);
-
+        User userEntity = userRepository.findUserByUsername(user.getUsername()).orElse(null);
         assertThat(userEntity).isNotNull();
         assertThat(userEntity.getId()).isEqualTo(savedUser.getId());
         assertThat(userEntity.getUsername()).isEqualTo(user.getUsername());
@@ -76,9 +72,7 @@ class UserRepositoryTest {
 
     @Test
     void testFindUserEntityByEmail() {
-        User userEntity = userRepository.findUserEntityByEmail(user.getEmail())
-                .orElse(null);
-
+        User userEntity = userRepository.findUserEntityByEmail(user.getEmail()).orElse(null);
         assertThat(userEntity).isNotNull();
         assertThat(userEntity.getId()).isEqualTo(savedUser.getId());
         assertThat(userEntity.getEmail()).isEqualTo(user.getEmail());
@@ -90,7 +84,6 @@ class UserRepositoryTest {
             userRepository.save(User.builder()
                     .username("test user random text longer than 32 characters")
                     .build());
-
             userRepository.flush();
         });
     }

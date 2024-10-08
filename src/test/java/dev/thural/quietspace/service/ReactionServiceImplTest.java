@@ -8,6 +8,7 @@ import dev.thural.quietspace.mapper.custom.ReactionMapper;
 import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.repository.ReactionRepository;
+import dev.thural.quietspace.service.impl.ReactionServiceImpl;
 import dev.thural.quietspace.utils.PageUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -87,6 +88,7 @@ class ReactionServiceImplTest {
         when(reactionRepository.findByContentIdAndUserId(contentId, userId)).thenReturn(Optional.of(reaction));
 
         reactionService.handleReaction(reactionRequest);
+
         verify(reactionRepository, times(1)).deleteById(reaction.getId());
     }
 
@@ -126,6 +128,7 @@ class ReactionServiceImplTest {
     @Test
     void getLikeCountByContentId() {
         when(reactionRepository.countByContentIdAndReactionType(contentId, ReactionType.LIKE)).thenReturn(3);
+
         Integer likeCount = reactionService.countByContentIdAndReactionType(contentId, ReactionType.LIKE);
 
         assertThat(likeCount).isEqualTo(3);

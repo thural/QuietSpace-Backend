@@ -36,11 +36,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request ->
                         request
                                 .requestMatchers("api/v1/admin/**")
-                                .hasRole(ADMIN.name())
-
+                                .hasRole(ADMIN.toString())
                                 .requestMatchers(GET, "api/v1/posts/**")
-                                .hasAnyAuthority(USER_READ.name(), ADMIN_READ.name())
-
+                                .hasAnyAuthority(USER_READ.toString(), ADMIN_READ.toString())
                                 .requestMatchers(
                                         "/ws",
                                         "/ws/**",
@@ -59,7 +57,6 @@ public class SecurityConfig {
                                         "/swagger-ui.html"
                                 )
                                 .permitAll()
-
                                 .anyRequest()
                                 .authenticated()
                 )

@@ -1,4 +1,4 @@
-package dev.thural.quietspace.service;
+package dev.thural.quietspace.service.impl;
 
 import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Notification;
@@ -12,6 +12,8 @@ import dev.thural.quietspace.model.response.NotificationResponse;
 import dev.thural.quietspace.repository.CommentRepository;
 import dev.thural.quietspace.repository.NotificationRepository;
 import dev.thural.quietspace.repository.PostRepository;
+import dev.thural.quietspace.service.NotificationService;
+import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.websocket.event.message.NotificationEvent;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

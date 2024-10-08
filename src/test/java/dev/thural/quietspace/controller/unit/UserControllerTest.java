@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,8 +25,6 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
-@AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
 @WithMockUser(username = "user", roles = "USER", authorities = "USER, ADMIN")
 public class UserControllerTest {
@@ -107,8 +104,7 @@ public class UserControllerTest {
         doNothing().when(userService).deleteUserById(any());
 
         mockMvc.perform(delete(UserController.USER_PATH + "/" + userId)
-                        .requestAttr("Authorization", "Bearer dhj3h32hd2k")
-                )
+                        .requestAttr("Authorization", "Bearer dhj3h32hd2k"))
                 .andExpect(status().isNoContent());
     }
 
@@ -116,18 +112,15 @@ public class UserControllerTest {
     void patchUser() throws Exception {
         registerRequest.setUsername("testUserUpdated");
         registerRequest.setPassword("testPasswordUpdated");
-
         String userBodyJson = objectMapper.writeValueAsString(registerRequest);
 
         mockMvc.perform(patch(UserController.USER_PATH, registerRequest)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(userBodyJson)
-                )
+                        .content(userBodyJson))
                 .andExpect(status().isOk());
 
         verify(userService).patchUser(userArgumentCaptor.capture());
-
         assertThat(registerRequest.getUsername()).isEqualTo(userArgumentCaptor.getValue().getUsername());
         assertThat(registerRequest.getPassword()).isEqualTo(userArgumentCaptor.getValue().getPassword());
     }
@@ -136,8 +129,7 @@ public class UserControllerTest {
     void userByIdNotFound() throws Exception {
 
         mockMvc.perform(get(UserController.USER_PATH + "/" + userId)
-                        .accept(MediaType.APPLICATION_JSON)
-                )
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
         verify(userService).getUserResponseById(uuidArgumentCaptor.capture());

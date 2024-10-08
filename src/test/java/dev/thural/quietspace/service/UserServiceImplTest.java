@@ -6,6 +6,7 @@ import dev.thural.quietspace.mapper.UserMapperImpl;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.UserRepository;
+import dev.thural.quietspace.service.impl.UserServiceImpl;
 import dev.thural.quietspace.utils.PagingProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,11 +74,9 @@ class UserServiceImplTest {
     void testGetUserById() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        User foundUser = userService.getUserById(userId)
-                .orElseThrow(null);
+        User foundUser = userService.getUserById(userId).orElseThrow(null);
 
         assertThat(foundUser).isInstanceOf(User.class);
-
         verify(userRepository, times(1)).findById(userId);
     }
 
@@ -85,11 +84,9 @@ class UserServiceImplTest {
     void testGetUserResponseById() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        UserResponse foundUser = userService.getUserResponseById(userId)
-                .orElseThrow(null);
+        UserResponse foundUser = userService.getUserResponseById(userId).orElseThrow(null);
 
         assertThat(foundUser).isInstanceOf(UserResponse.class);
-
         verify(userRepository, times(1)).findById(userId);
     }
 
@@ -99,8 +96,8 @@ class UserServiceImplTest {
         when(userRepository.findAll(pageRequest)).thenReturn(Page.empty());
 
         Page<UserResponse> userPage = userService.listUsers(1, 50);
-        assertThat(userPage).isEmpty();
 
+        assertThat(userPage).isEmpty();
         verify(userRepository, times(1)).findAll(pageRequest);
     }
 
@@ -110,6 +107,7 @@ class UserServiceImplTest {
         when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
 
         List<User> userList = userService.getUsersFromIdList(userIdList);
+
         assertThat(userList).isNotEmpty();
         verify(userRepository, times(2)).findById(any(UUID.class));
     }
@@ -121,8 +119,8 @@ class UserServiceImplTest {
         when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
 
         User loggedUser = userService.getSignedUser();
-        assertThat(loggedUser).isInstanceOf(User.class);
 
+        assertThat(loggedUser).isInstanceOf(User.class);
         verify(userRepository, times(1)).findUserByUsername(any());
     }
 
@@ -132,8 +130,8 @@ class UserServiceImplTest {
         when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
 
         UserResponse loggedUser = userService.getLoggedUserResponse().orElse(null);
-        assertThat(loggedUser).isInstanceOf(UserResponse.class);
 
+        assertThat(loggedUser).isInstanceOf(UserResponse.class);
         verify(userRepository, times(1)).findUserByUsername(any());
     }
 
@@ -141,7 +139,6 @@ class UserServiceImplTest {
     void testDeleteUser() {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
-
         SecurityContextHolder.setContext(securityContext);
 
         userService.deleteUserById(userId);
@@ -155,13 +152,11 @@ class UserServiceImplTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
-
         SecurityContextHolder.setContext(securityContext);
 
         UserResponse userResponse = userService.patchUser(registerRequest);
 
         assertThat(userResponse).isInstanceOf(UserResponse.class);
-
         verify(userRepository, times(1)).findUserByUsername(any());
         verify(userRepository, times(1)).save(any(User.class));
     }

@@ -2,6 +2,7 @@ version: '3.8'
 services:
 
   quietspace-monolith-db:
+    container_name: quietspace-monolith-db
     image: mysql:8.0
     restart: on-failure
     volumes:
@@ -16,22 +17,23 @@ services:
     ports:
       - "3306:3306"
 
-  quietspace-monolith-dev:
-    build:
-      context: ../..
-      dockerfile: ./infrastructure/docker/buildfiles/dev/Dockerfile
-    image: thural/quietspace:monolith-dev
-    depends_on:
-      - quietspace-monolith-db
-    env_file:
-      - ./.env
-    networks:
-      - monolith-network
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./:/app
-      - /target
+  #  quietspace-monolith-dev:
+  #    container_name: quietspace-monolith
+  #    build:
+  #      context: ../..
+  #      dockerfile: ./infrastructure/docker/buildfiles/dev/Dockerfile
+  #    image: thural/quietspace:monolith-dev
+  #    depends_on:
+  #      - quietspace-monolith-db
+  #    env_file:
+  #      - ./.env
+  #    networks:
+  #      - monolith-network
+  #    ports:
+  #      - "8080:8080"
+  #    volumes:
+  #      - ./:/app
+  #      - /target
 
   mail-dev:
     container_name: mail-dev

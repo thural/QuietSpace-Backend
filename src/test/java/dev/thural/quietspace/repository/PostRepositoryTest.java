@@ -62,7 +62,6 @@ class PostRepositoryTest {
     @Test
     void testGetPostsByUserId() {
         Page<Post> list = postRepository.findAllByUserId(user.getId(), null);
-
         assertThat(list.toList().size()).isEqualTo(1);
         assertThat(list.toList().get(0)).isEqualTo(savedPost);
     }
@@ -70,7 +69,6 @@ class PostRepositoryTest {
     @Test
     void testFindAllByQuery() {
         Page<Post> list = postRepository.findAllByQuery("sample", null);
-
         assertThat(list.toList().size()).isEqualTo(1);
         assertThat(list.toList().get(0)).isEqualTo(savedPost);
     }

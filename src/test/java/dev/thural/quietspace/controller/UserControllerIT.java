@@ -57,14 +57,9 @@ class UserControllerIT {
     @Test
     void testUpdateUserNameTooLong() throws Exception {
         User randomUser = userRepository.findFirstByOrderByUsernameDesc().orElseThrow();
-
-        User user = userRepository.findUserEntityByEmail(randomUser.getEmail())
-                .orElseThrow();
-
+        User user = userRepository.findUserEntityByEmail(randomUser.getEmail()).orElseThrow();
         UserResponse userResponse = userMapper.toResponse(user);
-
         userResponse.setUsername("a long user name to cause transaction exception");
-
         mockMvc.perform(patch(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -76,7 +71,6 @@ class UserControllerIT {
     @Test
     void testListSearchUserByName() throws Exception {
         User randomUser = userRepository.findFirstByOrderByUsernameDesc().orElseThrow();
-
         mockMvc.perform(get(UserController.USER_PATH + "/search")
                         .queryParam("username", randomUser.getUsername())
                         .queryParam("page-number", "1")
@@ -134,9 +128,9 @@ class UserControllerIT {
         userRegisterRequest.setUsername(updatedName);
 
         ResponseEntity<?> response = userController.patchUser(userRegisterRequest);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
 
         User updatedUser = userRepository.findById(user.getId()).orElse(null);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
         assertThat(updatedUser).isNotNull();
         assertThat(updatedUser.getUsername()).isEqualTo(updatedName);
     }
@@ -147,9 +141,7 @@ class UserControllerIT {
     @Test
     void testDeleteUser() {
         User user = userRepository.findAll().get(0);
-
         ResponseEntity<?> response = userController.deleteUser(user.getId());
-
         assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
         assertThat(userRepository.findById(user.getId())).isEmpty();
     }

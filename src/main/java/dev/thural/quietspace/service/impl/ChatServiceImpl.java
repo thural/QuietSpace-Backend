@@ -1,4 +1,4 @@
-package dev.thural.quietspace.service;
+package dev.thural.quietspace.service.impl;
 
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.User;
@@ -11,6 +11,8 @@ import dev.thural.quietspace.model.request.ChatRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.ChatRepository;
+import dev.thural.quietspace.service.ChatService;
+import dev.thural.quietspace.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

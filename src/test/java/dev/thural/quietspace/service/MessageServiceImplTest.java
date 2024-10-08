@@ -8,6 +8,7 @@ import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.MessageResponse;
 import dev.thural.quietspace.repository.ChatRepository;
 import dev.thural.quietspace.repository.MessageRepository;
+import dev.thural.quietspace.service.impl.MessageServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -97,7 +98,6 @@ class MessageServiceImplTest {
         assertThat(savedMessage).isNotNull();
         assertThat(savedMessage.getSenderId()).isEqualTo(user.getId());
         assertThat(savedMessage.getChatId()).isEqualTo(chat.getId());
-
         verify(messageRepository, times(1)).save(any(Message.class));
     }
 
@@ -116,11 +116,11 @@ class MessageServiceImplTest {
     @Test
     void testGetMessagesByChatId() {
         PageRequest pageRequest = buildPageRequest(1, 50, null);
-
         when(messageRepository.findAllByChatId(chat.getId(), pageRequest)).thenReturn(Page.empty());
-        Page<MessageResponse> messagePage = messageService.getMessagesByChatId(1, 50, chat.getId());
-        assertThat(messagePage.getContent()).isEmpty();
 
+        Page<MessageResponse> messagePage = messageService.getMessagesByChatId(1, 50, chat.getId());
+
+        assertThat(messagePage.getContent()).isEmpty();
         verify(messageRepository, times(1)).findAllByChatId(chat.getId(), pageRequest);
     }
 

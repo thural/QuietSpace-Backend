@@ -1,4 +1,4 @@
-package dev.thural.quietspace.service;
+package dev.thural.quietspace.service.impl;
 
 import dev.thural.quietspace.enums.EmailTemplateName;
 import jakarta.mail.MessagingException;

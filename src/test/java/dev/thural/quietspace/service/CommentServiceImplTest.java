@@ -8,6 +8,7 @@ import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.repository.CommentRepository;
 import dev.thural.quietspace.repository.PostRepository;
+import dev.thural.quietspace.service.impl.CommentServiceImpl;
 import dev.thural.quietspace.utils.PagingProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -106,6 +107,7 @@ class CommentServiceImplTest {
         when(userService.getSignedUser()).thenReturn(user);
 
         Page<CommentResponse> commentPage = commentService.getCommentsByUserId(userId, 1, 50);
+
         assertThat(commentPage).isEqualTo(Page.empty());
         verify(commentRepository, times(1)).findAllByUserId(user.getId(), pageRequest);
     }
@@ -119,8 +121,8 @@ class CommentServiceImplTest {
         when(commentMapper.commentEntityToResponse(comment)).thenReturn(commentResponse);
 
         CommentResponse savedComment = commentService.createComment(commentRequest);
-        assertThat(savedComment).isEqualTo(commentResponse);
 
+        assertThat(savedComment).isEqualTo(commentResponse);
         verify(commentRepository, times(1)).save(comment);
         verify(postRepository, times(1)).findById(comment.getPost().getId());
         verify(commentMapper, times(1)).commentRequestToEntity(commentRequest);
@@ -132,9 +134,9 @@ class CommentServiceImplTest {
         when(commentMapper.commentEntityToResponse(comment)).thenReturn(commentResponse);
 
         Optional<CommentResponse> foundComment = commentService.getCommentById(comment.getId());
+
         assertThat(foundComment).isNotEmpty();
         assertThat(foundComment.get()).isEqualTo(commentResponse);
-
         verify(commentRepository, times(1)).findById(comment.getId());
     }
 
@@ -145,8 +147,8 @@ class CommentServiceImplTest {
         when(commentMapper.commentEntityToResponse(any(Comment.class))).thenReturn(commentResponse);
 
         CommentResponse savedComment = commentService.updateComment(comment.getId(), commentRequest);
-        assertThat(savedComment).isEqualTo(commentResponse);
 
+        assertThat(savedComment).isEqualTo(commentResponse);
         verify(commentRepository, times(1)).findById(comment.getId());
     }
 
@@ -168,8 +170,8 @@ class CommentServiceImplTest {
         when(commentRepository.findAllByParentId(comment.getId(), pageRequest)).thenReturn(Page.empty());
 
         Page<CommentResponse> commentPage = commentService.getRepliesByParentId(comment.getId(), 1, 50);
-        assertThat(commentPage).isEqualTo(Page.empty());
 
+        assertThat(commentPage).isEqualTo(Page.empty());
         verify(commentRepository, times(1)).findAllByParentId(comment.getId(), pageRequest);
     }
 
@@ -180,8 +182,8 @@ class CommentServiceImplTest {
         when(commentMapper.commentEntityToResponse(comment)).thenReturn(commentResponse);
 
         CommentResponse savedComment = commentService.patchComment(comment.getId(), commentRequest);
-        assertThat(savedComment).isEqualTo(commentResponse);
 
+        assertThat(savedComment).isEqualTo(commentResponse);
         verify(commentRepository, times(1)).findById(comment.getId());
     }
 

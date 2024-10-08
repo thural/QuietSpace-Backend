@@ -97,9 +97,7 @@ class MessageRepositoryTest {
 
     @Test
     void findFirstByChatOrderByCreateDateDesc() {
-        Message latestMessage = messageRepository.findFirstByChatOrderByCreateDateDesc(chat)
-                .orElse(null);
-
+        Message latestMessage = messageRepository.findFirstByChatOrderByCreateDateDesc(chat).orElse(null);
         assertThat(latestMessage).isNotNull();
         assertThat(latestMessage.getText()).isEqualTo(savedMessage.getText());
     }

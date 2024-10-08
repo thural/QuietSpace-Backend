@@ -10,6 +10,7 @@ import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.repository.PostRepository;
+import dev.thural.quietspace.service.impl.PostServiceImpl;
 import dev.thural.quietspace.utils.PagingProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -117,8 +118,8 @@ public class PostServiceImplTest {
         when(postRepository.findAllByUserId(user.getId(), pageRequest)).thenReturn(Page.empty());
 
         Page<PostResponse> posts = postService.getPostsByUserId(user.getId(), 1, 50);
-        assertThat(posts.getContent()).isEmpty();
 
+        assertThat(posts.getContent()).isEmpty();
         verify(postRepository, times(1)).findAllByUserId(user.getId(), pageRequest);
     }
 
@@ -130,17 +131,15 @@ public class PostServiceImplTest {
         when(postRepository.save(any(Post.class))).thenReturn(post);
 
         PostResponse postResponse = postService.addPost(postRequest);
-        assertThat(postResponse).isInstanceOf(PostResponse.class);
 
+        assertThat(postResponse).isInstanceOf(PostResponse.class);
         verify(postRepository, times(1)).save(post);
     }
 
     @Test
     void testGetVotedOptionLabel() {
         when(userService.getSignedUser()).thenReturn(user);
-
         String optionLabel = postService.getVotedPollOptionLabel(poll);
-
         assertThat(optionLabel).isEqualTo("sample label");
     }
 
@@ -150,8 +149,8 @@ public class PostServiceImplTest {
         when(postMapper.postEntityToResponse(post)).thenReturn(postResponse);
 
         PostResponse foundPost = postService.getPostById(post.getId()).orElse(null);
-        assertThat(foundPost).isEqualTo(postResponse);
 
+        assertThat(foundPost).isEqualTo(postResponse);
         verify(postRepository, times(1)).findById(post.getId());
     }
 
@@ -163,8 +162,8 @@ public class PostServiceImplTest {
         when(postRepository.save(any(Post.class))).thenReturn(post);
 
         PostResponse responseBody = postService.updatePost(post.getId(), postRequest);
-        assertThat(responseBody).isEqualTo(postResponse);
 
+        assertThat(responseBody).isEqualTo(postResponse);
         verify(postRepository, times(1)).findById(post.getId());
         verify(postRepository, times(1)).save(post);
     }
@@ -172,7 +171,6 @@ public class PostServiceImplTest {
     @Test
     void testVotePoll() {
         when(postRepository.findById(post.getId())).thenReturn(Optional.ofNullable(post));
-
         postService.votePoll(voteRequest);
 
         Set<UUID> voterIds = postRepository.findById(post.getId()).orElseThrow()
@@ -181,8 +179,6 @@ public class PostServiceImplTest {
                 .findFirst().map(PollOption::getVotes).orElseThrow();
 
         assertThat(voterIds).contains(voteRequest.getUserId());
-
-
         verify(postRepository, times(2)).findById(post.getId());
     }
 

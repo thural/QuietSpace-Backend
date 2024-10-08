@@ -8,6 +8,7 @@ import dev.thural.quietspace.model.request.ChatRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.ChatRepository;
+import dev.thural.quietspace.service.impl.ChatServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -94,8 +95,8 @@ public class ChatServiceImplTest {
         when(chatRepository.findById(chat.getId())).thenReturn(Optional.of(chat));
 
         Chat foundChat = chatService.findChatEntityById(chat.getId());
-        assertThat(foundChat).isEqualTo(chat);
 
+        assertThat(foundChat).isEqualTo(chat);
         verify(userService, times(1)).getSignedUser();
         verify(chatRepository, times(1)).findById(chat.getId());
     }
@@ -107,8 +108,8 @@ public class ChatServiceImplTest {
         when(chatMapper.chatEntityToResponse(any(Chat.class))).thenReturn(chatResponse);
 
         List<ChatResponse> chats = chatService.getChatsByUserId(userId);
-        assertThat(chats).isEqualTo(List.of(chatResponse));
 
+        assertThat(chats).isEqualTo(List.of(chatResponse));
         verify(userService, times(1)).getSignedUser();
         verify(chatMapper, times(1)).chatEntityToResponse(any(Chat.class));
         verify(chatRepository, times(1)).findAllByUsersId(userId);
@@ -137,7 +138,6 @@ public class ChatServiceImplTest {
 
         UserResponse addedUser = chatService.addMemberWithId(memberId, chat.getId());
         assertThat(addedUser).isEqualTo(memberResponse);
-
         verify(userMapper, times(1)).toResponse(user2);
     }
 
@@ -164,8 +164,8 @@ public class ChatServiceImplTest {
         when(chatRepository.save(chat)).thenReturn(chat);
 
         ChatResponse createdChat = chatService.createChat(chatRequest);
-        assertThat(createdChat).isEqualTo(chatResponse);
 
+        assertThat(createdChat).isEqualTo(chatResponse);
         verify(chatRepository, times(1)).findAllByUsersIn(userList);
         verify(chatRepository, times(1)).save(chat);
     }

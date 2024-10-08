@@ -1,4 +1,4 @@
-package dev.thural.quietspace.service;
+package dev.thural.quietspace.service.impl;
 
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.Role;
@@ -11,6 +11,7 @@ import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.query.UserQuery;
 import dev.thural.quietspace.repository.UserRepository;
+import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.utils.PageUtils;
 import dev.thural.quietspace.utils.PagingProvider;
 import lombok.RequiredArgsConstructor;
