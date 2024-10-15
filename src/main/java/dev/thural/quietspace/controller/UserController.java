@@ -115,20 +115,22 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/followings")
+    @GetMapping("/{userId}/followings")
     Page<UserResponse> listFollowings(
+            @PathVariable(name = "userId") UUID userId,
             @RequestParam(name = "page-number", required = false) Integer pageNumber,
             @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {
-        return userService.listFollowings(pageNumber, pageSize);
+        return userService.listFollowings(userId, pageSize, pageNumber);
     }
 
-    @GetMapping("/followers")
+    @GetMapping("/{userId}/followers")
     Page<UserResponse> listFollowers(
+            @PathVariable(name = "userId") UUID userId,
             @RequestParam(name = "page-number", required = false) Integer pageNumber,
             @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {
-        return userService.listFollowers(pageNumber, pageSize);
+        return userService.listFollowers(userId, pageNumber, pageSize);
     }
 
 

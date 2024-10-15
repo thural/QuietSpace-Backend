@@ -43,6 +43,11 @@ public class User extends BaseEntity implements UserDetails, Principal {
     @JsonIgnore
     private String password;
 
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    ProfileSettings profileSettings;
+
     @JsonIgnore
     @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -149,6 +154,7 @@ public class User extends BaseEntity implements UserDetails, Principal {
         setEnabled(true);
         setStatusType(ONLINE);
         setAccountLocked(false);
+        setProfileSettings(new ProfileSettings(this));
     }
 
 }

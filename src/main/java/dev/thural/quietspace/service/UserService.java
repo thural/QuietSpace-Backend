@@ -26,9 +26,9 @@ public interface UserService {
 
     Optional<UserResponse> getLoggedUserResponse();
 
-    Page<UserResponse> listFollowings(Integer pageNumber, Integer pageSize);
+    Page<UserResponse> listFollowings(UUID userId, Integer pageSize, Integer pageNumber);
 
-    Page<UserResponse> listFollowers(Integer pageNumber, Integer pageSize);
+    Page<UserResponse> listFollowers(UUID userId, Integer pageNumber, Integer pageSize);
 
     void toggleFollow(UUID followedUserId);
 

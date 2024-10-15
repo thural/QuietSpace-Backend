@@ -101,8 +101,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserResponse> getUserResponseById(UUID id) {
-        return userRepository.findById(id).map(userMapper::toResponse);
+    public Optional<UserResponse> getUserResponseById(UUID userId) {
+        User user = checkUserProfileAccessAndReturnUser(userId);
+        return Optional.of(user).map(userMapper::toResponse);
     }
 
     @Override
@@ -138,17 +139,26 @@ public class UserServiceImpl implements UserService {
         return signedUser.getRole().name().equals("ROLE_".concat(Role.ADMIN.name()));
     }
 
+    private User checkUserProfileAccessAndReturnUser(UUID userId) {
+        User signedUser = getSignedUser();
+        if (signedUser.getId().equals(userId)) return signedUser;
+        User user = getUserById(userId).orElseThrow(UserNotFoundException::new);
+        if (!user.getProfileSettings().getIsPrivateAccount()) return user;
+        if (user.getFollowers().contains(getSignedUser())) return user;
+        throw new UnauthorizedException("signed user has no access to requested resource");
+    }
+
     @Override
-    public Page<UserResponse> listFollowings(Integer pageNumber, Integer pageSize) {
-        User user = getSignedUser();
+    public Page<UserResponse> listFollowings(UUID userId, Integer pageSize, Integer pageNumber) {
+        User user = checkUserProfileAccessAndReturnUser(userId);
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
         Page<User> userPage = PageUtils.pageFromList(user.getFollowings(), pageRequest);
         return userPage.map(userMapper::toResponse);
     }
 
     @Override
-    public Page<UserResponse> listFollowers(Integer pageNumber, Integer pageSize) {
-        User user = getSignedUser();
+    public Page<UserResponse> listFollowers(UUID userId, Integer pageNumber, Integer pageSize) {
+        User user = checkUserProfileAccessAndReturnUser(userId);
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
         Page<User> userPage = PageUtils.pageFromList(user.getFollowers(), pageRequest);
         return userPage.map(userMapper::toResponse);
@@ -163,7 +173,6 @@ public class UserServiceImpl implements UserService {
                     "users can't unfollow themselves");
         User followedUser = userRepository.findById(followedUserId)
                 .orElseThrow(UserNotFoundException::new);
-
         if (user.getFollowings().contains(followedUser)) {
             user.getFollowings().remove(followedUser);
             followedUser.getFollowers().remove(user);
