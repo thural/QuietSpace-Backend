@@ -1,6 +1,5 @@
 package dev.thural.quietspace.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -24,12 +23,10 @@ public class Poll extends BaseEntity {
     private OffsetDateTime dueDate;
 
     @NotNull
-    @JsonIgnore
     @OneToOne
     private Post post;
 
     @NotNull
-    @JsonIgnore
     @JsonManagedReference
     @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PollOption> options;

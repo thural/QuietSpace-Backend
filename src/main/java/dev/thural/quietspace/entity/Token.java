@@ -6,7 +6,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,14 +22,12 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 public class Token extends BaseEntity {
 
-    @NotNull
     @NotBlank
-    @Column(unique = true)
+    @Column(length = 600, unique = true)
     private String token;
 
-    @NotNull
-    @NotBlank
     @Email
+    @NotBlank
     private String email;
 
     @ManyToOne

@@ -6,6 +6,7 @@ import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.model.response.NotificationResponse;
 import dev.thural.quietspace.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,15 +19,11 @@ public class NotificationMapper {
         User foundUser = userRepository.findById(notification.getActorId())
                 .orElseThrow(UserNotFoundException::new);
 
-        return NotificationResponse.builder()
-                .id(notification.getId())
-                .actorId(foundUser.getId())
-                .isSeen(notification.getIsSeen())
-                .contentId(notification.getContentId())
-                .type(notification.getNotificationType())
-                .username(foundUser.getUsername())
-                .updateDate(notification.getUpdateDate())
-                .build();
+        var response = new NotificationResponse();
+        BeanUtils.copyProperties(notification, response);
+        response.setActorId(foundUser.getId());
+        response.setType(notification.getNotificationType());
+        return response;
     }
 
 }

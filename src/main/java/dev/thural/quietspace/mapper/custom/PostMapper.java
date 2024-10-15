@@ -13,6 +13,7 @@ import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -22,6 +23,7 @@ import java.util.UUID;
 import static dev.thural.quietspace.enums.ReactionType.DISLIKE;
 import static dev.thural.quietspace.enums.ReactionType.LIKE;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class PostMapper {
@@ -61,7 +63,7 @@ public class PostMapper {
 
     public PostResponse postEntityToResponse(Post post) {
         Integer commentCount = post.getComments() != null ? post.getComments().size() : 0;
-        Integer postLikeCount = reactionService.countByContentIdAndReactionType(post.getId(), LIKE);
+        Integer likeCount = reactionService.countByContentIdAndReactionType(post.getId(), LIKE);
         Integer dislikeCount = reactionService.countByContentIdAndReactionType(post.getId(), DISLIKE);
         ReactionResponse userReaction = reactionService.getUserReactionByContentId(post.getId())
                 .orElse(null);
@@ -71,7 +73,7 @@ public class PostMapper {
                 .title(post.getTitle())
                 .text(post.getText())
                 .commentCount(commentCount)
-                .likeCount(postLikeCount)
+                .likeCount(likeCount)
                 .dislikeCount(dislikeCount)
                 .userId(post.getUser().getId())
                 .username(post.getUser().getUsername())

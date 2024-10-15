@@ -38,8 +38,6 @@ public class CommentMapper {
                 .build();
     }
 
-    ;
-
     public CommentResponse commentEntityToResponse(Comment comment) {
         return CommentResponse.builder()
                 .id(comment.getId())
@@ -55,8 +53,6 @@ public class CommentMapper {
                 .replyCount(getReplyCount(comment.getId(), comment.getPost()))
                 .build();
     }
-
-    ;
 
     private Post getPostById(UUID postId) {
         return postRepository.findById(postId).orElse(null);

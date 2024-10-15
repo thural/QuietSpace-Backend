@@ -24,7 +24,7 @@ public class AdminLoader implements CommandLineRunner {
     String adminPassword;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         loadAdmin();
     }
 

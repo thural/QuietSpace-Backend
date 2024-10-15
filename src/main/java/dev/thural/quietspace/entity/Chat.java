@@ -1,7 +1,6 @@
 package dev.thural.quietspace.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,7 +27,7 @@ public class Chat extends BaseEntity {
                     referencedColumnName = "id"))
     private List<User> users;
 
-    @JsonIgnore
+    
     @JsonManagedReference
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Message> messages;

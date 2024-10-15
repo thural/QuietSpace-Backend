@@ -1,6 +1,7 @@
 package dev.thural.quietspace.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
@@ -33,8 +34,8 @@ public class Message extends BaseEntity {
     @ManyToOne
     private User recipient;
 
-    @NotNull
     @NotBlank
+    @Column(length = 999)
     private String text;
 
     @NotNull

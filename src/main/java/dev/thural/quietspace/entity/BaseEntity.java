@@ -35,7 +35,7 @@ public class BaseEntity {
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false)
+    @Column(columnDefinition = "varchar(36)", updatable = false, nullable = false)
     private UUID id;
 
 
@@ -44,12 +44,12 @@ public class BaseEntity {
 
 
     @CreatedBy
-    @Column(length = 36, columnDefinition = "varchar(36)", updatable = false)
-    private UUID createdBy;
+    @Column(columnDefinition = "varchar(255)", updatable = false)
+    private String createdBy;
 
     @LastModifiedBy
-    @Column(length = 36, columnDefinition = "varchar(36)", insertable = false)
-    private UUID updatedBy;
+    @Column(columnDefinition = "varchar(255)", insertable = false)
+    private String updatedBy;
 
 
     @NotNull

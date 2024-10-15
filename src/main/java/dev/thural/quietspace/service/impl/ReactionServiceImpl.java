@@ -63,7 +63,7 @@ public class ReactionServiceImpl implements ReactionService {
 
     @Override
     public Integer countByContentIdAndReactionType(UUID contentId, ReactionType reactionType) {
-        return reactionRepository.countByContentIdAndReactionType(contentId, LIKE);
+        return reactionRepository.countByContentIdAndReactionType(contentId, reactionType);
     }
 
     @Override

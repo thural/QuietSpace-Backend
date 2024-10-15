@@ -1,10 +1,11 @@
 package dev.thural.quietspace.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,11 +27,11 @@ public class PollOption extends BaseEntity {
 
     @NotNull
     @ManyToOne
-    @JsonIgnore
     @JsonBackReference
     private Poll poll;
 
-    @NotNull
+    @NotBlank
+    @Column(length = 999)
     private String label;
 
     @NotNull

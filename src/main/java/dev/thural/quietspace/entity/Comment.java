@@ -1,7 +1,7 @@
 package dev.thural.quietspace.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
@@ -24,19 +24,17 @@ public class Comment extends BaseEntity {
 
     private UUID parentId;
 
-    @NotNull
     @NotBlank
+    @Column(length = 999)
     private String text;
 
     @NotNull
     @ManyToOne
-    @JsonIgnore
     @JsonBackReference
     private User user;
 
     @NotNull
     @ManyToOne
-    @JsonIgnore
     @JsonBackReference
     private Post post;
 

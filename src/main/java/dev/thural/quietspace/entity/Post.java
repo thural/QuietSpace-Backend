@@ -24,8 +24,8 @@ public class Post extends BaseEntity {
 
     private String title;
 
-    @NotNull
     @NotBlank
+    @Column(length = 999)
     private String text;
 
     @NotNull
@@ -36,8 +36,7 @@ public class Post extends BaseEntity {
     @JsonIgnore
     @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Poll poll;
-
-    @JsonIgnore
+    
     @JsonManagedReference
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Comment> comments;

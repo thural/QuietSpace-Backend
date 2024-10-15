@@ -112,11 +112,12 @@ public class AuthService {
         existingToken.setValidateDate(OffsetDateTime.now());
     }
 
+    @Transactional
     public void signout(String authHeader) {
         String currentUserName = SecurityContextHolder.getContext()
                 .getAuthentication().getName();
 
-        log.info("current username from security context on signing out: {}", currentUserName);
+        log.info("username in security context on signing out: {}", currentUserName);
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             addToBlacklist(authHeader, currentUserName);
@@ -225,7 +226,6 @@ public class AuthService {
         // TODO: consider user settings after implementation
         User user = userService.getSignedUser();
         user.setStatusType(type);
-        userRepository.save(user);
     }
 
 

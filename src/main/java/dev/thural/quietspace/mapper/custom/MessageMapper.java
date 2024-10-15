@@ -9,6 +9,7 @@ import dev.thural.quietspace.repository.ChatRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -20,26 +21,23 @@ public class MessageMapper {
     private final UserRepository userRepository;
     private final ChatRepository chatRepository;
 
-    public Message toEntity(MessageRequest message) {
-        return Message.builder()
-                .text(message.getText())
-                .chat(findChatById(message.getChatId()))
-                .sender(findUserById(message.getSenderId()))
-                .recipient(findUserById(message.getRecipientId()))
-                .build();
+    public Message toEntity(MessageRequest request) {
+        var message = new Message();
+        BeanUtils.copyProperties(request, message);
+        message.setChat(findChatById(request.getChatId()));
+        message.setSender(findUserById(request.getSenderId()));
+        message.setRecipient(findUserById(request.getRecipientId()));
+        return message;
     }
 
     public MessageResponse toResponse(Message message) {
-        return MessageResponse
-                .builder()
-                .text(message.getText())
-                .id(message.getId())
-                .isSeen(message.getIsSeen())
-                .chatId(message.getChat().getId())
-                .senderId(message.getSender().getId())
-                .recipientId(message.getRecipient().getId())
-                .senderName(message.getSender().getName())
-                .build();
+        var response = new MessageResponse();
+        BeanUtils.copyProperties(message, response);
+        response.setChatId(message.getChat().getId());
+        response.setSenderId(message.getSender().getId());
+        response.setSenderName(message.getSender().getName());
+        response.setRecipientId(message.getRecipient().getId());
+        return response;
     }
 
     private Chat findChatById(UUID chatId) {
