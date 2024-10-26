@@ -7,7 +7,7 @@ import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.ContentType;
 import dev.thural.quietspace.enums.NotificationType;
 import dev.thural.quietspace.exception.UserNotFoundException;
-import dev.thural.quietspace.mapper.custom.NotificationMapper;
+import dev.thural.quietspace.mapper.NotificationMapper;
 import dev.thural.quietspace.model.response.NotificationResponse;
 import dev.thural.quietspace.repository.CommentRepository;
 import dev.thural.quietspace.repository.NotificationRepository;
@@ -53,20 +53,15 @@ public class NotificationServiceImpl implements NotificationService {
     public void handleSeen(UUID notificationId) {
         log.info("setting notification with id {} as seen ...", notificationId);
         User user = userService.getSignedUser();
-        var notification = notificationRepository.findById(notificationId)
-                .orElseThrow(EntityNotFoundException::new);
-
+        var notification = notificationRepository.findById(notificationId).orElseThrow(EntityNotFoundException::new);
         if (!notification.getUserId().equals(user.getId()))
-            throw new ResourceAccessException("user is denied access for requested resource");
-
+            throw new ResourceAccessException("denied access for requested resource");
         if (!notification.getIsSeen()) notification.setIsSeen(true);
-
         var event = NotificationEvent.builder()
                 .actorId(user.getId())
                 .notificationId(notificationId)
                 .type(SEEN_NOTIFICATION)
                 .build();
-
         template.convertAndSendToUser(user.getId().toString(), NOTIFICATION_EVENT_PATH, event);
     }
 
@@ -97,9 +92,7 @@ public class NotificationServiceImpl implements NotificationService {
     public void processNotification(NotificationType type, UUID contentId) {
         UUID signedUserId = userService.getSignedUser().getId();
         UUID recipientId = getRecipientId(type, contentId);
-        String recipientName = userService.getUserById(recipientId)
-                .map(User::getUsername).orElseThrow(UserNotFoundException::new);
-
+        userService.getUserById(recipientId).map(User::getUsername).orElseThrow(UserNotFoundException::new);
         var notification = notificationRepository.save(
                 Notification
                         .builder()
@@ -109,9 +102,7 @@ public class NotificationServiceImpl implements NotificationService {
                         .userId(recipientId)
                         .build()
         );
-
         var response = notificationMapper.toResponse(notification);
-
         try {
             log.info("notified {} user {}", response.getType(), response.getActorId());
             template.convertAndSendToUser(recipientId.toString(), NOTIFICATION_SUBJECT_PATH, response);
@@ -132,16 +123,15 @@ public class NotificationServiceImpl implements NotificationService {
             case COMMENT, REPOST, POST_REACTION -> getUserIdByPostId(contentId);
             case COMMENT_REPLY, COMMENT_REACTION -> getUserIdByCommentId(contentId);
             case FOLLOW_REQUEST -> contentId;
+            default -> throw new RuntimeException("(!) implement mention feature");
         };
     }
 
     private UUID getUserIdByPostId(UUID postId) {
-        return postRepository.findById(postId)
-                .map(Post::getUser).map(User::getId).orElseThrow();
+        return postRepository.findById(postId).map(Post::getUser).map(User::getId).orElseThrow();
     }
 
     private UUID getUserIdByCommentId(UUID commentId) {
-        return commentRepository.findById(commentId)
-                .map(Comment::getUser).map(User::getId).orElseThrow();
+        return commentRepository.findById(commentId).map(Comment::getUser).map(User::getId).orElseThrow();
     }
 }

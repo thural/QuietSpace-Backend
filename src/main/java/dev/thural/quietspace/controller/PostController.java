@@ -39,6 +39,15 @@ public class PostController {
         return postService.getAllByQuery(query, pageNumber, pageSize);
     }
 
+    @GetMapping("/user/{userId}")
+    public Page<PostResponse> listUserPosts(
+            @PathVariable UUID userId,
+            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+            @RequestParam(name = "page-size", required = false) Integer pageSize
+    ) {
+        return postService.getPostsByUserId(userId, pageNumber, pageSize);
+    }
+
     @PostMapping
     ResponseEntity<PostResponse> createPost(@RequestBody @Validated PostRequest post) {
         return ResponseEntity.ok(postService.addPost(post));

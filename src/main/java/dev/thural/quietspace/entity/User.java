@@ -42,8 +42,8 @@ public class User extends BaseEntity implements UserDetails, Principal {
     @NotBlank
     @JsonIgnore
     private String password;
-
-
+    
+    @NotNull
     @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     ProfileSettings profileSettings;

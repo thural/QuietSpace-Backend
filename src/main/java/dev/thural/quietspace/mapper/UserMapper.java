@@ -1,14 +1,19 @@
 package dev.thural.quietspace.mapper;
 
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
-import org.mapstruct.Mapper;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Component;
 
-@Mapper
-public interface UserMapper {
-    UserResponse toResponse(User user);
+@Component
+public class UserMapper {
 
-    UserRegisterRequest toRequest(User user);
+    public UserResponse toResponse(User user) {
+        var response = new UserResponse();
+        BeanUtils.copyProperties(user, response);
+        response.setRole(user.getRole().name());
+        response.setIsPrivateAccount(user.getProfileSettings().getIsPrivateAccount());
+        return response;
+    }
 
 }

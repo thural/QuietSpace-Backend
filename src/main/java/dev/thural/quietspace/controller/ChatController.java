@@ -1,7 +1,7 @@
 package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.entity.Message;
-import dev.thural.quietspace.model.request.ChatRequest;
+import dev.thural.quietspace.model.request.CreateChatRequest;
 import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.model.response.MessageResponse;
@@ -58,7 +58,7 @@ public class ChatController {
     }
 
     @PostMapping
-    ResponseEntity<ChatResponse> createChat(@RequestBody ChatRequest chat) {
+    ResponseEntity<ChatResponse> createChat(@RequestBody CreateChatRequest chat) {
         //TODO: update chat members over socket
         return ResponseEntity.ok(chatService.createChat(chat));
     }
@@ -113,10 +113,7 @@ public class ChatController {
     @MessageMapping(DELETE_MESSAGE_PATH)
     void deleteMessageById(@DestinationVariable UUID messageId) {
         log.info("deleting message with id {} ...", messageId);
-
-        Message foundMessage = messageRepository.findById(messageId)
-                .orElseThrow(EntityNotFoundException::new);
-
+        Message foundMessage = messageRepository.findById(messageId).orElseThrow(EntityNotFoundException::new);
         var chatevent = ChatEvent.builder()
                 .chatId(foundMessage.getChat().getId())
                 .actorId(foundMessage.getSender().getId())
@@ -142,16 +139,12 @@ public class ChatController {
     @MessageMapping(SEEN_MESSAGE_PATH)
     void markMessageSeen(@DestinationVariable UUID messageId) {
         log.info("setting message with id {} as seen ...", messageId);
-
-        MessageResponse message = messageService.setMessageSeen(messageId)
-                .orElseThrow(EntityNotFoundException::new);
-
+        MessageResponse message = messageService.setMessageSeen(messageId).orElseThrow(EntityNotFoundException::new);
         var chatEvent = ChatEvent.builder()
                 .chatId(message.getChatId())
                 .messageId(message.getId())
                 .type(SEEN_MESSAGE)
                 .build();
-
         template.convertAndSendToUser(message.getSenderId().toString(), CHAT_EVENT_PATH, chatEvent);
         template.convertAndSendToUser(message.getRecipientId().toString(), CHAT_EVENT_PATH, chatEvent);
     }

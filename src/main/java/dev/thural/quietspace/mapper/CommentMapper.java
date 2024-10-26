@@ -1,4 +1,4 @@
-package dev.thural.quietspace.mapper.custom;
+package dev.thural.quietspace.mapper;
 
 import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;

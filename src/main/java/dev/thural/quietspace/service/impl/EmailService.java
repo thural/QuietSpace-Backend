@@ -36,11 +36,8 @@ public class EmailService {
     ) throws MessagingException {
 
         String templateName;
-        if (emailTemplate == null) {
-            templateName = "confirm-email";
-        } else {
-            templateName = emailTemplate.getName();
-        }
+        if (emailTemplate == null) templateName = "confirm-email";
+        else templateName = emailTemplate.getName();
 
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(
@@ -62,11 +59,8 @@ public class EmailService {
         helper.setSubject(subject);
 
         String template = templateEngine.process(templateName, context);
-
         helper.setText(template, true);
-
         mailSender.send(mimeMessage);
-
         log.info("sent email to {}", to);
     }
 }

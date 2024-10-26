@@ -4,7 +4,7 @@ import dev.thural.quietspace.entity.Reaction;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.ContentType;
 import dev.thural.quietspace.enums.ReactionType;
-import dev.thural.quietspace.mapper.custom.ReactionMapper;
+import dev.thural.quietspace.mapper.ReactionMapper;
 import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.repository.ReactionRepository;
@@ -33,10 +33,7 @@ public class ReactionServiceImpl implements ReactionService {
     @Override
     public void handleReaction(ReactionRequest reaction) {
         User user = userService.getSignedUser();
-        Reaction foundReaction = reactionRepository
-                .findByContentIdAndUserId(reaction.getContentId(), user.getId())
-                .orElse(null);
-
+        Reaction foundReaction = reactionRepository.findByContentIdAndUserId(reaction.getContentId(), user.getId()).orElse(null);
         if (foundReaction == null) {
             reactionRepository.save(reactionMapper.reactionRequestToEntity(reaction));
         } else if (reaction.getReactionType().equals(foundReaction.getReactionType())) {

@@ -1,6 +1,6 @@
 package dev.thural.quietspace.service;
 
-import dev.thural.quietspace.model.request.ChatRequest;
+import dev.thural.quietspace.model.request.CreateChatRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 
@@ -17,7 +17,7 @@ public interface ChatService {
 
     List<UserResponse> removeMemberWithId(UUID memberId, UUID chatId);
 
-    ChatResponse createChat(ChatRequest chatRequest);
+    ChatResponse createChat(CreateChatRequest chatRequest);
 
     ChatResponse getChatById(UUID chatId);
 

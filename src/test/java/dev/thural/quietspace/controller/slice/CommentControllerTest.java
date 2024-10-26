@@ -6,7 +6,7 @@ import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.Role;
-import dev.thural.quietspace.mapper.custom.CommentMapper;
+import dev.thural.quietspace.mapper.CommentMapper;
 import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.repository.CommentRepository;

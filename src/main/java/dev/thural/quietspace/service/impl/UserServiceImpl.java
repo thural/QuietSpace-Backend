@@ -54,8 +54,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserResponse> queryUsers(String username, String firstname, String lastname, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
-        return userQuery.findAllByQuery(username, firstname, lastname, pageRequest)
-                .map(userMapper::toResponse);
+        return userQuery.findAllByQuery(username, firstname, lastname, pageRequest).map(userMapper::toResponse);
     }
 
     @Override
@@ -65,17 +64,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<UserResponse> listUsersByUsername(String username, Integer pageNumber, Integer pageSize) {
-
         PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
-        Page<User> userPage;
-
         if (StringUtils.hasText(username)) {
-            userPage = userRepository.findAllBySearchTerm(username, pageRequest);
+            return userRepository.findAllBySearchTerm(username, pageRequest).map(userMapper::toResponse);
         } else {
-            userPage = userRepository.findAll(pageRequest);
+            return userRepository.findAll(pageRequest).map(userMapper::toResponse);
         }
-
-        return userPage.map(userMapper::toResponse);
     }
 
     @Override
@@ -87,17 +81,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getSignedUser() {
         log.info("current user name in Spring SecurityContext {}", SecurityContextHolder.getContext().getAuthentication().getName());
-
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findUserByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
     @Override
     public List<User> getUsersFromIdList(List<UUID> userIds) {
-        return userIds.stream()
-                .map(userId -> userRepository.findById(userId)
-                        .orElseThrow(UserNotFoundException::new))
-                .toList();
+        return userIds.stream().map(userId -> userRepository.findById(userId).orElseThrow(UserNotFoundException::new)).toList();
     }
 
     @Override
@@ -110,27 +100,20 @@ public class UserServiceImpl implements UserService {
     public void deleteUserById(UUID userId) {
         User signedUser = getSignedUser();
         boolean hasAdminRole = isHasAdminRole(signedUser);
-
         if (!hasAdminRole && !signedUser.getId().equals(userId))
-            throw new UnauthorizedException("user denied access to delete the resource");
-
+            throw new UnauthorizedException("user denied to delete resource");
         userRepository.deleteById(userId);
     }
 
     @Override
     public UserResponse patchUser(UserRegisterRequest userRegisterRequest) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
         log.info("granted authorities in patchUser: {}", auth.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .reduce(" ", String::concat));
-
+                .map(GrantedAuthority::getAuthority).reduce(" ", String::concat));
         User signedUser = getSignedUser();
         boolean hasAdminRole = isHasAdminRole(signedUser);
-
         if (!hasAdminRole && !userRegisterRequest.getEmail().equals(signedUser.getEmail()))
             throw new UnauthorizedException("signed user has no access to requested resource");
-
         BeanUtils.copyProperties(userRegisterRequest, signedUser);
         return userMapper.toResponse(userRepository.save(signedUser));
     }
@@ -169,10 +152,8 @@ public class UserServiceImpl implements UserService {
     public void toggleFollow(UUID followedUserId) {
         User user = getSignedUser();
         if (user.getId().equals(followedUserId))
-            throw new CustomErrorException(HttpStatus.BAD_REQUEST,
-                    "users can't unfollow themselves");
-        User followedUser = userRepository.findById(followedUserId)
-                .orElseThrow(UserNotFoundException::new);
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, "users can't unfollow themselves");
+        User followedUser = userRepository.findById(followedUserId).orElseThrow(UserNotFoundException::new);
         if (user.getFollowings().contains(followedUser)) {
             user.getFollowings().remove(followedUser);
             followedUser.getFollowers().remove(user);
@@ -187,11 +168,8 @@ public class UserServiceImpl implements UserService {
     public void removeFollower(UUID followingUserId) {
         User user = getSignedUser();
         if (user.getId().equals(followingUserId))
-            throw new CustomErrorException(HttpStatus.BAD_REQUEST,
-                    "users can't unfollow themselves");
-        User followingUser = userRepository.findById(followingUserId)
-                .orElseThrow(UserNotFoundException::new);
-
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, "users can't unfollow themselves");
+        User followingUser = userRepository.findById(followingUserId).orElseThrow(UserNotFoundException::new);
         if (user.getFollowers().contains(followingUser)) {
             user.getFollowers().remove(followingUser);
             followingUser.getFollowings().remove(user);
@@ -200,8 +178,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void setOnlineStatus(String userEmail, StatusType type) {
-        userRepository.findUserEntityByEmail(userEmail)
-                .ifPresent(storedUser -> storedUser.setStatusType(OFFLINE));
+        userRepository.findUserEntityByEmail(userEmail).ifPresent(storedUser -> storedUser.setStatusType(OFFLINE));
     }
 
     @Override

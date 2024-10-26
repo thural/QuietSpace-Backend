@@ -4,7 +4,7 @@ import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.exception.UnauthorizedException;
-import dev.thural.quietspace.mapper.custom.CommentMapper;
+import dev.thural.quietspace.mapper.CommentMapper;
 import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.repository.CommentRepository;
@@ -45,10 +45,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Page<CommentResponse> getCommentsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
-
         if (!userService.getSignedUser().getId().equals(userId))
-            throw new UnauthorizedException("user has no access to requested resource");
-
+            throw new UnauthorizedException("denied access to resource");
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         return commentRepository.findAllByUserId(userId, pageRequest).map(commentMapper::commentEntityToResponse);
     }
@@ -56,31 +54,24 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentResponse createComment(CommentRequest comment) {
         User loggedUser = userService.getSignedUser();
-
         Optional<Post> foundPost = postRepository.findById(comment.getPostId());
-
         if (!loggedUser.getId().equals(comment.getUserId()))
-            throw new UnauthorizedException("resource does not belong to current user");
-        if (foundPost.isEmpty())
-            throw new EntityNotFoundException("post does not exist");
-
+            throw new UnauthorizedException("denied access to resource");
+        if (foundPost.isEmpty()) throw new EntityNotFoundException("post does not exist");
         Comment commentEntity = commentMapper.commentRequestToEntity(comment);
         return commentMapper.commentEntityToResponse(commentRepository.save(commentEntity));
     }
 
     @Override
     public Optional<CommentResponse> getCommentById(UUID commentId) {
-        return commentRepository.findById(commentId)
-                .map(commentMapper::commentEntityToResponse);
+        return commentRepository.findById(commentId).map(commentMapper::commentEntityToResponse);
     }
 
     @Override
     @Transactional
     public CommentResponse updateComment(UUID commentId, CommentRequest comment) {
         User loggedUser = userService.getSignedUser();
-        Comment existingComment = commentRepository.findById(commentId)
-                .orElseThrow(EntityNotFoundException::new);
-
+        Comment existingComment = commentRepository.findById(commentId).orElseThrow(EntityNotFoundException::new);
         if (existingComment.getUser().equals(loggedUser)) {
             existingComment.setText(comment.getText());
             return commentMapper.commentEntityToResponse(existingComment);
@@ -90,10 +81,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void deleteComment(UUID commentId) {
         User loggedUser = userService.getSignedUser();
-
-        Comment existingComment = commentRepository.findById(commentId)
-                .orElseThrow(EntityNotFoundException::new);
-
+        Comment existingComment = commentRepository.findById(commentId).orElseThrow(EntityNotFoundException::new);
         if (existingComment.getUser().getId().equals(loggedUser.getId())) {
             log.info("deleting comment {}", existingComment.getId());
             if (existingComment.getParentId() != null)
@@ -112,10 +100,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentResponse patchComment(UUID commentId, CommentRequest comment) {
         User loggedUser = userService.getSignedUser();
-
-        Comment existingComment = commentRepository.findById(commentId)
-                .orElseThrow(EntityNotFoundException::new);
-
+        Comment existingComment = commentRepository.findById(commentId).orElseThrow(EntityNotFoundException::new);
         if (existingComment.getUser().equals(loggedUser)) {
             if (StringUtils.hasText(comment.getText())) existingComment.setText(comment.getText());
             return commentMapper.commentEntityToResponse(existingComment);

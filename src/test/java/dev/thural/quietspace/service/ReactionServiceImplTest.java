@@ -4,7 +4,7 @@ import dev.thural.quietspace.entity.Reaction;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.ContentType;
 import dev.thural.quietspace.enums.ReactionType;
-import dev.thural.quietspace.mapper.custom.ReactionMapper;
+import dev.thural.quietspace.mapper.ReactionMapper;
 import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.repository.ReactionRepository;

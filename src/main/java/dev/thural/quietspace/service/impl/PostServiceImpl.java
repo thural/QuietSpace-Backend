@@ -4,7 +4,7 @@ import dev.thural.quietspace.entity.Poll;
 import dev.thural.quietspace.entity.PollOption;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.mapper.custom.PostMapper;
+import dev.thural.quietspace.mapper.PostMapper;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
@@ -45,19 +45,13 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostResponse addPost(PostRequest post) {
         User loggedUser = userService.getSignedUser();
-        if (!loggedUser.getId().equals(post.getUserId()))
-            throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
-        return postMapper.postEntityToResponse(
-                postRepository.save(postMapper.postRequestToEntity(post))
-        );
+        if (!loggedUser.getId().equals(post.getUserId())) throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
+        return postMapper.postEntityToResponse(postRepository.save(postMapper.postRequestToEntity(post)));
     }
 
     public String getVotedPollOptionLabel(Poll poll) {
         UUID userId = userService.getSignedUser().getId();
-
-        return poll.getOptions().stream()
-                .filter(option -> option.getVotes().contains(userId))
-                .findAny()
+        return poll.getOptions().stream().filter(option -> option.getVotes().contains(userId)).findAny()
                 .map(PollOption::getLabel).orElse("not voted");
     }
 
@@ -92,15 +86,11 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void votePoll(VoteRequest voteRequest) {
-        Post foundPost = postRepository.findById(voteRequest.getPostId())
-                .orElseThrow(EntityNotFoundException::new);
-
-        if (foundPost.getPoll().getOptions().stream()
-                .anyMatch(option -> option.getVotes().contains(voteRequest.getUserId()))) return;
-
+        Post foundPost = postRepository.findById(voteRequest.getPostId()).orElseThrow(EntityNotFoundException::new);
+        if (foundPost.getPoll().getOptions().stream().anyMatch(option -> option.getVotes().contains(voteRequest.getUserId())))
+            return;
         foundPost.getPoll().getOptions().stream()
-                .filter(option -> option.getLabel().equals(voteRequest.getOption()))
-                .findFirst()
+                .filter(option -> option.getLabel().equals(voteRequest.getOption())).findFirst()
                 .ifPresent(option -> {
                     Set<UUID> votes = option.getVotes();
                     votes.add(voteRequest.getUserId());
@@ -120,13 +110,11 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<PostResponse> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
-        Page<Post> postPage;
         if (userId != null) {
-            postPage = postRepository.findAllByUserId(userId, pageRequest);
+            return postRepository.findAllByUserId(userId, pageRequest).map(postMapper::postEntityToResponse);
         } else {
-            postPage = postRepository.findAll(pageRequest);
+            return postRepository.findAll(pageRequest).map(postMapper::postEntityToResponse);
         }
-        return postPage.map(postMapper::postEntityToResponse);
     }
 
     @Override

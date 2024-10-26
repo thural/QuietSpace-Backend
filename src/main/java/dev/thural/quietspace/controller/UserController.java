@@ -2,10 +2,8 @@ package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
-import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.service.NotificationService;
-import dev.thural.quietspace.service.PostService;
 import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.websocket.model.UserRepresentation;
 import jakarta.validation.Valid;
@@ -40,7 +38,6 @@ public class UserController {
 
     private final UserService userService;
     private final SimpMessagingTemplate template;
-    private final PostService postService;
     private final NotificationService notificationService;
 
 
@@ -92,20 +89,10 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping(USER_PATH_ID + "/posts")
-    public Page<PostResponse> listUserPosts(
-            @PathVariable UUID userId,
-            @RequestParam(name = "page-number", required = false) Integer pageNumber,
-            @RequestParam(name = "page-size", required = false) Integer pageSize
-    ) {
-        return postService.getPostsByUserId(userId, pageNumber, pageSize);
-    }
-
     @PostMapping(FOLLOW_USER_TOGGLE_PATH)
     ResponseEntity<?> toggleFollow(@PathVariable UUID userId) {
         userService.toggleFollow(userId);
         notificationService.processNotification(FOLLOW_REQUEST, userId);
-        log.info("toggle follow for userId: {}", userId);
         return ResponseEntity.ok().build();
     }
 

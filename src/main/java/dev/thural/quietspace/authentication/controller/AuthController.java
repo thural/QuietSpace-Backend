@@ -22,7 +22,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody @Valid RegistrationRequest request) throws MessagingException {
+    public ResponseEntity<Void> register(@RequestBody @Valid RegistrationRequest request) throws MessagingException {
         authService.register(request);
         return ResponseEntity.ok().build();
     }
@@ -33,24 +33,24 @@ public class AuthController {
     }
 
     @PostMapping("/activate-account")
-    public ResponseEntity<?> confirm(@RequestParam String token) throws MessagingException {
+    public ResponseEntity<Void> confirm(@RequestParam String token) throws MessagingException {
         authService.activateAccount(token);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/signout")
-    ResponseEntity<?> signout(@RequestHeader("Authorization") String authHeader) {
+    ResponseEntity<Void> signout(@RequestHeader("Authorization") String authHeader) {
         authService.signout(authHeader);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/refresh-token")
-    ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String authHeader) {
+    ResponseEntity<AuthResponse> refreshToken(@RequestHeader("Authorization") String authHeader) {
         return ResponseEntity.ok(authService.refreshToken(authHeader));
     }
 
     @PostMapping("/resend-code")
-    ResponseEntity<?> resendActivationEmail(@RequestParam String email) throws MessagingException {
+    ResponseEntity<Void> resendActivationEmail(@RequestParam String email) throws MessagingException {
         authService.resendActivationToken(email);
         return ResponseEntity.ok().build();
     }

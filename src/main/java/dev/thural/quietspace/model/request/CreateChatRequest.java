@@ -1,6 +1,5 @@
 package dev.thural.quietspace.model.request;
 
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -12,9 +11,14 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ChatRequest {
+public class CreateChatRequest {
 
-    @NotEmpty(message = "at least two members required to create the chat")
+    @NotNull
+    private Boolean isGroupChat;
+    @NotNull
+    private UUID recipientId;
+    @NotNull
+    private String text;
     private List<UUID> userIds;
 
 }

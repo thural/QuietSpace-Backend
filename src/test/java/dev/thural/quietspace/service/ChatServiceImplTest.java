@@ -2,9 +2,9 @@ package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.mapper.ChatMapper;
 import dev.thural.quietspace.mapper.UserMapper;
-import dev.thural.quietspace.mapper.custom.ChatMapper;
-import dev.thural.quietspace.model.request.ChatRequest;
+import dev.thural.quietspace.model.request.CreateChatRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.ChatRepository;
@@ -48,7 +48,7 @@ public class ChatServiceImplTest {
     private User user2;
     private Chat chat;
     private ChatResponse chatResponse;
-    private ChatRequest chatRequest;
+    private CreateChatRequest chatRequest;
 
     @BeforeEach
     void initMockData() {
@@ -82,7 +82,7 @@ public class ChatServiceImplTest {
                 .messages(List.of())
                 .build();
 
-        this.chatRequest = ChatRequest.builder()
+        this.chatRequest = CreateChatRequest.builder()
                 .userIds(List.of(userId, memberId))
                 .build();
 

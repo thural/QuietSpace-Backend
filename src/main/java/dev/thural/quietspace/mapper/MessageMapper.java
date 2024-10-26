@@ -1,4 +1,4 @@
-package dev.thural.quietspace.mapper.custom;
+package dev.thural.quietspace.mapper;
 
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.Message;

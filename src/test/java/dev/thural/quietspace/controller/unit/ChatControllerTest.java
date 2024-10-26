@@ -5,7 +5,7 @@ import dev.thural.quietspace.controller.ChatController;
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.model.request.ChatRequest;
+import dev.thural.quietspace.model.request.CreateChatRequest;
 import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.model.response.MessageResponse;
@@ -50,14 +50,14 @@ class ChatControllerTest {
     @Captor
     ArgumentCaptor<UUID> uuidArgumentCaptor;
     @Captor
-    ArgumentCaptor<ChatRequest> chatRequestArgumentCaptor;
+    ArgumentCaptor<CreateChatRequest> chatRequestArgumentCaptor;
 
     private User user1;
     private User user2;
     private UserResponse userResponse1;
     private UserResponse userResponse2;
     private Chat chat;
-    private ChatRequest chatRequest;
+    private CreateChatRequest chatRequest;
     private ChatResponse chatResponse;
     private MessageRequest messageRequest;
     private MessageResponse messageResponse;
@@ -86,7 +86,7 @@ class ChatControllerTest {
                 .messages(List.of())
                 .build();
 
-        this.chatRequest = ChatRequest.builder()
+        this.chatRequest = CreateChatRequest.builder()
                 .userIds(List.of(user1.getId(), user2.getId()))
                 .build();
 

@@ -28,18 +28,15 @@ public class ProfileSettings extends BaseEntity {
     @OneToOne
     User user;
 
-    @NotNull
     Boolean isPrivateAccount = false;
 
     String bio;
 
-    @NotNull
     Boolean isNotificationsMuted = false;
 
     @NotNull
     List<User> blockedUsers = new ArrayList<>();
 
-    @NotNull
     Boolean isAllowPublicGroupChatInvite = true;
     Boolean isAllowPublicMessageRequests = true;
     Boolean isAllowPublicComments = true;

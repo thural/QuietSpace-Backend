@@ -1,9 +1,8 @@
-package dev.thural.quietspace.mapper.custom;
+package dev.thural.quietspace.mapper;
 
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.mapper.UserMapper;
-import dev.thural.quietspace.model.request.ChatRequest;
+import dev.thural.quietspace.model.request.CreateChatRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.model.response.MessageResponse;
 import dev.thural.quietspace.model.response.UserResponse;
@@ -22,7 +21,7 @@ public class ChatMapper {
     private final UserService userService;
     private final MessageService messageService;
 
-    public Chat chatRequestToEntity(ChatRequest chatRequest) {
+    public Chat chatRequestToEntity(CreateChatRequest chatRequest) {
         return Chat.builder()
                 .users(getUserListFromRequest(chatRequest))
                 .build();
@@ -47,7 +46,7 @@ public class ChatMapper {
         return chat.getUsers().stream().map(User::getId).toList();
     }
 
-    private List<User> getUserListFromRequest(ChatRequest chatRequest) {
+    private List<User> getUserListFromRequest(CreateChatRequest chatRequest) {
         return userService.getUsersFromIdList(chatRequest.getUserIds());
     }
 

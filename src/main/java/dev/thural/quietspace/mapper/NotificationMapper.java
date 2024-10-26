@@ -1,4 +1,4 @@
-package dev.thural.quietspace.mapper.custom;
+package dev.thural.quietspace.mapper;
 
 import dev.thural.quietspace.entity.Notification;
 import dev.thural.quietspace.entity.User;
@@ -16,8 +16,7 @@ public class NotificationMapper {
     private final UserRepository userRepository;
 
     public NotificationResponse toResponse(Notification notification) {
-        User foundUser = userRepository.findById(notification.getActorId())
-                .orElseThrow(UserNotFoundException::new);
+        User foundUser = userRepository.findById(notification.getActorId()).orElseThrow(UserNotFoundException::new);
 
         var response = new NotificationResponse();
         BeanUtils.copyProperties(notification, response);

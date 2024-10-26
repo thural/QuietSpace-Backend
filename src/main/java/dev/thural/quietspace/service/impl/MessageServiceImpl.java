@@ -3,7 +3,7 @@ package dev.thural.quietspace.service.impl;
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.mapper.custom.MessageMapper;
+import dev.thural.quietspace.mapper.MessageMapper;
 import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.MessageResponse;
 import dev.thural.quietspace.repository.ChatRepository;
@@ -35,9 +35,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public MessageResponse addMessage(MessageRequest messageRequest) {
         User loggedUser = userService.getSignedUser();
-        Chat parentChat = chatRepository.findById(messageRequest.getChatId())
-                .orElseThrow(EntityNotFoundException::new);
-
+        Chat parentChat = chatRepository.findById(messageRequest.getChatId()).orElseThrow(EntityNotFoundException::new);
         Message newMessage = messageMapper.toEntity(messageRequest);
         newMessage.setSender(loggedUser);
         newMessage.setChat(parentChat);
@@ -48,20 +46,17 @@ public class MessageServiceImpl implements MessageService {
     public Optional<MessageResponse> deleteMessage(UUID messageId) {
         Message existingMessage = findMessageOrElseThrow(messageId);
         checkResourceAccess(existingMessage.getSender().getId());
-
         messageRepository.deleteById(messageId);
         return Optional.of(messageMapper.toResponse(existingMessage));
     }
 
     private Message findMessageOrElseThrow(UUID messageId) {
-        return messageRepository.findById(messageId)
-                .orElseThrow(EntityNotFoundException::new);
+        return messageRepository.findById(messageId).orElseThrow(EntityNotFoundException::new);
     }
 
     private void checkResourceAccess(UUID userId) {
         User loggedUser = userService.getSignedUser();
-        if (!userId.equals(loggedUser.getId()))
-            throw new AccessDeniedException("message does not belong to current user");
+        if (!userId.equals(loggedUser.getId())) throw new AccessDeniedException("message user mismatch");
     }
 
     @Override
@@ -73,15 +68,13 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public Optional<MessageResponse> getLastMessageByChat(Chat chat) {
-        return messageRepository.findFirstByChatOrderByCreateDateDesc(chat)
-                .map(messageMapper::toResponse);
+        return messageRepository.findFirstByChatOrderByCreateDateDesc(chat).map(messageMapper::toResponse);
     }
 
     @Override
     public Optional<MessageResponse> setMessageSeen(UUID messageId) {
         Message existingMessage = findMessageOrElseThrow(messageId);
         existingMessage.setIsSeen(true);
-
         Message savedMessage = messageRepository.save(existingMessage);
         return Optional.ofNullable(messageMapper.toResponse(savedMessage));
     }

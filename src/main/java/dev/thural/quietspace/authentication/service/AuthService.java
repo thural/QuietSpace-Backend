@@ -105,20 +105,15 @@ public class AuthService {
             throw new RuntimeException("activation token has expired... a new token has been sent");
         }
 
-        User user = userRepository.findById(existingToken.getUser().getId())
-                .orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findById(existingToken.getUser().getId()).orElseThrow(UserNotFoundException::new);
         user.setEnabled(true);
-
         existingToken.setValidateDate(OffsetDateTime.now());
     }
 
     @Transactional
     public void signout(String authHeader) {
-        String currentUserName = SecurityContextHolder.getContext()
-                .getAuthentication().getName();
-
+        String currentUserName = SecurityContextHolder.getContext().getAuthentication().getName();
         log.info("username in security context on signing out: {}", currentUserName);
-
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             addToBlacklist(authHeader, currentUserName);
             setOnlineStatus(OFFLINE);
