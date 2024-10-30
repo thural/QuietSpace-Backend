@@ -1,6 +1,7 @@
 package dev.thural.quietspace.service.impl;
 
 import dev.thural.quietspace.entity.Chat;
+import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.exception.CustomErrorException;
 import dev.thural.quietspace.exception.UnauthorizedException;
@@ -11,6 +12,7 @@ import dev.thural.quietspace.model.request.CreateChatRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.ChatRepository;
+import dev.thural.quietspace.repository.MessageRepository;
 import dev.thural.quietspace.service.ChatService;
 import dev.thural.quietspace.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
@@ -27,6 +29,7 @@ public class ChatServiceImpl implements ChatService {
 
     private final UserService userService;
     private final ChatRepository chatRepository;
+    private final MessageRepository messageRepository;
     private final ChatMapper chatMapper;
     private final UserMapper userMapper;
 
@@ -74,8 +77,15 @@ public class ChatServiceImpl implements ChatService {
                 .anyMatch(chat -> new HashSet<>(chat.getUsers()).containsAll(userList));
         if (isChatDuplicate) throw new CustomErrorException("a chat with same members already exists");
         Chat createdChat = chatRepository.save(chatMapper.chatRequestToEntity(chatRequest));
+        User recipient = userService.getUserById(chatRequest.getRecipientId()).orElseThrow();
+        messageRepository.save(Message.builder()
+                .recipient(recipient)
+                .chat(createdChat)
+                .sender(loggedUser)
+                .isSeen(false)
+                .text(chatRequest.getText())
+                .build());
         return chatMapper.chatEntityToResponse(createdChat);
-
     }
 
     @Override

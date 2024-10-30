@@ -2,7 +2,7 @@ package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.Role;
-import dev.thural.quietspace.mapper.UserMapperImpl;
+import dev.thural.quietspace.mapper.UserMapper;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.UserRepository;
@@ -40,7 +40,7 @@ class UserServiceImplTest {
     SecurityContext securityContext;
 
     @Spy
-    private UserMapperImpl userMapper;
+    private UserMapper userMapper;
 
     @InjectMocks
     UserServiceImpl userService;
