@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserResponse> getLoggedUserResponse() {
-        UserResponse userResponse = userMapper.toResponse(getSignedUser());
+        UserResponse userResponse = userMapper.toProfileResponse(getSignedUser());
         return Optional.of(userResponse);
     }
 

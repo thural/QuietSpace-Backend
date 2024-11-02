@@ -16,6 +16,8 @@ public class UserResponse {
     private String role;
     private String username;
     private String email;
+    private Boolean isFollower;
+    private Boolean isFollowing;
     private Boolean isPrivateAccount;
     private OffsetDateTime createDate;
     private OffsetDateTime updateDate;
