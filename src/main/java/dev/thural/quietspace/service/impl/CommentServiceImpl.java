@@ -72,22 +72,22 @@ public class CommentServiceImpl implements CommentService {
     public CommentResponse updateComment(UUID commentId, CommentRequest comment) {
         User loggedUser = userService.getSignedUser();
         Comment existingComment = commentRepository.findById(commentId).orElseThrow(EntityNotFoundException::new);
-        if (existingComment.getUser().equals(loggedUser)) {
-            existingComment.setText(comment.getText());
-            return commentMapper.commentEntityToResponse(existingComment);
-        } else throw new AccessDeniedException("comment author does not belong to current user");
+        if (existingComment.getUser().equals(loggedUser))
+            throw new AccessDeniedException("comment author does not belong to current user");
+        existingComment.setText(comment.getText());
+        return commentMapper.commentEntityToResponse(existingComment);
     }
 
     @Override
+    @Transactional
     public void deleteComment(UUID commentId) {
         User loggedUser = userService.getSignedUser();
         Comment existingComment = commentRepository.findById(commentId).orElseThrow(EntityNotFoundException::new);
-        if (existingComment.getUser().getId().equals(loggedUser.getId())) {
-            log.info("deleting comment {}", existingComment.getId());
-            if (existingComment.getParentId() != null)
-                commentRepository.deleteAllByParentId(existingComment.getParentId());
-            commentRepository.deleteById(commentId);
-        } else throw new AccessDeniedException("comment author does not belong to current user");
+        if (!existingComment.getUser().getId().equals(loggedUser.getId()))
+            throw new AccessDeniedException("comment author does not belong to current user");
+        if (existingComment.getParentId() == null)
+            commentRepository.deleteAllByParentId(commentId);
+        commentRepository.deleteById(commentId);
     }
 
     @Override
@@ -101,10 +101,10 @@ public class CommentServiceImpl implements CommentService {
     public CommentResponse patchComment(UUID commentId, CommentRequest comment) {
         User loggedUser = userService.getSignedUser();
         Comment existingComment = commentRepository.findById(commentId).orElseThrow(EntityNotFoundException::new);
-        if (existingComment.getUser().equals(loggedUser)) {
-            if (StringUtils.hasText(comment.getText())) existingComment.setText(comment.getText());
-            return commentMapper.commentEntityToResponse(existingComment);
-        } else throw new AccessDeniedException("comment author does not belong to current user");
+        if (!existingComment.getUser().equals(loggedUser))
+            throw new AccessDeniedException("comment author does not belong to current user");
+        if (StringUtils.hasText(comment.getText())) existingComment.setText(comment.getText());
+        return commentMapper.commentEntityToResponse(existingComment);
     }
 
 }
