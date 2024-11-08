@@ -6,10 +6,12 @@ import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.model.request.PollRequest;
 import dev.thural.quietspace.model.request.PostRequest;
+import dev.thural.quietspace.model.request.RepostRequest;
 import dev.thural.quietspace.model.response.OptionResponse;
 import dev.thural.quietspace.model.response.PollResponse;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
+import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class PostMapper {
 
     private final ReactionService reactionService;
     private final UserService userService;
+    private final PostRepository postRepository;
 
     public Post postRequestToEntity(PostRequest postRequest) {
         Post post = Post.builder()
@@ -82,6 +85,11 @@ public class PostMapper {
                 .updateDate(post.getUpdateDate())
                 .build();
 
+        if (post.getRepost() == null) return postResponse;
+
+        postResponse.setRepostText(post.getRepostText());
+        postResponse.setRepostId(post.getRepost().getId());
+
         if (post.getPoll() == null) return postResponse;
 
         List<OptionResponse> options = post.getPoll().getOptions().stream()
@@ -126,6 +134,14 @@ public class PostMapper {
 
     private User getLoggedUser() {
         return userService.getSignedUser();
+    }
+
+    public Post repostRequestToEntity(RepostRequest repost) {
+        return Post.builder()
+                .user(getLoggedUser())
+                .repost(postRepository.getById(UUID.fromString(repost.getPostId())))
+                .repostText(repost.getText())
+                .build();
     }
 
 }

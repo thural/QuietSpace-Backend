@@ -23,6 +23,10 @@ import java.util.List;
 public class Post extends BaseEntity {
 
     private String title;
+    private String repostText;
+
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Post repost;
 
     @NotBlank
     @Column(length = 999)
@@ -36,7 +40,7 @@ public class Post extends BaseEntity {
     @JsonIgnore
     @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Poll poll;
-    
+
     @JsonManagedReference
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Comment> comments;

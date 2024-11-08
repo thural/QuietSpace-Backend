@@ -14,9 +14,11 @@ public class PostResponse {
 
     private UUID id;
     private UUID userId;
+    private UUID repostId;
     private String username;
     private String title;
     private String text;
+    private String repostText;
     private PollResponse poll;
     private Integer likeCount;
     private Integer dislikeCount;

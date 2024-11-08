@@ -1,6 +1,7 @@
 package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.model.request.PostRequest;
+import dev.thural.quietspace.model.request.RepostRequest;
 import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.service.PostService;
@@ -51,6 +52,11 @@ public class PostController {
     @PostMapping
     ResponseEntity<PostResponse> createPost(@RequestBody @Validated PostRequest post) {
         return ResponseEntity.ok(postService.addPost(post));
+    }
+
+    @PostMapping("/repost")
+    ResponseEntity<PostResponse> createRepost(@RequestBody @Validated RepostRequest repost) {
+        return ResponseEntity.ok(postService.addRepost(repost));
     }
 
     @GetMapping(POST_PATH_ID)

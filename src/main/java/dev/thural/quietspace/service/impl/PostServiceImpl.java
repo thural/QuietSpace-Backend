@@ -6,6 +6,7 @@ import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.mapper.PostMapper;
 import dev.thural.quietspace.model.request.PostRequest;
+import dev.thural.quietspace.model.request.RepostRequest;
 import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.repository.PostRepository;
@@ -13,6 +14,7 @@ import dev.thural.quietspace.service.PostService;
 import dev.thural.quietspace.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
@@ -67,7 +69,8 @@ public class PostServiceImpl implements PostService {
         Post existingPost = findPostEntityById(postId);
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
         if (postExistsByLoggedUser) {
-            existingPost.setText(post.getText());
+//            existingPost.setText(post.getText());
+            BeanUtils.copyProperties(post, existingPost);
             return postMapper.postEntityToResponse(postRepository.save(existingPost));
         } else throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
     }
@@ -121,6 +124,11 @@ public class PostServiceImpl implements PostService {
     public Page<PostResponse> getAllByQuery(String query, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         return postRepository.findAllByQuery(query, pageRequest).map(postMapper::postEntityToResponse);
+    }
+
+    @Override
+    public PostResponse addRepost(RepostRequest repost) {
+        return postMapper.postEntityToResponse(postRepository.save(postMapper.repostRequestToEntity(repost)));
     }
 
     private boolean isPostExistsByLoggedUser(Post existingPost, User loggedUser) {

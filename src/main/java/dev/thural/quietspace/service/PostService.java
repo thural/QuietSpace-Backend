@@ -2,6 +2,7 @@ package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.Poll;
 import dev.thural.quietspace.model.request.PostRequest;
+import dev.thural.quietspace.model.request.RepostRequest;
 import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import org.springframework.data.domain.Page;
@@ -30,4 +31,6 @@ public interface PostService {
     Page<PostResponse> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize);
 
     Page<PostResponse> getAllByQuery(String query, Integer pageNumber, Integer pageSize);
+
+    PostResponse addRepost(RepostRequest repost);
 }
