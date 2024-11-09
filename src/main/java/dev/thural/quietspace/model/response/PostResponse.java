@@ -3,7 +3,6 @@ package dev.thural.quietspace.model.response;
 import lombok.*;
 
 import java.time.OffsetDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -12,9 +11,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PostResponse {
 
-    private UUID id;
-    private UUID userId;
-    private UUID repostId;
+    private String id;
+    private String userId;
+    private String repostId;
     private String username;
     private String title;
     private String text;

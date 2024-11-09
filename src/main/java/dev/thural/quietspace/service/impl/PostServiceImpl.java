@@ -136,8 +136,7 @@ public class PostServiceImpl implements PostService {
     }
 
     private Post findPostEntityById(UUID postId) {
-        return postRepository.findById(postId)
-                .orElseThrow(EntityNotFoundException::new);
+        return postRepository.findById(postId).orElseThrow(EntityNotFoundException::new);
     }
 
 }

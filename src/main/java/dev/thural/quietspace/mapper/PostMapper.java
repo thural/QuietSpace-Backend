@@ -72,23 +72,23 @@ public class PostMapper {
                 .orElse(null);
 
         PostResponse postResponse = PostResponse.builder()
-                .id(post.getId())
+                .id(post.getId().toString())
                 .title(post.getTitle())
                 .text(post.getText())
                 .commentCount(commentCount)
                 .likeCount(likeCount)
                 .dislikeCount(dislikeCount)
-                .userId(post.getUser().getId())
+                .userId(post.getUser().getId().toString())
                 .username(post.getUser().getUsername())
                 .userReaction(userReaction)
                 .createDate(post.getCreateDate())
                 .updateDate(post.getUpdateDate())
                 .build();
 
-        if (post.getRepost() == null) return postResponse;
-
-        postResponse.setRepostText(post.getRepostText());
-        postResponse.setRepostId(post.getRepost().getId());
+        if (post.getRepostId() != null) {
+            postResponse.setRepostText(post.getRepostText());
+            postResponse.setRepostId(post.getRepostId());
+        }
 
         if (post.getPoll() == null) return postResponse;
 
@@ -139,7 +139,7 @@ public class PostMapper {
     public Post repostRequestToEntity(RepostRequest repost) {
         return Post.builder()
                 .user(getLoggedUser())
-                .repost(postRepository.getById(UUID.fromString(repost.getPostId())))
+                .repostId(repost.getPostId())
                 .repostText(repost.getText())
                 .build();
     }

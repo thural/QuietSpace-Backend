@@ -18,9 +18,8 @@ public class PostRequest {
     private UUID userId;
 
     private String title;
-
-    @NotNull(message = "text content can not be null")
-    @NotBlank(message = "post text can not be null")
+    
+    @NotBlank(message = "post text can not be blank")
     @Size(min = 1, max = 1000, message = "at least 1 and max 1000 characters expected")
     private String text;
 
