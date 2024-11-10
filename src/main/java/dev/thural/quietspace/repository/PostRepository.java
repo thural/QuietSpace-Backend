@@ -14,4 +14,6 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
 
     @Query("SELECT p FROM Post p WHERE p.title LIKE %:query% OR p.text LIKE %:query%")
     Page<Post> findAllByQuery(String query, PageRequest pageRequest);
+
+    void deleteByRepostId(String repostId);
 }

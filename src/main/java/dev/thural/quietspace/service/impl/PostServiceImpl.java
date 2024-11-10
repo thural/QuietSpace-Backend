@@ -102,12 +102,15 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public void deletePost(UUID postId) {
         User loggedUser = userService.getSignedUser();
         Post existingPost = findPostEntityById(postId);
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
-        if (postExistsByLoggedUser) postRepository.deleteById(postId);
-        else throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
+        if (postExistsByLoggedUser) {
+            postRepository.deleteByRepostId(existingPost.getId().toString());
+            postRepository.deleteById(postId);
+        } else throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
     }
 
     @Override
