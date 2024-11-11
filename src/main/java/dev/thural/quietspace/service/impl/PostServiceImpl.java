@@ -134,6 +134,20 @@ public class PostServiceImpl implements PostService {
         return postMapper.postEntityToResponse(postRepository.save(postMapper.repostRequestToEntity(repost)));
     }
 
+    @Override
+    public Page<PostResponse> getSavedPostsByUser(Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
+        UUID userId = userService.getSignedUser().getId();
+        return postRepository.findSavedPostsByUserId(userId, pageRequest).map(postMapper::postEntityToResponse);
+    }
+
+    @Override
+    @Transactional
+    public void savePostForUser(UUID postId) {
+        Post foundPost = findPostEntityById(postId);
+        userService.getSignedUser().getSavedPosts().add(foundPost);
+    }
+
     private boolean isPostExistsByLoggedUser(Post existingPost, User loggedUser) {
         return existingPost.getUser().equals(loggedUser);
     }

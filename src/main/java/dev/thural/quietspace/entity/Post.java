@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class Post extends BaseEntity {
     private String repostText;
     private String repostId;
 
+    @Length(min = 1, max = 999)
     private String text;
 
     @NotNull
@@ -39,5 +41,8 @@ public class Post extends BaseEntity {
     @JsonManagedReference
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Comment> comments;
+
+    @ManyToMany(mappedBy = "savedPosts")
+    private List<User> savedByUsers;
 
 }

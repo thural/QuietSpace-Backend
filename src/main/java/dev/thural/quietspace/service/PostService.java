@@ -33,4 +33,8 @@ public interface PostService {
     Page<PostResponse> getAllByQuery(String query, Integer pageNumber, Integer pageSize);
 
     PostResponse addRepost(RepostRequest repost);
+
+    Page<PostResponse> getSavedPostsByUser(Integer pageNumber, Integer pageSize);
+
+    void savePostForUser(UUID postId);
 }

@@ -6,6 +6,7 @@ import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.service.PostService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
@@ -47,6 +49,20 @@ public class PostController {
             @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {
         return postService.getPostsByUserId(userId, pageNumber, pageSize);
+    }
+
+    @GetMapping("/saved")
+    Page<PostResponse> getSavedPostsByUserId(
+            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+            @RequestParam(name = "page-size", required = false) Integer pageSize
+    ) {
+        return postService.getSavedPostsByUser(pageNumber, pageSize);
+    }
+
+    @PatchMapping("/saved/{postId}")
+    ResponseEntity<Void> savePost(@PathVariable UUID postId) {
+        postService.savePostForUser(postId);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping
