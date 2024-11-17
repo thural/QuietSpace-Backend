@@ -51,6 +51,15 @@ public class PostController {
         return postService.getPostsByUserId(userId, pageNumber, pageSize);
     }
 
+    @GetMapping("/user/{userId}/commented")
+    public Page<PostResponse> listCommentedPosts(
+            @PathVariable UUID userId,
+            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+            @RequestParam(name = "page-size", required = false) Integer pageSize
+    ) {
+        return postService.getCommentedPostsByUserId(userId, pageNumber, pageSize);
+    }
+
     @GetMapping("/saved")
     Page<PostResponse> getSavedPostsByUserId(
             @RequestParam(name = "page-number", required = false) Integer pageNumber,

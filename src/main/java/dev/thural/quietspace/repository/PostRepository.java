@@ -18,5 +18,8 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
     @Query("SELECT p FROM Post p JOIN p.savedByUsers u WHERE u.id = :userId")
     Page<Post> findSavedPostsByUserId(UUID userId, Pageable pageable);
 
+    @Query("SELECT DISTINCT p FROM Post p JOIN p.comments c WHERE c.user.id = :userId")
+    Page<Post> findByCommentsUserId(UUID userId, Pageable pageable);
+
     void deleteByRepostId(String repostId);
 }

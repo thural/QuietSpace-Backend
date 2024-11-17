@@ -37,4 +37,6 @@ public interface PostService {
     Page<PostResponse> getSavedPostsByUser(Integer pageNumber, Integer pageSize);
 
     void savePostForUser(UUID postId);
+
+    Page<PostResponse> getCommentedPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize);
 }

@@ -44,6 +44,16 @@ public class CommentController {
         return commentService.getCommentsByUserId(userId, pageNumber, pageSize);
     }
 
+    @GetMapping("/user/{userId}/post/{postId}/latest")
+    ResponseEntity<CommentResponse> getLatestCommentByUserIdAndPostId(
+            @PathVariable UUID userId,
+            @PathVariable UUID postId
+    ) {
+        return commentService.getLatestCommentByUserIdAndPostId(userId, postId)
+                .map(comment -> ResponseEntity.ok().body(comment))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @GetMapping(COMMENT_PATH_ID + "/replies")
     Page<CommentResponse> getCommentRepliesById(
             @PathVariable UUID commentId,

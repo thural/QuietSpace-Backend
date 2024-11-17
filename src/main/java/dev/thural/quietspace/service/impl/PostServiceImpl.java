@@ -148,6 +148,12 @@ public class PostServiceImpl implements PostService {
         userService.getSignedUser().getSavedPosts().add(foundPost);
     }
 
+    @Override
+    public Page<PostResponse> getCommentedPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
+        return postRepository.findByCommentsUserId(userId, pageRequest).map(postMapper::postEntityToResponse);
+    }
+
     private boolean isPostExistsByLoggedUser(Post existingPost, User loggedUser) {
         return existingPost.getUser().equals(loggedUser);
     }
