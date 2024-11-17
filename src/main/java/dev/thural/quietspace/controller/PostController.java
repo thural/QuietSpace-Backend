@@ -4,6 +4,7 @@ import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.RepostRequest;
 import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
+import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+
+import static dev.thural.quietspace.enums.NotificationType.REPOST;
 
 @Slf4j
 @RestController
@@ -24,6 +27,7 @@ public class PostController {
     public static final String POST_PATH_ID = "/{postId}";
 
     private final PostService postService;
+    private final NotificationService notificationService;
 
     @GetMapping
     Page<PostResponse> getAllPosts(
@@ -81,7 +85,9 @@ public class PostController {
 
     @PostMapping("/repost")
     ResponseEntity<PostResponse> createRepost(@RequestBody @Validated RepostRequest repost) {
-        return ResponseEntity.ok(postService.addRepost(repost));
+        PostResponse response = postService.addRepost(repost);
+        notificationService.processNotification(REPOST, repost.getPostId());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping(POST_PATH_ID)

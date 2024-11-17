@@ -139,7 +139,7 @@ public class PostMapper {
     public Post repostRequestToEntity(RepostRequest repost) {
         return Post.builder()
                 .user(getLoggedUser())
-                .repostId(repost.getPostId())
+                .repostId(repost.getPostId().toString())
                 .repostText(repost.getText())
                 .build();
     }
