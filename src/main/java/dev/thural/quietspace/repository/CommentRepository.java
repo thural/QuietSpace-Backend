@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -29,5 +30,5 @@ public interface CommentRepository extends JpaRepository<Comment, UUID> {
             "AND c.user.id = :userId " +
             "ORDER BY c.updateDate DESC, c.createDate DESC " +
             "LIMIT 1")
-    Optional<Comment> findLatestCommentByPostAndUserByUpdateDate(UUID postId, UUID userId);
+    Optional<Comment> findLatestCommentByPostAndUserByUpdateDate(@Param("postId") UUID postId, @Param("userId") UUID userId);
 }

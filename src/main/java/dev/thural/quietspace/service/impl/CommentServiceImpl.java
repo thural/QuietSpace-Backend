@@ -53,7 +53,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Optional<CommentResponse> getLatestCommentByUserIdAndPostId(UUID userId, UUID postId) {
-        return commentRepository.findLatestCommentByPostAndUserByUpdateDate(userId, postId)
+        return commentRepository.findLatestCommentByPostAndUserByUpdateDate(postId, userId)
                 .map(commentMapper::commentEntityToResponse);
     }
 
