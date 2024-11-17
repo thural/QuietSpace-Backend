@@ -10,6 +10,7 @@ import dev.thural.quietspace.model.request.RepostRequest;
 import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.repository.PostRepository;
+import dev.thural.quietspace.repository.specifications.PostSpecifications;
 import dev.thural.quietspace.service.PostService;
 import dev.thural.quietspace.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,7 @@ import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
 
+    private final PostSpecifications postSpecifications;
     private final PostRepository postRepository;
     private final UserService userService;
     private final PostMapper postMapper;
@@ -41,7 +44,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<PostResponse> getAllPosts(Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
-        return postRepository.findAll(pageRequest).map(postMapper::postEntityToResponse);
+        return postRepository.findAll(postSpecifications.visibleToUser(), pageRequest)
+                .map(postMapper::postEntityToResponse);
     }
 
     @Override
@@ -53,8 +57,9 @@ public class PostServiceImpl implements PostService {
 
     public String getVotedPollOptionLabel(Poll poll) {
         UUID userId = userService.getSignedUser().getId();
-        return poll.getOptions().stream().filter(option -> option.getVotes().contains(userId)).findAny()
-                .map(PollOption::getLabel).orElse("not voted");
+        return poll.getOptions().stream()
+                .filter(option -> option.getVotes().contains(userId))
+                .findAny().map(PollOption::getLabel).orElse("not voted");
     }
 
     @Override
@@ -68,11 +73,9 @@ public class PostServiceImpl implements PostService {
         User loggedUser = userService.getSignedUser();
         Post existingPost = findPostEntityById(postId);
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
-        if (postExistsByLoggedUser) {
-//            existingPost.setText(post.getText());
-            BeanUtils.copyProperties(post, existingPost);
-            return postMapper.postEntityToResponse(postRepository.save(existingPost));
-        } else throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
+        if (!postExistsByLoggedUser) throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
+        BeanUtils.copyProperties(post, existingPost);
+        return postMapper.postEntityToResponse(postRepository.save(existingPost));
     }
 
     @Override
@@ -80,10 +83,9 @@ public class PostServiceImpl implements PostService {
         User loggedUser = userService.getSignedUser();
         Post existingPost = findPostEntityById(postId);
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
-        if (postExistsByLoggedUser) {
-            if (StringUtils.hasText(post.getText())) existingPost.setText(post.getText());
-            return postMapper.postEntityToResponse(postRepository.save(existingPost));
-        } else throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
+        if (!postExistsByLoggedUser) throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
+        if (StringUtils.hasText(post.getText())) existingPost.setText(post.getText());
+        return postMapper.postEntityToResponse(postRepository.save(existingPost));
     }
 
     @Override
@@ -107,26 +109,39 @@ public class PostServiceImpl implements PostService {
         User loggedUser = userService.getSignedUser();
         Post existingPost = findPostEntityById(postId);
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
-        if (postExistsByLoggedUser) {
-            postRepository.deleteByRepostId(existingPost.getId().toString());
-            postRepository.deleteById(postId);
-        } else throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
+        if (!postExistsByLoggedUser) throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
+        postRepository.deleteByRepostId(existingPost.getId().toString());
+        postRepository.deleteById(postId);
     }
 
     @Override
     public Page<PostResponse> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
+
         if (userId != null) {
-            return postRepository.findAllByUserId(userId, pageRequest).map(postMapper::postEntityToResponse);
+            Specification<Post> specification = postSpecifications.combine(
+                    postSpecifications.visibleToUser(),
+                    (root, query, criteriaBuilder) ->
+                            criteriaBuilder.equal(root.get("user").get("id"), userId)
+            );
+            return postRepository.findAll(specification, pageRequest)
+                    .map(postMapper::postEntityToResponse);
         } else {
-            return postRepository.findAll(pageRequest).map(postMapper::postEntityToResponse);
+            return postRepository.findAll(postSpecifications.visibleToUser(), pageRequest)
+                    .map(postMapper::postEntityToResponse);
         }
     }
 
     @Override
-    public Page<PostResponse> getAllByQuery(String query, Integer pageNumber, Integer pageSize) {
+    public Page<PostResponse> getAllByQuery(String searchText, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
-        return postRepository.findAllByQuery(query, pageRequest).map(postMapper::postEntityToResponse);
+
+        Specification<Post> specification = postSpecifications.combine(
+                postSpecifications.visibleToUser(),
+                StringUtils.hasText(searchText) ? postSpecifications.containsText(searchText) : null
+        );
+        return postRepository.findAll(specification, pageRequest)
+                .map(postMapper::postEntityToResponse);
     }
 
     @Override
@@ -138,7 +153,13 @@ public class PostServiceImpl implements PostService {
     public Page<PostResponse> getSavedPostsByUser(Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         UUID userId = userService.getSignedUser().getId();
-        return postRepository.findSavedPostsByUserId(userId, pageRequest).map(postMapper::postEntityToResponse);
+
+        Specification<Post> specification = postSpecifications.combine(
+                postSpecifications.visibleToUser(),
+                postSpecifications.savedByUser(userId)
+        );
+        return postRepository.findAll(specification, pageRequest)
+                .map(postMapper::postEntityToResponse);
     }
 
     @Override
@@ -151,7 +172,13 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<PostResponse> getCommentedPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
-        return postRepository.findByCommentsUserId(userId, pageRequest).map(postMapper::postEntityToResponse);
+
+        Specification<Post> specification = postSpecifications.combine(
+                postSpecifications.visibleToUser(),
+                postSpecifications.commentedByUser(userId)
+        );
+        return postRepository.findAll(specification, pageRequest)
+                .map(postMapper::postEntityToResponse);
     }
 
     private boolean isPostExistsByLoggedUser(Post existingPost, User loggedUser) {
@@ -161,5 +188,4 @@ public class PostServiceImpl implements PostService {
     private Post findPostEntityById(UUID postId) {
         return postRepository.findById(postId).orElseThrow(EntityNotFoundException::new);
     }
-
 }
