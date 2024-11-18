@@ -1,7 +1,9 @@
 package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.model.request.ProfileSettingsRequest;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
+import dev.thural.quietspace.model.response.ProfileSettingsResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.UserService;
@@ -87,6 +89,17 @@ public class UserController {
         return userService.getLoggedUserResponse()
                 .map(profile -> ResponseEntity.ok().body(profile))
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/profile/block/{userId}")
+    public ResponseEntity<Void> blockUserProfile(@PathVariable UUID userId) {
+        userService.addUserToBlockList(userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/profile/settings")
+    public ResponseEntity<ProfileSettingsResponse> saveSettings(@RequestBody ProfileSettingsRequest request) {
+        return ResponseEntity.ok(userService.saveProfileSettings(request));
     }
 
     @PostMapping(FOLLOW_USER_TOGGLE_PATH)

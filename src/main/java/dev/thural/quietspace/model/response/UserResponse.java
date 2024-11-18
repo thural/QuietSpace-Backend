@@ -13,13 +13,15 @@ import java.util.UUID;
 public class UserResponse {
 
     private UUID id;
+    private String bio;
     private String role;
-    private String username;
     private String email;
+    private String username;
     private Boolean isFollower;
     private Boolean isFollowing;
     private Boolean isPrivateAccount;
     private OffsetDateTime createDate;
     private OffsetDateTime updateDate;
+    private ProfileSettingsResponse settings;
 
 }

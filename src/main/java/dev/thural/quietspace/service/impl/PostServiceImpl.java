@@ -85,6 +85,7 @@ public class PostServiceImpl implements PostService {
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
         if (!postExistsByLoggedUser) throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
         if (StringUtils.hasText(post.getText())) existingPost.setText(post.getText());
+        if (StringUtils.hasText(post.getTitle())) existingPost.setTitle(post.getTitle());
         return postMapper.postEntityToResponse(postRepository.save(existingPost));
     }
 

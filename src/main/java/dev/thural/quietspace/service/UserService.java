@@ -2,7 +2,9 @@ package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.StatusType;
+import dev.thural.quietspace.model.request.ProfileSettingsRequest;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
+import dev.thural.quietspace.model.response.ProfileSettingsResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import org.springframework.data.domain.Page;
 
@@ -43,4 +45,8 @@ public interface UserService {
     Page<UserResponse> queryUsers(String username, String firstname, String lastname, Integer pageNumber, Integer pageSize);
 
     Optional<User> getUserById(UUID memberId);
+
+    ProfileSettingsResponse saveProfileSettings(ProfileSettingsRequest request);
+
+    void addUserToBlockList(UUID userId);
 }

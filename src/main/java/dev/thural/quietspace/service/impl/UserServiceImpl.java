@@ -7,7 +7,9 @@ import dev.thural.quietspace.exception.CustomErrorException;
 import dev.thural.quietspace.exception.UnauthorizedException;
 import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.UserMapper;
+import dev.thural.quietspace.model.request.ProfileSettingsRequest;
 import dev.thural.quietspace.model.request.UserRegisterRequest;
+import dev.thural.quietspace.model.response.ProfileSettingsResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.query.UserQuery;
 import dev.thural.quietspace.repository.UserRepository;
@@ -63,6 +65,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public ProfileSettingsResponse saveProfileSettings(ProfileSettingsRequest request) {
+        User signedUser = getSignedUser();
+        BeanUtils.copyProperties(request, signedUser.getProfileSettings());
+        return userMapper.toSettingsResponse(signedUser);
+    }
+
+    @Override
+    @Transactional
+    public void addUserToBlockList(UUID userId) {
+        User signedUser = getSignedUser();
+        User requestedUser = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        signedUser.getProfileSettings().getBlockedUsers().add(requestedUser);
+    }
+
+    @Override
     public Page<UserResponse> listUsersByUsername(String username, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
         if (StringUtils.hasText(username)) {
@@ -80,14 +98,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getSignedUser() {
-        log.info("current user name in Spring SecurityContext {}", SecurityContextHolder.getContext().getAuthentication().getName());
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findUserByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
     @Override
     public List<User> getUsersFromIdList(List<UUID> userIds) {
-        return userIds.stream().map(userId -> userRepository.findById(userId).orElseThrow(UserNotFoundException::new)).toList();
+        return userIds.stream().map(userId -> userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new)).toList();
     }
 
     @Override
@@ -150,29 +168,29 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void toggleFollow(UUID followedUserId) {
-        User user = getSignedUser();
-        if (user.getId().equals(followedUserId))
+        User signedUser = getSignedUser();
+        if (signedUser.getId().equals(followedUserId))
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, "users can't unfollow themselves");
         User followedUser = userRepository.findById(followedUserId).orElseThrow(UserNotFoundException::new);
-        if (user.getFollowings().contains(followedUser)) {
-            user.getFollowings().remove(followedUser);
-            followedUser.getFollowers().remove(user);
+        if (signedUser.getFollowings().contains(followedUser)) {
+            signedUser.getFollowings().remove(followedUser);
+            followedUser.getFollowers().remove(signedUser);
         } else {
-            user.getFollowings().add(followedUser);
-            followedUser.getFollowers().add(user);
+            signedUser.getFollowings().add(followedUser);
+            followedUser.getFollowers().add(signedUser);
         }
     }
 
     @Override
     @Transactional
     public void removeFollower(UUID followingUserId) {
-        User user = getSignedUser();
-        if (user.getId().equals(followingUserId))
+        User signedUser = getSignedUser();
+        if (signedUser.getId().equals(followingUserId))
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, "users can't unfollow themselves");
         User followingUser = userRepository.findById(followingUserId).orElseThrow(UserNotFoundException::new);
-        if (user.getFollowers().contains(followingUser)) {
-            user.getFollowers().remove(followingUser);
-            followingUser.getFollowings().remove(user);
+        if (signedUser.getFollowers().contains(followingUser)) {
+            signedUser.getFollowers().remove(followingUser);
+            followingUser.getFollowings().remove(signedUser);
         } else throw new CustomErrorException("user is not found in followers");
     }
 
