@@ -27,6 +27,7 @@ public class SecurityConfig {
     private final JwtFilter jwtAuthFilter;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
     private final AuthenticationProvider authenticationProvider;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -61,7 +62,10 @@ public class SecurityConfig {
                                 .authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-                .exceptionHandling((exception) -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
+                .exceptionHandling((exception) -> {
+                    exception.authenticationEntryPoint(jwtAuthEntryPoint);
+                    exception.accessDeniedHandler(customAccessDeniedHandler);
+                })
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(authenticationProvider);
 

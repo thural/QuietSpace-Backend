@@ -1,6 +1,6 @@
 package dev.thural.quietspace.exception;
 
-import dev.thural.quietspace.model.response.ErrorResponse;
+import dev.thural.quietspace.model.response.CustomErrorResponse;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleNotFoundException(RuntimeException e) {
         HttpStatus status = NOT_FOUND;
         return ResponseEntity.status(status)
-                .body(ErrorResponse.builder()
+                .body(CustomErrorResponse.builder()
                         .status(status.name())
                         .message(e.getMessage())
                         .timestamp(new Date())
@@ -68,38 +68,38 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(RuntimeException e) {
+    public ResponseEntity<CustomErrorResponse> handleDataIntegrityViolationException(RuntimeException e) {
         HttpStatus status = BAD_REQUEST;
-        return new ResponseEntity<>(ErrorResponse.builder()
+        return new ResponseEntity<>(CustomErrorResponse.builder()
                 .status(status.name())
                 .message(e.getMessage())
                 .build(), status);
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentialsException(RuntimeException e) {
+    public ResponseEntity<CustomErrorResponse> handleBadCredentialsException(RuntimeException e) {
         HttpStatus status = UNAUTHORIZED;
-        return ResponseEntity.badRequest().body(ErrorResponse.builder()
+        return ResponseEntity.badRequest().body(CustomErrorResponse.builder()
                 .status(status.name())
                 .message(e.getMessage())
                 .build());
     }
 
     @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorizedException(RuntimeException e) {
+    public ResponseEntity<CustomErrorResponse> handleUnauthorizedException(RuntimeException e) {
         HttpStatus status = UNAUTHORIZED;
         return ResponseEntity.status(status)
-                .body(ErrorResponse.builder()
+                .body(CustomErrorResponse.builder()
                         .status(status.name())
                         .message(e.getMessage())
                         .build());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(RuntimeException e) {
+    public ResponseEntity<CustomErrorResponse> handleAccessDeniedException(RuntimeException e) {
         HttpStatus status = FORBIDDEN;
         return ResponseEntity.status(status)
-                .body(ErrorResponse.builder()
+                .body(CustomErrorResponse.builder()
                         .status(status.name())
                         .message(e.getMessage())
                         .timestamp(new Date())
@@ -108,10 +108,10 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(CustomDataNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCustomDataNotFoundExceptions(RuntimeException e) {
+    public ResponseEntity<CustomErrorResponse> handleCustomDataNotFoundExceptions(RuntimeException e) {
         HttpStatus status = NOT_FOUND;
         return ResponseEntity.status(status)
-                .body(ErrorResponse.builder()
+                .body(CustomErrorResponse.builder()
                         .status(status.name())
                         .message(e.getMessage())
                         .timestamp(new Date())
@@ -119,10 +119,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFoundExceptions(RuntimeException e) {
+    public ResponseEntity<CustomErrorResponse> handleUserNotFoundExceptions(RuntimeException e) {
         HttpStatus status = NOT_FOUND;
         return ResponseEntity.status(status)
-                .body(ErrorResponse.builder()
+                .body(CustomErrorResponse.builder()
                         .status(status.name())
                         .message(e.getMessage())
                         .timestamp(new Date())
@@ -130,10 +130,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CustomParameterConstraintException.class)
-    public ResponseEntity<ErrorResponse> handleCustomParameterConstraintExceptions(RuntimeException e) {
+    public ResponseEntity<CustomErrorResponse> handleCustomParameterConstraintExceptions(RuntimeException e) {
         HttpStatus status = BAD_REQUEST;
         return ResponseEntity.status(status)
-                .body(ErrorResponse.builder()
+                .body(CustomErrorResponse.builder()
                         .status(status.name())
                         .message(e.getMessage())
                         .timestamp(new Date())
@@ -141,10 +141,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CustomErrorException.class)
-    public ResponseEntity<ErrorResponse> handleCustomErrorExceptions(CustomErrorException e) {
+    public ResponseEntity<CustomErrorResponse> handleCustomErrorExceptions(CustomErrorException e) {
         HttpStatus status = e.getStatus();
         return ResponseEntity.status(status)
-                .body(ErrorResponse.builder()
+                .body(CustomErrorResponse.builder()
                         .status(status.name())
                         .message(e.getMessage())
                         .timestamp(new Date())
@@ -152,10 +152,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ActivationTokenException.class)
-    public ResponseEntity<ErrorResponse> handleActivationTokenExceptions(RuntimeException e) {
+    public ResponseEntity<CustomErrorResponse> handleActivationTokenExceptions(RuntimeException e) {
         HttpStatus status = BAD_REQUEST;
         return ResponseEntity.status(status)
-                .body(ErrorResponse.builder()
+                .body(CustomErrorResponse.builder()
                         .status(status.name())
                         .message(e.getMessage())
                         .timestamp(new Date())
@@ -163,10 +163,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MessagingException.class)
-    public ResponseEntity<ErrorResponse> handleMailingException(RuntimeException e) {
+    public ResponseEntity<CustomErrorResponse> handleMailingException(RuntimeException e) {
         HttpStatus status = INTERNAL_SERVER_ERROR;
         return ResponseEntity.status(status)
-                .body(ErrorResponse.builder()
+                .body(CustomErrorResponse.builder()
                         .status(status.name())
                         .message(e.getMessage())
                         .timestamp(new Date())

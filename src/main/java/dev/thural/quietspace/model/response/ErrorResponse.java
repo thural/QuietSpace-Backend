@@ -1,23 +1,26 @@
 package dev.thural.quietspace.model.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.*;
+import java.time.LocalDateTime;
 
-import java.util.Date;
-import java.util.UUID;
-
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ErrorResponse {
-    private UUID id;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private Date timestamp;
-    private int businessCode;
-    private String status;
-    private String message;
-    private String stackTrace;
-    private Object data;
+public record ErrorResponse(
+        LocalDateTime timestamp,
+        int status,
+        String error,
+        String message,
+        String path
+) {
+    public static ErrorResponse of(
+            int status,
+            String error,
+            String message,
+            String path
+    ) {
+        return new ErrorResponse(
+                LocalDateTime.now(),
+                status,
+                error,
+                message,
+                path
+        );
+    }
 }

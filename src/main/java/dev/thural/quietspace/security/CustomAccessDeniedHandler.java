@@ -3,34 +3,34 @@ package dev.thural.quietspace.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 @Component
-public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
+public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     private final ObjectMapper objectMapper;
 
-    public JwtAuthEntryPoint(ObjectMapper objectMapper) {
+    public CustomAccessDeniedHandler(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
     @Override
-    public void commence(
+    public void handle(
             HttpServletRequest request,
             HttpServletResponse response,
-            AuthenticationException authException
+            AccessDeniedException accessDeniedException
     ) throws IOException {
         SecurityErrorHandler.handleSecurityError(
                 request,
                 response,
-                authException,
-                HttpServletResponse.SC_UNAUTHORIZED,
-                "Unauthorized",
-                "Authentication failed",
+                accessDeniedException,
+                HttpServletResponse.SC_FORBIDDEN,
+                "Forbidden",
+                "Access denied",
                 objectMapper
         );
     }
