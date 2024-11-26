@@ -58,8 +58,9 @@ public class NotificationServiceImpl implements NotificationService {
             throw new ResourceAccessException("denied access for requested resource");
         if (!notification.getIsSeen()) notification.setIsSeen(true);
         var event = NotificationEvent.builder()
-                .actorId(user.getId())
                 .notificationId(notificationId)
+                .actorId(notification.getActorId())
+                .recipientId(notification.getUserId())
                 .type(SEEN_NOTIFICATION)
                 .build();
         template.convertAndSendToUser(user.getId().toString(), NOTIFICATION_EVENT_PATH, event);

@@ -34,6 +34,7 @@ public class PostController {
             @RequestParam(name = "page-number", required = false) Integer pageNumber,
             @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {
+        log.info("pageNumber {} pageSize {}", pageNumber, pageSize);
         return postService.getAllPosts(pageNumber, pageSize);
     }
 

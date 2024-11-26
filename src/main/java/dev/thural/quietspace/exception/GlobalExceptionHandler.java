@@ -26,7 +26,7 @@ import static org.springframework.http.HttpStatus.*;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<?> handleNotFoundException(RuntimeException e) {
+    public ResponseEntity<CustomErrorResponse> handleEntityNotFoundException(EntityNotFoundException e) {
         HttpStatus status = NOT_FOUND;
         return ResponseEntity.status(status)
                 .body(CustomErrorResponse.builder()
@@ -78,9 +78,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<CustomErrorResponse> handleBadCredentialsException(RuntimeException e) {
-        HttpStatus status = UNAUTHORIZED;
         return ResponseEntity.badRequest().body(CustomErrorResponse.builder()
-                .status(status.name())
+                .status(UNAUTHORIZED.name())
                 .message(e.getMessage())
                 .build());
     }
@@ -165,6 +164,28 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MessagingException.class)
     public ResponseEntity<CustomErrorResponse> handleMailingException(RuntimeException e) {
         HttpStatus status = INTERNAL_SERVER_ERROR;
+        return ResponseEntity.status(status)
+                .body(CustomErrorResponse.builder()
+                        .status(status.name())
+                        .message(e.getMessage())
+                        .timestamp(new Date())
+                        .build());
+    }
+
+    @ExceptionHandler(ImageUploadException.class)
+    public ResponseEntity<CustomErrorResponse> handleImageUploadException(ImageUploadException e) {
+        HttpStatus status = BAD_REQUEST;
+        return ResponseEntity.status(status)
+                .body(CustomErrorResponse.builder()
+                        .status(status.name())
+                        .message(e.getMessage())
+                        .timestamp(new Date())
+                        .build());
+    }
+
+    @ExceptionHandler(UnsupportedImageTypeException.class)
+    public ResponseEntity<CustomErrorResponse> handleUnsupportedImageTypeException(UnsupportedImageTypeException e) {
+        HttpStatus status = BAD_REQUEST;
         return ResponseEntity.status(status)
                 .body(CustomErrorResponse.builder()
                         .status(status.name())

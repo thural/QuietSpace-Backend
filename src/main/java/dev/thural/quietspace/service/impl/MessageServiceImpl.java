@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.UUID;
 
+import static dev.thural.quietspace.utils.PagingProvider.DEFAULT_SORT_OPTION;
 import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 
 @Slf4j
@@ -61,7 +62,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public Page<MessageResponse> getMessagesByChatId(Integer pageNumber, Integer pageSize, UUID chatId) {
-        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
         Page<Message> messagePage = messageRepository.findAllByChatId(chatId, pageRequest);
         return messagePage.map(messageMapper::toResponse);
     }

@@ -15,7 +15,7 @@ public class CustomErrorResponse {
     private UUID id;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
     private Date timestamp;
-    private int businessCode;
+    private Integer businessCode;
     private String status;
     private String message;
     private String stackTrace;
