@@ -1,16 +1,24 @@
 package dev.thural.quietspace.model.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.Lob;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PhotoResponse {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class PhotoResponse extends BaseResponse {
+
     private String name;
     private String type;
     @Lob
     private byte[] data;
+    
 }

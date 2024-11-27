@@ -7,10 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.HashSet;
@@ -35,6 +32,7 @@ public class PollOption extends BaseEntity {
     private String label;
 
     @NotNull
+    @Builder.Default
     @ElementCollection
     private Set<UUID> votes = new HashSet<>();
 

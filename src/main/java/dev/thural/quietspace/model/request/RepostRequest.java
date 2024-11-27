@@ -13,8 +13,11 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class RepostRequest {
+
     @NotBlank
     private String text;
+
     @NotNull
     private UUID postId;
+
 }

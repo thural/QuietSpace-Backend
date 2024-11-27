@@ -3,10 +3,7 @@ package dev.thural.quietspace.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
@@ -31,13 +28,20 @@ public class ProfileSettings extends BaseEntity {
     String bio;
 
     @NotNull
+    @Builder.Default
     List<User> blockedUsers = new ArrayList<>();
 
+    @Builder.Default
     Boolean isPrivateAccount = false;
+    @Builder.Default
     Boolean isNotificationsMuted = false;
+    @Builder.Default
     Boolean isAllowPublicGroupChatInvite = true;
+    @Builder.Default
     Boolean isAllowPublicMessageRequests = true;
+    @Builder.Default
     Boolean isAllowPublicComments = true;
+    @Builder.Default
     Boolean isHideLikeCounts = false;
 
 }

@@ -1,22 +1,24 @@
 package dev.thural.quietspace.model.response;
 
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PollResponse {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class PollResponse extends BaseResponse {
 
-    private UUID id;
     private String votedOption;
     private Integer voteCount;
     private List<OptionResponse> options;
-    private OffsetDateTime dueDate;
 
 }

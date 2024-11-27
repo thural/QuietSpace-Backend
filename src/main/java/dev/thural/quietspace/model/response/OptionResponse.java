@@ -1,17 +1,20 @@
 package dev.thural.quietspace.model.response;
 
-import lombok.*;
-
-import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OptionResponse {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class OptionResponse extends BaseResponse {
 
-    private UUID id;
     private String label;
     private String voteShare;
 

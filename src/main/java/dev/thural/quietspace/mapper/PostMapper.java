@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static dev.thural.quietspace.enums.ReactionType.DISLIKE;
 import static dev.thural.quietspace.enums.ReactionType.LIKE;
@@ -72,7 +73,7 @@ public class PostMapper {
                 null : photoService.getPhotoById(post.getPhotoId());
 
         PostResponse postResponse = PostResponse.builder()
-                .id(post.getId().toString())
+                .id(post.getId())
                 .title(post.getTitle())
                 .text(post.getText())
                 .photo(postPhoto)
@@ -99,7 +100,7 @@ public class PostMapper {
                         .label(option.getLabel())
                         .voteShare(getVoteShare(option))
                         .build())
-                .toList();
+                .collect(Collectors.toList());
 
         PollResponse pollResponse = PollResponse.builder()
                 .id(post.getPoll().getId())

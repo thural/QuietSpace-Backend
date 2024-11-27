@@ -1,17 +1,20 @@
 package dev.thural.quietspace.model.response;
 
-import lombok.*;
-
-import java.time.OffsetDateTime;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostResponse {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class PostResponse extends BaseResponse {
 
-    private String id;
     private String userId;
     private String repostId;
     private String username;
@@ -24,7 +27,5 @@ public class PostResponse {
     private Integer dislikeCount;
     private Integer commentCount;
     private ReactionResponse userReaction;
-    private OffsetDateTime createDate;
-    private OffsetDateTime updateDate;
 
 }

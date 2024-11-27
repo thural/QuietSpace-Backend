@@ -15,8 +15,10 @@ public class CreateChatRequest {
 
     @NotNull
     private Boolean isGroupChat;
+
     @NotNull
     private UUID recipientId;
+
     @NotNull
     private String text;
     private List<UUID> userIds;

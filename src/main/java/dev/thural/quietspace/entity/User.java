@@ -7,10 +7,7 @@ import dev.thural.quietspace.enums.StatusType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -90,9 +87,11 @@ public class User extends BaseEntity implements UserDetails, Principal {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "followings_id")
     )
+    @Builder.Default
     private List<User> followings = new ArrayList<>();
 
     @JsonIgnore
+    @Builder.Default
     @ManyToMany(mappedBy = "followings")
     private List<User> followers = new ArrayList<>();
 
