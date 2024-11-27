@@ -1,6 +1,6 @@
 package dev.thural.quietspace.controller;
 
-import dev.thural.quietspace.enums.ContentType;
+import dev.thural.quietspace.enums.EntityType;
 import dev.thural.quietspace.enums.NotificationType;
 import dev.thural.quietspace.model.response.NotificationResponse;
 import dev.thural.quietspace.service.NotificationService;
@@ -70,7 +70,7 @@ public class NotificationController {
     }
 
     @PostMapping("/process-reaction")
-    ResponseEntity<?> processNotificationByReaction(@RequestParam ContentType type, @RequestParam UUID contentId) {
+    ResponseEntity<?> processNotificationByReaction(@RequestParam EntityType type, @RequestParam UUID contentId) {
         notificationService.processNotificationByReaction(type, contentId);
         return ResponseEntity.ok().build();
     }

@@ -19,6 +19,7 @@ public class PostResponse {
     private String text;
     private String repostText;
     private PollResponse poll;
+    private PhotoResponse photo;
     private Integer likeCount;
     private Integer dislikeCount;
     private Integer commentCount;

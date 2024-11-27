@@ -1,6 +1,6 @@
 package dev.thural.quietspace.service;
 
-import dev.thural.quietspace.enums.ContentType;
+import dev.thural.quietspace.enums.EntityType;
 import dev.thural.quietspace.enums.NotificationType;
 import dev.thural.quietspace.model.response.NotificationResponse;
 import org.springframework.data.domain.Page;
@@ -13,7 +13,7 @@ public interface NotificationService {
 
     void processNotification(NotificationType type, UUID contentId);
 
-    void processNotificationByReaction(ContentType type, UUID contentId);
+    void processNotificationByReaction(EntityType type, UUID contentId);
 
     Page<NotificationResponse> getAllNotifications(Integer pageNumber, Integer pageSize);
 

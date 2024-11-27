@@ -2,7 +2,7 @@ package dev.thural.quietspace.service.impl;
 
 import dev.thural.quietspace.entity.Reaction;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.ContentType;
+import dev.thural.quietspace.enums.EntityType;
 import dev.thural.quietspace.enums.ReactionType;
 import dev.thural.quietspace.mapper.ReactionMapper;
 import dev.thural.quietspace.model.request.ReactionRequest;
@@ -64,14 +64,14 @@ public class ReactionServiceImpl implements ReactionService {
     }
 
     @Override
-    public Page<ReactionResponse> getReactionsByContentIdAndContentType(UUID contentId, ContentType type, Integer pageNumber, Integer pageSize) {
+    public Page<ReactionResponse> getReactionsByContentIdAndContentType(UUID contentId, EntityType type, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
         return reactionRepository.findAllByContentIdAndContentType(contentId, type, pageRequest)
                 .map(reactionMapper::reactionEntityToResponse);
     }
 
     @Override
-    public Page<ReactionResponse> getReactionsByUserIdAndContentType(UUID userId, ContentType contentType, Integer pageNumber, Integer pageSize) {
+    public Page<ReactionResponse> getReactionsByUserIdAndContentType(UUID userId, EntityType contentType, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
         return reactionRepository.findAllByUserIdAndContentType(userId, contentType, pageRequest)
                 .map(reactionMapper::reactionEntityToResponse);

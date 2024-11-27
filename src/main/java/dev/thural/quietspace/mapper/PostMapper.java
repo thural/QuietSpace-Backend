@@ -7,11 +7,8 @@ import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.model.request.PollRequest;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.RepostRequest;
-import dev.thural.quietspace.model.response.OptionResponse;
-import dev.thural.quietspace.model.response.PollResponse;
-import dev.thural.quietspace.model.response.PostResponse;
-import dev.thural.quietspace.model.response.ReactionResponse;
-import dev.thural.quietspace.repository.PostRepository;
+import dev.thural.quietspace.model.response.*;
+import dev.thural.quietspace.service.PhotoService;
 import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +28,8 @@ import static dev.thural.quietspace.enums.ReactionType.LIKE;
 public class PostMapper {
 
     private final ReactionService reactionService;
+    private final PhotoService photoService;
     private final UserService userService;
-    private final PostRepository postRepository;
 
     public Post postRequestToEntity(PostRequest postRequest) {
         Post post = Post.builder()
@@ -71,10 +68,14 @@ public class PostMapper {
         ReactionResponse userReaction = reactionService.getUserReactionByContentId(post.getId())
                 .orElse(null);
 
+        PhotoResponse postPhoto = post.getPhotoId() == null ?
+                null : photoService.getPhotoById(post.getPhotoId());
+
         PostResponse postResponse = PostResponse.builder()
                 .id(post.getId().toString())
                 .title(post.getTitle())
                 .text(post.getText())
+                .photo(postPhoto)
                 .commentCount(commentCount)
                 .likeCount(likeCount)
                 .dislikeCount(dislikeCount)

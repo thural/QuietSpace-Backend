@@ -1,7 +1,7 @@
 package dev.thural.quietspace.repository;
 
 import dev.thural.quietspace.entity.Reaction;
-import dev.thural.quietspace.enums.ContentType;
+import dev.thural.quietspace.enums.EntityType;
 import dev.thural.quietspace.enums.ReactionType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,11 +20,11 @@ public interface ReactionRepository extends JpaRepository<Reaction, UUID> {
 
     Optional<Reaction> findByContentIdAndUserId(UUID commentId, UUID id);
 
-    Page<Reaction> findAllByContentTypeAndUserId(ContentType contentType, UUID userId, PageRequest pageRequest);
+    Page<Reaction> findAllByContentTypeAndUserId(EntityType contentType, UUID userId, PageRequest pageRequest);
 
-    Page<Reaction> findAllByContentIdAndContentType(UUID contentId, ContentType contentType, PageRequest pageRequest);
+    Page<Reaction> findAllByContentIdAndContentType(UUID contentId, EntityType contentType, PageRequest pageRequest);
 
-    Page<Reaction> findAllByUserIdAndContentType(UUID userId, ContentType contentType, PageRequest pageRequest);
+    Page<Reaction> findAllByUserIdAndContentType(UUID userId, EntityType contentType, PageRequest pageRequest);
 
     Integer countByContentIdAndReactionType(UUID contentId, ReactionType reactionType);
 

@@ -10,4 +10,7 @@ public interface PhotoRepository extends JpaRepository<Photo, UUID> {
 
     Optional<Photo> findByName(String name);
 
+    void deleteByEntityId(UUID entityId);
+
+    Optional<Photo> findByEntityId(UUID entityId);
 }

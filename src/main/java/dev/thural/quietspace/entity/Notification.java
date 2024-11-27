@@ -1,6 +1,6 @@
 package dev.thural.quietspace.entity;
 
-import dev.thural.quietspace.enums.ContentType;
+import dev.thural.quietspace.enums.EntityType;
 import dev.thural.quietspace.enums.NotificationType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -36,7 +36,7 @@ public class Notification extends BaseEntity {
     private Boolean isSeen;
 
     @Enumerated(EnumType.STRING)
-    private ContentType contentType;
+    private EntityType contentType;
 
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;

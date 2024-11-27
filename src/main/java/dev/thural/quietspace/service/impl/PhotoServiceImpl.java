@@ -1,10 +1,12 @@
 package dev.thural.quietspace.service.impl;
 
 import dev.thural.quietspace.entity.Photo;
+import dev.thural.quietspace.enums.EntityType;
 import dev.thural.quietspace.exception.ImageUploadException;
 import dev.thural.quietspace.exception.UnsupportedImageTypeException;
 import dev.thural.quietspace.model.response.PhotoResponse;
 import dev.thural.quietspace.repository.PhotoRepository;
+import dev.thural.quietspace.service.CommonService;
 import dev.thural.quietspace.service.PhotoService;
 import dev.thural.quietspace.utils.ImageCompressionUtil;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,6 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PhotoServiceImpl implements PhotoService {
 
+    private final CommonService commonService;
     private final PhotoRepository photoRepository;
     private final ImageCompressionUtil imageCompressionUtil;
 
@@ -35,28 +38,20 @@ public class PhotoServiceImpl implements PhotoService {
     private static final int TARGET_IMAGE_SIZE = 100 * 1024; // 100KB
 
     @Override
-    @Transactional
-    public String uploadPhoto(MultipartFile file) {
-
-        if (file.getSize() > MAX_FILE_SIZE) {
-            log.error("File size exceeds maximum limit of 2MB");
-            throw new ImageUploadException("File size should not exceed 2MB");
-        }
-
-        String contentType = file.getContentType();
-        if (contentType == null || !SUPPORTED_CONTENT_TYPES.contains(contentType)) {
-            log.error("Unsupported image type: {}", contentType);
-            throw new UnsupportedImageTypeException(
-                    "Unsupported image type. Supported types: " +
-                            String.join(", ", SUPPORTED_CONTENT_TYPES)
-            );
-        }
-
-        return savePhoto(file, contentType).getName();
+    public String uploadProfilePhoto(MultipartFile file) {
+        UUID signedUserId = commonService.getSignedUser().getId();
+        return persistPhotoEntity(file, signedUserId, EntityType.USER).getName();
     }
 
-    private Photo savePhoto(MultipartFile file, String contentType) {
+    @Override
+    @Transactional
+    public Photo persistPhotoEntity(MultipartFile file, UUID entityId, EntityType entityType) {
+
+        String contentType = file.getContentType();
+        validatePhotoDataElseThrow(file, contentType);
+
         try {
+            UUID signedUserId = commonService.getSignedUser().getId();
             String uniqueFileName = generateUniqueFileName(file);
 
             byte[] compressedImage = imageCompressionUtil.compressImage(
@@ -68,6 +63,9 @@ public class PhotoServiceImpl implements PhotoService {
                     .name(uniqueFileName)
                     .type(contentType)
                     .data(compressedImage)
+                    .userId(signedUserId)
+                    .entityId(entityId)
+                    .entityType(entityType)
                     .build());
         } catch (IOException e) {
             log.error("Error uploading photo", e);
@@ -75,13 +73,46 @@ public class PhotoServiceImpl implements PhotoService {
         }
     }
 
+    private void validatePhotoDataElseThrow(MultipartFile file, String contentType) {
+        if (file.getSize() > MAX_FILE_SIZE) {
+            log.error("File size exceeds maximum limit of 2MB");
+            throw new ImageUploadException("File size should not exceed 2MB");
+        }
+
+        if (contentType == null || !SUPPORTED_CONTENT_TYPES.contains(contentType)) {
+            log.error("Unsupported image type: {}", contentType);
+            throw new UnsupportedImageTypeException(
+                    "Unsupported image type. Supported types: " +
+                            String.join(", ", SUPPORTED_CONTENT_TYPES)
+            );
+        }
+    }
+
     @Override
-    public PhotoResponse getPhotoWithMetadata(String name) {
+    public PhotoResponse getPhotoByName(String name) {
         Photo foundPhoto = findPhotoByName(name);
+        return getDecompressedPhoto(foundPhoto);
+    }
+
+    @Override
+    public PhotoResponse getPhotoByEntityId(UUID entityId) {
+        Photo foundPhoto = photoRepository.findByEntityId(entityId)
+                .orElseThrow(EntityNotFoundException::new);
+        return getDecompressedPhoto(foundPhoto);
+    }
+
+    @Override
+    public PhotoResponse getPhotoById(UUID photoId) {
+        Photo foundPhoto = photoRepository.findById(photoId)
+                .orElseThrow(EntityNotFoundException::new);
+        return getDecompressedPhoto(foundPhoto);
+    }
+
+    private PhotoResponse getDecompressedPhoto(Photo photo) {
         return PhotoResponse.builder()
-                .name(foundPhoto.getName())
-                .type(foundPhoto.getType())
-                .data(imageCompressionUtil.decompressImage(foundPhoto.getData()))
+                .name(photo.getName())
+                .type(photo.getType())
+                .data(imageCompressionUtil.decompressImage(photo.getData()))
                 .build();
     }
 
@@ -91,7 +122,7 @@ public class PhotoServiceImpl implements PhotoService {
         return imageCompressionUtil.decompressImage(foundPhoto.getData());
     }
 
-    private Photo findPhotoByName(String name) {
+    public Photo findPhotoByName(String name) {
         return photoRepository.findByName(name)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Photo not found with name: " + name
@@ -104,5 +135,15 @@ public class PhotoServiceImpl implements PhotoService {
                 ? originalFilename.substring(originalFilename.lastIndexOf("."))
                 : "";
         return UUID.randomUUID() + fileExtension;
+    }
+
+    @Override
+    public void deletePhotoByEntityId(UUID entityId) {
+        photoRepository.deleteByEntityId(entityId);
+    }
+
+    @Override
+    public void deletePhotoById(UUID photoId) {
+        photoRepository.deleteById(photoId);
     }
 }

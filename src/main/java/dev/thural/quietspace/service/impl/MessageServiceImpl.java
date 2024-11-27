@@ -2,13 +2,16 @@ package dev.thural.quietspace.service.impl;
 
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.Message;
+import dev.thural.quietspace.entity.Photo;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.EntityType;
 import dev.thural.quietspace.mapper.MessageMapper;
 import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.MessageResponse;
 import dev.thural.quietspace.repository.ChatRepository;
 import dev.thural.quietspace.repository.MessageRepository;
 import dev.thural.quietspace.service.MessageService;
+import dev.thural.quietspace.service.PhotoService;
 import dev.thural.quietspace.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -31,23 +35,29 @@ public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
     private final ChatRepository chatRepository;
     private final MessageMapper messageMapper;
+    private final PhotoService photoService;
     private final UserService userService;
 
     @Override
+    @Transactional
     public MessageResponse addMessage(MessageRequest messageRequest) {
         User loggedUser = userService.getSignedUser();
         Chat parentChat = chatRepository.findById(messageRequest.getChatId()).orElseThrow(EntityNotFoundException::new);
         Message newMessage = messageMapper.toEntity(messageRequest);
         newMessage.setSender(loggedUser);
         newMessage.setChat(parentChat);
-        return messageMapper.toResponse(messageRepository.save(newMessage));
+        Message savedMessage = messageRepository.save(newMessage);
+        if (messageRequest.getPhotoData() != null) saveMessagePhoto(messageRequest, newMessage);
+        return messageMapper.toResponse(savedMessage);
     }
 
     @Override
+    @Transactional
     public Optional<MessageResponse> deleteMessage(UUID messageId) {
         Message existingMessage = findMessageOrElseThrow(messageId);
         checkResourceAccess(existingMessage.getSender().getId());
         messageRepository.deleteById(messageId);
+        photoService.deletePhotoByEntityId(messageId);
         return Optional.of(messageMapper.toResponse(existingMessage));
     }
 
@@ -78,6 +88,11 @@ public class MessageServiceImpl implements MessageService {
         existingMessage.setIsSeen(true);
         Message savedMessage = messageRepository.save(existingMessage);
         return Optional.ofNullable(messageMapper.toResponse(savedMessage));
+    }
+
+    private void saveMessagePhoto(MessageRequest request, Message message) {
+        Photo savedPhoto = photoService.persistPhotoEntity(request.getPhotoData(), message.getId(), EntityType.MESSAGE);
+        message.setPhotoId(savedPhoto.getId());
     }
 
 }

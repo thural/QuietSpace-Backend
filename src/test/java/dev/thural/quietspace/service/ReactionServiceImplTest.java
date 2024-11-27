@@ -2,7 +2,7 @@ package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.Reaction;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.ContentType;
+import dev.thural.quietspace.enums.EntityType;
 import dev.thural.quietspace.enums.ReactionType;
 import dev.thural.quietspace.mapper.ReactionMapper;
 import dev.thural.quietspace.model.request.ReactionRequest;
@@ -65,7 +65,7 @@ class ReactionServiceImplTest {
         this.reaction = Reaction.builder()
                 .id(UUID.randomUUID())
                 .reactionType(ReactionType.LIKE)
-                .contentType(ContentType.POST)
+                .contentType(EntityType.POST)
                 .contentId(contentId)
                 .userId(userId)
                 .username(user.getUsername())
@@ -136,19 +136,19 @@ class ReactionServiceImplTest {
 
     @Test
     void getReactionsByContentId() {
-        when(reactionRepository.findAllByContentIdAndContentType(contentId, ContentType.POST, pageRequest)).thenReturn(reactionPage);
+        when(reactionRepository.findAllByContentIdAndContentType(contentId, EntityType.POST, pageRequest)).thenReturn(reactionPage);
         when(reactionMapper.reactionEntityToResponse(any(Reaction.class))).thenReturn(ReactionResponse.builder().build());
 
-        Page<ReactionResponse> responsePage = reactionService.getReactionsByContentIdAndContentType(contentId, ContentType.POST, 1, 25);
+        Page<ReactionResponse> responsePage = reactionService.getReactionsByContentIdAndContentType(contentId, EntityType.POST, 1, 25);
         assertThat(responsePage).isNotEmpty();
     }
 
     @Test
     void getReactionsByUserId() {
-        when(reactionRepository.findAllByUserIdAndContentType(userId, ContentType.POST, pageRequest)).thenReturn(reactionPage);
+        when(reactionRepository.findAllByUserIdAndContentType(userId, EntityType.POST, pageRequest)).thenReturn(reactionPage);
         when(reactionMapper.reactionEntityToResponse(any(Reaction.class))).thenReturn(ReactionResponse.builder().build());
 
-        Page<ReactionResponse> responsePage = reactionService.getReactionsByUserIdAndContentType(userId, ContentType.POST, 1, 25);
+        Page<ReactionResponse> responsePage = reactionService.getReactionsByUserIdAndContentType(userId, EntityType.POST, 1, 25);
         assertThat(responsePage).isNotEmpty();
     }
 }

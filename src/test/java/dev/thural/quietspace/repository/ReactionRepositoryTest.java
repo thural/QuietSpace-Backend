@@ -3,7 +3,7 @@ package dev.thural.quietspace.repository;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.Reaction;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.ContentType;
+import dev.thural.quietspace.enums.EntityType;
 import dev.thural.quietspace.enums.ReactionType;
 import dev.thural.quietspace.enums.Role;
 import org.junit.jupiter.api.AfterEach;
@@ -53,7 +53,7 @@ class ReactionRepositoryTest {
     private Reaction reaction = Reaction.builder()
             .userId(null)
             .contentId(null)
-            .contentType(ContentType.POST)
+            .contentType(EntityType.POST)
             .reactionType(ReactionType.LIKE)
             .username(user.getUsername())
             .createDate(OffsetDateTime.now())
@@ -109,7 +109,7 @@ class ReactionRepositoryTest {
 
     @Test
     void findAllByContentTypeAndUserId() {
-        Page<Reaction> reactions = reactionRepository.findAllByContentTypeAndUserId(ContentType.POST, savedUser.getId(), null);
+        Page<Reaction> reactions = reactionRepository.findAllByContentTypeAndUserId(EntityType.POST, savedUser.getId(), null);
         assertThat(reactions.toList().size()).isEqualTo(1);
         assertThat(reactions.toList().get(0)).isEqualTo(savedReaction);
     }
@@ -123,7 +123,7 @@ class ReactionRepositoryTest {
 
     @Test
     void findAllByUserIdAndContentType() {
-        Page<Reaction> reactions = reactionRepository.findAllByUserIdAndContentType(savedUser.getId(), ContentType.POST, null);
+        Page<Reaction> reactions = reactionRepository.findAllByUserIdAndContentType(savedUser.getId(), EntityType.POST, null);
         assertThat(reactions.toList().size()).isEqualTo(1);
         assertThat(reactions.toList().get(0)).isEqualTo(savedReaction);
     }

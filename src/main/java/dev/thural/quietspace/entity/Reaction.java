@@ -1,6 +1,6 @@
 package dev.thural.quietspace.entity;
 
-import dev.thural.quietspace.enums.ContentType;
+import dev.thural.quietspace.enums.EntityType;
 import dev.thural.quietspace.enums.ReactionType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -32,7 +32,7 @@ public class Reaction extends BaseEntity {
     private UUID contentId;
 
     @Enumerated(EnumType.STRING)
-    private ContentType contentType;
+    private EntityType contentType;
 
     @Enumerated(EnumType.STRING)
     private ReactionType reactionType;

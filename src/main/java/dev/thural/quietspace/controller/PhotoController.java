@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -18,18 +20,24 @@ public class PhotoController {
 
     private final PhotoService photoService;
 
-    @PostMapping
-    public ResponseEntity<String> uploadPhoto(@RequestParam("image") MultipartFile file) {
-        String photoName = photoService.uploadPhoto(file);
+    @PostMapping("/profile")
+    public ResponseEntity<String> uploadProfilePhoto(@RequestParam("image") MultipartFile file) {
+        String photoName = photoService.uploadProfilePhoto(file);
         return ResponseEntity.status(HttpStatus.CREATED).body(photoName);
     }
 
     @GetMapping("/{name}")
     public ResponseEntity<byte[]> getPhotoByName(@PathVariable("name") String name) {
-        PhotoResponse photoResponse = photoService.getPhotoWithMetadata(name);
+        PhotoResponse photoResponse = photoService.getPhotoByName(name);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(photoResponse.getType()))
                 .body(photoResponse.getData());
+    }
+
+    @DeleteMapping("profile/{userId}")
+    public ResponseEntity<Void> removePhotoByUserId(@PathVariable UUID userId) {
+        photoService.deletePhotoByEntityId(userId);
+        return ResponseEntity.noContent().build();
     }
 
 }

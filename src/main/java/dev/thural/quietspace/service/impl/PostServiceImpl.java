@@ -1,9 +1,7 @@
 package dev.thural.quietspace.service.impl;
 
-import dev.thural.quietspace.entity.Poll;
-import dev.thural.quietspace.entity.PollOption;
-import dev.thural.quietspace.entity.Post;
-import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.entity.*;
+import dev.thural.quietspace.enums.EntityType;
 import dev.thural.quietspace.mapper.PostMapper;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.RepostRequest;
@@ -11,6 +9,7 @@ import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.repository.specifications.PostSpecifications;
+import dev.thural.quietspace.service.PhotoService;
 import dev.thural.quietspace.service.PostService;
 import dev.thural.quietspace.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
@@ -36,6 +35,7 @@ public class PostServiceImpl implements PostService {
 
     private final PostSpecifications postSpecifications;
     private final PostRepository postRepository;
+    private final PhotoService photoService;
     private final UserService userService;
     private final PostMapper postMapper;
 
@@ -49,10 +49,13 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public PostResponse addPost(PostRequest post) {
         User loggedUser = userService.getSignedUser();
         if (!loggedUser.getId().equals(post.getUserId())) throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
-        return postMapper.postEntityToResponse(postRepository.save(postMapper.postRequestToEntity(post)));
+        Post savedPost = postRepository.save(postMapper.postRequestToEntity(post));
+        if (post.getPhotoData() != null) savePostPhoto(post, savedPost);
+        return postMapper.postEntityToResponse(savedPost);
     }
 
     public String getVotedPollOptionLabel(Poll poll) {
@@ -69,16 +72,20 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public PostResponse updatePost(UUID postId, PostRequest post) {
         User loggedUser = userService.getSignedUser();
         Post existingPost = findPostEntityById(postId);
         boolean postExistsByLoggedUser = isPostExistsByLoggedUser(existingPost, loggedUser);
         if (!postExistsByLoggedUser) throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
+        if (post.getPhotoData() == null) photoService.deletePhotoByEntityId(existingPost.getId());
+        else savePostPhoto(post, existingPost);
         BeanUtils.copyProperties(post, existingPost);
-        return postMapper.postEntityToResponse(postRepository.save(existingPost));
+        return postMapper.postEntityToResponse(existingPost);
     }
 
     @Override
+    @Transactional
     public PostResponse patchPost(UUID postId, PostRequest post) {
         User loggedUser = userService.getSignedUser();
         Post existingPost = findPostEntityById(postId);
@@ -86,15 +93,17 @@ public class PostServiceImpl implements PostService {
         if (!postExistsByLoggedUser) throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
         if (StringUtils.hasText(post.getText())) existingPost.setText(post.getText());
         if (StringUtils.hasText(post.getTitle())) existingPost.setTitle(post.getTitle());
-        return postMapper.postEntityToResponse(postRepository.save(existingPost));
+        if (post.getPhotoData() == null) photoService.deletePhotoByEntityId(existingPost.getId());
+        else savePostPhoto(post, existingPost);
+        return postMapper.postEntityToResponse(existingPost);
     }
 
     @Override
     @Transactional
     public void votePoll(VoteRequest voteRequest) {
         Post foundPost = postRepository.findById(voteRequest.getPostId()).orElseThrow(EntityNotFoundException::new);
-        if (foundPost.getPoll().getOptions().stream().anyMatch(option -> option.getVotes().contains(voteRequest.getUserId())))
-            return;
+        if (foundPost.getPoll().getOptions().stream()
+                .anyMatch(option -> option.getVotes().contains(voteRequest.getUserId()))) return;
         foundPost.getPoll().getOptions().stream()
                 .filter(option -> option.getLabel().equals(voteRequest.getOption())).findFirst()
                 .ifPresent(option -> {
@@ -113,12 +122,12 @@ public class PostServiceImpl implements PostService {
         if (!postExistsByLoggedUser) throw new AccessDeniedException(AUTHOR_MISMATCH_MESSAGE);
         postRepository.deleteByRepostId(existingPost.getId().toString());
         postRepository.deleteById(postId);
+        photoService.deletePhotoByEntityId(postId);
     }
 
     @Override
     public Page<PostResponse> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
-
         if (userId != null) {
             Specification<Post> specification = postSpecifications.combine(
                     postSpecifications.visibleToUser(),
@@ -136,7 +145,6 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<PostResponse> getAllByQuery(String searchText, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
-
         Specification<Post> specification = postSpecifications.combine(
                 postSpecifications.visibleToUser(),
                 StringUtils.hasText(searchText) ? postSpecifications.containsText(searchText) : null
@@ -154,7 +162,6 @@ public class PostServiceImpl implements PostService {
     public Page<PostResponse> getSavedPostsByUser(Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         UUID userId = userService.getSignedUser().getId();
-
         Specification<Post> specification = postSpecifications.combine(
                 postSpecifications.visibleToUser(),
                 postSpecifications.savedByUser(userId)
@@ -173,7 +180,6 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<PostResponse> getCommentedPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
-
         Specification<Post> specification = postSpecifications.combine(
                 postSpecifications.visibleToUser(),
                 postSpecifications.commentedByUser(userId)
@@ -188,5 +194,10 @@ public class PostServiceImpl implements PostService {
 
     private Post findPostEntityById(UUID postId) {
         return postRepository.findById(postId).orElseThrow(EntityNotFoundException::new);
+    }
+
+    private void savePostPhoto(PostRequest post, Post savedPost) {
+        Photo savedPhoto = photoService.persistPhotoEntity(post.getPhotoData(), savedPost.getId(), EntityType.POST);
+        savedPost.setPhotoId(savedPhoto.getId());
     }
 }

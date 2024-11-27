@@ -1,6 +1,6 @@
 package dev.thural.quietspace.controller;
 
-import dev.thural.quietspace.enums.ContentType;
+import dev.thural.quietspace.enums.EntityType;
 import dev.thural.quietspace.enums.ReactionType;
 import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.ReactionResponse;
@@ -23,7 +23,7 @@ public class ReactionController {
     @GetMapping("/user")
     Page<ReactionResponse> getReactionsByUser(
             @RequestParam UUID userId,
-            @RequestParam ContentType contentType,
+            @RequestParam EntityType contentType,
             @RequestParam(name = "page-number", required = false) Integer pageNumber,
             @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {
@@ -33,7 +33,7 @@ public class ReactionController {
     @GetMapping("/content")
     Page<ReactionResponse> getReactionsByContent(
             @RequestParam UUID contentId,
-            @RequestParam ContentType contentType,
+            @RequestParam EntityType contentType,
             @RequestParam(name = "page-number", required = false) Integer pageNumber,
             @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {

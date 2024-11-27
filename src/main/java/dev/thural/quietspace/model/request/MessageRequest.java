@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -28,4 +29,5 @@ public class MessageRequest {
     @Size(min = 1, max = 1000, message = "at lest 1 and max 1000 characters expected")
     private String text;
 
+    private MultipartFile photoData;
 }

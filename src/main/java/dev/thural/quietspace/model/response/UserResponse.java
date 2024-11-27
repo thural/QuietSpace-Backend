@@ -19,6 +19,7 @@ public class UserResponse {
     private String username;
     private Boolean isFollower;
     private Boolean isFollowing;
+    private PhotoResponse photo;
     private Boolean isPrivateAccount;
     private OffsetDateTime createDate;
     private OffsetDateTime updateDate;

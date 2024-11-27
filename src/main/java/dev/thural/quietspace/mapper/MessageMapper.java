@@ -5,8 +5,10 @@ import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.MessageResponse;
+import dev.thural.quietspace.model.response.PhotoResponse;
 import dev.thural.quietspace.repository.ChatRepository;
 import dev.thural.quietspace.repository.UserRepository;
+import dev.thural.quietspace.service.PhotoService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -20,6 +22,7 @@ public class MessageMapper {
 
     private final UserRepository userRepository;
     private final ChatRepository chatRepository;
+    private final PhotoService photoService;
 
     public Message toEntity(MessageRequest request) {
         var message = new Message();
@@ -37,6 +40,9 @@ public class MessageMapper {
         response.setSenderId(message.getSender().getId());
         response.setSenderName(message.getSender().getName());
         response.setRecipientId(message.getRecipient().getId());
+        PhotoResponse messagePhoto = message.getPhotoId() == null ? null
+                : photoService.getPhotoById(message.getPhotoId());
+        response.setPhoto(messagePhoto);
         return response;
     }
 

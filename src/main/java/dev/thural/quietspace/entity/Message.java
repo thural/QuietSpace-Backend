@@ -1,6 +1,7 @@
 package dev.thural.quietspace.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
@@ -12,6 +13,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -37,6 +40,9 @@ public class Message extends BaseEntity {
     @NotBlank
     @Column(length = 999)
     private String text;
+
+    @JsonIgnore
+    private UUID photoId;
 
     @NotNull
     private Boolean isSeen;

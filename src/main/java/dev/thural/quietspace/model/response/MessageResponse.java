@@ -15,6 +15,7 @@ public class MessageResponse {
     private UUID id;
     private UUID chatId;
     private String text;
+    private PhotoResponse photo;
     private Boolean isSeen;
     private UUID senderId;
     private UUID recipientId;

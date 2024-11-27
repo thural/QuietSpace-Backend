@@ -4,7 +4,7 @@ import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Notification;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.ContentType;
+import dev.thural.quietspace.enums.EntityType;
 import dev.thural.quietspace.enums.NotificationType;
 import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.NotificationMapper;
@@ -112,7 +112,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-    public void processNotificationByReaction(ContentType type, UUID contentId) {
+    public void processNotificationByReaction(EntityType type, UUID contentId) {
         switch (type) {
             case COMMENT -> processNotification(COMMENT_REACTION, contentId);
             case POST -> processNotification(POST_REACTION, contentId);

@@ -13,6 +13,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.validator.constraints.Length;
 
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -28,6 +29,9 @@ public class Post extends BaseEntity {
 
     @Length(min = 1, max = 999)
     private String text;
+
+    @JsonIgnore
+    private UUID photoId;
 
     @NotNull
     @ManyToOne

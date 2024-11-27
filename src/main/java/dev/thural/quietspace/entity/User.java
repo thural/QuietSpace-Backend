@@ -20,6 +20,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import static dev.thural.quietspace.enums.StatusType.ONLINE;
 
@@ -42,6 +43,9 @@ public class User extends BaseEntity implements UserDetails, Principal {
     @NotBlank
     @JsonIgnore
     private String password;
+
+    @JsonIgnore
+    private UUID photoId;
 
     @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY)
@@ -166,4 +170,8 @@ public class User extends BaseEntity implements UserDetails, Principal {
         setProfileSettings(new ProfileSettings(this));
     }
 
+    @PreRemove
+    void onRemove() {
+        // TODO: remove photo associated
+    }
 }

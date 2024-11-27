@@ -13,6 +13,7 @@ import dev.thural.quietspace.model.response.ProfileSettingsResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.query.UserQuery;
 import dev.thural.quietspace.repository.UserRepository;
+import dev.thural.quietspace.service.PhotoService;
 import dev.thural.quietspace.service.UserService;
 import dev.thural.quietspace.utils.PageUtils;
 import dev.thural.quietspace.utils.PagingProvider;
@@ -46,6 +47,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final UserQuery userQuery;
+    private final PhotoService photoService;
 
     @Override
     public Page<UserResponse> listUsers(Integer pageNumber, Integer pageSize) {
@@ -115,12 +117,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUserById(UUID userId) {
         User signedUser = getSignedUser();
         boolean hasAdminRole = isHasAdminRole(signedUser);
         if (!hasAdminRole && !signedUser.getId().equals(userId))
             throw new UnauthorizedException("user denied to delete resource");
         userRepository.deleteById(userId);
+        photoService.deletePhotoByEntityId(userId);
     }
 
     @Override
