@@ -19,4 +19,6 @@ public interface MessageService {
     Optional<MessageResponse> getLastMessageByChat(Chat chat);
 
     Optional<MessageResponse> setMessageSeen(UUID messageId);
+
+    MessageResponse getMessageById(UUID messageId, UUID chatId);
 }

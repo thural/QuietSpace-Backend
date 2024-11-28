@@ -90,6 +90,13 @@ public class MessageServiceImpl implements MessageService {
         return Optional.ofNullable(messageMapper.toResponse(savedMessage));
     }
 
+    @Override
+    public MessageResponse getMessageById(UUID messageId, UUID chatId) {
+        return messageRepository.findByMessageIdAndChatId(messageId, chatId)
+                .map(messageMapper::toResponse)
+                .orElseThrow(EntityNotFoundException::new);
+    }
+
     private void saveMessagePhoto(MessageRequest request, Message message) {
         Photo savedPhoto = photoService.persistPhotoEntity(request.getPhotoData(), message.getId(), EntityType.MESSAGE);
         message.setPhotoId(savedPhoto.getId());

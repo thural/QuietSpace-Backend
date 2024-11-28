@@ -80,7 +80,7 @@ public class PostController {
     }
 
     @PostMapping
-    ResponseEntity<PostResponse> createPost(@RequestBody @Validated PostRequest post) {
+    ResponseEntity<PostResponse> createPost(@ModelAttribute @Validated PostRequest post) {
         return ResponseEntity.ok(postService.addPost(post));
     }
 

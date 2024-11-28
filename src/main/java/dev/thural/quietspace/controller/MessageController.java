@@ -25,7 +25,7 @@ public class MessageController {
 
 
     @PostMapping
-    ResponseEntity<MessageResponse> createMessage(@RequestBody @Validated MessageRequest messageRequest) {
+    ResponseEntity<MessageResponse> createMessage(@ModelAttribute @Validated MessageRequest messageRequest) {
         return ResponseEntity.ok(messageService.addMessage(messageRequest));
     }
 
@@ -42,6 +42,11 @@ public class MessageController {
             @PathVariable UUID chatId
     ) {
         return messageService.getMessagesByChatId(pageNumber, pageSize, chatId);
+    }
+
+    @GetMapping("/chat/{chatId}")
+    ResponseEntity<MessageResponse> getMessagesById(@PathVariable UUID messageId, @PathVariable UUID chatId) {
+        return ResponseEntity.ok(messageService.getMessageById(messageId, chatId));
     }
 
 }
