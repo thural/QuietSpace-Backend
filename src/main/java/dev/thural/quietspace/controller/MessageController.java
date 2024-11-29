@@ -44,8 +44,8 @@ public class MessageController {
         return messageService.getMessagesByChatId(pageNumber, pageSize, chatId);
     }
 
-    @GetMapping("/chat/{chatId}")
-    ResponseEntity<MessageResponse> getMessagesById(@PathVariable UUID messageId, @PathVariable UUID chatId) {
+    @GetMapping("/chat/{chatId}/message/{messageId}")
+    ResponseEntity<MessageResponse> getMessageById(@PathVariable UUID messageId, @PathVariable UUID chatId) {
         return ResponseEntity.ok(messageService.getMessageById(messageId, chatId));
     }
 

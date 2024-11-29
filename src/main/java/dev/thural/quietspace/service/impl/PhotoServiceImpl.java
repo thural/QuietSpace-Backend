@@ -1,6 +1,7 @@
 package dev.thural.quietspace.service.impl;
 
 import dev.thural.quietspace.entity.Photo;
+import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.EntityType;
 import dev.thural.quietspace.exception.ImageUploadException;
 import dev.thural.quietspace.exception.UnsupportedImageTypeException;
@@ -38,9 +39,12 @@ public class PhotoServiceImpl implements PhotoService {
     private static final int TARGET_IMAGE_SIZE = 100 * 1024; // 100KB
 
     @Override
+    @Transactional
     public String uploadProfilePhoto(MultipartFile file) {
-        UUID signedUserId = commonService.getSignedUser().getId();
-        return persistPhotoEntity(file, signedUserId, EntityType.USER).getName();
+        User signedUser = commonService.getSignedUser();
+        Photo savedPhoto = persistPhotoEntity(file, signedUser.getId(), EntityType.USER);
+        signedUser.setPhotoId(savedPhoto.getId());
+        return savedPhoto.getName();
     }
 
     @Override
