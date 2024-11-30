@@ -4,76 +4,22 @@ import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.stereotype.Component;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.zip.DataFormatException;
-import java.util.zip.Deflater;
-import java.util.zip.Inflater;
 
 @Slf4j
 @Component
 public class ImageCompressionUtil {
-    private static final int BUFFER_SIZE = 4 * 1024;
     private static final int DEFAULT_TARGET_SIZE = 100 * 1024; // 100KB
+    private static final double MIN_QUALITY = 0.1; // Minimum quality threshold
+    private static final int MAX_ITERATIONS = 10; // Prevent infinite loops
 
     /**
-     * Compress image using Deflater (ZIP-style compression)
-     *
-     * @param data Original image bytes
-     * @return Compressed image bytes
-     */
-    public byte[] compressImageWithDeflater(byte[] data) {
-        Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length)) {
-            deflater.setInput(data);
-            deflater.finish();
-
-            byte[] tmp = new byte[BUFFER_SIZE];
-            while (!deflater.finished()) {
-                int size = deflater.deflate(tmp);
-                outputStream.write(tmp, 0, size);
-            }
-
-            return outputStream.toByteArray();
-        } catch (IOException e) {
-            log.error("Error compressing image with Deflater", e);
-            throw new RuntimeException("Error compressing image", e);
-        } finally {
-            deflater.end();
-        }
-    }
-
-    /**
-     * Decompress image using Inflater (ZIP-style decompression)
-     *
-     * @param data Compressed image bytes
-     * @return Decompressed image bytes
-     */
-    public byte[] decompressImageWithDeflater(byte[] data) {
-        Inflater inflater = new Inflater();
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length)) {
-            inflater.setInput(data);
-
-            byte[] tmp = new byte[BUFFER_SIZE];
-            while (!inflater.finished()) {
-                int count = inflater.inflate(tmp);
-                outputStream.write(tmp, 0, count);
-            }
-
-            return outputStream.toByteArray();
-        } catch (DataFormatException | IOException e) {
-            log.error("Error decompressing image with Inflater", e);
-            throw new RuntimeException("Error decompressing image", e);
-        } finally {
-            inflater.end();
-        }
-    }
-
-    /**
-     * Compress image using Thumbnails library
-     * Dynamically reduces image quality to meet target size
+     * Compress image with improved format-specific handling
      *
      * @param inputStream     Original image input stream
      * @param targetSizeBytes Target size in bytes
@@ -86,40 +32,90 @@ public class ImageCompressionUtil {
             targetSizeBytes = DEFAULT_TARGET_SIZE;
         }
 
+        // Read the original image to determine format and characteristics
+        BufferedImage originalImage = ImageIO.read(inputStream);
+        if (originalImage == null) {
+            throw new IOException("Unable to read image");
+        }
+
+        // Determine image format and apply appropriate compression strategy
+        return compressImageWithImprovedQuality(originalImage, targetSizeBytes);
+    }
+
+    /**
+     * Enhanced compression method with improved quality preservation
+     *
+     * @param originalImage   Original BufferedImage
+     * @param targetSizeBytes Target size in bytes
+     * @return Compressed image bytes
+     * @throws IOException If compression fails
+     */
+    private byte[] compressImageWithImprovedQuality(BufferedImage originalImage, int targetSizeBytes) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] compressedImage;
-        double quality = 1.0;
+        double quality = 0.9; // Start with high quality
+        int iterations = 0;
+
+        // Determine optimal scaling based on image size
+        double scale = calculateOptimalScale(originalImage, targetSizeBytes);
 
         do {
+            // Reset output stream
             outputStream.reset();
-            Thumbnails.of(inputStream)
-                    .scale(1.0)
+
+            // Compress with more nuanced approach
+            Thumbnails.of(originalImage)
+                    .scale(scale)
                     .outputQuality(quality)
+                    .outputFormat("jpeg") // Convert to JPEG for consistent compression
                     .toOutputStream(outputStream);
 
             compressedImage = outputStream.toByteArray();
 
-            // Reset input stream for next iteration
-            inputStream = new ByteArrayInputStream(compressedImage);
+            // Logging for debugging
+            log.info("Compression iteration {}: size={} bytes, quality={}, scale={}",
+                    iterations, compressedImage.length, quality, scale);
 
-            // Reduce quality incrementally
-            quality -= 0.1;
-        } while (compressedImage.length > targetSizeBytes && quality > 0);
+            // Adaptive quality and scale reduction
+            if (compressedImage.length > targetSizeBytes) {
+                quality -= 0.05; // Smaller quality reduction steps
 
-        log.info("Image compressed to {} bytes with quality {}",
-                compressedImage.length, quality + 0.1);
+                // Further reduce scale if quality is getting too low
+                if (quality < 0.5 && scale > 0.5) {
+                    scale *= 0.9; // Gradually reduce scale
+                }
+            }
+
+            iterations++;
+        } while (compressedImage.length > targetSizeBytes
+                && quality > MIN_QUALITY
+                && iterations < MAX_ITERATIONS);
+
+        // Final logging
+        log.info("Final compression: size={} bytes, quality={}, iterations={}",
+                compressedImage.length, quality, iterations);
 
         return compressedImage;
     }
 
     /**
-     * Compress image from byte array using Thumbnails library
+     * Calculate optimal scale to reduce image size
      *
-     * @param imageBytes      Original image bytes
+     * @param image           Original image
      * @param targetSizeBytes Target size in bytes
-     * @return Compressed image bytes
-     * @throws IOException If compression fails
+     * @return Optimal scale factor
      */
+    private double calculateOptimalScale(BufferedImage image, int targetSizeBytes) {
+        // Calculate initial scale based on image dimensions and target size
+        double originalSize = image.getWidth() * image.getHeight();
+        double targetSize = targetSizeBytes * 8.0; // Rough estimate
+
+        // Calculate scale, ensuring it doesn't reduce below 0.1
+        double scale = Math.sqrt(targetSize / originalSize);
+        return Math.max(Math.min(scale, 1.0), 0.1);
+    }
+
+    // Existing methods remain the same (compressImage overloads, etc.)
     public byte[] compressImage(byte[] imageBytes, int targetSizeBytes) throws IOException {
         return compressImage(new ByteArrayInputStream(imageBytes), targetSizeBytes);
     }
@@ -135,28 +131,19 @@ public class ImageCompressionUtil {
     }
 
     /**
-     * Choose compression method based on image size and requirements
+     * Decompress image from input stream (pass-through)
      *
-     * @param imageBytes      Original image bytes
-     * @param compressionType Compression type (DEFLATE or THUMBNAILS)
-     * @return Compressed image bytes
-     * @throws IOException If compression fails
+     * @param compressedInputStream Compressed image input stream
+     * @return Decompressed image bytes
+     * @throws IOException If reading the stream fails
      */
-    public byte[] compressImage(byte[] imageBytes, CompressionType compressionType) throws IOException {
-        switch (compressionType) {
-            case DEFLATE:
-                return compressImageWithDeflater(imageBytes);
-            case THUMBNAILS:
-            default:
-                return compressImage(imageBytes, DEFAULT_TARGET_SIZE);
+    public byte[] decompressImage(InputStream compressedInputStream) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[4096];
+        int bytesRead;
+        while ((bytesRead = compressedInputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, bytesRead);
         }
-    }
-
-    /**
-     * Compression type enum
-     */
-    public enum CompressionType {
-        DEFLATE,  // ZIP-style compression
-        THUMBNAILS  // Image quality reduction
+        return outputStream.toByteArray();
     }
 }
