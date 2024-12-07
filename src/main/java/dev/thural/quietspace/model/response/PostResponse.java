@@ -16,13 +16,14 @@ import lombok.experimental.SuperBuilder;
 public class PostResponse extends BaseResponse {
 
     private String userId;
-    private String repostId;
     private String username;
     private String title;
     private String text;
-    private String repostText;
+    private String parentId;
+    private Boolean isRepost;
     private PollResponse poll;
     private PhotoResponse photo;
+    private PostResponse repost;
     private Integer likeCount;
     private Integer dislikeCount;
     private Integer commentCount;

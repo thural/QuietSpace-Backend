@@ -8,6 +8,7 @@ import dev.thural.quietspace.model.request.PollRequest;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.RepostRequest;
 import dev.thural.quietspace.model.response.*;
+import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.service.PhotoService;
 import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.service.UserService;
@@ -29,6 +30,7 @@ import static dev.thural.quietspace.enums.ReactionType.LIKE;
 public class PostMapper {
 
     private final ReactionService reactionService;
+    private final PostRepository postRepository;
     private final PhotoService photoService;
     private final UserService userService;
 
@@ -62,7 +64,14 @@ public class PostMapper {
         return post;
     }
 
-    public PostResponse postEntityToResponse(Post post) {
+    public PostResponse postEntityToResponse(Post entity) {
+
+        boolean isRepost = entity.getRepostId() != null;
+        Post post = isRepost ? postRepository.findById(UUID.fromString(entity.getRepostId()))
+                .orElse(null) : entity;
+
+        if (post == null) return null;
+
         Integer commentCount = post.getComments() != null ? post.getComments().size() : 0;
         Integer likeCount = reactionService.countByContentIdAndReactionType(post.getId(), LIKE);
         Integer dislikeCount = reactionService.countByContentIdAndReactionType(post.getId(), DISLIKE);
@@ -87,9 +96,16 @@ public class PostMapper {
                 .updateDate(post.getUpdateDate())
                 .build();
 
-        if (post.getRepostId() != null) {
-            postResponse.setRepostText(post.getRepostText());
-            postResponse.setRepostId(post.getRepostId());
+        if (isRepost) {
+            var repost = PostResponse.builder()
+                    .id(entity.getId())
+                    .text(entity.getRepostText())
+                    .userId(entity.getUser().getId().toString())
+                    .username(entity.getUser().getUsername())
+                    .parentId(entity.getRepostId())
+                    .isRepost(true)
+                    .build();
+            postResponse.setRepost(repost);
         }
 
         if (post.getPoll() == null) return postResponse;
