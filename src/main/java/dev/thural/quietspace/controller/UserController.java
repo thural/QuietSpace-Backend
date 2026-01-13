@@ -2,7 +2,7 @@ package dev.thural.quietspace.controller;
 
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.model.request.ProfileSettingsRequest;
-import dev.thural.quietspace.model.request.UserRegisterRequest;
+import dev.thural.quietspace.model.request.UserRequest;
 import dev.thural.quietspace.model.response.ProfileSettingsResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.service.NotificationService;
@@ -80,8 +80,8 @@ public class UserController {
     }
 
     @PatchMapping
-    ResponseEntity<UserResponse> patchUser(@RequestBody UserRegisterRequest userRegisterRequest) {
-        return ResponseEntity.ok(userService.patchUser(userRegisterRequest));
+    ResponseEntity<UserResponse> patchUser(@RequestBody UserRequest userRequest) {
+        return ResponseEntity.ok(userService.patchUser(userRequest));
     }
 
     @GetMapping("/profile")
@@ -117,7 +117,7 @@ public class UserController {
 
     @GetMapping("/{userId}/followings")
     Page<UserResponse> listFollowings(
-            @PathVariable(name = "userId") UUID userId,
+            @PathVariable UUID userId,
             @RequestParam(name = "page-number", required = false) Integer pageNumber,
             @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {
@@ -126,7 +126,7 @@ public class UserController {
 
     @GetMapping("/{userId}/followers")
     Page<UserResponse> listFollowers(
-            @PathVariable(name = "userId") UUID userId,
+            @PathVariable UUID userId,
             @RequestParam(name = "page-number", required = false) Integer pageNumber,
             @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {

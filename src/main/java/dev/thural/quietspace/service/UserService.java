@@ -3,7 +3,7 @@ package dev.thural.quietspace.service;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.StatusType;
 import dev.thural.quietspace.model.request.ProfileSettingsRequest;
-import dev.thural.quietspace.model.request.UserRegisterRequest;
+import dev.thural.quietspace.model.request.UserRequest;
 import dev.thural.quietspace.model.response.ProfileSettingsResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import org.springframework.data.domain.Page;
@@ -24,7 +24,7 @@ public interface UserService {
 
     void deleteUserById(UUID userId);
 
-    UserResponse patchUser(UserRegisterRequest userRegisterRequest);
+    UserResponse patchUser(UserRequest userRequest);
 
     Optional<UserResponse> getLoggedUserResponse();
 

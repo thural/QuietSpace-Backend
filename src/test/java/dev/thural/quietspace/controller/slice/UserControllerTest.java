@@ -2,7 +2,7 @@ package dev.thural.quietspace.controller.slice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.controller.UserController;
-import dev.thural.quietspace.model.request.UserRegisterRequest;
+import dev.thural.quietspace.model.request.UserRequest;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
@@ -42,7 +42,7 @@ public class UserControllerTest {
     @Captor
     ArgumentCaptor<UUID> uuidArgumentCaptor;
     @Captor
-    ArgumentCaptor<UserRegisterRequest> userArgumentCaptor;
+    ArgumentCaptor<UserRequest> userArgumentCaptor;
 
     @MockBean
     UserService userService;
@@ -62,7 +62,7 @@ public class UserControllerTest {
     JwtService jwtService;
 
     private UUID userId;
-    private UserRegisterRequest registerRequest;
+    private UserRequest registerRequest;
     private UserResponse userResponse;
 
 
@@ -71,7 +71,7 @@ public class UserControllerTest {
 
         this.userId = UUID.randomUUID();
 
-        this.registerRequest = UserRegisterRequest.builder()
+        this.registerRequest = UserRequest.builder()
                 .username("user")
                 .role("user")
                 .email("user@email.com")

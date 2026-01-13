@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserRegisterRequest {
+public class UserRequest {
 
     @NotNull(message = "username can not be null")
     @NotBlank(message = "username can not be blank")

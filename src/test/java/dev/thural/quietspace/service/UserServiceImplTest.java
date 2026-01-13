@@ -3,7 +3,7 @@ package dev.thural.quietspace.service;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.Role;
 import dev.thural.quietspace.mapper.UserMapper;
-import dev.thural.quietspace.model.request.UserRegisterRequest;
+import dev.thural.quietspace.model.request.UserRequest;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.impl.UserServiceImpl;
@@ -47,7 +47,7 @@ class UserServiceImplTest {
 
     private UUID userId;
     private User user;
-    private UserRegisterRequest registerRequest;
+    private UserRequest registerRequest;
 
     @BeforeEach
     void initMockData() {
@@ -61,7 +61,7 @@ class UserServiceImplTest {
                 .role(Role.USER)
                 .build();
 
-        this.registerRequest = UserRegisterRequest.builder()
+        this.registerRequest = UserRequest.builder()
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
                 .email(user.getEmail())

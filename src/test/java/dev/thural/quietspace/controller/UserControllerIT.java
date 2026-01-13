@@ -2,12 +2,14 @@ package dev.thural.quietspace.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.Role;
 import dev.thural.quietspace.mapper.UserMapper;
-import dev.thural.quietspace.model.request.UserRegisterRequest;
+import dev.thural.quietspace.model.request.UserRequest;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -123,11 +125,21 @@ class UserControllerIT {
     void testUpdateExistingUser() {
         User randomUser = userRepository.findFirstByOrderByUsernameDesc().orElseThrow();
         User user = userRepository.findUserEntityByEmail(randomUser.getEmail()).orElseThrow();
-        UserRegisterRequest userRegisterRequest = userMapper.toRequest(user);
-        final String updatedName = "updatedName";
-        userRegisterRequest.setUsername(updatedName);
 
-        ResponseEntity<?> response = userController.patchUser(userRegisterRequest);
+        UserRequest userRequest = UserRequest.builder()
+                .email("admin@email.com")
+                .firstname("admin")
+                .lastname("admin")
+                .role(Role.ADMIN.toString())
+                .username("admin")
+                .password("admin")
+                .build();
+
+        BeanUtils.copyProperties(user, userRequest);
+        final String updatedName = "updatedName";
+        userRequest.setUsername(updatedName);
+
+        ResponseEntity<?> response = userController.patchUser(userRequest);
 
         User updatedUser = userRepository.findById(user.getId()).orElse(null);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));

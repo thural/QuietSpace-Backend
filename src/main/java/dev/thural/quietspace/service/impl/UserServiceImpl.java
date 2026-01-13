@@ -8,7 +8,7 @@ import dev.thural.quietspace.exception.UnauthorizedException;
 import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.UserMapper;
 import dev.thural.quietspace.model.request.ProfileSettingsRequest;
-import dev.thural.quietspace.model.request.UserRegisterRequest;
+import dev.thural.quietspace.model.request.UserRequest;
 import dev.thural.quietspace.model.response.ProfileSettingsResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.query.UserQuery;
@@ -128,15 +128,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse patchUser(UserRegisterRequest userRegisterRequest) {
+    public UserResponse patchUser(UserRequest userRequest) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         log.info("granted authorities in patchUser: {}", auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority).reduce(" ", String::concat));
         User signedUser = getSignedUser();
         boolean hasAdminRole = isHasAdminRole(signedUser);
-        if (!hasAdminRole && !userRegisterRequest.getEmail().equals(signedUser.getEmail()))
+        if (!hasAdminRole && !userRequest.getEmail().equals(signedUser.getEmail()))
             throw new UnauthorizedException("signed user has no access to requested resource");
-        BeanUtils.copyProperties(userRegisterRequest, signedUser);
+        BeanUtils.copyProperties(userRequest, signedUser);
         return userMapper.toResponse(userRepository.save(signedUser));
     }
 

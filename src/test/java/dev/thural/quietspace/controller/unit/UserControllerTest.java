@@ -2,7 +2,7 @@ package dev.thural.quietspace.controller.unit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.controller.UserController;
-import dev.thural.quietspace.model.request.UserRegisterRequest;
+import dev.thural.quietspace.model.request.UserRequest;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,10 +43,10 @@ public class UserControllerTest {
     @Captor
     ArgumentCaptor<UUID> uuidArgumentCaptor;
     @Captor
-    ArgumentCaptor<UserRegisterRequest> userArgumentCaptor;
+    ArgumentCaptor<UserRequest> userArgumentCaptor;
 
     UUID userId;
-    UserRegisterRequest registerRequest;
+    UserRequest registerRequest;
     UserResponse userResponse;
 
 
@@ -57,7 +57,7 @@ public class UserControllerTest {
 
         this.userId = UUID.randomUUID();
 
-        this.registerRequest = UserRegisterRequest.builder()
+        this.registerRequest = UserRequest.builder()
                 .username("user")
                 .role("user")
                 .email("user@email.com")
