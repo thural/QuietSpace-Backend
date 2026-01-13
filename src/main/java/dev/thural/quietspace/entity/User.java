@@ -161,14 +161,6 @@ public class User extends BaseEntity implements UserDetails, Principal {
         return firstname + " " + lastname;
     }
 
-    @PrePersist
-    void initAccount() {
-        setEnabled(true);
-        setStatusType(ONLINE);
-        setAccountLocked(false);
-        setProfileSettings(new ProfileSettings(this));
-    }
-
     @PreRemove
     void onRemove() {
         // TODO: remove photo associated

@@ -1,5 +1,6 @@
 package dev.thural.quietspace.bootstrap;
 
+import dev.thural.quietspace.entity.ProfileSettings;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -24,19 +25,23 @@ public class AdminLoader implements CommandLineRunner {
     String adminPassword;
 
     @Override
+    @Transactional
     public void run(String... args) {
         loadAdmin();
     }
 
-    @Transactional
     private void loadAdmin() {
         if (!repository.existsByUsernameIgnoreCase("admin")) {
             var admin = User.builder()
                     .password(passwordEncoder.encode(adminPassword))
                     .email("admin@email.com")
                     .username("admin")
-                    .enabled(true)
-                    .role(ADMIN).build();
+                    .role(ADMIN)
+                    .build();
+
+            ProfileSettings settings = new ProfileSettings(admin);
+            admin.setProfileSettings(settings);
+
             repository.save(admin);
         }
     }

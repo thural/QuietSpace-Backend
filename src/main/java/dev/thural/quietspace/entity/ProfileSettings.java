@@ -27,7 +27,6 @@ public class ProfileSettings extends BaseEntity {
 
     String bio;
 
-    @NotNull
     @Builder.Default
     List<User> blockedUsers = new ArrayList<>();
 

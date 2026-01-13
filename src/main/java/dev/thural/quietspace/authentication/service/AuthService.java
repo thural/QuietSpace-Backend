@@ -3,6 +3,7 @@ package dev.thural.quietspace.authentication.service;
 import dev.thural.quietspace.authentication.model.AuthRequest;
 import dev.thural.quietspace.authentication.model.AuthResponse;
 import dev.thural.quietspace.authentication.model.RegistrationRequest;
+import dev.thural.quietspace.entity.ProfileSettings;
 import dev.thural.quietspace.entity.Token;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.EmailTemplateName;
@@ -65,10 +66,14 @@ public class AuthService {
                 .role(USER)
                 .build();
 
+        ProfileSettings settings = new ProfileSettings(user);
+        user.setProfileSettings(settings);
+
         User savedUser = userRepository.save(user);
         sendValidationEmail(savedUser);
     }
 
+    @Transactional
     public AuthResponse authenticate(AuthRequest request) {
         log.info("authenticating user by email: {}", request.getEmail());
         Authentication auth = authenticationManager.authenticate(
@@ -223,8 +228,6 @@ public class AuthService {
         user.setStatusType(type);
     }
 
-
-    @Transactional
     private void setOnlineStatus(String email, StatusType type) {
         // TODO: consider user settings after implementation
         userRepository.findUserEntityByEmail(email)
