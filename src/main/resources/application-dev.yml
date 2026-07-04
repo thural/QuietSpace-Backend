@@ -8,7 +8,7 @@ spring:
       enabled: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/quietspace
+    url: jdbc:mysql://${DB_HOST_NAME:localhost}:3306/${DB_NAME:quietspace}
     username: ${DB_USER_USERNAME}
     password: ${DB_USER_PASSWORD}
   jpa:
