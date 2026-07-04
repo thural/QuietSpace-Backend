@@ -65,4 +65,4 @@ volumes:
 networks:
   monolith-network:
     name: monolith-network
-    driver: bridge
+    external: true
