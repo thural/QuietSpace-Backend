@@ -24,55 +24,55 @@
 
 ```python
 # Core Framework
-fastapi==0.115.0              # Modern async framework
-uvicorn[standard]==0.32.0    # ASGI server with http2 support
-pydantic==2.9.0              # v2 for better validation
-pydantic-settings==2.6.0     # Settings management
+fastapi==0.115.4             # Modern async framework
+uvicorn[standard]==0.34.0    # ASGI server with http2 support
+pydantic==2.10.2             # v2 for better validation
+pydantic-settings==2.7.1     # Settings management
 
 # Database & ORM (Syllabus-aligned)
-sqlmodel==0.0.22             # SQLAlchemy wrapper with Pydantic integration
-asyncpg==0.29.0              # Async PostgreSQL driver (syllabus requirement)
-alembic==1.13.3             # Database migrations
+sqlmodel==0.0.23             # SQLAlchemy wrapper with Pydantic integration
+asyncpg==0.30.0              # Async PostgreSQL driver (syllabus requirement)
+alembic==1.14.2             # Database migrations
 
 # Authentication & Security
 passlib[bcrypt]==1.7.4      # Password hashing
 python-jose[cryptography]==3.3.0  # JWT handling
-python-multipart==0.0.12     # Form data handling
+python-multipart==0.0.20     # Form data handling
 itsdangerous==2.2.0         # Token generation
 
 # Background Tasks & Caching (Syllabus-aligned)
-celery==5.4.0               # Distributed task queue
-redis==5.1.1                # Redis for Celery broker, caching, and WebSocket state
-structlog==24.4.0            # Structured logging (syllabus requirement)
+celery==5.5.0               # Distributed task queue
+redis==5.2.1                # Redis for Celery broker, caching, and WebSocket state
+structlog==25.2.0            # Structured logging (syllabus requirement)
 
 # WebSocket & Real-time (Full Functionality)
-websockets==13.1            # WebSocket support
-python-socketio==5.11.0     # Socket.IO for real-time messaging (replaces STOMP)
-aiohttp==3.10.5             # Async HTTP client for WebSocket connections
+websockets==14.1            # WebSocket support
+python-socketio==5.13.0     # Socket.IO for real-time messaging (replaces STOMP)
+aiohttp==3.11.0             # Async HTTP client for WebSocket connections
 
 # Email (Full Functionality)
-fastapi-mail==1.4.2         # Async email handling
-jinja2==3.1.4               # Email templates
+fastapi-mail==1.5.0         # Async email handling
+jinja2==3.2.0               # Email templates
 
 # Image Processing
-pillow==10.4.0              # Image processing
-python-magic==0.4.27        # File type detection
+pillow==11.0.0              # Image processing
+python-magic==0.4.29        # File type detection
 
 # API Documentation
-fastapi-swagger-ui==0.0.1   # Enhanced Swagger UI
+fastapi-swagger-ui==0.0.2   # Enhanced Swagger UI
 
 # Testing (Syllabus-aligned)
-pytest==8.3.3               # Modern testing
-pytest-asyncio==0.24.0      # Async test support
-httpx==0.27.2               # Async HTTP client for testing
-pytest-cov==6.0.0           # Coverage
+pytest==8.4.2               # Modern testing
+pytest-asyncio==0.25.0      # Async test support
+httpx==0.28.1               # Async HTTP client for testing
+pytest-cov==6.1.0           # Coverage
 
 # Development & Quality (Syllabus-aligned)
-poetry-core==1.9.0           # Poetry for dependency management (syllabus requirement)
-black==24.8.0               # Code formatting
-ruff==0.6.9                 # Fast linter (syllabus requirement)
-mypy==1.11.2                # Type checking
-pre-commit==3.8.0           # Git hooks
+poetry-core==1.9.1           # Poetry for dependency management (syllabus requirement)
+black==25.1.0               # Code formatting
+ruff==0.8.4                 # Fast linter (syllabus requirement)
+mypy==1.13.0                # Type checking
+pre-commit==4.0.1           # Git hooks
 ```
 
 ### 2. **Project Structure**
