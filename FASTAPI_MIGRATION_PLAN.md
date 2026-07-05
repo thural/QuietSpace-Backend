@@ -39,6 +39,7 @@ passlib[bcrypt]==1.7.4      # Password hashing
 python-jose[cryptography]==3.3.0  # JWT handling
 python-multipart==0.0.20     # Form data handling
 itsdangerous==2.2.0         # Token generation
+slowapi==0.1.12             # Rate limiting
 
 # Background Tasks & Caching (Syllabus-aligned)
 celery==5.5.0               # Distributed task queue
@@ -439,17 +440,21 @@ class BaseRepository(Generic[ModelType]):
         return obj
 ```
 
-#### **FastAPI Lifespan Handler (Syllabus-aligned)**
+#### **FastAPI Lifespan Handler, Health Endpoint & Rate Limiting (Syllabus-aligned)**
 ```python
 # app/main.py
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from sqlmodel import SQLModel, create_engine, AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from structlog import get_logger
 import structlog
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 logger = get_logger()
+limiter = Limiter(key_func=get_remote_address, storage_uri=settings.REDIS_URL)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -471,6 +476,28 @@ async def lifespan(app: FastAPI):
     await engine.dispose()
 
 app = FastAPI(lifespan=lifespan)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Health endpoint
+@app.get("/health", tags=["Health"])
+@limiter.limit("100/minute")
+async def health_check(request: Request):
+    """Health check endpoint for monitoring and Docker healthchecks"""
+    # Simple database ping check
+    try:
+        async with app.state.async_session() as session:
+            from sqlalchemy import text
+            await session.execute(text("SELECT 1"))
+            db_status = "healthy"
+    except Exception:
+        db_status = "unhealthy"
+    
+    return {
+        "status": "healthy" if db_status == "healthy" else "unhealthy",
+        "database": db_status,
+        "version": "1.0.0"
+    }
 ```
 
 #### **Annotated Dependency Injection (Syllabus-aligned)**
@@ -991,7 +1018,7 @@ jobs:
 - CORS configuration
 - Input validation with Pydantic
 - SQL injection prevention (ORM)
-- Rate limiting (slowapi)
+- Rate limiting with slowapi (Redis-backed)
 
 #### **Code Quality (Syllabus-aligned)**
 - Type hints throughout (mypy strict mode)
@@ -1060,6 +1087,36 @@ class Settings(BaseSettings):
 settings = Settings()
 ```
 
+```dotenv
+# .env.example
+# Database
+DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/quietspace
+
+# Redis
+REDIS_URL=redis://localhost:6379/0
+
+# Security
+SECRET_KEY=your-super-secret-key-change-this-in-production
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=10
+REFRESH_TOKEN_EXPIRE_DAYS=7
+
+# Email
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=noreply@example.com
+SMTP_PASSWORD=your-smtp-password
+
+# Frontend
+FRONTEND_URL=http://localhost:3000
+
+# Media
+MAX_UPLOAD_SIZE=3145728
+
+# Debug
+DEBUG=True
+```
+
 ### 7. **Syllabus Alignment Summary**
 
 **Fully Aligned Components:**
@@ -1073,14 +1130,16 @@ settings = Settings()
 - Connection pooling configuration
 - Relationship loading strategies (selectinload/joinedload)
 - Celery for background tasks
-- Redis for caching, Celery broker, and WebSocket state
+- Redis for caching, Celery broker, WebSocket state, and rate limiting
 - structlog for structured logging
 - Poetry for dependency management
 - Ruff for linting
+- slowapi for rate limiting
 - Transactional testing with pytest-asyncio
 - HTTPX for async HTTP testing
 - Multi-stage Dockerfile with non-privileged user
 - GitHub Actions CI workflow
+- Healthcheck endpoint
 
 **Additional Features (Beyond Syllabus - Required for Full Functionality):**
 - **Socket.IO for real-time WebSocket messaging** (replaces STOMP)
