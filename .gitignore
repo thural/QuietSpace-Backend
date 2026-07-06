@@ -39,3 +39,39 @@ build/
 /quietspace
 /quietspace.log
 /infrastructure/keycloak/realms/realm-export.json
+
+### Python ###
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+ENV/
+env/
+.eggs/
+*.egg
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+*.log
+
+### Poetry ###
+poetry.lock
+
+### IDE ###
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+### OS ###
+.DS_Store
+Thumbs.db
