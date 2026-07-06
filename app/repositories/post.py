@@ -27,5 +27,10 @@ class PostRepository(BaseRepository[Post]):
         )
         return result.scalars().all()
 
+    async def delete_by_repost_id(self, post_id: UUID) -> None:
+        await self.session.execute(
+            Post.__table__.delete().where(Post.repost_id == post_id)
+        )
+
 
 post_repository = PostRepository
