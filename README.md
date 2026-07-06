@@ -2,165 +2,120 @@
 
 ## Project Overview
 
-QuietSpace is a privacy-focused social media application designed for meaningful interactions through a intuitive
-interface. Built with Spring Boot, the application provides a comprehensive set of features for modern social
-networking, emphasizing clean code, security, and real-time interaction.
+QuietSpace is a privacy-focused social media application designed for meaningful interactions. This repository contains the backend API, built with FastAPI and Python, providing a comprehensive set of features for modern social networking with an emphasis on clean code, security, and real-time interaction.
 
 ## Features
 
 ### User Management
-
-- Secure user authentication and authorization
-- Email account activation system
-- Stateless security with JWT (JSON Web Tokens)
-- Refresh token mechanism
-- Token blacklist strategy for secure logout
+- Secure user authentication with JWT (access + refresh tokens)
+- Email account activation via async Celery tasks
+- Token blacklisting for secure logout
+- Follow/unfollow system
+- Profile settings
 
 ### Social Interactions
-
-- Posts
-- Comments
-- Replies
-- User profiles
-- User Reactions
-- User Followings
-- Real-time notifications
+- Posts with reactions
+- Comments and replies
+- User profiles with photo upload
+- Polls with voting
+- Repost functionality
+- Pagination and filtering
 
 ### Real-Time Chat
+- WebSocket-based messaging via Socket.IO
+- Chat member management
+- Real-time notification delivery over WebSocket
+- Message read receipts
 
-- Secure WebSocket Chat Functionality
-- End-to-end encrypted messaging
-- Real-time chat using STOMP protocol
-- One-to-one private messaging
-- Group chat support
-- Message delivery and read receipts
-- Secure WebSocket connections
-- Persistent message storage
-- Integration with existing authentication system
+### Notifications
+- Real-time WebSocket push notifications
+- Notification type filtering (LIKE, COMMENT, FOLLOW, REPOST, etc.)
+- Celery-powered email notifications
 
 ### Media Management
-
-- User profile picture uploads
-- Post and Message image attachments
-- Image conversion and resizing
-- Efficient image storage and retrieval
-- Direct database storage of images
-- Optimized image representation in DTOs
+- User profile picture and post image uploads
+- Image validation and compression with Pillow
+- Database-backed photo storage
 
 ### Advanced Capabilities
-
-- Pagination, sorting and criteria queries for content
-- Robust error handling with global exception management
-- Scalable and modular application architecture
-- Detailed API documentation
+- Redis caching layer (user, post, follower list TTL-based caching)
+- Rate limiting via slowapi
+- Structured logging with structlog
+- Request/response timing middleware
+- Async-first architecture
 
 ## Technology Stack
 
 ### Backend
+- **Framework:** FastAPI 0.115.4
+- **Language:** Python 3.12
+- **ORM:** SQLModel 0.0.39 (SQLAlchemy + Pydantic)
+- **Database:** PostgreSQL 16 (async via asyncpg)
+- **Migrations:** Alembic
+- **Validation:** Pydantic v2
+- **Caching:** Redis 7
+- **Async Tasks:** Celery 5.5.0
+- **Real-Time:** Socket.IO (python-socketio)
+- **Authentication:** python-jose (JWT) + passlib/bcrypt
+- **API Documentation:** Automatic OpenAPI/Swagger
 
-- Framework: Spring Boot 3.3.4
-- Language: Java 17
-- Security: Spring Security, JWT
-- API Documentation: Swagger/OpenAPI
-- Development Tools: Lombok
-- Containerization: Docker, Kubernetes
-- ORM: JPA/Hibernate
-- Database: MySQL
-- Migration: Flyway
-- Test: Junit5, Mockito
+### Real-Time Communication
+- Socket.IO over WebSocket
+- Redis adapter for multi-process broadcasting
+- JWT-based connection authentication
+- Real-time notification and chat events
 
-### Real-Time WebSocket Communication
+### Code Quality
+- **Linting:** Ruff
+- **Formatting:** Black
+- **Type Checking:** Mypy (strict mode)
+- **Pre-commit:** Automated checks via pre-commit hooks
+- **Security Scanning:** Bandit, Safety
 
-- JWT-based authentication for connections
-- Secure message routing
-- Protection against unauthorized access
-- Encrypted message payload
-- Connection validation and management
-- Error handling with custom Event messages
-
-### Security and Authentication
-
-- Spring Security
-- JWT (JSON Web Tokens)
-- Secure token management
-- Encrypted WebSocket connections
-
-### Development Tools
-
-- Maven
-- Lombok
-- MapStruct
-- Mockito
-- JUnit 5
+### Testing
+- **Framework:** pytest + pytest-asyncio
+- **HTTP Client:** httpx (ASGI transport)
+- **Coverage:** pytest-cov
 
 ### Deployment
+- **Containerization:** Docker (multi-stage build)
+- **Orchestration:** Docker Compose (Postgres, Redis, API, Celery worker)
+- **CI/CD:** GitHub Actions (lint, typecheck, test, security scan, build)
 
-- Docker
-- Docker Compose
-- Kubernetes
-
-## Detailed Project Structure
+## Project Structure
 
 ```plaintext
 QuietSpace-Backend/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/quietspace/
-│   │   │       ├── controller/     # REST API endpoints
-│   │   │       │   ├── UserController.java
-│   │   │       │   ├── PostController.java
-│   │   │       │   └── CommentController.java
-│   │   │       ├── model/          # Data Transfer Objects
-│   │   │       │   ├── request/    # Input DTOs
-│   │   │       │   └── response/   # Output DTOs
-│   │   │       ├── entity/         # Database entities
-│   │   │       │   ├── User.java
-│   │   │       │   ├── Post.java
-│   │   │       │   └── Comment.java
-│   │   │       ├── repository/     # Data access layers
-│   │   │       ├── service/        # Business logic
-│   │   │       ├── config/         # Application configurations
-│   │   │       │   ├── WebSocketConfig.java
-│   │   │       │   └── SecurityConfig.java
-│   │   │       ├── security/       # Authentication components
-│   │   │       │   ├── JwtAuthenticationFilter.java
-│   │   │       │   └── JwtUtil.java
-│   │   │       └── exception/      # Error handling
-│   │   └── resources/
-│   │       ├── application.properties
-│   │       └── db/migration/       # Flyway database scripts
-│   └── test/                       # Comprehensive test suites
-│       ├── unit/
-│       ├── integration/
-│       └── mock/
-└── infrastructure/
-    ├── docker/                     # Containerization configs
-    └── k8s/                        # Kubernetes deployment
+├── app/
+│   ├── api/            # Route handlers (v1 endpoints)
+│   ├── config/         # Database and Redis session factories
+│   ├── core/           # Caching, middleware, error handlers
+│   ├── enums/          # Shared enums (NotificationType, Role, etc.)
+│   ├── models/         # SQLModel database models
+│   ├── repositories/   # Data access layer
+│   ├── schemas/        # Pydantic request/response schemas
+│   ├── services/       # Business logic layer
+│   ├── tasks/          # Celery async task definitions
+│   ├── utils/          # Utility helpers
+│   ├── celery_app.py   # Celery application setup
+│   └── main.py         # FastAPI application entry point
+├── alembic/            # Database migration scripts
+├── scripts/            # Utility scripts (e.g., locust load testing)
+├── templates/          # HTML email templates
+├── tests/              # Unit, integration, and WebSocket tests
+├── legacy/             # Archived Spring Boot source
+├── docker-compose.yml  # Local development stack
+├── Dockerfile          # Multi-stage production image
+└── pyproject.toml      # Project configuration and dependencies
 ```
-
-## Code Quality Principles
-
-### Development Best Practices
-
-- Modular and clean architecture
-- SOLID principles implementation
-- Meaningful naming conventions
-- Small, focused methods
-- Global exception handling
-- Strict DRY code approach
-- Consistent coding style
-- Integration, unit, and mock tests
 
 ## Getting Started
 
 ### Prerequisites
-
-- Java 17+
-- Maven
-- MySQL
-- Docker (optional)
-- Kubernetes (optional)
+- Python 3.12+
+- Poetry (for dependency management)
+- PostgreSQL 16 (or Docker)
+- Redis 7 (or Docker)
 
 ### Quick Setup
 
@@ -170,25 +125,73 @@ QuietSpace-Backend/
    cd QuietSpace-Backend
    ```
 
-2. Configure Environment
-    - Create a `.env` file with database and JWT configurations
-   ```
-   SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/quietspace
-   SPRING_DATASOURCE_USERNAME=your_username
-   SPRING_DATASOURCE_PASSWORD=your_password
-   JWT_SECRET=your_secret_key
+2. Configure environment
+   ```bash
+   cp .env.example .env
+   # Edit .env with your database and SMTP settings
    ```
 
-3. Build and Run
+3. Install dependencies
    ```bash
-   mvn clean install
-   mvn spring-boot:run
+   poetry install
    ```
+
+4. Start services with Docker Compose
+   ```bash
+   docker compose up -d postgres redis
+   ```
+
+5. Run database migrations
+   ```bash
+   poetry run alembic upgrade head
+   ```
+
+6. Start the development server
+   ```bash
+   poetry run uvicorn app.main:app --reload --port 8000
+   ```
+
+### Run with Docker Compose (full stack)
+```bash
+docker compose up --build
+```
 
 ## API Documentation
 
-Swagger/OpenAPI documentation available at:
-`http://localhost:8080/swagger-ui.html`
+Interactive OpenAPI documentation available at:
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+
+## Testing
+
+```bash
+# Run all tests
+poetry run pytest
+
+# With coverage
+poetry run pytest --cov=app
+
+# Specific test suites
+poetry run pytest tests/unit/
+poetry run pytest tests/integration/
+```
+
+## Code Quality
+
+```bash
+# Lint
+poetry run ruff check app/ tests/
+
+# Format check
+poetry run black --check app/ tests/
+
+# Type check
+poetry run mypy app/
+
+# Security scan
+poetry run bandit -r app/
+poetry run safety scan
+```
 
 ## Contributing
 
