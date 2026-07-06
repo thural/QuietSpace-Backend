@@ -13,5 +13,11 @@ class Message(BaseEntity, table=True):
     read_at: datetime | None = Field(default=None)
 
     chat: Chat = Relationship(back_populates="messages")
-    sender: User = Relationship(back_populates="messages_sent")
-    recipient: User = Relationship(back_populates="messages_received")
+    sender: User = Relationship(
+        back_populates="messages_sent",
+        sa_relationship_kwargs={"foreign_keys": "Message.sender_id"}
+    )
+    recipient: User = Relationship(
+        back_populates="messages_received",
+        sa_relationship_kwargs={"foreign_keys": "Message.recipient_id"}
+    )
