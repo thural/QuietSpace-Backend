@@ -1,0 +1,12 @@
+from enum import Enum
+
+
+class WebSocketEventType(str, Enum):
+    JOIN_CHAT = "JOIN_CHAT"
+    LEAVE_CHAT = "LEAVE_CHAT"
+    DELETE_MESSAGE = "DELETE_MESSAGE"
+    SEEN_MESSAGE = "SEEN_MESSAGE"
+    TYPING = "TYPING"
+    CHAT_CREATED = "CHAT_CREATED"
+    USER_ONLINE = "USER_ONLINE"
+    USER_OFFLINE = "USER_OFFLINE"
