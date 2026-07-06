@@ -12,6 +12,7 @@ from app.models.token import Token
 from app.models.profile_settings import ProfileSettings
 from app.models.user_follow import UserFollow
 from app.models.poll import Poll, PollOption
+from app.models.blocked_user import BlockedUser
 
 __all__ = [
     "User",
@@ -27,6 +28,7 @@ __all__ = [
     "Token",
     "ProfileSettings",
     "UserFollow",
+    "BlockedUser",
     "Poll",
     "PollOption",
 ]
