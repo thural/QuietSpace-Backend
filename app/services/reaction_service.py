@@ -32,3 +32,6 @@ class ReactionService:
             )
             return result.scalars().all()
         return []
+
+    async def get_reaction_count(self, post_id: UUID) -> int:
+        return await self.reaction_repo.count_by_post(post_id)

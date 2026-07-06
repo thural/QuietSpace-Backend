@@ -9,7 +9,7 @@ from app.schemas.reaction import ReactionCreate, ReactionResponse
 router = APIRouter()
 
 
-@router.post("/", response_model=ReactionResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=ReactionResponse, status_code=status.HTTP_201_CREATED)
 async def toggle_reaction(reaction_in: ReactionCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = ReactionService(db)
     reaction = await service.toggle_reaction(current_user.id, reaction_in)
@@ -21,3 +21,10 @@ async def get_post_reactions(post_id: UUID, db: AsyncSession = Depends(get_db)):
     service = ReactionService(db)
     reactions = await service.get_reactions(post_id=post_id)
     return reactions
+
+
+@router.get("/count/{post_id}")
+async def get_reaction_count(post_id: UUID, db: AsyncSession = Depends(get_db)):
+    service = ReactionService(db)
+    count = await service.get_reaction_count(post_id)
+    return {"post_id": str(post_id), "count": count}

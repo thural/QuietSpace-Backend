@@ -9,7 +9,7 @@ from app.schemas.comment import CommentCreate, CommentUpdate, CommentResponse
 router = APIRouter()
 
 
-@router.post("/", response_model=CommentResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=CommentResponse, status_code=status.HTTP_201_CREATED)
 async def create_comment(comment_in: CommentCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = CommentService(db)
     comment = await service.create_comment(current_user.id, comment_in)
