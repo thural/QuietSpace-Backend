@@ -26,7 +26,11 @@ structlog.configure(
 )
 
 logger = structlog.get_logger()
-limiter = Limiter(key_func=get_remote_address)
+limiter = Limiter(
+    key_func=get_remote_address,
+    storage_uri=settings.REDIS_URL,
+    default_limits=["100 per minute"],
+)
 
 
 @asynccontextmanager
