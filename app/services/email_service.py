@@ -2,6 +2,7 @@ from fastapi_mail import FastMail, MessageSchema, MessageType
 from fastapi_mail.config import ConnectionConfig
 from jinja2 import Template
 from app.config.settings import settings
+from app.enums.email_template import EmailTemplateName
 
 conf = ConnectionConfig(
     MAIL_USERNAME=settings.SMTP_USER,
@@ -19,8 +20,8 @@ fastmail = FastMail(conf)
 
 
 class EmailService:
-    async def send_email(self, email_to: str, subject: str, template_name: str, context: dict):
-        template_path = f"templates/email/{template_name}.html"
+    async def send_email(self, email_to: str, subject: str, template_name: EmailTemplateName, context: dict):
+        template_path = f"templates/email/{template_name.value}.html"
         with open(template_path) as f:
             template = Template(f.read())
         html_body = template.render(**context)
@@ -36,7 +37,7 @@ class EmailService:
         await self.send_email(
             email_to=user_email,
             subject="Activate Your QuietSpace Account",
-            template_name="activation",
+            template_name=EmailTemplateName.ACTIVATION,
             context={
                 "username": user_name,
                 "activation_code": activation_code,
@@ -48,7 +49,7 @@ class EmailService:
         await self.send_email(
             email_to=user_email,
             subject=f"New Notification: {notification_type}",
-            template_name="notification",
+            template_name=EmailTemplateName.NOTIFICATION,
             context={
                 "username": user_name,
                 "notification_type": notification_type,
