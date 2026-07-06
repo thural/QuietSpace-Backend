@@ -45,3 +45,18 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
             return user
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+
+async def get_redis():
+    from app.main import app
+    return getattr(app.state, "redis", None)
+
+
+async def get_cache():
+    from app.main import app
+    return getattr(app.state, "cache_service", None)
+
+
+AsyncSessionDep = Annotated[AsyncSession, Depends(get_db)]
+CurrentUserDep = Annotated[User, Depends(get_current_user)]
+RedisDep = Annotated[Redis, Depends(get_redis)]
