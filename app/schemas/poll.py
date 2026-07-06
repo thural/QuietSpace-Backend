@@ -5,20 +5,19 @@ from uuid import UUID
 
 
 class PollOptionCreate(BaseModel):
-    text: str = Field(..., max_length=255)
+    option_text: str = Field(..., max_length=255)
 
 
 class PollCreate(BaseModel):
     question: str = Field(..., max_length=500)
     expires_at: Optional[datetime] = None
-    multiple_choice: bool = False
     options: list[PollOptionCreate] = Field(..., min_length=2, max_length=10)
 
 
 class PollOptionResponse(BaseModel):
     id: UUID
-    text: str
-    votes: int
+    option_text: str
+    vote_count: int
     poll_id: UUID
     model_config = ConfigDict(from_attributes=True)
 
@@ -28,10 +27,9 @@ class PollResponse(BaseModel):
     post_id: UUID
     question: str
     expires_at: Optional[datetime] = None
-    multiple_choice: bool
     options: list[PollOptionResponse] = []
     model_config = ConfigDict(from_attributes=True)
 
 
-class PollVote(BaseModel):
-    option_id: UUID
+class VoteRequest(BaseModel):
+    poll_option_id: UUID
