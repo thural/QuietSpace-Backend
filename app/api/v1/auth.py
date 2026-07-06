@@ -1,5 +1,5 @@
 from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Body
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_db
@@ -21,28 +21,36 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
     auth_service = AuthService(db)
-    user = await auth_service.register(
-        username=user_in.username,
-        email=user_in.email,
-        password=user_in.password,
-    )
-    activation_code = generate_activation_code()
+    try:
+        user = await auth_service.register(
+            username=user_in.username,
+            email=user_in.email,
+            password=user_in.password,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     email_service = EmailService()
-    await email_service.send_activation_email(user.email, user.username, activation_code)
+    await email_service.send_activation_email(user.email, user.username, user.activation_code)
     return user
 
 
 @router.post("/login")
-async def login(username: str, password: str, db: AsyncSession = Depends(get_db)):
+async def login(username: str = Body(...), password: str = Body(...), db: AsyncSession = Depends(get_db)):
     auth_service = AuthService(db)
-    result = await auth_service.login(username, password)
+    try:
+        result = await auth_service.login(username, password)
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
     return result
 
 
 @router.post("/refresh")
-async def refresh(token: str, db: AsyncSession = Depends(get_db)):
+async def refresh(token: str = Body(..., embed=True), db: AsyncSession = Depends(get_db)):
     auth_service = AuthService(db)
-    result = await auth_service.refresh_token(token)
+    try:
+        result = await auth_service.refresh_token(token)
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
     return result
 
 
@@ -51,3 +59,12 @@ async def logout(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends
     auth_service = AuthService(db)
     await auth_service.logout(token)
     return {"message": "Logged out successfully"}
+
+
+@router.post("/activate-account")
+async def activate_account(code: str = Body(..., embed=True), db: AsyncSession = Depends(get_db)):
+    auth_service = AuthService(db)
+    user = await auth_service.activate_account(code)
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid or expired activation code")
+    return {"message": "Account activated successfully"}
