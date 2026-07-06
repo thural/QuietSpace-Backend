@@ -7,9 +7,9 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml ./
 RUN pip install poetry && poetry config virtualenvs.create false
-RUN poetry install --only=main --no-interaction
+RUN poetry lock --no-interaction && poetry install --only=main --no-interaction
 
 FROM python:3.12-slim as runtime
 
