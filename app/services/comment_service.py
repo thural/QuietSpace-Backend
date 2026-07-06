@@ -28,17 +28,25 @@ class CommentService:
     async def delete_comment(self, comment_id: UUID) -> bool:
         return await self.comment_repo.delete(comment_id)
 
-    async def get_comments(self, post_id: UUID, current_user_id: UUID | None = None) -> list[Comment]:
-        comments = await self.comment_repo.get_by_post(post_id)
+    async def get_comments(
+        self, post_id: UUID, cursor: str | None = None, limit: int = 20, current_user_id: UUID | None = None
+    ) -> tuple[list[Comment], str | None, bool]:
+        comments, next_cursor, has_more = await self.comment_repo.get_replies(post_id, cursor, limit)
         if current_user_id:
             comments = await self._filter_blocked_comments(comments, current_user_id)
-        return comments
+        for c in comments:
+            c.replies_count = await self.comment_repo.get_replies_count(c.id)
+        return comments, next_cursor, has_more
 
-    async def get_replies(self, parent_id: UUID, current_user_id: UUID | None = None) -> list[Comment]:
-        replies = await self.comment_repo.get_replies(parent_id)
+    async def get_replies(
+        self, parent_id: UUID, cursor: str | None = None, limit: int = 20, current_user_id: UUID | None = None
+    ) -> tuple[list[Comment], str | None, bool]:
+        replies, next_cursor, has_more = await self.comment_repo.get_replies(parent_id, cursor, limit)
         if current_user_id:
             replies = await self._filter_blocked_comments(replies, current_user_id)
-        return replies
+        for c in replies:
+            c.replies_count = await self.comment_repo.get_replies_count(c.id)
+        return replies, next_cursor, has_more
 
     async def _filter_blocked_comments(self, comments: list[Comment], current_user_id: UUID) -> list[Comment]:
         blocked_ids = await self.block_repo.get_blocked_ids(current_user_id)

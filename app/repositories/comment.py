@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from app.models.comment import Comment
@@ -6,6 +6,8 @@ from app.repositories.base import BaseRepository
 
 
 class CommentRepository(BaseRepository[Comment]):
+    MAX_DEPTH: int = 3
+
     def __init__(self, session: AsyncSession):
         super().__init__(Comment, session)
 
@@ -17,13 +19,63 @@ class CommentRepository(BaseRepository[Comment]):
         )
         return result.scalars().all()
 
-    async def get_replies(self, parent_id: UUID) -> list[Comment]:
-        result = await self.session.execute(
-            select(Comment)
-            .where(Comment.parent_id == parent_id)
-            .order_by(Comment.created_at.asc())
+    async def get_replies(
+        self, parent_id: UUID, cursor: str | None = None, limit: int = 20
+    ) -> tuple[list[Comment], str | None, bool]:
+        stmt = select(Comment).where(Comment.parent_id == parent_id)
+        return await self.paginate_cursor(stmt, cursor, limit)
+
+    async def get_thread(self, comment_id: UUID, max_depth: int = MAX_DEPTH) -> list[Comment]:
+        cte = (
+            select(
+                Comment.id, Comment.text, Comment.post_id, Comment.author_id,
+                Comment.parent_id, Comment.depth, Comment.created_at, Comment.updated_at,
+            )
+            .where(Comment.id == comment_id)
+            .cte(name="comment_tree", recursive=True)
         )
-        return result.scalars().all()
+        cte_alias = cte.alias("ct")
+        recursive_part = select(
+            Comment.id, Comment.text, Comment.post_id, Comment.author_id,
+            Comment.parent_id, Comment.depth, Comment.created_at, Comment.updated_at,
+        ).where(
+            Comment.parent_id == cte_alias.c.id,
+            cte_alias.c.depth < max_depth,
+        )
+        final_cte = cte.union_all(recursive_part)
+        stmt = select(Comment).select_from(final_cte).order_by(Comment.depth, Comment.created_at)
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_comment_trees(self, root_ids: list[UUID], max_depth: int = MAX_DEPTH) -> list[Comment]:
+        if not root_ids:
+            return []
+        cte = (
+            select(
+                Comment.id, Comment.text, Comment.post_id, Comment.author_id,
+                Comment.parent_id, Comment.depth, Comment.created_at, Comment.updated_at,
+            )
+            .where(Comment.id.in_(root_ids))
+            .cte(name="comment_forest", recursive=True)
+        )
+        cte_alias = cte.alias("cf")
+        recursive_part = select(
+            Comment.id, Comment.text, Comment.post_id, Comment.author_id,
+            Comment.parent_id, Comment.depth, Comment.created_at, Comment.updated_at,
+        ).where(
+            Comment.parent_id == cte_alias.c.id,
+            cte_alias.c.depth < max_depth,
+        )
+        final_cte = cte.union_all(recursive_part)
+        stmt = select(Comment).select_from(final_cte).order_by(Comment.depth, Comment.created_at)
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_replies_count(self, parent_id: UUID) -> int:
+        result = await self.session.execute(
+            select(func.count()).where(Comment.parent_id == parent_id)
+        )
+        return result.scalar_one()
 
 
 comment_repository = CommentRepository
