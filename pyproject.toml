@@ -16,6 +16,7 @@ sqlmodel = "0.0.39"
 asyncpg = "0.31.0"
 alembic = "1.14.1"
 passlib = {extras = ["bcrypt"], version = "1.7.4"}
+bcrypt = "4.0.1"
 python-jose = {extras = ["cryptography"], version = "3.3.0"}
 python-multipart = "0.0.20"
 itsdangerous = "2.2.0"
@@ -41,6 +42,9 @@ black = "25.1.0"
 ruff = "0.8.4"
 mypy = "1.13.0"
 pre-commit = "4.0.1"
+bandit = "1.9.4"
+safety = "3.8.1"
+locust = "^2.44.4"
 
 [tool.ruff]
 line-length = 100
@@ -60,6 +64,10 @@ testpaths = ["tests"]
 [tool.black]
 line-length = 100
 target-version = ["py312"]
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv", ".mypy_cache", ".ruff_cache", "__pycache__"]
+skips = ["B101", "B311"]
 
 [build-system]
 requires = ["poetry-core"]

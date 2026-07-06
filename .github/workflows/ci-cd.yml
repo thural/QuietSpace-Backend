@@ -44,7 +44,10 @@ jobs:
 
       - name: Type check with MyPy
         run: poetry run mypy app/
-
+      - name: Security scan with Bandit
+        run: poetry run bandit -c pyproject.toml -r app/
+      - name: Security scan with Safety
+        run: poetry run safety scan --full-report
       - name: Run tests with pytest
         run: poetry run pytest tests/ -v --cov=app --cov-report=xml
         env:
