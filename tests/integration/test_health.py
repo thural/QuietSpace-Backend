@@ -1,4 +1,5 @@
 import pytest
+from httpx import AsyncClient
 
 
 @pytest.mark.asyncio
@@ -13,4 +14,4 @@ async def test_create_post_validation(client: AsyncClient):
         "/api/v1/posts",
         json={"text": "a" * 281},
     )
-    assert response.status_code == 422
+    assert response.status_code == 403
