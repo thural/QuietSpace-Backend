@@ -10,6 +10,8 @@ from app.models.photo import Photo
 from app.models.saved_post import SavedPost
 from app.models.token import Token
 from app.models.profile_settings import ProfileSettings
+from app.models.user_follow import UserFollow
+from app.models.poll import Poll, PollOption
 
 __all__ = [
     "User",
@@ -24,4 +26,7 @@ __all__ = [
     "SavedPost",
     "Token",
     "ProfileSettings",
+    "UserFollow",
+    "Poll",
+    "PollOption",
 ]
