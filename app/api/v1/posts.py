@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
-from app.api.deps import get_db, get_current_user, get_cache
+from app.api.deps import get_db, get_current_user, get_optional_current_user, get_cache
 from app.core.cache import CacheService
 from app.models.user import User
 from app.repositories.post import PostRepository
@@ -21,10 +21,10 @@ async def create_post(post_in: PostCreate, current_user: User = Depends(get_curr
 @router.post("/repost", response_model=PostResponse, status_code=status.HTTP_201_CREATED)
 async def create_repost(repost_in: RepostRequest, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
     service = PostService(db, cache_service=cache)
-    original = await service.get_post(repost_in.post_id)
-    if not original:
-        raise HTTPException(status_code=404, detail="Original post not found")
-    post = await service.create_repost(current_user.id, repost_in)
+    try:
+        post = await service.create_repost(current_user.id, repost_in)
+    except ValueError as e:
+        raise HTTPException(status_code=403, detail=str(e))
     return post
 
 
@@ -50,9 +50,10 @@ async def get_posts(
 
 
 @router.get("/{post_id}", response_model=PostResponse)
-async def get_post(post_id: UUID, db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
+async def get_post(post_id: UUID, current_user: User | None = Depends(get_optional_current_user), db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
     service = PostService(db, cache_service=cache)
-    post = await service.get_post(post_id)
+    user_id = current_user.id if current_user else None
+    post = await service.get_post(post_id, current_user_id=user_id)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     return post

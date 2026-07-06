@@ -1,13 +1,16 @@
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from app.models.comment import Comment
 from app.repositories.comment import CommentRepository
+from app.repositories.blocked_user import BlockedUserRepository
 from app.schemas.comment import CommentCreate, CommentUpdate
 
 
 class CommentService:
     def __init__(self, session: AsyncSession):
         self.comment_repo = CommentRepository(session)
+        self.block_repo = BlockedUserRepository(session)
 
     async def create_comment(self, author_id: UUID, comment_in: CommentCreate) -> Comment:
         comment = Comment(**comment_in.model_dump(), author_id=author_id)
@@ -25,8 +28,20 @@ class CommentService:
     async def delete_comment(self, comment_id: UUID) -> bool:
         return await self.comment_repo.delete(comment_id)
 
-    async def get_comments(self, post_id: UUID) -> list[Comment]:
-        return await self.comment_repo.get_by_post(post_id)
+    async def get_comments(self, post_id: UUID, current_user_id: UUID | None = None) -> list[Comment]:
+        comments = await self.comment_repo.get_by_post(post_id)
+        if current_user_id:
+            comments = await self._filter_blocked_comments(comments, current_user_id)
+        return comments
 
-    async def get_replies(self, parent_id: UUID) -> list[Comment]:
-        return await self.comment_repo.get_replies(parent_id)
+    async def get_replies(self, parent_id: UUID, current_user_id: UUID | None = None) -> list[Comment]:
+        replies = await self.comment_repo.get_replies(parent_id)
+        if current_user_id:
+            replies = await self._filter_blocked_comments(replies, current_user_id)
+        return replies
+
+    async def _filter_blocked_comments(self, comments: list[Comment], current_user_id: UUID) -> list[Comment]:
+        blocked_ids = await self.block_repo.get_blocked_ids(current_user_id)
+        blocker_ids = await self.block_repo.get_blocker_ids(current_user_id)
+        excluded = blocked_ids | blocker_ids
+        return [c for c in comments if c.author_id not in excluded]

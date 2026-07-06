@@ -20,13 +20,19 @@ def user_repo():
 
 @pytest.fixture
 def service(session, user_repo):
-    with patch("app.services.user_service.UserRepository", return_value=user_repo):
+    with (
+        patch("app.services.user_service.UserRepository", return_value=user_repo),
+        patch("app.services.user_service.BlockedUserRepository") as mock_block,
+    ):
         from app.services.user_service import UserService
-        yield UserService(session)
+        svc = UserService(session)
+        svc.block_repo = mock_block.return_value
+        yield svc
 
 
 @pytest.mark.asyncio
 async def test_follow_user_success(service, session):
+    service.block_repo.is_blocked = AsyncMock(return_value=False)
     mock_result = MagicMock()
     mock_result.scalar_one_or_none.return_value = None
     session.execute.return_value = mock_result
@@ -46,6 +52,7 @@ async def test_follow_self(service):
 
 @pytest.mark.asyncio
 async def test_follow_already_following(service, session):
+    service.block_repo.is_blocked = AsyncMock(return_value=False)
     mock_result = MagicMock()
     mock_result.scalar_one_or_none.return_value = MagicMock()
     session.execute.return_value = mock_result
@@ -56,7 +63,15 @@ async def test_follow_already_following(service, session):
 
 
 @pytest.mark.asyncio
+async def test_follow_blocked(service):
+    service.block_repo.is_blocked = AsyncMock(return_value=True)
+    result = await service.follow_user(uuid4(), uuid4())
+    assert result is False
+
+
+@pytest.mark.asyncio
 async def test_unfollow_user_success(service, session):
+    service.block_repo.is_blocked = AsyncMock(return_value=False)
     existing_follow = MagicMock()
     mock_result = MagicMock()
     mock_result.scalar_one_or_none.return_value = existing_follow
@@ -70,6 +85,7 @@ async def test_unfollow_user_success(service, session):
 
 @pytest.mark.asyncio
 async def test_unfollow_not_following(service, session):
+    service.block_repo.is_blocked = AsyncMock(return_value=False)
     mock_result = MagicMock()
     mock_result.scalar_one_or_none.return_value = None
     session.execute.return_value = mock_result
@@ -93,6 +109,9 @@ async def test_search_users(service, user_repo):
 
 @pytest.mark.asyncio
 async def test_get_followers(service, user_repo):
+    service.block_repo.get_blocked_ids = AsyncMock(return_value=set())
+    service.block_repo.get_blocker_ids = AsyncMock(return_value=set())
+    user_repo.get_followers = AsyncMock(return_value=[])
     user_id = uuid4()
     await service.get_followers(user_id)
     user_repo.get_followers.assert_awaited_once_with(user_id)
@@ -100,6 +119,9 @@ async def test_get_followers(service, user_repo):
 
 @pytest.mark.asyncio
 async def test_get_following(service, user_repo):
+    service.block_repo.get_blocked_ids = AsyncMock(return_value=set())
+    service.block_repo.get_blocker_ids = AsyncMock(return_value=set())
+    user_repo.get_following = AsyncMock(return_value=[])
     user_id = uuid4()
     await service.get_following(user_id)
     user_repo.get_following.assert_awaited_once_with(user_id)
