@@ -6,7 +6,9 @@ from app.core.cache import CacheService
 from app.models.user import User
 from app.repositories.post import PostRepository
 from app.schemas.post import PostCreate, PostUpdate, PostResponse, RepostRequest
+from app.schemas.poll import VoteRequest
 from app.services.post_service import PostService
+from app.services.poll_service import PollService
 
 router = APIRouter()
 
@@ -131,3 +133,14 @@ async def delete_post(post_id: UUID, current_user: User = Depends(get_current_us
     if not post or post.author_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
     await service.delete_post(post_id)
+
+
+@router.post("/vote-poll", status_code=status.HTTP_200_OK)
+async def vote_poll(
+    vote_in: VoteRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    service = PollService(db)
+    success = await service.vote(current_user.id, vote_in)
+    return {"message": "Vote recorded successfully"}
