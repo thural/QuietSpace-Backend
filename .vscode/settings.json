@@ -1,0 +1,12 @@
+{
+    "python.defaultInterpreterPath": ".venv/bin/python",
+    "python.testing.pytestArgs": ["tests"],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "files.exclude": {
+        "legacy/": true
+    },
+    "search.exclude": {
+        "legacy/": true
+    }
+}
