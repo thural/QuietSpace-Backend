@@ -1,0 +1,9 @@
+from datetime import datetime
+from sqlmodel import SQLModel, Field
+from uuid import UUID
+
+
+class UserFollow(SQLModel, table=True):
+    follower_id: UUID = Field(foreign_key="user.id", primary_key=True)
+    following_id: UUID = Field(foreign_key="user.id", primary_key=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
