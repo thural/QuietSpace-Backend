@@ -1,45 +1,31 @@
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
-from sqlmodel import SQLModel, Field
+from typing import Optional
 from uuid import UUID
 
 
-class Token(BaseModel):
-    access_token: str
-    refresh_token: str | None = None
-    token_type: str = "bearer"
-
-
-class TokenData(BaseModel):
-    username: str | None = None
-
-
-class UserLogin(BaseModel):
-    username: str
-    password: str
-
-
-class UserCreate(BaseModel):
+class UserBase(BaseModel):
     username: str = Field(..., min_length=3, max_length=32)
     email: str = Field(..., max_length=255)
+    firstname: Optional[str] = Field(None, max_length=255)
+    lastname: Optional[str] = Field(None, max_length=255)
+    date_of_birth: Optional[datetime] = None
+
+
+class UserCreate(UserBase):
     password: str = Field(..., min_length=8, max_length=128)
-    firstname: str | None = Field(default=None, max_length=255)
-    lastname: str | None = Field(default=None, max_length=255)
 
 
 class UserUpdate(BaseModel):
-    firstname: str | None = None
-    lastname: str | None = None
-    date_of_birth: datetime | None = None
+    firstname: Optional[str] = None
+    lastname: Optional[str] = None
+    date_of_birth: Optional[datetime] = None
 
 
-class UserResponse(BaseModel):
+class UserResponse(UserBase):
     id: UUID
-    username: str
-    email: str
-    firstname: str | None
-    lastname: str | None
     role: str
     enabled: bool
     created_at: datetime
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
