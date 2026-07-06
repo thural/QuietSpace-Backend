@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
-from app.api.deps import get_db, get_current_user, get_cache
+from app.api.deps import get_db, get_current_user, get_optional_current_user, get_cache
 from app.core.cache import CacheService
 from app.models.user import User
 from app.repositories.user import UserRepository
@@ -9,6 +9,9 @@ from app.repositories.profile_settings import ProfileSettingsRepository
 from app.schemas.user import UserUpdate, UserResponse
 from app.schemas.profile_settings import ProfileSettingsUpdate, ProfileSettingsResponse
 from app.services.user_service import UserService
+from app.services.block_service import BlockService
+from app.schemas.blocked_user import BlockedUserResponse
+from app.schemas.pagination import CursorResponse
 
 router = APIRouter()
 
@@ -57,9 +60,14 @@ async def update_me(user_in: UserUpdate, current_user: User = Depends(get_curren
 
 
 @router.get("/search", response_model=list[UserResponse])
-async def search_users(q: str = Query(..., min_length=1), db: AsyncSession = Depends(get_db)):
-    repo = UserRepository(db)
-    users = await repo.search(q, limit=20)
+async def search_users(
+    q: str = Query(..., min_length=1),
+    current_user: User | None = Depends(get_optional_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    service = UserService(db)
+    user_id = current_user.id if current_user else None
+    users = await service.search_users(q, current_user_id=user_id, limit=20)
     return users
 
 
