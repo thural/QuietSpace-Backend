@@ -1,10 +1,3 @@
-from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
+from app.schemas.pagination import OffsetResponse
 
-
-class PaginatedResponse(BaseModel):
-    items: List[Any]
-    total: int
-    page: int
-    size: int
-    pages: int
+PaginatedResponse = OffsetResponse
