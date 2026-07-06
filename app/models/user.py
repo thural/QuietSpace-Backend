@@ -33,4 +33,12 @@ class User(BaseEntity, table=True):
     )
     reactions: list["Reaction"] = Relationship(back_populates="user")
     notifications: list["Notification"] = Relationship(back_populates="user")
+    blocked_users: list["BlockedUser"] = Relationship(
+        back_populates="blocker",
+        sa_relationship_kwargs={"foreign_keys": "BlockedUser.blocker_id"}
+    )
+    blocked_by: list["BlockedUser"] = Relationship(
+        back_populates="blocked",
+        sa_relationship_kwargs={"foreign_keys": "BlockedUser.blocked_id"}
+    )
 
