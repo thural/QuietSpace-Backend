@@ -127,3 +127,44 @@ async def get_user_with_relations(user_id: UUID, db: AsyncSession = Depends(get_
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+@router.post("/profile/block/{user_id}")
+async def block_user(
+    user_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    cache: CacheService = Depends(get_cache),
+):
+    service = BlockService(db, cache_service=cache)
+    success = await service.block_user(current_user.id, user_id)
+    if not success:
+        raise HTTPException(status_code=400, detail="Cannot block user")
+    return {"message": "User blocked successfully"}
+
+
+@router.delete("/profile/block/{user_id}")
+async def unblock_user(
+    user_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    cache: CacheService = Depends(get_cache),
+):
+    service = BlockService(db, cache_service=cache)
+    success = await service.unblock_user(current_user.id, user_id)
+    if not success:
+        raise HTTPException(status_code=400, detail="Cannot unblock user")
+    return {"message": "User unblocked successfully"}
+
+
+@router.get("/profile/blocked", response_model=CursorResponse[BlockedUserResponse])
+async def get_blocked_users(
+    cursor: str | None = Query(None),
+    limit: int = Query(20, ge=1, le=100),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    cache: CacheService = Depends(get_cache),
+):
+    service = BlockService(db, cache_service=cache)
+    users, next_cursor, has_more = await service.get_blocked_users(current_user.id, cursor, limit)
+    return CursorResponse(items=users, next_cursor=next_cursor, has_more=has_more)
