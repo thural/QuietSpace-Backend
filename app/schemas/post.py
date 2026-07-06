@@ -32,10 +32,29 @@ class PostUpdate(BaseModel):
     text: Optional[str] = Field(None, min_length=1, max_length=280)
 
 
+class RepostRequest(BaseModel):
+    text: str = Field(..., min_length=1, max_length=280)
+    post_id: UUID
+
+
+class RepostResponse(BaseModel):
+    id: UUID
+    text: str | None = None
+    author_id: UUID
+    username: str
+    parent_id: UUID | None = None
+    is_repost: bool = True
+
+    model_config = {"from_attributes": True}
+
+
 class PostResponse(PostBase):
     id: UUID
     author_id: UUID
     created_at: datetime
     updated_at: Optional[datetime] = None
+    repost: Optional["PostResponse"] = None
+    repost_text: Optional[str] = None
+    repost_id: Optional[UUID] = None
 
     model_config = {"from_attributes": True}

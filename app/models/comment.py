@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from sqlmodel import SQLModel, Field, Relationship
 from uuid import UUID
 from app.models.base import BaseEntity
@@ -12,6 +13,9 @@ class Comment(BaseEntity, table=True):
 
     post: Post = Relationship(back_populates="comments")
     author: User = Relationship(back_populates="comments")
-    parent: "Comment | None" = Relationship(back_populates="replies")
+    parent: Optional["Comment"] = Relationship(
+        back_populates="replies",
+        sa_relationship_kwargs={"remote_side": lambda: [Comment.id]}
+    )
     replies: list["Comment"] = Relationship(back_populates="parent")
     reactions: list["Reaction"] = Relationship(back_populates="comment")

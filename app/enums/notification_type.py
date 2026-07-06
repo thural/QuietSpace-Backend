@@ -6,4 +6,5 @@ class NotificationType(str, Enum):
     COMMENT = "COMMENT"
     FOLLOW = "FOLLOW"
     MESSAGE = "MESSAGE"
+    REPOST = "REPOST"
     SYSTEM = "SYSTEM"

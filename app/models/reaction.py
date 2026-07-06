@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from sqlmodel import SQLModel, Field, Relationship
 from uuid import UUID
 from app.enums.reaction_type import ReactionType
@@ -12,5 +13,5 @@ class Reaction(BaseEntity, table=True):
     comment_id: UUID | None = Field(default=None, foreign_key="comment.id", index=True)
 
     user: User = Relationship(back_populates="reactions")
-    post: Post | None = Relationship(back_populates="reactions")
-    comment: Comment | None = Relationship(back_populates="reactions")
+    post: Optional["Post"] = Relationship(back_populates="reactions")
+    comment: Optional["Comment"] = Relationship(back_populates="reactions")
