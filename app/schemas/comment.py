@@ -22,6 +22,9 @@ class CommentResponse(CommentBase):
     post_id: UUID
     author_id: UUID
     parent_id: Optional[UUID] = None
+    depth: int = 0
+    replies_count: int = 0
+    replies: list["CommentResponse"] = []
     created_at: datetime
     updated_at: Optional[datetime] = None
 
