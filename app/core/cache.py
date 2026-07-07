@@ -43,7 +43,9 @@ class CacheService:
     ) -> Any:
         cached = await self.get(key)
         if cached is not None:
+            logger.info("cache_hit", key=key)
             return cached
         value = await factory(*args, **kwargs)
         await self.set(key, value, ttl)
+        logger.info("cache_miss", key=key)
         return value

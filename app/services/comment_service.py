@@ -1,3 +1,4 @@
+import structlog
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,6 +7,8 @@ from app.models.comment import Comment
 from app.repositories.comment import CommentRepository
 from app.repositories.blocked_user import BlockedUserRepository
 from app.schemas.comment import CommentCreate, CommentUpdate
+
+logger = structlog.get_logger()
 
 
 class CommentService:
@@ -36,7 +39,9 @@ class CommentService:
                 )
             data["depth"] = parent.depth + 1
         comment = Comment(**data, author_id=author_id)
-        return await self.comment_repo.create(comment)
+        created = await self.comment_repo.create(comment)
+        logger.info("comment_created", comment_id=str(created.id), post_id=str(created.post_id), author_id=str(author_id))
+        return created
 
     async def update_comment(self, comment_id: UUID, comment_in: CommentUpdate, user_id: UUID | None = None) -> Comment | None:
         comment = await self.comment_repo.get(comment_id)
@@ -47,10 +52,15 @@ class CommentService:
         update_data = comment_in.model_dump(exclude_unset=True)
         for field, value in update_data.items():
             setattr(comment, field, value)
-        return await self.comment_repo.update(comment)
+        updated = await self.comment_repo.update(comment)
+        logger.info("comment_updated", comment_id=str(comment_id))
+        return updated
 
     async def delete_comment(self, comment_id: UUID) -> bool:
-        return await self.comment_repo.delete(comment_id)
+        result = await self.comment_repo.delete(comment_id)
+        if result:
+            logger.info("comment_deleted", comment_id=str(comment_id))
+        return result
 
     async def get_comments(
         self, post_id: UUID, cursor: str | None = None, limit: int = 20, current_user_id: UUID | None = None

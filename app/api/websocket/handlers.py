@@ -1,20 +1,25 @@
 from uuid import UUID
+import structlog
 from app.api.websocket.socketio import socketio
 from app.api.websocket.manager import manager
 from app.models.websocket_event import EventFactory
 from app.enums.websocket_event_type import WebSocketEventType
+
+logger = structlog.get_logger()
 
 
 @socketio.on("connect")
 async def handle_connect(sid, environ):
     auth_token = environ.get("HTTP_AUTHORIZATION", "").replace("Bearer ", "")
     if not auth_token:
+        logger.warning("ws_connect_no_token", sid=sid)
         return
     user = await authenticate_websocket_token(auth_token)
     if user:
         await manager.connect_user(user.id, sid)
         await socketio.enter_room(sid, "public")
         await socketio.emit("connected", {"user_id": str(user.id)}, to=sid)
+        logger.info("ws_connected", user_id=str(user.id), sid=sid)
 
 
 @socketio.on("disconnect")
@@ -22,6 +27,7 @@ async def handle_disconnect(sid):
     for user_id, session_id in list(manager.active_connections.items()):
         if session_id == sid:
             await manager.disconnect_user(user_id)
+            logger.info("ws_disconnected", user_id=str(user_id), sid=sid)
             break
 
 
@@ -76,6 +82,7 @@ async def handle_send_message(sid, data):
             saved_message.chat_id, "message_in_chat", saved_message.model_dump(mode="json")
         )
         await session.commit()
+        logger.info("ws_message_sent", message_id=str(saved_message.id), chat_id=str(saved_message.chat_id), sender_id=str(saved_message.sender_id))
 
 
 @socketio.on("set_online_status")
@@ -127,6 +134,7 @@ async def handle_delete_message(sid, data):
             message_id=message_id,
         )
         await manager.broadcast_to_chat(chat_id, "chat_event", event.model_dump(mode="json"))
+        logger.info("ws_message_deleted", message_id=str(message_id), chat_id=str(chat_id), user_id=str(user_id))
 
 
 @socketio.on("seen_message")

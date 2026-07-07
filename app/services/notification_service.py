@@ -1,11 +1,14 @@
 from datetime import datetime, timedelta
 from typing import Optional
+import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from app.models.notification import Notification
 from app.repositories.notification import NotificationRepository
 from app.schemas.notification import NotificationCreate
 from app.celery_app import celery_app
+
+logger = structlog.get_logger()
 
 
 @celery_app.task
@@ -48,8 +51,8 @@ class NotificationService:
             await manager.send_to_user(
                 created.user_id, "unread_count", {"count": unread}
             )
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("notification_ws_broadcast_failed", notification_id=str(created.id), error=str(exc))
         return created
 
     async def get_notifications(

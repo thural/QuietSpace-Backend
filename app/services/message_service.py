@@ -1,10 +1,13 @@
 from datetime import datetime
+import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from app.enums.role import Role
 from app.models.message import Message
 from app.repositories.message import MessageRepository
 from app.repositories.blocked_user import BlockedUserRepository
+
+logger = structlog.get_logger()
 
 
 class MessageService:
@@ -54,6 +57,7 @@ class MessageService:
         deleted = await self.message_repo.soft_delete(message_id)
         if not deleted:
             raise ValueError("Message not found")
+        logger.info("message_soft_deleted", message_id=str(message_id), user_id=str(user_id), is_admin=is_admin)
         return deleted
 
     async def _filter_blocked_messages(self, messages: list[Message], user_id: UUID) -> list[Message]:

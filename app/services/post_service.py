@@ -1,3 +1,4 @@
+import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
@@ -6,6 +7,8 @@ from app.repositories.post import PostRepository
 from app.repositories.blocked_user import BlockedUserRepository
 from app.schemas.post import PostCreate, PostUpdate, RepostRequest
 from app.services.poll_service import PollService
+
+logger = structlog.get_logger()
 
 
 class PostService:
@@ -29,6 +32,7 @@ class PostService:
         
         if self.cache:
             await self.cache.delete(f"post:{created.id}")
+        logger.info("post_created", post_id=str(created.id), author_id=str(author_id))
         return created
 
     async def create_repost(self, author_id: UUID, repost_in: RepostRequest) -> Post:
@@ -60,6 +64,7 @@ class PostService:
         updated = await self.post_repo.update(post)
         if self.cache:
             await self.cache.set(f"post:{post_id}", updated, ttl=300)
+        logger.info("post_updated", post_id=str(post_id))
         return updated
 
     async def delete_post(self, post_id: UUID) -> bool:
@@ -67,6 +72,8 @@ class PostService:
         result = await self.post_repo.delete(post_id)
         if result and self.cache:
             await self.cache.delete(f"post:{post_id}")
+        if result:
+            logger.info("post_deleted", post_id=str(post_id))
         return result
 
     async def get_post(self, post_id: UUID, current_user_id: UUID | None = None) -> Post | None:
