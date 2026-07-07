@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     REDIS_POOL_SIZE: int = 20
     MAX_UPLOAD_SIZE: int = 3 * 1024 * 1024
     DEBUG: bool = False
+    FEATURE_RATE_LIMITING: bool = True
+    FEATURE_WS_NOTIFICATIONS: bool = True
+    FEATURE_SOFT_DELETE: bool = True
 
     class Config:
         env_file = ".env"
