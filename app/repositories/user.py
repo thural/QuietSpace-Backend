@@ -71,6 +71,18 @@ class UserRepository(BaseRepository[User]):
             load_options=[selectinload(User.posts), selectinload(User.comments)],
         )
 
+    async def remove_follower(self, user_id: UUID, follower_id: UUID) -> bool:
+        stmt = select(UserFollow).where(
+            UserFollow.following_id == user_id,
+            UserFollow.follower_id == follower_id,
+        )
+        result = await self.session.execute(stmt)
+        follow = result.scalar_one_or_none()
+        if not follow:
+            return False
+        await self.session.delete(follow)
+        return True
+
     async def get_followers(self, user_id: UUID) -> list[User]:
         stmt = (
             select(User)
