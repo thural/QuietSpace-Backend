@@ -144,6 +144,20 @@ async def get_following(user_id: UUID, db: AsyncSession = Depends(get_db), cache
     return await service.get_following(user_id)
 
 
+@router.post("/followers/remove/{follower_id}")
+async def remove_follower(
+    follower_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    cache: CacheService = Depends(get_cache),
+):
+    service = UserService(db, cache_service=cache)
+    success = await service.remove_follower(current_user.id, follower_id)
+    if not success:
+        raise HTTPException(status_code=400, detail="Not a follower")
+    return {"message": "Follower removed successfully"}
+
+
 @router.get("/{user_id}/save", response_model=UserResponse)
 async def get_user_with_relations(user_id: UUID, db: AsyncSession = Depends(get_db)):
     repo = UserRepository(db)
