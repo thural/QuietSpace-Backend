@@ -13,6 +13,11 @@ class ChatCreate(ChatBase):
     participant_ids: List[UUID]
 
 
+class ChatUpdate(BaseModel):
+    name: Optional[str] = Field(None, max_length=255)
+    is_group: Optional[bool] = None
+
+
 class ChatResponse(ChatBase):
     id: UUID
     created_at: datetime

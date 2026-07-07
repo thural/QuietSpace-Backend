@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.chat import Chat
 from app.models.chat_participant import ChatParticipant
 from app.repositories.chat import ChatRepository
-from app.schemas.chat import ChatCreate
+from app.schemas.chat import ChatCreate, ChatUpdate
 from app.core.unit_of_work import UnitOfWork
 from app.models.websocket_event import EventFactory
 from app.enums.websocket_event_type import WebSocketEventType
@@ -52,3 +52,12 @@ class ChatService:
             return False
         await self.session.delete(participant)
         return True
+
+    async def update_chat(self, chat_id: UUID, chat_in: ChatUpdate) -> Chat | None:
+        chat = await self.chat_repo.get(chat_id)
+        if not chat:
+            return None
+        update_data = chat_in.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(chat, field, value)
+        return await self.chat_repo.update(chat)

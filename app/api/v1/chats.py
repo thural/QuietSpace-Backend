@@ -6,7 +6,7 @@ from app.api.deps import get_db, get_current_user
 from app.models.user import User
 from app.models.chat_participant import ChatParticipant
 from app.services.chat_service import ChatService
-from app.schemas.chat import ChatCreate, ChatResponse
+from app.schemas.chat import ChatCreate, ChatUpdate, ChatResponse
 from app.core.rate_limiter import limiter, CONTENT_LIMIT
 from app.core.unit_of_work import UnitOfWork
 from app.models.websocket_event import EventFactory
@@ -37,6 +37,24 @@ async def get_chats(current_user: User = Depends(get_current_user), db: AsyncSes
 async def get_chat(chat_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = ChatService(db)
     chat = await service.get_chat(chat_id)
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found")
+    return chat
+
+
+@router.patch("/{chat_id}", response_model=ChatResponse)
+@limiter.limit(CONTENT_LIMIT)
+async def update_chat(request: Request, chat_id: UUID, chat_in: ChatUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(ChatParticipant).where(
+            ChatParticipant.chat_id == chat_id,
+            ChatParticipant.user_id == current_user.id,
+        )
+    )
+    if not result.scalar_one_or_none():
+        raise HTTPException(status_code=403, detail="Not a chat member")
+    service = ChatService(db)
+    chat = await service.update_chat(chat_id, chat_in)
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found")
     return chat
