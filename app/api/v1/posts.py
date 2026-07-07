@@ -111,23 +111,16 @@ async def unsave_post(post_id: UUID, current_user: User = Depends(get_current_us
     await db.commit()
 
 
-@router.get("/saved", response_model=list[PostResponse])
-async def get_saved_posts(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    from app.models.saved_post import SavedPost
-    from sqlalchemy import select
-    result = await db.execute(
-        select(SavedPost).where(SavedPost.user_id == current_user.id)
-    )
-    saved_posts = result.scalars().all()
-    post_ids = [sp.post_id for sp in saved_posts]
-    from app.repositories.post import PostRepository
+@router.get("/saved", response_model=CursorResponse[PostResponse])
+async def get_saved_posts(
+    current_user: User = Depends(get_current_user),
+    cursor: str | None = Query(None),
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+):
     repo = PostRepository(db)
-    posts = []
-    for pid in post_ids:
-        post = await repo.get(pid)
-        if post:
-            posts.append(post)
-    return posts
+    posts, next_cursor, has_more = await repo.get_saved_paginated(current_user.id, cursor, limit)
+    return CursorResponse(items=posts, next_cursor=next_cursor, has_more=has_more)
 
 
 @router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
