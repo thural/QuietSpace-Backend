@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from app.api.deps import get_db, get_current_user, get_optional_current_user, get_cache
 from app.api.websocket.manager import manager
 from app.core.cache import CacheService
+from app.core.rate_limiter import limiter, SENSITIVE_LIMIT
 from app.models.user import User
 from app.repositories.user import UserRepository
 from app.repositories.profile_settings import ProfileSettingsRepository
@@ -51,7 +52,8 @@ async def update_my_settings(
 
 
 @router.put("/me", response_model=UserResponse)
-async def update_me(user_in: UserUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@limiter.limit(SENSITIVE_LIMIT)
+async def update_me(request: Request, user_in: UserUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     repo = UserRepository(db)
     update_data = user_in.model_dump(exclude_unset=True)
     for field, value in update_data.items():
@@ -116,7 +118,9 @@ async def get_user(user_id: UUID, db: AsyncSession = Depends(get_db), cache: Cac
 
 
 @router.post("/{user_id}/follow")
+@limiter.limit(SENSITIVE_LIMIT)
 async def follow_user(
+    request: Request,
     user_id: UUID,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -130,7 +134,9 @@ async def follow_user(
 
 
 @router.delete("/{user_id}/follow")
+@limiter.limit(SENSITIVE_LIMIT)
 async def unfollow_user(
+    request: Request,
     user_id: UUID,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -156,7 +162,9 @@ async def get_following(user_id: UUID, db: AsyncSession = Depends(get_db), cache
 
 
 @router.post("/followers/remove/{follower_id}")
+@limiter.limit(SENSITIVE_LIMIT)
 async def remove_follower(
+    request: Request,
     follower_id: UUID,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -179,7 +187,9 @@ async def get_user_with_relations(user_id: UUID, db: AsyncSession = Depends(get_
 
 
 @router.post("/profile/block/{user_id}")
+@limiter.limit(SENSITIVE_LIMIT)
 async def block_user(
+    request: Request,
     user_id: UUID,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -193,7 +203,9 @@ async def block_user(
 
 
 @router.delete("/profile/block/{user_id}")
+@limiter.limit(SENSITIVE_LIMIT)
 async def unblock_user(
+    request: Request,
     user_id: UUID,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),

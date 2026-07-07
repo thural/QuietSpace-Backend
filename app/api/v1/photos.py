@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File, Request
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 import os
 from app.api.deps import get_db, get_current_user
 from app.models.user import User
+from app.core.rate_limiter import limiter, CONTENT_LIMIT
 from app.services.photo_service import PhotoService
 from app.schemas.photo import PhotoCreate, PhotoResponse
 
@@ -13,14 +14,17 @@ UPLOAD_DIR = "uploads/photos"
 
 
 @router.post("", response_model=PhotoResponse, status_code=status.HTTP_201_CREATED)
-async def create_photo(photo_in: PhotoCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@limiter.limit(CONTENT_LIMIT)
+async def create_photo(request: Request, photo_in: PhotoCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = PhotoService(db)
     photo = await service.create_photo(photo_in)
     return photo
 
 
 @router.post("/profile", response_model=PhotoResponse)
+@limiter.limit(CONTENT_LIMIT)
 async def upload_profile_photo(
+    request: Request,
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -58,7 +62,8 @@ async def get_photo_file(filename: str):
 
 
 @router.delete("/{photo_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_photo(photo_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@limiter.limit(CONTENT_LIMIT)
+async def delete_photo(request: Request, photo_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = PhotoService(db)
     success = await service.delete_photo(photo_id)
     if not success:

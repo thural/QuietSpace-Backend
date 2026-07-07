@@ -1,16 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from app.api.deps import get_db, get_current_user
 from app.enums import Role
 from app.models.user import User
+from app.core.rate_limiter import limiter, SENSITIVE_LIMIT
 from app.repositories.user import UserRepository
 
 router = APIRouter()
 
 
 @router.get("/users")
-async def list_users(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@limiter.limit(SENSITIVE_LIMIT)
+async def list_users(request: Request, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if current_user.role != Role.ADMIN:
         raise HTTPException(status_code=403, detail="Not authorized")
     repo = UserRepository(db)
@@ -19,7 +21,8 @@ async def list_users(current_user: User = Depends(get_current_user), db: AsyncSe
 
 
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(user_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@limiter.limit(SENSITIVE_LIMIT)
+async def delete_user(request: Request, user_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if current_user.role != Role.ADMIN:
         raise HTTPException(status_code=403, detail="Not authorized")
     repo = UserRepository(db)
@@ -30,7 +33,8 @@ async def delete_user(user_id: UUID, current_user: User = Depends(get_current_us
 
 
 @router.put("/users/{user_id}/disable")
-async def disable_user(user_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@limiter.limit(SENSITIVE_LIMIT)
+async def disable_user(request: Request, user_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if current_user.role != Role.ADMIN:
         raise HTTPException(status_code=403, detail="Not authorized")
     repo = UserRepository(db)
