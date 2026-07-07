@@ -33,5 +33,15 @@ class ConnectionManager:
                 self.user_rooms[user_id] = set()
             self.user_rooms[user_id].add(chat_id)
 
+    async def leave_chat_room(self, user_id: UUID, chat_id: UUID):
+        session_id = self.active_connections.get(user_id)
+        if session_id:
+            await socketio.leave_room(session_id, f"chat_{chat_id}")
+            if user_id in self.user_rooms:
+                self.user_rooms[user_id].discard(chat_id)
+
+    def is_user_in_chat(self, user_id: UUID, chat_id: UUID) -> bool:
+        return user_id in self.user_rooms and chat_id in self.user_rooms[user_id]
+
 
 manager = ConnectionManager()
