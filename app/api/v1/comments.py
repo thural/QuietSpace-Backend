@@ -47,11 +47,14 @@ async def get_replies(
     return CursorResponse(items=replies, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.put("/{comment_id}", response_model=CommentResponse)
+@router.patch("/{comment_id}", response_model=CommentResponse)
 @limiter.limit(CONTENT_LIMIT)
 async def update_comment(request: Request, comment_id: UUID, comment_in: CommentUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = CommentService(db)
-    comment = await service.update_comment(comment_id, comment_in)
+    try:
+        comment = await service.update_comment(comment_id, comment_in, user_id=current_user.id)
+    except ValueError as e:
+        raise HTTPException(status_code=403, detail=str(e))
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
     return comment

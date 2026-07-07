@@ -64,7 +64,7 @@ async def get_post(post_id: UUID, current_user: User | None = Depends(get_option
     return post
 
 
-@router.put("/{post_id}", response_model=PostResponse)
+@router.patch("/{post_id}", response_model=PostResponse)
 @limiter.limit(CONTENT_LIMIT)
 async def update_post(request: Request, post_id: UUID, post_in: PostUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
     service = PostService(db, cache_service=cache)

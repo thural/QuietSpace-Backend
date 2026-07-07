@@ -51,7 +51,7 @@ async def update_my_settings(
     return settings
 
 
-@router.put("/me", response_model=UserResponse)
+@router.patch("/me", response_model=UserResponse)
 @limiter.limit(SENSITIVE_LIMIT)
 async def update_me(request: Request, user_in: UserUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     repo = UserRepository(db)

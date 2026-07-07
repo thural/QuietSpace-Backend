@@ -38,10 +38,12 @@ class CommentService:
         comment = Comment(**data, author_id=author_id)
         return await self.comment_repo.create(comment)
 
-    async def update_comment(self, comment_id: UUID, comment_in: CommentUpdate) -> Comment | None:
+    async def update_comment(self, comment_id: UUID, comment_in: CommentUpdate, user_id: UUID | None = None) -> Comment | None:
         comment = await self.comment_repo.get(comment_id)
         if not comment:
             return None
+        if user_id is not None and comment.author_id != user_id:
+            raise ValueError("Not authorized to update this comment")
         update_data = comment_in.model_dump(exclude_unset=True)
         for field, value in update_data.items():
             setattr(comment, field, value)
