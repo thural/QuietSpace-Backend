@@ -46,17 +46,18 @@ async def delete_message(
     from app.core.unit_of_work import UnitOfWork
     from app.models.websocket_event import EventFactory
     from app.enums.websocket_event_type import WebSocketEventType
+    from app.enums.role import Role
 
     service = MessageService(db)
     try:
-        chat_id = await service.delete_message(message_id, current_user.id)
+        message = await service.delete_message(message_id, current_user.id, is_admin=current_user.role == Role.ADMIN)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     async with UnitOfWork(db) as uow:
         event = EventFactory.create_chat_event(
             event_type=WebSocketEventType.DELETE_MESSAGE,
             actor_id=current_user.id,
-            chat_id=chat_id,
+            chat_id=message.chat_id,
             message_id=message_id,
         )
         uow.add_event(event)

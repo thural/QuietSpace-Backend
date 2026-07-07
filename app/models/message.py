@@ -11,6 +11,11 @@ class Message(BaseEntity, table=True):
     text: str = Field(max_length=1000)
     read: bool = Field(default=False)
     read_at: datetime | None = Field(default=None)
+    deleted_at: datetime | None = Field(default=None, index=True)
+
+    @property
+    def is_deleted(self) -> bool:
+        return self.deleted_at is not None
 
     chat: Chat = Relationship(back_populates="messages")
     sender: User = Relationship(

@@ -1,6 +1,7 @@
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
+from app.enums.role import Role
 from app.models.message import Message
 from app.repositories.message import MessageRepository
 from app.repositories.blocked_user import BlockedUserRepository
@@ -44,14 +45,16 @@ class MessageService:
             await self.message_repo.update(message)
         return message.sender_id, message.chat_id
 
-    async def delete_message(self, message_id: UUID, user_id: UUID) -> UUID:
+    async def delete_message(self, message_id: UUID, user_id: UUID, is_admin: bool = False) -> Message:
         message = await self.message_repo.get(message_id)
         if not message:
             raise ValueError("Message not found")
-        if message.sender_id != user_id:
+        if message.sender_id != user_id and not is_admin:
             raise ValueError("Not authorized to delete this message")
-        await self.message_repo.delete(message_id)
-        return message.chat_id
+        deleted = await self.message_repo.soft_delete(message_id)
+        if not deleted:
+            raise ValueError("Message not found")
+        return deleted
 
     async def _filter_blocked_messages(self, messages: list[Message], user_id: UUID) -> list[Message]:
         blocked_ids = await self.block_repo.get_blocked_ids(user_id)
