@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from app.api.deps import get_db, get_current_user, get_optional_current_user, get_cache
+from app.api.websocket.manager import manager
 from app.core.cache import CacheService
 from app.models.user import User
 from app.repositories.user import UserRepository
@@ -92,6 +93,16 @@ async def search_users(
     service = UserService(db)
     user_id = current_user.id if current_user else None
     users = await service.search_users(q, current_user_id=user_id, limit=20)
+    return users
+
+
+@router.get("/online", response_model=list[UserResponse])
+async def get_online_users(db: AsyncSession = Depends(get_db)):
+    online_user_ids = await manager.get_online_users()
+    if not online_user_ids:
+        return []
+    service = UserService(db)
+    users = await service.get_online_users_details(online_user_ids)
     return users
 
 
