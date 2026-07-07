@@ -1,7 +1,10 @@
 from pydantic import BaseModel, Field, field_validator, model_validator
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from uuid import UUID
 from datetime import datetime
+
+if TYPE_CHECKING:
+    from app.schemas.poll import PollResponse
 
 
 class PostBase(BaseModel):
@@ -24,7 +27,7 @@ class PostBase(BaseModel):
 
 
 class PostCreate(PostBase):
-    pass
+    poll: Optional["PollCreate"] = None
 
 
 class PostUpdate(BaseModel):
@@ -56,5 +59,6 @@ class PostResponse(PostBase):
     repost: Optional["PostResponse"] = None
     repost_text: Optional[str] = None
     repost_id: Optional[UUID] = None
+    poll: Optional["PollResponse"] = None
 
     model_config = {"from_attributes": True}
