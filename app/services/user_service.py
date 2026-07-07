@@ -34,6 +34,29 @@ class UserService:
             users = [u for u in users if u.id not in excluded]
         return users
 
+    async def advanced_search(
+        self,
+        username: str | None = None,
+        firstname: str | None = None,
+        lastname: str | None = None,
+        page: int = 1,
+        size: int = 20,
+        current_user_id: UUID | None = None,
+    ) -> list[User]:
+        users = await self.user_repo.advanced_search(
+            username=username,
+            firstname=firstname,
+            lastname=lastname,
+            page=page,
+            size=size,
+        )
+        if current_user_id:
+            blocked_ids = await self.block_repo.get_blocked_ids(current_user_id)
+            blocker_ids = await self.block_repo.get_blocker_ids(current_user_id)
+            excluded = blocked_ids | blocker_ids
+            users = [u for u in users if u.id not in excluded]
+        return users
+
     async def follow_user(self, follower_id: UUID, following_id: UUID) -> bool:
         if follower_id == following_id:
             return False
