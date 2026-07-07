@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
@@ -7,6 +7,7 @@ from app.models.user import User
 from app.models.chat_participant import ChatParticipant
 from app.services.chat_service import ChatService
 from app.schemas.chat import ChatCreate, ChatResponse
+from app.core.rate_limiter import limiter, CONTENT_LIMIT
 from app.core.unit_of_work import UnitOfWork
 from app.models.websocket_event import EventFactory
 from app.enums.websocket_event_type import WebSocketEventType
@@ -15,7 +16,8 @@ router = APIRouter()
 
 
 @router.post("", response_model=ChatResponse, status_code=status.HTTP_201_CREATED)
-async def create_chat(chat_in: ChatCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@limiter.limit(CONTENT_LIMIT)
+async def create_chat(request: Request, chat_in: ChatCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = ChatService(db)
     chat = await service.create_chat(chat_in, current_user.id)
     participant = ChatParticipant(chat_id=chat.id, user_id=current_user.id)

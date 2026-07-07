@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from app.api.deps import get_db, get_current_user
 from app.models.user import User
+from app.core.rate_limiter import limiter, CONTENT_LIMIT
 from app.services.reaction_service import ReactionService
 from app.schemas.reaction import ReactionCreate, ReactionResponse
 
@@ -10,7 +11,8 @@ router = APIRouter()
 
 
 @router.post("", response_model=ReactionResponse, status_code=status.HTTP_201_CREATED)
-async def toggle_reaction(reaction_in: ReactionCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@limiter.limit(CONTENT_LIMIT)
+async def toggle_reaction(request: Request, reaction_in: ReactionCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = ReactionService(db)
     reaction = await service.toggle_reaction(current_user.id, reaction_in)
     return reaction

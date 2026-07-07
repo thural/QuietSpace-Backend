@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from app.api.deps import get_db, get_current_user, get_optional_current_user, get_cache
@@ -8,20 +8,23 @@ from app.repositories.post import PostRepository
 from app.schemas.post import PostCreate, PostUpdate, PostResponse, RepostRequest
 from app.schemas.poll import VoteRequest
 from app.services.post_service import PostService
+from app.core.rate_limiter import limiter, CONTENT_LIMIT
 from app.services.poll_service import PollService
 
 router = APIRouter()
 
 
 @router.post("", response_model=PostResponse, status_code=status.HTTP_201_CREATED)
-async def create_post(post_in: PostCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
+@limiter.limit(CONTENT_LIMIT)
+async def create_post(request: Request, post_in: PostCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
     service = PostService(db, cache_service=cache)
     post = await service.create_post(current_user.id, post_in)
     return post
 
 
 @router.post("/repost", response_model=PostResponse, status_code=status.HTTP_201_CREATED)
-async def create_repost(repost_in: RepostRequest, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
+@limiter.limit(CONTENT_LIMIT)
+async def create_repost(request: Request, repost_in: RepostRequest, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
     service = PostService(db, cache_service=cache)
     try:
         post = await service.create_repost(current_user.id, repost_in)
@@ -62,7 +65,8 @@ async def get_post(post_id: UUID, current_user: User | None = Depends(get_option
 
 
 @router.put("/{post_id}", response_model=PostResponse)
-async def update_post(post_id: UUID, post_in: PostUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
+@limiter.limit(CONTENT_LIMIT)
+async def update_post(request: Request, post_id: UUID, post_in: PostUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
     service = PostService(db, cache_service=cache)
     post = await service.get_post(post_id)
     if not post or post.author_id != current_user.id:
@@ -72,7 +76,8 @@ async def update_post(post_id: UUID, post_in: PostUpdate, current_user: User = D
 
 
 @router.post("/{post_id}/save")
-async def save_post(post_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@limiter.limit(CONTENT_LIMIT)
+async def save_post(request: Request, post_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     from app.models.saved_post import SavedPost
     from sqlalchemy import select
     result = await db.execute(
@@ -136,7 +141,9 @@ async def delete_post(post_id: UUID, current_user: User = Depends(get_current_us
 
 
 @router.post("/vote-poll", status_code=status.HTTP_200_OK)
+@limiter.limit(CONTENT_LIMIT)
 async def vote_poll(
+    request: Request,
     vote_in: VoteRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),

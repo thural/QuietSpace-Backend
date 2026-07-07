@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from app.api.deps import get_db, get_current_user, get_optional_current_user
 from app.models.user import User
+from app.core.rate_limiter import limiter, CONTENT_LIMIT
 from app.services.comment_service import CommentService
 from app.schemas.comment import CommentCreate, CommentUpdate, CommentResponse
 from app.schemas.pagination import CursorResponse
@@ -11,7 +12,8 @@ router = APIRouter()
 
 
 @router.post("", response_model=CommentResponse, status_code=status.HTTP_201_CREATED)
-async def create_comment(comment_in: CommentCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@limiter.limit(CONTENT_LIMIT)
+async def create_comment(request: Request, comment_in: CommentCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = CommentService(db)
     comment = await service.create_comment(current_user.id, comment_in)
     return comment
@@ -46,7 +48,8 @@ async def get_replies(
 
 
 @router.put("/{comment_id}", response_model=CommentResponse)
-async def update_comment(comment_id: UUID, comment_in: CommentUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@limiter.limit(CONTENT_LIMIT)
+async def update_comment(request: Request, comment_id: UUID, comment_in: CommentUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = CommentService(db)
     comment = await service.update_comment(comment_id, comment_in)
     if not comment:
