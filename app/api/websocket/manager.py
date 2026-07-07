@@ -37,6 +37,9 @@ class ConnectionManager:
     async def broadcast_to_chat(self, chat_id: UUID, event: str, data: dict):
         await socketio.emit(event, data, room=f"chat_{chat_id}")
 
+    async def broadcast_to_public(self, event: str, data: dict):
+        await socketio.emit(event, data, room="public")
+
     async def join_chat_room(self, user_id: UUID, chat_id: UUID):
         session_id = self.active_connections.get(user_id)
         if session_id:

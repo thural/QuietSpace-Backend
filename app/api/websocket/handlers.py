@@ -13,6 +13,7 @@ async def handle_connect(sid, environ):
     user = await authenticate_websocket_token(auth_token)
     if user:
         await manager.connect_user(user.id, sid)
+        await socketio.enter_room(sid, "public")
         await socketio.emit("connected", {"user_id": str(user.id)}, to=sid)
 
 
@@ -88,6 +89,20 @@ async def handle_online_status(sid, data):
 async def handle_get_online_users(sid, data):
     online_users = await manager.get_online_users()
     await socketio.emit("online_users", {"online_users": [str(uid) for uid in online_users]}, to=sid)
+
+
+@socketio.on("public_message")
+async def handle_public_message(sid, data):
+    user_id = data.get("user_id")
+    message = data.get("message", "")
+    await manager.broadcast_to_public(
+        "public_message",
+        {
+            "user_id": user_id,
+            "message": message,
+            "type": data.get("type", "message"),
+        },
+    )
 
 
 @socketio.on("delete_message")
