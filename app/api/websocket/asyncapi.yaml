@@ -1,0 +1,606 @@
+asyncapi: 2.6.0
+info:
+  title: QuietSpace Socket.IO API
+  version: 1.0.0
+  description: |
+    Real-time event API for the QuietSpace social platform.
+    Uses Socket.IO over a single WebSocket connection at `/ws`.
+
+    ## Authentication
+    Connection is authenticated by passing a JWT Bearer token in the
+    `HTTP_AUTHORIZATION` header during the Socket.IO handshake.
+
+    ## Event Rooms
+    - `public` — all authenticated users. Used for global broadcasts.
+    - `chat_{chat_id}` — participants of a specific chat.
+
+servers:
+  production:
+    url: "{protocol}://{host}/ws"
+    protocol: ws
+    description: QuietSpace Socket.IO server
+    variables:
+      protocol:
+        default: wss
+        enum:
+          - wss
+          - ws
+      host:
+        default: api.quietspace.dev
+        description: The API host
+    security:
+      - bearerAuth: []
+
+channels:
+  connect:
+    description: |
+      Socket.IO lifecycle event. Fired automatically when a client establishes
+      a connection. The JWT token must be provided in the `HTTP_AUTHORIZATION`
+      header during the Socket.IO handshake.
+    subscribe:
+      summary: Server confirms the connection
+      operationId: onConnect
+      message:
+        name: ConnectedPayload
+        payload:
+          type: object
+          required:
+            - user_id
+          properties:
+            user_id:
+              $ref: "#/components/schemas/UUIDStr"
+          description: Confirms the authenticated user session
+
+  disconnect:
+    description: |
+      Socket.IO lifecycle event. Fired automatically when a client disconnects.
+    subscribe:
+      summary: Server cleans up the user session
+      operationId: onDisconnect
+      message:
+        name: DisconnectSignal
+        payload:
+          type: object
+          properties: {}
+
+  user_connected:
+    description: |
+      Broadcast to all connected clients when a user comes online.
+    subscribe:
+      summary: A user came online
+      operationId: onUserConnected
+      message:
+        name: UserConnectedPayload
+        payload:
+          type: object
+          required:
+            - user_id
+          properties:
+            user_id:
+              $ref: "#/components/schemas/UUIDStr"
+
+  user_disconnected:
+    description: |
+      Broadcast to all connected clients when a user goes offline.
+    subscribe:
+      summary: A user went offline
+      operationId: onUserDisconnected
+      message:
+        name: UserDisconnectedPayload
+        payload:
+          type: object
+          required:
+            - user_id
+          properties:
+            user_id:
+              $ref: "#/components/schemas/UUIDStr"
+
+  join_chat:
+    description: |
+      Join a chat room. The server adds the client to the `chat_{chat_id}`
+      room and broadcasts a `chat_event` with type `JOIN_CHAT` to all
+      participants.
+    publish:
+      summary: Client requests to join a chat room
+      operationId: joinChat
+      message:
+        name: JoinChatRequest
+        payload:
+          type: object
+          required:
+            - user_id
+            - chat_id
+          properties:
+            user_id:
+              $ref: "#/components/schemas/UUIDStr"
+            chat_id:
+              $ref: "#/components/schemas/UUIDStr"
+
+  leave_chat:
+    description: |
+      Leave a chat room. The server removes the client from the
+      `chat_{chat_id}` room and broadcasts a `chat_event` with type
+      `LEAVE_CHAT` to all participants.
+    publish:
+      summary: Client requests to leave a chat room
+      operationId: leaveChat
+      message:
+        name: LeaveChatRequest
+        payload:
+          type: object
+          required:
+            - user_id
+            - chat_id
+          properties:
+            user_id:
+              $ref: "#/components/schemas/UUIDStr"
+            chat_id:
+              $ref: "#/components/schemas/UUIDStr"
+
+  send_message:
+    description: |
+      Send a direct message in a chat. The server persists the message
+      and emits `new_message` to the sender and recipient individually,
+      and `message_in_chat` to all participants in the chat room.
+    publish:
+      summary: Client sends a message
+      operationId: sendMessage
+      message:
+        name: SendMessageRequest
+        payload:
+          type: object
+          required:
+            - chat_id
+            - sender_id
+            - recipient_id
+            - text
+          properties:
+            chat_id:
+              $ref: "#/components/schemas/UUIDStr"
+            sender_id:
+              $ref: "#/components/schemas/UUIDStr"
+            recipient_id:
+              $ref: "#/components/schemas/UUIDStr"
+            text:
+              type: string
+              maxLength: 1000
+              description: Message body text
+
+  new_message:
+    description: |
+      A new direct message. Sent to the sender and recipient individually
+      after a message is successfully persisted.
+    subscribe:
+      summary: A new message was sent
+      operationId: onNewMessage
+      message:
+        name: NewMessagePayload
+        payload:
+          $ref: "#/components/schemas/Message"
+
+  message_in_chat:
+    description: |
+      A new message in a chat room. Broadcast to all participants of the
+      chat after a message is successfully persisted.
+    subscribe:
+      summary: A new message appeared in a chat room
+      operationId: onMessageInChat
+      message:
+        name: MessageInChatPayload
+        payload:
+          $ref: "#/components/schemas/Message"
+
+  chat_event:
+    description: |
+      Generic chat lifecycle event. Broadcast to all participants of a
+      chat room. The `event_type` field distinguishes the kind of event:
+      `JOIN_CHAT`, `LEAVE_CHAT`, `DELETE_MESSAGE`, `SEEN_MESSAGE`,
+      `CHAT_CREATED`.
+    subscribe:
+      summary: A chat lifecycle event occurred
+      operationId: onChatEvent
+      message:
+        name: ChatEventPayload
+        payload:
+          $ref: "#/components/schemas/ChatEvent"
+
+  delete_message:
+    description: |
+      Delete a message. Only the message sender can delete. The server
+      broadcasts a `chat_event` with type `DELETE_MESSAGE` to all
+      participants.
+    publish:
+      summary: Client requests to delete a message
+      operationId: deleteMessage
+      message:
+        name: DeleteMessageRequest
+        payload:
+          type: object
+          required:
+            - message_id
+            - user_id
+            - chat_id
+          properties:
+            message_id:
+              $ref: "#/components/schemas/UUIDStr"
+            user_id:
+              $ref: "#/components/schemas/UUIDStr"
+            chat_id:
+              $ref: "#/components/schemas/UUIDStr"
+
+  seen_message:
+    description: |
+      Mark a message as read. The server broadcasts a `chat_event` with
+      type `SEEN_MESSAGE` to all participants.
+    publish:
+      summary: Client marks a message as read
+      operationId: seenMessage
+      message:
+        name: SeenMessageRequest
+        payload:
+          type: object
+          required:
+            - message_id
+            - user_id
+            - chat_id
+          properties:
+            message_id:
+              $ref: "#/components/schemas/UUIDStr"
+            user_id:
+              $ref: "#/components/schemas/UUIDStr"
+            chat_id:
+              $ref: "#/components/schemas/UUIDStr"
+
+  set_online_status:
+    description: |
+      Update the user's online status. Broadcasts `user_status` to the
+      user's chat rooms.
+    publish:
+      summary: Client updates online status
+      operationId: setOnlineStatus
+      message:
+        name: SetOnlineStatusRequest
+        payload:
+          type: object
+          required:
+            - user_id
+            - status
+          properties:
+            user_id:
+              $ref: "#/components/schemas/UUIDStr"
+            status:
+              type: string
+              description: Online status value (e.g. "online", "away", "busy")
+
+  user_status:
+    description: |
+      A user's online status changed. Broadcast to chat participants.
+    subscribe:
+      summary: A user's status changed
+      operationId: onUserStatus
+      message:
+        name: UserStatusPayload
+        payload:
+          type: object
+          required:
+            - user_id
+            - status
+          properties:
+            user_id:
+              $ref: "#/components/schemas/UUIDStr"
+            status:
+              type: string
+
+  get_online_users:
+    description: |
+      Request the list of currently online users. The server responds
+      with an `online_users` event targeted to the requesting client
+      only.
+    publish:
+      summary: Client requests online users list
+      operationId: getOnlineUsers
+      message:
+        name: GetOnlineUsersRequest
+        payload:
+          type: object
+          properties: {}
+
+  online_users:
+    description: |
+      Response to `get_online_users`. Contains the list of currently
+      online user IDs.
+    subscribe:
+      summary: List of currently online users
+      operationId: onOnlineUsers
+      message:
+        name: OnlineUsersPayload
+        payload:
+          type: object
+          required:
+            - online_users
+          properties:
+            online_users:
+              type: array
+              items:
+                $ref: "#/components/schemas/UUIDStr"
+
+  public_message:
+    description: |
+      Send or receive a message in the `public` room. This is a shared
+      space that all authenticated users are a member of.
+    publish:
+      summary: Client sends a message to the public room
+      operationId: sendPublicMessage
+      message:
+        name: SendPublicMessageRequest
+        payload:
+          type: object
+          properties:
+            user_id:
+              type: string
+            message:
+              type: string
+            type:
+              type: string
+              default: message
+    subscribe:
+      summary: A public room message was broadcast
+      operationId: onPublicMessage
+      message:
+        name: PublicMessagePayload
+        payload:
+          type: object
+          properties:
+            user_id:
+              type: string
+            message:
+              type: string
+            type:
+              type: string
+
+  typing_status:
+    description: |
+      Typing indicator broadcast to a chat room. Sent by the WebSocket
+      service when a user starts or stops typing.
+    subscribe:
+      summary: A user is typing in a chat room
+      operationId: onTypingStatus
+      message:
+        name: TypingStatusPayload
+        payload:
+          type: object
+          required:
+            - user_id
+            - is_typing
+          properties:
+            user_id:
+              $ref: "#/components/schemas/UUIDStr"
+            is_typing:
+              type: boolean
+
+  notification:
+    description: |
+      A push notification for the connected user. Sent when a new
+      notification is created or when a notification is marked as read.
+    subscribe:
+      summary: A notification was pushed to the user
+      operationId: onNotification
+      message:
+        name: NotificationEventPayload
+        payload:
+          $ref: "#/components/schemas/NotificationEvent"
+
+  unread_count:
+    description: |
+      Updated unread notification count for the connected user.
+    subscribe:
+      summary: Unread notification count changed
+      operationId: onUnreadCount
+      message:
+        name: UnreadCountPayload
+        payload:
+          type: object
+          required:
+            - count
+          properties:
+            count:
+              type: integer
+              description: Number of unread notifications
+
+  new_notification:
+    description: |
+      A new notification model instance pushed to the connected user
+      (raw notification data, not wrapped in an event envelope).
+    subscribe:
+      summary: A new notification was created
+      operationId: onNewNotification
+      message:
+        name: NewNotificationPayload
+        payload:
+          $ref: "#/components/schemas/Notification"
+
+  system:
+    description: |
+      System-level events broadcast to all connected clients.
+    subscribe:
+      summary: A system event occurred
+      operationId: onSystemEvent
+      message:
+        name: SystemEventPayload
+        payload:
+          $ref: "#/components/schemas/SystemEvent"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token passed in the `HTTP_AUTHORIZATION` header during the
+        Socket.IO handshake.
+
+  schemas:
+    UUIDStr:
+      type: string
+      format: uuid
+      description: UUID v4 string (e.g. "550e8400-e29b-41d4-a716-446655440000")
+
+    DateTimeStr:
+      type: string
+      format: date-time
+      description: ISO 8601 datetime string
+
+    Message:
+      type: object
+      description: A chat message
+      required:
+        - id
+        - chat_id
+        - sender_id
+        - recipient_id
+        - text
+        - read
+        - created_at
+      properties:
+        id:
+          $ref: "#/components/schemas/UUIDStr"
+        chat_id:
+          $ref: "#/components/schemas/UUIDStr"
+        sender_id:
+          $ref: "#/components/schemas/UUIDStr"
+        recipient_id:
+          $ref: "#/components/schemas/UUIDStr"
+        text:
+          type: string
+          maxLength: 1000
+        read:
+          type: boolean
+        read_at:
+          anyOf:
+            - $ref: "#/components/schemas/DateTimeStr"
+            - type: "null"
+        created_at:
+          $ref: "#/components/schemas/DateTimeStr"
+        updated_at:
+          anyOf:
+            - $ref: "#/components/schemas/DateTimeStr"
+            - type: "null"
+
+    Notification:
+      type: object
+      description: A user notification
+      required:
+        - id
+        - user_id
+        - type
+        - title
+        - content
+        - read
+        - created_at
+      properties:
+        id:
+          $ref: "#/components/schemas/UUIDStr"
+        user_id:
+          $ref: "#/components/schemas/UUIDStr"
+        type:
+          type: string
+          description: Notification type (e.g. LIKE, COMMENT, FOLLOW, MESSAGE, SYSTEM)
+        title:
+          type: string
+          maxLength: 255
+        content:
+          type: string
+          maxLength: 1000
+        read:
+          type: boolean
+        read_at:
+          anyOf:
+            - $ref: "#/components/schemas/DateTimeStr"
+            - type: "null"
+        created_at:
+          $ref: "#/components/schemas/DateTimeStr"
+        updated_at:
+          anyOf:
+            - $ref: "#/components/schemas/DateTimeStr"
+            - type: "null"
+
+    BaseEvent:
+      type: object
+      description: Base fields shared by all event envelopes
+      required:
+        - event_type
+        - timestamp
+        - actor_id
+      properties:
+        event_type:
+          type: string
+          description: Event discriminator
+          enum:
+            - JOIN_CHAT
+            - LEAVE_CHAT
+            - DELETE_MESSAGE
+            - SEEN_MESSAGE
+            - TYPING
+            - CHAT_CREATED
+            - USER_ONLINE
+            - USER_OFFLINE
+            - NOTIFICATION
+            - NOTIFICATION_READ
+            - SYSTEM
+        timestamp:
+          $ref: "#/components/schemas/DateTimeStr"
+        actor_id:
+          $ref: "#/components/schemas/UUIDStr"
+        data:
+          type: object
+          description: Optional free-form metadata
+          default: {}
+
+    ChatEvent:
+      allOf:
+        - $ref: "#/components/schemas/BaseEvent"
+        - type: object
+          required:
+            - chat_id
+          properties:
+            chat_id:
+              $ref: "#/components/schemas/UUIDStr"
+            message_id:
+              anyOf:
+                - $ref: "#/components/schemas/UUIDStr"
+                - type: "null"
+            recipient_id:
+              anyOf:
+                - $ref: "#/components/schemas/UUIDStr"
+                - type: "null"
+
+    NotificationEvent:
+      allOf:
+        - $ref: "#/components/schemas/BaseEvent"
+        - type: object
+          required:
+            - notification_id
+            - notification_type
+            - recipient_id
+          properties:
+            notification_id:
+              $ref: "#/components/schemas/UUIDStr"
+            notification_type:
+              type: string
+            recipient_id:
+              $ref: "#/components/schemas/UUIDStr"
+
+    SystemEvent:
+      allOf:
+        - $ref: "#/components/schemas/BaseEvent"
+        - type: object
+          required:
+            - severity
+            - message
+          properties:
+            severity:
+              type: string
+              description: Severity level (e.g. "info", "warning", "error")
+            message:
+              type: string
