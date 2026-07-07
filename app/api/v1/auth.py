@@ -1,10 +1,11 @@
 from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException, status, Body
+from fastapi import APIRouter, Depends, HTTPException, status, Body, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_db
 from app.config.settings import settings
 from app.core.security import create_access_token
+from app.core.rate_limiter import limiter
 from app.enums.role import Role
 from app.enums.status_type import StatusType
 from app.models.user import User
@@ -68,3 +69,29 @@ async def activate_account(code: str = Body(..., embed=True), db: AsyncSession =
     if not user:
         raise HTTPException(status_code=400, detail="Invalid or expired activation code")
     return {"message": "Account activated successfully"}
+
+
+@router.post("/resend-code")
+@limiter.limit("3/5minutes")
+async def resend_code(
+    request: Request,
+    email: str = Body(..., embed=True),
+    db: AsyncSession = Depends(get_db),
+):
+    redis = request.app.state.redis
+    rate_key = f"resend_code:{email}"
+    attempts = await redis.get(rate_key)
+    if attempts and int(attempts) >= 3:
+        raise HTTPException(status_code=429, detail="Too many requests. Please try again later.")
+    auth_service = AuthService(db)
+    try:
+        user = await auth_service.resend_activation_email(email)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    email_service = EmailService()
+    await email_service.send_activation_email(user.email, user.username, user.activation_code)
+    pipe = redis.pipeline()
+    pipe.incr(rate_key)
+    pipe.expire(rate_key, 300)
+    await pipe.execute()
+    return {"message": "Activation code resent successfully"}
