@@ -57,7 +57,7 @@ QuietSpace is a privacy-focused social media application designed for meaningful
 - **Async Tasks:** Celery 5.5.0
 - **Real-Time:** Socket.IO (python-socketio)
 - **Authentication:** python-jose (JWT) + passlib/bcrypt
-- **API Documentation:** Automatic OpenAPI/Swagger
+- **API Documentation:** OpenAPI (REST) + AsyncAPI (WebSocket)
 
 ### Real-Time Communication
 - Socket.IO over WebSocket
@@ -161,6 +161,24 @@ docker compose up --build
 Interactive OpenAPI documentation available at:
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
+
+### WebSocket API (Socket.IO)
+
+Real-time events at `/ws` are documented via **AsyncAPI**:
+- AsyncAPI UI: `http://localhost:8000/asyncapi`
+- AsyncAPI JSON: `http://localhost:8000/asyncapi.json`
+
+The server uses **Socket.IO** over a single WebSocket connection. Authentication
+requires a JWT Bearer token in the `HTTP_AUTHORIZATION` header during the
+Socket.IO handshake.
+
+**Client-to-Server events:** `join_chat`, `leave_chat`, `send_message`,
+`delete_message`, `seen_message`, `set_online_status`, `get_online_users`,
+`public_message`
+
+**Server-to-Client events:** `user_connected`, `user_disconnected`, `new_message`,
+`message_in_chat`, `chat_event`, `notification`, `unread_count`, `online_users`,
+`user_status`, `typing_status`, `system`, `public_message`
 
 ## Testing
 
