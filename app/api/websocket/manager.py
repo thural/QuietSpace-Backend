@@ -22,6 +22,9 @@ class ConnectionManager:
             session_id = self.active_connections[user_id]
             await socketio.emit(event, data, room=session_id)
 
+    async def send_notification(self, user_id: UUID, event: str, notification_data: dict):
+        await self.send_to_user(user_id, event, notification_data)
+
     async def broadcast_to_chat(self, chat_id: UUID, event: str, data: dict):
         await socketio.emit(event, data, room=f"chat_{chat_id}")
 
