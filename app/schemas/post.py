@@ -3,8 +3,7 @@ from typing import Optional, TYPE_CHECKING
 from uuid import UUID
 from datetime import datetime
 
-if TYPE_CHECKING:
-    from app.schemas.poll import PollResponse
+from app.schemas.poll import PollCreate, PollResponse
 
 
 class PostBase(BaseModel):
