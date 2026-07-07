@@ -50,6 +50,24 @@ class EventFactory:
         )
 
     @staticmethod
+    def create_notification_read_event(
+        notification_id: UUID,
+        notification_type: str,
+        actor_id: UUID,
+        recipient_id: UUID,
+        data: dict[str, Any] | None = None,
+    ) -> NotificationEvent:
+        return NotificationEvent(
+            event_type=WebSocketEventType.NOTIFICATION_READ,
+            timestamp=datetime.now(timezone.utc),
+            actor_id=actor_id,
+            data=data or {},
+            notification_id=notification_id,
+            notification_type=notification_type,
+            recipient_id=recipient_id,
+        )
+
+    @staticmethod
     def create_notification_event(
         notification_id: UUID,
         notification_type: str,
