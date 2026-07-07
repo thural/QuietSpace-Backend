@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from app.models.message import Message
@@ -30,6 +31,19 @@ class MessageService:
     async def get_unread(self, user_id: UUID) -> list[Message]:
         messages = await self.message_repo.get_unread(user_id)
         return await self._filter_blocked_messages(messages, user_id)
+
+    async def mark_as_read(self, message_id: UUID, user_id: UUID) -> UUID | None:
+        message = await self.message_repo.get(message_id)
+        if not message:
+            return None
+        if message.recipient_id != user_id:
+            return None
+        if not message.read:
+            message.read = True
+            message.read_at = datetime.utcnow()
+            await self.message_repo.update(message)
+            return message.sender_id
+        return None
 
     async def delete_message(self, message_id: UUID, user_id: UUID) -> None:
         message = await self.message_repo.get(message_id)

@@ -108,6 +108,31 @@ async def handle_delete_message(sid, data):
         await manager.broadcast_to_chat(chat_id, "chat_event", event.model_dump(mode="json"))
 
 
+@socketio.on("seen_message")
+async def handle_seen_message(sid, data):
+    from app.main import app
+    from app.services.message_service import MessageService
+
+    message_id = UUID(data["message_id"])
+    user_id = UUID(data["user_id"])
+    chat_id = UUID(data["chat_id"])
+
+    async with app.state.async_session() as session:
+        service = MessageService(session)
+        sender_id = await service.mark_as_read(message_id, user_id)
+        if sender_id:
+            await session.commit()
+            event = EventFactory.create_chat_event(
+                event_type=WebSocketEventType.SEEN_MESSAGE,
+                actor_id=user_id,
+                chat_id=chat_id,
+                message_id=message_id,
+                recipient_id=sender_id,
+                data={"read_by": str(user_id)},
+            )
+            await manager.broadcast_to_chat(chat_id, "chat_event", event.model_dump(mode="json"))
+
+
 async def authenticate_websocket_token(token: str):
     try:
         from app.core.security import decode_token
