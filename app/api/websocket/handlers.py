@@ -1,6 +1,8 @@
 from uuid import UUID
 from app.api.websocket.socketio import socketio
 from app.api.websocket.manager import manager
+from app.models.websocket_event import EventFactory
+from app.enums.websocket_event_type import WebSocketEventType
 
 
 @socketio.on("connect")
@@ -27,6 +29,25 @@ async def handle_join_chat(sid, data):
     user_id = UUID(data["user_id"])
     chat_id = UUID(data["chat_id"])
     await manager.join_chat_room(user_id, chat_id)
+    event = EventFactory.create_chat_event(
+        event_type=WebSocketEventType.JOIN_CHAT,
+        actor_id=user_id,
+        chat_id=chat_id,
+    )
+    await manager.broadcast_to_chat(chat_id, "chat_event", event.model_dump(mode="json"))
+
+
+@socketio.on("leave_chat")
+async def handle_leave_chat(sid, data):
+    user_id = UUID(data["user_id"])
+    chat_id = UUID(data["chat_id"])
+    await manager.leave_chat_room(user_id, chat_id)
+    event = EventFactory.create_chat_event(
+        event_type=WebSocketEventType.LEAVE_CHAT,
+        actor_id=user_id,
+        chat_id=chat_id,
+    )
+    await manager.broadcast_to_chat(chat_id, "chat_event", event.model_dump(mode="json"))
 
 
 @socketio.on("send_message")
