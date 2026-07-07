@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from app.models.post import Post
@@ -85,13 +86,16 @@ class PostService:
             await self.cache.set(f"post:{post_id}", post, ttl=300)
         return post
 
-    async def get_posts(self, author_id: UUID, limit: int = 20, offset: int = 0, current_user_id: UUID | None = None) -> list[Post]:
-        posts = await self.post_repo.get_by_author(author_id, limit, offset)
+    async def get_posts(self, author_id: UUID | None = None, cursor: str | None = None, limit: int = 20, current_user_id: UUID | None = None) -> tuple[list[Post], str | None, bool]:
+        stmt = select(Post)
+        if author_id:
+            stmt = stmt.where(Post.author_id == author_id)
+        posts, next_cursor, has_more = await self.post_repo.paginate_cursor(stmt, cursor, limit)
         for post in posts:
             await self.session.refresh(post, attribute_names=["polls"])
         if current_user_id:
             posts = await self._filter_blocked(posts, current_user_id)
-        return posts
+        return posts, next_cursor, has_more
 
     async def _filter_blocked(self, posts: list[Post], current_user_id: UUID) -> list[Post]:
         blocked_ids = await self.block_repo.get_blocked_ids(current_user_id)

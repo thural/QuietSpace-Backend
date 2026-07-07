@@ -5,6 +5,7 @@ from app.api.deps import get_db, get_current_user, get_optional_current_user, ge
 from app.core.cache import CacheService
 from app.models.user import User
 from app.repositories.post import PostRepository
+from app.schemas.pagination import CursorResponse
 from app.schemas.post import PostCreate, PostUpdate, PostResponse, RepostRequest
 from app.schemas.poll import VoteRequest
 from app.services.post_service import PostService
@@ -33,25 +34,23 @@ async def create_repost(request: Request, repost_in: RepostRequest, current_user
     return post
 
 
-@router.get("", response_model=list[PostResponse])
+@router.get("", response_model=CursorResponse[PostResponse])
 async def get_posts(
     user_id: UUID | None = Query(None),
     q: str | None = Query(None),
-    page: int = Query(1, ge=1),
-    size: int = Query(20, ge=1, le=100),
+    cursor: str | None = Query(None),
+    limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
 ):
     service = PostService(db)
-    offset = (page - 1) * size
-    if user_id:
-        posts = await service.get_posts(user_id, limit=size, offset=offset)
-    elif q:
+    if q:
         repo = PostRepository(db)
-        posts = await repo.search(q, limit=size)
-    else:
-        repo = PostRepository(db)
-        posts = await repo.get_all()
-    return posts
+        posts = await repo.search(q, limit=limit)
+        return CursorResponse(items=posts, next_cursor=None, has_more=False)
+    posts, next_cursor, has_more = await service.get_posts(
+        author_id=user_id, cursor=cursor, limit=limit
+    )
+    return CursorResponse(items=posts, next_cursor=next_cursor, has_more=has_more)
 
 
 @router.get("/{post_id}", response_model=PostResponse)
