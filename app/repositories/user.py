@@ -1,6 +1,6 @@
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from sqlalchemy.orm import selectinload, joinedload, Load
 from uuid import UUID
 from app.models.user import User
@@ -38,6 +38,32 @@ class UserRepository(BaseRepository[User]):
             stmt = stmt.options(*load_options)
         result = await self.session.execute(stmt)
         return result.scalars().all()
+
+    async def advanced_search(
+        self,
+        username: str | None = None,
+        firstname: str | None = None,
+        lastname: str | None = None,
+        page: int = 1,
+        size: int = 20,
+        load_options: Optional[list[Load]] = None,
+    ) -> list[User]:
+        conditions = []
+        if username:
+            conditions.append(User.username.ilike(f"%{username}%"))
+        if firstname:
+            conditions.append(User.firstname.ilike(f"%{firstname}%"))
+        if lastname:
+            conditions.append(User.lastname.ilike(f"%{lastname}%"))
+        stmt = select(User)
+        if conditions:
+            stmt = stmt.where(or_(*conditions))
+        offset = (page - 1) * size
+        stmt = stmt.offset(offset).limit(size)
+        if load_options:
+            stmt = stmt.options(*load_options)
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
 
     async def get_with_posts(self, user_id: UUID) -> User | None:
         return await self.get(
