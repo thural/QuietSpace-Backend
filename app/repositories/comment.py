@@ -6,8 +6,6 @@ from app.repositories.base import BaseRepository
 
 
 class CommentRepository(BaseRepository[Comment]):
-    MAX_DEPTH: int = 3
-
     def __init__(self, session: AsyncSession):
         super().__init__(Comment, session)
 
@@ -25,7 +23,7 @@ class CommentRepository(BaseRepository[Comment]):
         stmt = select(Comment).where(Comment.parent_id == parent_id)
         return await self.paginate_cursor(stmt, cursor, limit)
 
-    async def get_thread(self, comment_id: UUID, max_depth: int = MAX_DEPTH) -> list[Comment]:
+    async def get_thread(self, comment_id: UUID, max_depth: int = 10) -> list[Comment]:
         cte = (
             select(
                 Comment.id, Comment.text, Comment.post_id, Comment.author_id,
@@ -47,7 +45,7 @@ class CommentRepository(BaseRepository[Comment]):
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_comment_trees(self, root_ids: list[UUID], max_depth: int = MAX_DEPTH) -> list[Comment]:
+    async def get_comment_trees(self, root_ids: list[UUID], max_depth: int = 10) -> list[Comment]:
         if not root_ids:
             return []
         cte = (
@@ -76,6 +74,16 @@ class CommentRepository(BaseRepository[Comment]):
             select(func.count()).where(Comment.parent_id == parent_id)
         )
         return result.scalar_one()
+
+    async def get_replies_counts(self, parent_ids: list[UUID]) -> dict[UUID, int]:
+        if not parent_ids:
+            return {}
+        result = await self.session.execute(
+            select(Comment.parent_id, func.count())
+            .where(Comment.parent_id.in_(parent_ids))
+            .group_by(Comment.parent_id)
+        )
+        return dict(result.all())
 
 
 comment_repository = CommentRepository

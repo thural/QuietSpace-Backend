@@ -32,7 +32,8 @@ class BlockService:
         if blocker_id == blocked_id:
             return False
         result = await self.block_repo.unblock_user(blocker_id, blocked_id)
-        if self.cache:
+        await self.session.commit()
+        if result and self.cache:
             await self.cache.delete(f"user:{blocker_id}:blocked")
         return result
 

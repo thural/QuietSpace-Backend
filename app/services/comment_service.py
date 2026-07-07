@@ -9,7 +9,7 @@ from app.schemas.comment import CommentCreate, CommentUpdate
 
 
 class CommentService:
-    MAX_DEPTH = 3
+    MAX_DEPTH = 10
 
     def __init__(self, session: AsyncSession):
         self.comment_repo = CommentRepository(session)
@@ -59,8 +59,9 @@ class CommentService:
         )
         if current_user_id:
             comments = await self._filter_blocked_comments(comments, current_user_id)
+        counts = await self.comment_repo.get_replies_counts([c.id for c in comments])
         for c in comments:
-            c.replies_count = await self.comment_repo.get_replies_count(c.id)
+            c.replies_count = counts.get(c.id, 0)
         comments = await self._attach_comment_trees(comments, current_user_id)
         return comments, next_cursor, has_more
 
@@ -70,15 +71,16 @@ class CommentService:
         replies, next_cursor, has_more = await self.comment_repo.get_replies(parent_id, cursor, limit)
         if current_user_id:
             replies = await self._filter_blocked_comments(replies, current_user_id)
+        counts = await self.comment_repo.get_replies_counts([r.id for r in replies])
         for c in replies:
-            c.replies_count = await self.comment_repo.get_replies_count(c.id)
+            c.replies_count = counts.get(c.id, 0)
         return replies, next_cursor, has_more
 
     async def _attach_comment_trees(self, comments: list[Comment], current_user_id: UUID | None = None) -> list[Comment]:
         if not comments:
             return comments
         root_ids = [c.id for c in comments]
-        threads = await self.comment_repo.get_comment_trees(root_ids)
+        threads = await self.comment_repo.get_comment_trees(root_ids, self.MAX_DEPTH)
         if not threads:
             return comments
         if current_user_id:

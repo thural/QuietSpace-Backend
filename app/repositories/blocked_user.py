@@ -15,7 +15,6 @@ class BlockedUserRepository:
     async def block_user(self, blocker_id: UUID, blocked_id: UUID) -> BlockedUser:
         record = BlockedUser(blocker_id=blocker_id, blocked_id=blocked_id)
         self.session.add(record)
-        await self.session.commit()
         return record
 
     async def unblock_user(self, blocker_id: UUID, blocked_id: UUID) -> bool:
@@ -25,7 +24,6 @@ class BlockedUserRepository:
                 BlockedUser.blocked_id == blocked_id,
             )
         )
-        await self.session.commit()
         return result.rowcount > 0
 
     async def is_blocked(self, blocker_id: UUID, blocked_id: UUID) -> bool:
