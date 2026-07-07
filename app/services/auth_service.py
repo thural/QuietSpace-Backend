@@ -53,6 +53,17 @@ class AuthService:
         await self.user_repo.update(user)
         return user
 
+    async def resend_activation_email(self, email: str) -> User:
+        user = await self.user_repo.get_by_email(email)
+        if not user:
+            raise ValueError("User not found")
+        if user.enabled and user.status == StatusType.ACTIVE:
+            raise ValueError("Account already activated")
+        user.activation_code = str(uuid4())
+        user.activation_code_expires_at = datetime.utcnow() + timedelta(hours=24)
+        await self.user_repo.update(user)
+        return user
+
     async def login(self, username: str, password: str) -> dict:
         user = await self.user_repo.get_by_username(username)
         if not user or not verify_password(password, user.password_hash):
