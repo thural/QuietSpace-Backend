@@ -32,7 +32,7 @@ async def get_unread_count(current_user: User = Depends(get_current_user), db: A
 @router.put("/{notification_id}/read", response_model=NotificationResponse)
 async def mark_as_read(notification_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = NotificationService(db)
-    notification = await service.mark_as_read(notification_id)
+    notification = await service.mark_as_read(notification_id, actor_id=current_user.id)
     if not notification:
         raise HTTPException(status_code=404, detail="Notification not found")
     return notification
