@@ -4,17 +4,28 @@ from app.models.post import Post
 from app.repositories.post import PostRepository
 from app.repositories.blocked_user import BlockedUserRepository
 from app.schemas.post import PostCreate, PostUpdate, RepostRequest
+from app.services.poll_service import PollService
 
 
 class PostService:
     def __init__(self, session: AsyncSession, cache_service=None):
+        self.session = session
         self.post_repo = PostRepository(session)
         self.block_repo = BlockedUserRepository(session)
+        self.poll_service = PollService(session)
         self.cache = cache_service
 
     async def create_post(self, author_id: UUID, post_in: PostCreate) -> Post:
-        post = Post(**post_in.model_dump(), author_id=author_id)
+        post_data = post_in.model_dump(exclude={'poll'})
+        post = Post(**post_data, author_id=author_id)
         created = await self.post_repo.create(post)
+        
+        if post_in.poll:
+            from app.schemas.poll import PollCreate
+            poll_data = PollCreate(**post_in.poll.model_dump())
+            await self.poll_service.create_poll(created.id, poll_data)
+            await self.session.refresh(created, attribute_names=["polls"])
+        
         if self.cache:
             await self.cache.delete(f"post:{created.id}")
         return created
@@ -63,6 +74,8 @@ class PostService:
             if cached is not None:
                 return cached
         post = await self.post_repo.get(post_id)
+        if post:
+            await self.session.refresh(post, attribute_names=["polls"])
         if post and current_user_id:
             if await self.block_repo.is_blocked(current_user_id, post.author_id):
                 return None
@@ -74,6 +87,8 @@ class PostService:
 
     async def get_posts(self, author_id: UUID, limit: int = 20, offset: int = 0, current_user_id: UUID | None = None) -> list[Post]:
         posts = await self.post_repo.get_by_author(author_id, limit, offset)
+        for post in posts:
+            await self.session.refresh(post, attribute_names=["polls"])
         if current_user_id:
             posts = await self._filter_blocked(posts, current_user_id)
         return posts
