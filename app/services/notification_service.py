@@ -53,9 +53,9 @@ class NotificationService:
         return created
 
     async def get_notifications(
-        self, user_id: UUID, limit: int = 50, offset: int = 0, type_filter: Optional[str] = None
-    ) -> list[Notification]:
-        return await self.notification_repo.get_by_user(user_id, limit, offset, type_filter)
+        self, user_id: UUID, cursor: str | None = None, limit: int = 50, type_filter: Optional[str] = None
+    ) -> tuple[list[Notification], str | None, bool]:
+        return await self.notification_repo.get_by_user(user_id, cursor, limit, type_filter)
 
     async def get_unread_count(self, user_id: UUID) -> int:
         return await self.notification_repo.get_unread_count(user_id)

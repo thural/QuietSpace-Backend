@@ -5,21 +5,22 @@ from app.api.deps import get_db, get_current_user
 from app.models.user import User
 from app.services.notification_service import NotificationService
 from app.schemas.notification import NotificationResponse
+from app.schemas.pagination import CursorResponse
 
 router = APIRouter()
 
 
-@router.get("", response_model=list[NotificationResponse])
+@router.get("", response_model=CursorResponse[NotificationResponse])
 async def get_notifications(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    cursor: str | None = Query(None),
     limit: int = Query(50, ge=1, le=100),
-    offset: int = Query(0, ge=0),
     type: str | None = Query(None),
 ):
     service = NotificationService(db)
-    notifications = await service.get_notifications(current_user.id, limit=limit, offset=offset, type_filter=type)
-    return notifications
+    notifications, next_cursor, has_more = await service.get_notifications(current_user.id, cursor=cursor, limit=limit, type_filter=type)
+    return CursorResponse(items=notifications, next_cursor=next_cursor, has_more=has_more)
 
 
 @router.get("/unread/count")

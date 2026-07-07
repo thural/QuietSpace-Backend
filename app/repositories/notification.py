@@ -10,14 +10,12 @@ class NotificationRepository(BaseRepository[Notification]):
         super().__init__(Notification, session)
 
     async def get_by_user(
-        self, user_id: UUID, limit: int = 50, offset: int = 0, type_filter: str | None = None
-    ) -> list[Notification]:
+        self, user_id: UUID, cursor: str | None = None, limit: int = 50, type_filter: str | None = None
+    ) -> tuple[list[Notification], str | None, bool]:
         stmt = select(Notification).where(Notification.user_id == user_id)
         if type_filter:
             stmt = stmt.where(Notification.type == type_filter)
-        stmt = stmt.order_by(Notification.created_at.desc()).limit(limit).offset(offset)
-        result = await self.session.execute(stmt)
-        return result.scalars().all()
+        return await self.paginate_cursor(stmt, cursor, limit)
 
     async def get_unread_count(self, user_id: UUID) -> int:
         result = await self.session.execute(
