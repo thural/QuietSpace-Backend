@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_db
 from app.config.settings import settings
 from app.core.security import create_access_token
-from app.core.rate_limiter import limiter, AUTH_LIMIT
+from app.core.rate_limiter import limiter, AUTH_LIMIT, RESEND_CODE_LIMIT
 from app.enums.role import Role
 from app.enums.status_type import StatusType
 from app.models.user import User
@@ -77,7 +77,7 @@ async def activate_account(request: Request, code: str = Body(..., embed=True), 
 
 
 @router.post("/resend-code")
-@limiter.limit("3/5minutes")
+@limiter.limit(RESEND_CODE_LIMIT)
 async def resend_code(
     request: Request,
     email: str = Body(..., embed=True),
