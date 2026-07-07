@@ -62,7 +62,7 @@ async def update_me(request: Request, user_in: UserUpdate, current_user: User = 
     return current_user
 
 
-@router.get("/query", response_model=list[UserResponse])
+@router.get("/query")
 async def query_users(
     username: str | None = Query(None, min_length=1),
     firstname: str | None = Query(None, min_length=1),
@@ -73,9 +73,10 @@ async def query_users(
     db: AsyncSession = Depends(get_db),
     cache: CacheService = Depends(get_cache),
 ):
+    from app.schemas.pagination import OffsetResponse
     service = UserService(db, cache_service=cache)
     user_id = current_user.id if current_user else None
-    users = await service.advanced_search(
+    users, total = await service.advanced_search(
         username=username,
         firstname=firstname,
         lastname=lastname,
@@ -83,7 +84,13 @@ async def query_users(
         size=size,
         current_user_id=user_id,
     )
-    return users
+    return OffsetResponse(
+        items=users,
+        total=total,
+        page=page,
+        size=size,
+        pages=(total + size - 1) // size if total > 0 else 0,
+    )
 
 
 @router.get("/search", response_model=list[UserResponse])

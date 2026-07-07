@@ -1,6 +1,6 @@
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, func
 from sqlalchemy.orm import selectinload, joinedload, Load
 from uuid import UUID
 from app.models.user import User
@@ -56,7 +56,7 @@ class UserRepository(BaseRepository[User]):
         page: int = 1,
         size: int = 20,
         load_options: Optional[list[Load]] = None,
-    ) -> list[User]:
+    ) -> tuple[list[User], int]:
         conditions = []
         if username:
             conditions.append(User.username.ilike(f"%{username}%"))
@@ -64,15 +64,18 @@ class UserRepository(BaseRepository[User]):
             conditions.append(User.firstname.ilike(f"%{firstname}%"))
         if lastname:
             conditions.append(User.lastname.ilike(f"%{lastname}%"))
-        stmt = select(User)
+        base_stmt = select(User)
         if conditions:
-            stmt = stmt.where(or_(*conditions))
+            base_stmt = base_stmt.where(or_(*conditions))
+        count_stmt = select(func.count()).select_from(base_stmt.subquery())
+        total_result = await self.session.execute(count_stmt)
+        total = total_result.scalar_one()
         offset = (page - 1) * size
-        stmt = stmt.offset(offset).limit(size)
+        stmt = base_stmt.offset(offset).limit(size)
         if load_options:
             stmt = stmt.options(*load_options)
         result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        return list(result.scalars().all()), total
 
     async def get_with_posts(self, user_id: UUID) -> User | None:
         return await self.get(

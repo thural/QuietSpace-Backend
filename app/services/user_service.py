@@ -46,8 +46,8 @@ class UserService:
         page: int = 1,
         size: int = 20,
         current_user_id: UUID | None = None,
-    ) -> list[User]:
-        users = await self.user_repo.advanced_search(
+    ) -> tuple[list[User], int]:
+        users, total = await self.user_repo.advanced_search(
             username=username,
             firstname=firstname,
             lastname=lastname,
@@ -59,7 +59,7 @@ class UserService:
             blocker_ids = await self.block_repo.get_blocker_ids(current_user_id)
             excluded = blocked_ids | blocker_ids
             users = [u for u in users if u.id not in excluded]
-        return users
+        return users, total
 
     async def follow_user(self, follower_id: UUID, following_id: UUID) -> bool:
         if follower_id == following_id:
