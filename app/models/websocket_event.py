@@ -6,7 +6,7 @@ from app.enums.websocket_event_type import WebSocketEventType
 
 
 class BaseEvent(BaseModel):
-    event_type: str
+    event_type: WebSocketEventType
     timestamp: datetime
     actor_id: UUID
     data: dict[str, Any] = {}
@@ -40,7 +40,7 @@ class EventFactory:
         data: dict[str, Any] | None = None,
     ) -> ChatEvent:
         return ChatEvent(
-            event_type=event_type.value,
+            event_type=event_type,
             timestamp=datetime.now(timezone.utc),
             actor_id=actor_id,
             data=data or {},
@@ -58,7 +58,7 @@ class EventFactory:
         data: dict[str, Any] | None = None,
     ) -> NotificationEvent:
         return NotificationEvent(
-            event_type="NOTIFICATION",
+            event_type=WebSocketEventType.NOTIFICATION,
             timestamp=datetime.now(timezone.utc),
             actor_id=actor_id,
             data=data or {},
@@ -76,7 +76,7 @@ class EventFactory:
     ) -> SystemEvent:
         from uuid import uuid4
         return SystemEvent(
-            event_type="SYSTEM",
+            event_type=WebSocketEventType.SYSTEM,
             timestamp=datetime.now(timezone.utc),
             actor_id=actor_id or uuid4(),
             data=data or {},
