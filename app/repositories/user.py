@@ -30,6 +30,15 @@ class UserRepository(BaseRepository[User]):
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def get_by_ids(
+        self, user_ids: list[UUID], load_options: Optional[list[Load]] = None
+    ) -> list[User]:
+        stmt = select(User).where(User.id.in_(user_ids))
+        if load_options:
+            stmt = stmt.options(*load_options)
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
     async def search(
         self, query: str, limit: int = 20, load_options: Optional[list[Load]] = None
     ) -> list[User]:

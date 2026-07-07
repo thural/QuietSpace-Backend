@@ -14,6 +14,10 @@ class UserService:
         self.block_repo = BlockedUserRepository(session)
         self.cache = cache_service
 
+    async def get_online_users_details(self, online_user_ids: list[UUID]) -> list[User]:
+        users = await self.user_repo.get_by_ids(online_user_ids)
+        return users
+
     async def get_user(self, user_id: str) -> User | None:
         uid = UUID(user_id)
         if self.cache:
