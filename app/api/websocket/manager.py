@@ -1,6 +1,9 @@
 from typing import Dict, Set
 from uuid import UUID
 from app.api.websocket.socketio import socketio
+from app.config.redis import redis_client
+
+ONLINE_USERS_KEY = "online_users"
 
 
 class ConnectionManager:
@@ -10,12 +13,18 @@ class ConnectionManager:
 
     async def connect_user(self, user_id: UUID, session_id: str):
         self.active_connections[user_id] = session_id
+        await redis_client.sadd(ONLINE_USERS_KEY, str(user_id))
         await socketio.emit("user_connected", {"user_id": str(user_id)})
 
     async def disconnect_user(self, user_id: UUID):
         if user_id in self.active_connections:
             del self.active_connections[user_id]
+            await redis_client.srem(ONLINE_USERS_KEY, str(user_id))
             await socketio.emit("user_disconnected", {"user_id": str(user_id)})
+
+    async def get_online_users(self) -> list[UUID]:
+        user_ids = await redis_client.smembers(ONLINE_USERS_KEY)
+        return [UUID(uid) for uid in user_ids]
 
     async def send_to_user(self, user_id: UUID, event: str, data: dict):
         if user_id in self.active_connections:
