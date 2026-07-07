@@ -31,6 +31,14 @@ class MessageService:
         messages = await self.message_repo.get_unread(user_id)
         return await self._filter_blocked_messages(messages, user_id)
 
+    async def delete_message(self, message_id: UUID, user_id: UUID) -> None:
+        message = await self.message_repo.get(message_id)
+        if not message:
+            raise ValueError("Message not found")
+        if message.sender_id != user_id:
+            raise ValueError("Not authorized to delete this message")
+        await self.message_repo.delete(message_id)
+
     async def _filter_blocked_messages(self, messages: list[Message], user_id: UUID) -> list[Message]:
         blocked_ids = await self.block_repo.get_blocked_ids(user_id)
         blocker_ids = await self.block_repo.get_blocker_ids(user_id)

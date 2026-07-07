@@ -84,6 +84,30 @@ async def handle_online_status(sid, data):
     await manager.broadcast_to_chat(user_id, "user_status", {"user_id": str(user_id), "status": status})
 
 
+@socketio.on("delete_message")
+async def handle_delete_message(sid, data):
+    from app.main import app
+    from app.services.message_service import MessageService
+
+    message_id = UUID(data["message_id"])
+    user_id = UUID(data["user_id"])
+    chat_id = UUID(data["chat_id"])
+
+    async with app.state.async_session() as session:
+        service = MessageService(session)
+        try:
+            await service.delete_message(message_id, user_id)
+        except ValueError:
+            return
+        event = EventFactory.create_chat_event(
+            event_type=WebSocketEventType.DELETE_MESSAGE,
+            actor_id=user_id,
+            chat_id=chat_id,
+            message_id=message_id,
+        )
+        await manager.broadcast_to_chat(chat_id, "chat_event", event.model_dump(mode="json"))
+
+
 async def authenticate_websocket_token(token: str):
     try:
         from app.core.security import decode_token
