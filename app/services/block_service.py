@@ -46,14 +46,14 @@ class BlockService:
         ) or await self.block_repo.is_blocked(user_id_2, user_id_1)
 
     async def get_blocked_users(
-        self, user_id: UUID, cursor: str | None = None, limit: int = 20
-    ) -> tuple[list[User], str | None, bool]:
-        rows, next_cursor, has_more = await self.block_repo.get_blocked_users(user_id, cursor, limit)
+        self, user_id: UUID, page: int = 1, size: int = 20
+    ) -> tuple[list[User], int]:
+        rows, total = await self.block_repo.get_blocked_users(user_id, page, size)
         users = []
         for user, blocked_at in rows:
             user.blocked_at = blocked_at
             users.append(user)
-        return users, next_cursor, has_more
+        return users, total
 
     async def get_blocked_ids(self, user_id: UUID) -> set[UUID]:
         return await self.block_repo.get_blocked_ids(user_id)

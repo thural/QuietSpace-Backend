@@ -12,8 +12,6 @@ from app.schemas.user import UserUpdate, UserResponse
 from app.schemas.profile_settings import ProfileSettingsUpdate, ProfileSettingsResponse
 from app.services.user_service import UserService
 from app.services.block_service import BlockService
-from app.schemas.blocked_user import BlockedUserResponse
-from app.schemas.pagination import CursorResponse
 
 router = APIRouter()
 
@@ -253,14 +251,21 @@ async def unblock_user(
     return {"message": "User unblocked successfully"}
 
 
-@router.get("/profile/blocked", response_model=CursorResponse[BlockedUserResponse])
+@router.get("/profile/blocked")
 async def get_blocked_users(
-    cursor: str | None = Query(None),
-    limit: int = Query(20, ge=1, le=100),
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
     cache: CacheService = Depends(get_cache),
 ):
+    from app.schemas.pagination import OffsetResponse
     service = BlockService(db, cache_service=cache)
-    users, next_cursor, has_more = await service.get_blocked_users(current_user.id, cursor, limit)
-    return CursorResponse(items=users, next_cursor=next_cursor, has_more=has_more)
+    users, total = await service.get_blocked_users(current_user.id, page=page, size=size)
+    return OffsetResponse(
+        items=users,
+        total=total,
+        page=page,
+        size=size,
+        pages=(total + size - 1) // size if total > 0 else 0,
+    )

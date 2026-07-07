@@ -2,10 +2,9 @@ from uuid import UUID
 from datetime import datetime
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete, tuple_
+from sqlalchemy import select, delete, func
 from app.models.blocked_user import BlockedUser
 from app.models.user import User
-from app.utils.cursor import encode_cursor, decode_cursor
 
 
 class BlockedUserRepository:
@@ -36,36 +35,19 @@ class BlockedUserRepository:
         return result.scalar_one_or_none() is not None
 
     async def get_blocked_users(
-        self, user_id: UUID, cursor: str | None = None, limit: int = 20
-    ) -> tuple[list[tuple[User, datetime]], str | None, bool]:
-        stmt = (
+        self, user_id: UUID, page: int = 1, size: int = 20
+    ) -> tuple[list[tuple[User, datetime]], int]:
+        base_stmt = (
             select(User, BlockedUser.created_at)
             .join(BlockedUser, BlockedUser.blocked_id == User.id)
             .where(BlockedUser.blocker_id == user_id)
         )
-        if cursor:
-            cursor_ts, cursor_id = decode_cursor(cursor)
-            stmt = stmt.where(
-                tuple_(BlockedUser.created_at, BlockedUser.id) < tuple_(cursor_ts, cursor_id)
-            )
-        stmt = stmt.order_by(BlockedUser.created_at.desc(), BlockedUser.id.desc()).limit(limit + 1)
+        count_stmt = select(func.count()).select_from(base_stmt.subquery())
+        total_result = await self.session.execute(count_stmt)
+        total = total_result.scalar_one()
+        stmt = base_stmt.order_by(BlockedUser.created_at.desc()).offset((page - 1) * size).limit(size)
         result = await self.session.execute(stmt)
-        rows = list(result.all())
-        has_more = len(rows) > limit
-        rows = rows[:limit]
-        next_cursor = None
-        if has_more and rows:
-            last_user, last_created_at = rows[-1]
-            last_block = await self.session.execute(
-                select(BlockedUser).where(
-                    BlockedUser.blocker_id == user_id,
-                    BlockedUser.blocked_id == last_user.id,
-                )
-            )
-            last_block_record = last_block.scalar_one_or_none()
-            if last_block_record:
-                next_cursor = encode_cursor(last_block_record.created_at, last_block_record.id)
-        return rows, next_cursor, has_more
+        return list(result.all()), total
 
     async def get_blocked_ids(self, user_id: UUID) -> set[UUID]:
         result = await self.session.execute(
