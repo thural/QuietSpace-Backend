@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from app.api.deps import get_db, get_current_user
@@ -12,12 +12,28 @@ router = APIRouter()
 
 @router.get("/users")
 @limiter.limit(SENSITIVE_LIMIT)
-async def list_users(request: Request, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def list_users(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+):
     if current_user.role != Role.ADMIN:
         raise HTTPException(status_code=403, detail="Not authorized")
+    from app.schemas.pagination import OffsetResponse
+    from sqlalchemy import select
+    from app.models.user import User
     repo = UserRepository(db)
-    users = await repo.get_all()
-    return users
+    stmt = select(User)
+    users, total = await repo.paginate_offset(stmt, page=page, size=size)
+    return OffsetResponse(
+        items=users,
+        total=total,
+        page=page,
+        size=size,
+        pages=(total + size - 1) // size if total > 0 else 0,
+    )
 
 
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
