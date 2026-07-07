@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_db
 from app.config.settings import settings
 from app.core.security import create_access_token
-from app.core.rate_limiter import limiter
+from app.core.rate_limiter import limiter, AUTH_LIMIT
 from app.enums.role import Role
 from app.enums.status_type import StatusType
 from app.models.user import User
@@ -20,7 +20,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
+@limiter.limit(AUTH_LIMIT)
+async def register(request: Request, user_in: UserCreate, db: AsyncSession = Depends(get_db)):
     auth_service = AuthService(db)
     try:
         user = await auth_service.register(
@@ -36,7 +37,8 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login")
-async def login(username: str = Body(...), password: str = Body(...), db: AsyncSession = Depends(get_db)):
+@limiter.limit(AUTH_LIMIT)
+async def login(request: Request, username: str = Body(...), password: str = Body(...), db: AsyncSession = Depends(get_db)):
     auth_service = AuthService(db)
     try:
         result = await auth_service.login(username, password)
@@ -46,7 +48,8 @@ async def login(username: str = Body(...), password: str = Body(...), db: AsyncS
 
 
 @router.post("/refresh")
-async def refresh(token: str = Body(..., embed=True), db: AsyncSession = Depends(get_db)):
+@limiter.limit(AUTH_LIMIT)
+async def refresh(request: Request, token: str = Body(..., embed=True), db: AsyncSession = Depends(get_db)):
     auth_service = AuthService(db)
     try:
         result = await auth_service.refresh_token(token)
@@ -56,14 +59,16 @@ async def refresh(token: str = Body(..., embed=True), db: AsyncSession = Depends
 
 
 @router.post("/logout")
-async def logout(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
+@limiter.limit(AUTH_LIMIT)
+async def logout(request: Request, token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
     auth_service = AuthService(db)
     await auth_service.logout(token)
     return {"message": "Logged out successfully"}
 
 
 @router.post("/activate-account")
-async def activate_account(code: str = Body(..., embed=True), db: AsyncSession = Depends(get_db)):
+@limiter.limit(AUTH_LIMIT)
+async def activate_account(request: Request, code: str = Body(..., embed=True), db: AsyncSession = Depends(get_db)):
     auth_service = AuthService(db)
     user = await auth_service.activate_account(code)
     if not user:
