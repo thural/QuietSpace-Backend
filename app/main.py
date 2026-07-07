@@ -9,6 +9,7 @@ from app.config.settings import settings
 from app.core.exceptions import register_exception_handlers
 from app.core.rate_limiter import limiter
 from app.api.v1.router import api_router
+from app.api.websocket.asyncapi import router as asyncapi_router
 from app.api.websocket.socketio import socketio_app
 
 structlog.configure(
@@ -93,6 +94,7 @@ async def logging_middleware(request: Request, call_next):
 
 
 app.include_router(api_router, prefix="/api/v1")
+app.include_router(asyncapi_router)
 app.mount("/ws", socketio_app)
 
 
