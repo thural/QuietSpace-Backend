@@ -8,5 +8,9 @@
     },
     "search.exclude": {
         "legacy/": true
+    },
+    "sonarlint.connectedMode.project": {
+        "connectionId": "thural",
+        "projectKey": "thural_QuietSpace-Backend"
     }
 }
