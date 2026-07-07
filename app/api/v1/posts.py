@@ -123,6 +123,19 @@ async def get_saved_posts(
     return CursorResponse(items=posts, next_cursor=next_cursor, has_more=has_more)
 
 
+@router.get("/commented/{user_id}", response_model=CursorResponse[PostResponse])
+async def get_commented_posts(
+    user_id: UUID,
+    current_user: User = Depends(get_current_user),
+    cursor: str | None = Query(None),
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+):
+    service = PostService(db)
+    posts, next_cursor, has_more = await service.get_commented_posts(user_id, cursor=cursor, limit=limit, current_user_id=current_user.id)
+    return CursorResponse(items=posts, next_cursor=next_cursor, has_more=has_more)
+
+
 @router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_post(post_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
     service = PostService(db, cache_service=cache)
