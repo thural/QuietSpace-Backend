@@ -33,3 +33,57 @@ async def get_unread_messages(current_user: User = Depends(get_current_user), db
     service = MessageService(db)
     messages = await service.get_unread(current_user.id)
     return messages
+
+
+@router.delete("/{message_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_message(
+    message_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    from app.core.unit_of_work import UnitOfWork
+    from app.models.websocket_event import EventFactory
+    from app.enums.websocket_event_type import WebSocketEventType
+
+    service = MessageService(db)
+    try:
+        chat_id = await service.delete_message(message_id, current_user.id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    async with UnitOfWork(db) as uow:
+        event = EventFactory.create_chat_event(
+            event_type=WebSocketEventType.DELETE_MESSAGE,
+            actor_id=current_user.id,
+            chat_id=chat_id,
+            message_id=message_id,
+        )
+        uow.add_event(event)
+        await uow.commit()
+
+
+@router.put("/{message_id}/read", response_model=dict)
+async def mark_message_read(
+    message_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    from app.core.unit_of_work import UnitOfWork
+    from app.models.websocket_event import EventFactory
+    from app.enums.websocket_event_type import WebSocketEventType
+
+    service = MessageService(db)
+    result = await service.mark_as_read(message_id, current_user.id)
+    if not result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
+    sender_id, chat_id = result
+    async with UnitOfWork(db) as uow:
+        event = EventFactory.create_chat_event(
+            event_type=WebSocketEventType.SEEN_MESSAGE,
+            actor_id=current_user.id,
+            chat_id=chat_id,
+            message_id=message_id,
+            recipient_id=sender_id,
+        )
+        uow.add_event(event)
+        await uow.commit()
+    return {"message": "Message marked as read"}

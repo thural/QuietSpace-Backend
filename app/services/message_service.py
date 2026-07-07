@@ -32,7 +32,7 @@ class MessageService:
         messages = await self.message_repo.get_unread(user_id)
         return await self._filter_blocked_messages(messages, user_id)
 
-    async def mark_as_read(self, message_id: UUID, user_id: UUID) -> UUID | None:
+    async def mark_as_read(self, message_id: UUID, user_id: UUID) -> tuple[UUID, UUID] | None:
         message = await self.message_repo.get(message_id)
         if not message:
             return None
@@ -42,16 +42,16 @@ class MessageService:
             message.read = True
             message.read_at = datetime.utcnow()
             await self.message_repo.update(message)
-            return message.sender_id
-        return None
+        return message.sender_id, message.chat_id
 
-    async def delete_message(self, message_id: UUID, user_id: UUID) -> None:
+    async def delete_message(self, message_id: UUID, user_id: UUID) -> UUID:
         message = await self.message_repo.get(message_id)
         if not message:
             raise ValueError("Message not found")
         if message.sender_id != user_id:
             raise ValueError("Not authorized to delete this message")
         await self.message_repo.delete(message_id)
+        return message.chat_id
 
     async def _filter_blocked_messages(self, messages: list[Message], user_id: UUID) -> list[Message]:
         blocked_ids = await self.block_repo.get_blocked_ids(user_id)

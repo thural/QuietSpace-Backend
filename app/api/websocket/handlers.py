@@ -119,9 +119,10 @@ async def handle_seen_message(sid, data):
 
     async with app.state.async_session() as session:
         service = MessageService(session)
-        sender_id = await service.mark_as_read(message_id, user_id)
-        if sender_id:
+        result = await service.mark_as_read(message_id, user_id)
+        if result:
             await session.commit()
+            sender_id, _ = result
             event = EventFactory.create_chat_event(
                 event_type=WebSocketEventType.SEEN_MESSAGE,
                 actor_id=user_id,
