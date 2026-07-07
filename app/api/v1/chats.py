@@ -1,12 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from app.api.deps import get_db, get_current_user
 from app.models.user import User
 from app.models.chat_participant import ChatParticipant
 from app.services.chat_service import ChatService
 from app.schemas.chat import ChatCreate, ChatResponse
+from app.core.unit_of_work import UnitOfWork
+from app.models.websocket_event import EventFactory
+from app.enums.websocket_event_type import WebSocketEventType
 
 router = APIRouter()
 
@@ -44,6 +47,7 @@ async def add_participant(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    service = ChatService(db)
     result = await db.execute(
         select(ChatParticipant).where(
             ChatParticipant.chat_id == chat_id,
@@ -53,18 +57,17 @@ async def add_participant(
     is_member = result.scalar_one_or_none()
     if not is_member:
         raise HTTPException(status_code=403, detail="Not a chat member")
-    result = await db.execute(
-        select(ChatParticipant).where(
-            ChatParticipant.chat_id == chat_id,
-            ChatParticipant.user_id == user_id,
+    async with UnitOfWork(db) as uow:
+        added = await service.add_member(chat_id, user_id, current_user.id)
+        if not added:
+            raise HTTPException(status_code=400, detail="User already a participant")
+        event = EventFactory.create_chat_event(
+            event_type=WebSocketEventType.JOIN_CHAT,
+            actor_id=current_user.id,
+            chat_id=chat_id,
         )
-    )
-    existing = result.scalar_one_or_none()
-    if existing:
-        raise HTTPException(status_code=400, detail="User already a participant")
-    participant = ChatParticipant(chat_id=chat_id, user_id=user_id)
-    db.add(participant)
-    await db.commit()
+        uow.add_event(event)
+        await uow.commit()
     return {"message": "Participant added"}
 
 
@@ -75,6 +78,7 @@ async def remove_participant(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    service = ChatService(db)
     result = await db.execute(
         select(ChatParticipant).where(
             ChatParticipant.chat_id == chat_id,
@@ -84,15 +88,15 @@ async def remove_participant(
     is_member = result.scalar_one_or_none()
     if not is_member:
         raise HTTPException(status_code=403, detail="Not a chat member")
-    result = await db.execute(
-        select(ChatParticipant).where(
-            ChatParticipant.chat_id == chat_id,
-            ChatParticipant.user_id == user_id,
+    async with UnitOfWork(db) as uow:
+        removed = await service.remove_member(chat_id, user_id)
+        if not removed:
+            raise HTTPException(status_code=404, detail="Participant not found")
+        event = EventFactory.create_chat_event(
+            event_type=WebSocketEventType.LEAVE_CHAT,
+            actor_id=current_user.id,
+            chat_id=chat_id,
         )
-    )
-    participant = result.scalar_one_or_none()
-    if not participant:
-        raise HTTPException(status_code=404, detail="Participant not found")
-    await db.delete(participant)
-    await db.commit()
+        uow.add_event(event)
+        await uow.commit()
     return {"message": "Participant removed"}
