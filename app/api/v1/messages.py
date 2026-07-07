@@ -6,6 +6,7 @@ from app.models.user import User
 from app.core.rate_limiter import limiter, CONTENT_LIMIT
 from app.services.message_service import MessageService
 from app.schemas.message import MessageCreate, MessageResponse
+from app.schemas.pagination import CursorResponse
 
 router = APIRouter()
 
@@ -23,11 +24,11 @@ async def send_message(request: Request, message_in: MessageCreate, current_user
     return message
 
 
-@router.get("/chat/{chat_id}", response_model=list[MessageResponse])
-async def get_messages(chat_id: UUID, current_user: User = Depends(get_current_user), limit: int = Query(50, ge=1, le=100), offset: int = Query(0, ge=0), db: AsyncSession = Depends(get_db)):
+@router.get("/chat/{chat_id}", response_model=CursorResponse[MessageResponse])
+async def get_messages(chat_id: UUID, current_user: User = Depends(get_current_user), cursor: str | None = Query(None), limit: int = Query(50, ge=1, le=100), db: AsyncSession = Depends(get_db)):
     service = MessageService(db)
-    messages = await service.get_messages(chat_id, limit=limit, offset=offset, current_user_id=current_user.id)
-    return messages
+    messages, next_cursor, has_more = await service.get_messages(chat_id, cursor=cursor, limit=limit, current_user_id=current_user.id)
+    return CursorResponse(items=messages, next_cursor=next_cursor, has_more=has_more)
 
 
 @router.get("/unread", response_model=list[MessageResponse])

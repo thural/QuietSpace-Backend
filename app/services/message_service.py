@@ -23,11 +23,11 @@ class MessageService:
         message = Message(**message_data)
         return await self.message_repo.create(message)
 
-    async def get_messages(self, chat_id: UUID, limit: int = 50, offset: int = 0, current_user_id: UUID | None = None) -> list[Message]:
-        messages = await self.message_repo.get_by_chat(chat_id, limit, offset)
+    async def get_messages(self, chat_id: UUID, cursor: str | None = None, limit: int = 50, current_user_id: UUID | None = None) -> tuple[list[Message], str | None, bool]:
+        messages, next_cursor, has_more = await self.message_repo.get_by_chat(chat_id, cursor, limit)
         if current_user_id:
             messages = await self._filter_blocked_messages(messages, current_user_id)
-        return messages
+        return messages, next_cursor, has_more
 
     async def get_unread(self, user_id: UUID) -> list[Message]:
         messages = await self.message_repo.get_unread(user_id)
