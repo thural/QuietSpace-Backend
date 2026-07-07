@@ -84,6 +84,12 @@ async def handle_online_status(sid, data):
     await manager.broadcast_to_chat(user_id, "user_status", {"user_id": str(user_id), "status": status})
 
 
+@socketio.on("get_online_users")
+async def handle_get_online_users(sid, data):
+    online_users = await manager.get_online_users()
+    await socketio.emit("online_users", {"online_users": [str(uid) for uid in online_users]}, to=sid)
+
+
 @socketio.on("delete_message")
 async def handle_delete_message(sid, data):
     from app.main import app
