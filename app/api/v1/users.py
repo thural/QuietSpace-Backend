@@ -59,6 +59,30 @@ async def update_me(user_in: UserUpdate, current_user: User = Depends(get_curren
     return current_user
 
 
+@router.get("/query", response_model=list[UserResponse])
+async def query_users(
+    username: str | None = Query(None, min_length=1),
+    firstname: str | None = Query(None, min_length=1),
+    lastname: str | None = Query(None, min_length=1),
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+    current_user: User | None = Depends(get_optional_current_user),
+    db: AsyncSession = Depends(get_db),
+    cache: CacheService = Depends(get_cache),
+):
+    service = UserService(db, cache_service=cache)
+    user_id = current_user.id if current_user else None
+    users = await service.advanced_search(
+        username=username,
+        firstname=firstname,
+        lastname=lastname,
+        page=page,
+        size=size,
+        current_user_id=user_id,
+    )
+    return users
+
+
 @router.get("/search", response_model=list[UserResponse])
 async def search_users(
     q: str = Query(..., min_length=1),
