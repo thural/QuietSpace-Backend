@@ -102,8 +102,15 @@ async def health_check(request: Request):
             db_status = "healthy"
     except Exception:
         db_status = "unhealthy"
+    try:
+        await app.state.redis.ping()
+        redis_status = "healthy"
+    except Exception:
+        redis_status = "unhealthy"
+    overall = "healthy" if db_status == "healthy" and redis_status == "healthy" else "unhealthy"
     return {
-        "status": "healthy" if db_status == "healthy" else "unhealthy",
+        "status": overall,
         "database": db_status,
+        "redis": redis_status,
         "version": "1.0.0",
     }

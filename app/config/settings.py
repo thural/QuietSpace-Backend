@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     SMTP_USER: str = "noreply@example.com"
     SMTP_PASSWORD: str = "your-smtp-password"
     FRONTEND_URL: str = "http://localhost:3000"
+    REDIS_POOL_SIZE: int = 20
     MAX_UPLOAD_SIZE: int = 3 * 1024 * 1024
     DEBUG: bool = False
 
