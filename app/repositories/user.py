@@ -95,23 +95,31 @@ class UserRepository(BaseRepository[User]):
         await self.session.delete(follow)
         return True
 
-    async def get_followers(self, user_id: UUID) -> list[User]:
-        stmt = (
+    async def get_followers(self, user_id: UUID, page: int = 1, size: int = 20) -> tuple[list[User], int]:
+        base_stmt = (
             select(User)
             .join(UserFollow, UserFollow.follower_id == User.id)
             .where(UserFollow.following_id == user_id)
         )
+        count_stmt = select(func.count()).select_from(base_stmt.subquery())
+        total_result = await self.session.execute(count_stmt)
+        total = total_result.scalar_one()
+        stmt = base_stmt.offset((page - 1) * size).limit(size)
         result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        return list(result.scalars().all()), total
 
-    async def get_following(self, user_id: UUID) -> list[User]:
-        stmt = (
+    async def get_following(self, user_id: UUID, page: int = 1, size: int = 20) -> tuple[list[User], int]:
+        base_stmt = (
             select(User)
             .join(UserFollow, UserFollow.following_id == User.id)
             .where(UserFollow.follower_id == user_id)
         )
+        count_stmt = select(func.count()).select_from(base_stmt.subquery())
+        total_result = await self.session.execute(count_stmt)
+        total = total_result.scalar_one()
+        stmt = base_stmt.offset((page - 1) * size).limit(size)
         result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        return list(result.scalars().all()), total
 
 
 

@@ -157,15 +157,43 @@ async def unfollow_user(
 
 
 @router.get("/{user_id}/followers")
-async def get_followers(user_id: UUID, db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
+async def get_followers(
+    user_id: UUID,
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    cache: CacheService = Depends(get_cache),
+):
+    from app.schemas.pagination import OffsetResponse
     service = UserService(db, cache_service=cache)
-    return await service.get_followers(user_id)
+    users, total = await service.get_followers(user_id, page=page, size=size)
+    return OffsetResponse(
+        items=users,
+        total=total,
+        page=page,
+        size=size,
+        pages=(total + size - 1) // size if total > 0 else 0,
+    )
 
 
 @router.get("/{user_id}/following")
-async def get_following(user_id: UUID, db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
+async def get_following(
+    user_id: UUID,
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    cache: CacheService = Depends(get_cache),
+):
+    from app.schemas.pagination import OffsetResponse
     service = UserService(db, cache_service=cache)
-    return await service.get_following(user_id)
+    users, total = await service.get_following(user_id, page=page, size=size)
+    return OffsetResponse(
+        items=users,
+        total=total,
+        page=page,
+        size=size,
+        pages=(total + size - 1) // size if total > 0 else 0,
+    )
 
 
 @router.post("/followers/remove/{follower_id}")

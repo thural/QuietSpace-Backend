@@ -116,30 +116,18 @@ class UserService:
                 await self.cache.delete(f"user:{user_id}:followers")
         return result
 
-    async def get_followers(self, user_id: UUID) -> list[User]:
-        if self.cache:
-            cached = await self.cache.get(f"user:{user_id}:followers")
-            if cached is not None:
-                return cached
-        followers = await self.user_repo.get_followers(user_id)
+    async def get_followers(self, user_id: UUID, page: int = 1, size: int = 20) -> tuple[list[User], int]:
         blocked_ids = await self.block_repo.get_blocked_ids(user_id)
         blocker_ids = await self.block_repo.get_blocker_ids(user_id)
         excluded = blocked_ids | blocker_ids
+        followers, total = await self.user_repo.get_followers(user_id, page, size)
         followers = [u for u in followers if u.id not in excluded]
-        if self.cache:
-            await self.cache.set(f"user:{user_id}:followers", followers, ttl=120)
-        return followers
+        return followers, total
 
-    async def get_following(self, user_id: UUID) -> list[User]:
-        if self.cache:
-            cached = await self.cache.get(f"user:{user_id}:following")
-            if cached is not None:
-                return cached
-        following = await self.user_repo.get_following(user_id)
+    async def get_following(self, user_id: UUID, page: int = 1, size: int = 20) -> tuple[list[User], int]:
         blocked_ids = await self.block_repo.get_blocked_ids(user_id)
         blocker_ids = await self.block_repo.get_blocker_ids(user_id)
         excluded = blocked_ids | blocker_ids
+        following, total = await self.user_repo.get_following(user_id, page, size)
         following = [u for u in following if u.id not in excluded]
-        if self.cache:
-            await self.cache.set(f"user:{user_id}:following", following, ttl=120)
-        return following
+        return following, total
