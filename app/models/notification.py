@@ -13,4 +13,4 @@ class Notification(BaseEntity, table=True):
     read: bool = Field(default=False)
     read_at: datetime | None = Field(default=None)
 
-    user: User = Relationship(back_populates="notifications")
+    user: "User" = Relationship(back_populates="notifications")

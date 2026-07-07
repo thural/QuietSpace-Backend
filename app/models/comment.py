@@ -16,8 +16,8 @@ class Comment(BaseEntity, table=True):
     parent_id: UUID | None = Field(default=None, foreign_key="comment.id", index=True)
     depth: int = Field(default=0, nullable=False)
 
-    post: Post = Relationship(back_populates="comments")
-    author: User = Relationship(back_populates="comments")
+    post: "Post" = Relationship(back_populates="comments")
+    author: "User" = Relationship(back_populates="comments")
     parent: Optional["Comment"] = Relationship(
         back_populates="replies",
         sa_relationship_kwargs={"remote_side": lambda: [Comment.id]}

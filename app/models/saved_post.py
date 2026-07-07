@@ -9,4 +9,4 @@ class SavedPost(BaseEntity, table=True):
     post_id: UUID = Field(foreign_key="post.id", index=True)
     saved_at: datetime = Field(default_factory=datetime.utcnow)
 
-    post: Post = Relationship(back_populates="saved_by")
+    post: "Post" = Relationship(back_populates="saved_by")

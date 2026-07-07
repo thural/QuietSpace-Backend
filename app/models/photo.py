@@ -12,4 +12,4 @@ class Photo(BaseEntity, table=True):
     url: str = Field(max_length=255)
     thumbnail_url: str | None = Field(default=None, max_length=255)
 
-    post: Post = Relationship(back_populates="photos")
+    post: "Post" = Relationship(back_populates="photos")

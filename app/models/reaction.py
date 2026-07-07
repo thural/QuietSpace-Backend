@@ -12,6 +12,6 @@ class Reaction(BaseEntity, table=True):
     post_id: UUID | None = Field(default=None, foreign_key="post.id", index=True)
     comment_id: UUID | None = Field(default=None, foreign_key="comment.id", index=True)
 
-    user: User = Relationship(back_populates="reactions")
+    user: "User" = Relationship(back_populates="reactions")
     post: Optional["Post"] = Relationship(back_populates="reactions")
     comment: Optional["Comment"] = Relationship(back_populates="reactions")

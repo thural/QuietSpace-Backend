@@ -10,4 +10,4 @@ class ProfileSettings(BaseEntity, table=True):
     avatar_url: str | None = Field(default=None, max_length=255)
     is_public: bool = Field(default=True)
 
-    user: User = Relationship(back_populates="profile_settings")
+    user: "User" = Relationship(back_populates="profile_settings")

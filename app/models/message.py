@@ -17,12 +17,12 @@ class Message(BaseEntity, table=True):
     def is_deleted(self) -> bool:
         return self.deleted_at is not None
 
-    chat: Chat = Relationship(back_populates="messages")
-    sender: User = Relationship(
+    chat: "Chat" = Relationship(back_populates="messages")
+    sender: "User" = Relationship(
         back_populates="messages_sent",
         sa_relationship_kwargs={"foreign_keys": "Message.sender_id"}
     )
-    recipient: User = Relationship(
+    recipient: "User" = Relationship(
         back_populates="messages_received",
         sa_relationship_kwargs={"foreign_keys": "Message.recipient_id"}
     )

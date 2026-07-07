@@ -9,4 +9,4 @@ class ChatParticipant(BaseEntity, table=True):
     user_id: UUID = Field(foreign_key="user.id", index=True)
     joined_at: datetime = Field(default_factory=datetime.utcnow)
 
-    chat: Chat = Relationship(back_populates="participants")
+    chat: "Chat" = Relationship(back_populates="participants")
