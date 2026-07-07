@@ -102,6 +102,16 @@ class UserService:
             await self.cache.delete(f"user:{follower_id}:following")
         return True
 
+    async def remove_follower(self, user_id: UUID, follower_id: UUID) -> bool:
+        if user_id == follower_id:
+            return False
+        result = await self.user_repo.remove_follower(user_id, follower_id)
+        if result:
+            await self.session.commit()
+            if self.cache:
+                await self.cache.delete(f"user:{user_id}:followers")
+        return result
+
     async def get_followers(self, user_id: UUID) -> list[User]:
         if self.cache:
             cached = await self.cache.get(f"user:{user_id}:followers")
