@@ -26,8 +26,10 @@ def mock_manager():
         mock.send_to_user = AsyncMock()
         mock.broadcast_to_chat = AsyncMock()
         mock.join_chat_room = AsyncMock()
+        mock.leave_chat_room = AsyncMock()
         mock.emit_error = AsyncMock()
         mock.is_duplicate = AsyncMock(return_value=False)
+        mock.should_throttle_typing = MagicMock(return_value=False)
         mock.active_connections = {uuid4(): "sid_1", uuid4(): "sid_2"}
         yield mock
 
@@ -222,6 +224,103 @@ async def test_handle_online_status(mock_manager):
     mock_manager.broadcast_to_chat.assert_awaited_once_with(
         user_id, "user_status", {"user_id": str(user_id), "status": "online"}
     )
+
+
+@pytest.mark.asyncio
+async def test_handle_typing_status(mock_manager):
+    from app.api.websocket.handlers import handle_typing_status
+
+    user_id = uuid4()
+    chat_id = uuid4()
+    mock_manager.should_throttle_typing = MagicMock(return_value=False)
+    data = {"user_id": str(user_id), "chat_id": str(chat_id)}
+    await handle_typing_status("sid_123", data)
+    mock_manager.broadcast_to_chat.assert_awaited_once_with(
+        chat_id, "typing_status", {"user_id": str(user_id), "chat_id": str(chat_id)}
+    )
+
+
+@pytest.mark.asyncio
+async def test_handle_typing_status_throttled(mock_manager):
+    from app.api.websocket.handlers import handle_typing_status
+
+    mock_manager.should_throttle_typing = MagicMock(return_value=True)
+    data = {"user_id": str(uuid4()), "chat_id": str(uuid4())}
+    await handle_typing_status("sid_123", data)
+    mock_manager.broadcast_to_chat.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_handle_send_message_rate_limited(mock_manager, mock_rate_limiter):
+    from app.api.websocket.handlers import handle_send_message
+
+    mock_rate_limiter.check = AsyncMock(return_value=False)
+    data = {
+        "chat_id": str(uuid4()),
+        "sender_id": str(uuid4()),
+        "recipient_id": str(uuid4()),
+        "text": "Hello!",
+    }
+    await handle_send_message("sid_123", data)
+    mock_manager.emit_error.assert_awaited_once()
+    mock_manager.send_to_user.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_handle_join_chat_not_found(mock_manager):
+    from app.api.websocket.handlers import handle_join_chat
+
+    mock_repo = MagicMock()
+    mock_repo.get = AsyncMock(return_value=None)
+    mock_session = AsyncMock()
+    mock_session.__aenter__.return_value = mock_session
+    mock_app = MagicMock()
+    mock_app.state.async_session.return_value = mock_session
+
+    data = {"user_id": str(uuid4()), "chat_id": str(uuid4())}
+    with (
+        patch("app.main.app", mock_app),
+        patch("app.repositories.chat.ChatRepository", return_value=mock_repo),
+    ):
+        await handle_join_chat("sid_123", data)
+        mock_manager.join_chat_room.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_handle_join_chat_not_member(mock_manager):
+    from app.api.websocket.handlers import handle_join_chat
+
+    mock_chat = MagicMock()
+    mock_chat.id = uuid4()
+    mock_repo = MagicMock()
+    mock_repo.get = AsyncMock(return_value=mock_chat)
+    mock_result = MagicMock()
+    mock_result.scalar_one_or_none.return_value = None
+    mock_session = AsyncMock()
+    mock_session.__aenter__.return_value = mock_session
+    mock_session.execute = AsyncMock(return_value=mock_result)
+    mock_app = MagicMock()
+    mock_app.state.async_session.return_value = mock_session
+
+    data = {"user_id": str(uuid4()), "chat_id": str(mock_chat.id)}
+    with (
+        patch("app.main.app", mock_app),
+        patch("app.repositories.chat.ChatRepository", return_value=mock_repo),
+    ):
+        await handle_join_chat("sid_123", data)
+        mock_manager.join_chat_room.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_handle_leave_chat(mock_manager):
+    from app.api.websocket.handlers import handle_leave_chat
+
+    user_id = uuid4()
+    chat_id = uuid4()
+    data = {"user_id": str(user_id), "chat_id": str(chat_id)}
+    await handle_leave_chat("sid_123", data)
+    mock_manager.leave_chat_room.assert_awaited_once_with(user_id, chat_id)
+    mock_manager.broadcast_to_chat.assert_awaited_once()
 
 
 @pytest.mark.asyncio
