@@ -63,6 +63,25 @@ class NotificationService:
     async def get_unread_count(self, user_id: UUID) -> int:
         return await self.notification_repo.get_unread_count(user_id)
 
+    async def mark_multiple_as_read(
+        self, user_id: UUID, ids: list[UUID] | None = None, all_: bool = False
+    ) -> int:
+        if all_:
+            marked = await self.notification_repo.mark_all_as_read(user_id)
+        elif ids:
+            count = 0
+            for nid in ids:
+                notification = await self.notification_repo.get(nid)
+                if notification and notification.user_id == user_id and not notification.read:
+                    notification.read = True
+                    notification.read_at = datetime.utcnow()
+                    await self.notification_repo.update(notification)
+                    count += 1
+            marked = count
+        else:
+            return 0
+        return marked
+
     async def mark_as_read(
         self, notification_id: UUID, actor_id: UUID | None = None
     ) -> Notification | None:

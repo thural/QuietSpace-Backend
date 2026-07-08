@@ -4,7 +4,7 @@ from uuid import UUID
 from app.api.deps import get_db, get_current_user
 from app.models.user import User
 from app.services.notification_service import NotificationService
-from app.schemas.notification import NotificationResponse
+from app.schemas.notification import NotificationResponse, BatchReadRequest
 from app.schemas.pagination import CursorResponse
 
 router = APIRouter()
@@ -28,6 +28,19 @@ async def get_unread_count(current_user: User = Depends(get_current_user), db: A
     service = NotificationService(db)
     count = await service.get_unread_count(current_user.id)
     return {"count": count}
+
+
+@router.put("/read", status_code=status.HTTP_200_OK)
+async def mark_multiple_as_read(
+    body: BatchReadRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    service = NotificationService(db)
+    marked = await service.mark_multiple_as_read(
+        current_user.id, ids=body.ids, all_=body.all or False
+    )
+    return {"marked": marked}
 
 
 @router.put("/{notification_id}/read", response_model=NotificationResponse)

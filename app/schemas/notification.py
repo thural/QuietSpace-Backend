@@ -2,7 +2,9 @@ from pydantic import BaseModel, Field
 from typing import Optional
 from uuid import UUID
 from datetime import datetime
-from app.enums.notification_type import NotificationType
+class BatchReadRequest(BaseModel):
+    ids: list[UUID] | None = None
+    all: bool | None = None
 
 
 class NotificationBase(BaseModel):
