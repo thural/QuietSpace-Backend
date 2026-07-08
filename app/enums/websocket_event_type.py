@@ -1,6 +1,15 @@
 from enum import Enum
 
 
+class ErrorCode(str, Enum):
+    AUTH_FAILED = "AUTH_FAILED"
+    FORBIDDEN = "FORBIDDEN"
+    NOT_FOUND = "NOT_FOUND"
+    VALIDATION_ERROR = "VALIDATION_ERROR"
+    RATE_LIMITED = "RATE_LIMITED"
+    INTERNAL_ERROR = "INTERNAL_ERROR"
+
+
 class WebSocketEventType(str, Enum):
     JOIN_CHAT = "JOIN_CHAT"
     LEAVE_CHAT = "LEAVE_CHAT"
@@ -13,3 +22,4 @@ class WebSocketEventType(str, Enum):
     NOTIFICATION = "NOTIFICATION"
     NOTIFICATION_READ = "NOTIFICATION_READ"
     SYSTEM = "SYSTEM"
+    ERROR = "ERROR"

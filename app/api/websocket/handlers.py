@@ -3,7 +3,7 @@ import structlog
 from app.api.websocket.socketio import socketio
 from app.api.websocket.manager import manager
 from app.models.websocket_event import EventFactory
-from app.enums.websocket_event_type import WebSocketEventType
+from app.enums.websocket_event_type import WebSocketEventType, ErrorCode
 
 logger = structlog.get_logger()
 
@@ -20,6 +20,8 @@ async def handle_connect(sid, environ):
         await socketio.enter_room(sid, "public")
         await socketio.emit("connected", {"user_id": str(user.id)}, to=sid)
         logger.info("ws_connected", user_id=str(user.id), sid=sid)
+    else:
+        await manager.emit_error(sid, ErrorCode.AUTH_FAILED, "Invalid or expired token", "connect")
 
 
 @socketio.on("disconnect")
@@ -35,6 +37,25 @@ async def handle_disconnect(sid):
 async def handle_join_chat(sid, data):
     user_id = UUID(data["user_id"])
     chat_id = UUID(data["chat_id"])
+    from app.main import app
+    from app.repositories.chat import ChatRepository
+    async with app.state.async_session() as session:
+        repo = ChatRepository(session)
+        chat = await repo.get(chat_id)
+        if not chat:
+            await manager.emit_error(sid, ErrorCode.NOT_FOUND, "Chat not found", "join_chat")
+            return
+        from app.models.chat_participant import ChatParticipant
+        from sqlalchemy import select
+        result = await session.execute(
+            select(ChatParticipant).where(
+                ChatParticipant.chat_id == chat_id,
+                ChatParticipant.user_id == user_id,
+            )
+        )
+        if not result.scalar_one_or_none():
+            await manager.emit_error(sid, ErrorCode.FORBIDDEN, "Not a chat member", "join_chat")
+            return
     await manager.join_chat_room(user_id, chat_id)
     event = EventFactory.create_chat_event(
         event_type=WebSocketEventType.JOIN_CHAT,
@@ -126,6 +147,7 @@ async def handle_delete_message(sid, data):
         try:
             await service.delete_message(message_id, user_id)
         except ValueError:
+            await manager.emit_error(sid, ErrorCode.FORBIDDEN, "Not authorized to delete this message", "delete_message")
             return
         event = EventFactory.create_chat_event(
             event_type=WebSocketEventType.DELETE_MESSAGE,
@@ -152,6 +174,9 @@ async def handle_seen_message(sid, data):
         if result:
             await session.commit()
             sender_id, _ = result
+        else:
+            await manager.emit_error(sid, ErrorCode.NOT_FOUND, "Message not found", "seen_message")
+            return
             event = EventFactory.create_chat_event(
                 event_type=WebSocketEventType.SEEN_MESSAGE,
                 actor_id=user_id,

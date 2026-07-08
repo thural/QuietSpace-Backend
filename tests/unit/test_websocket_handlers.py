@@ -7,6 +7,7 @@ from uuid import UUID, uuid4
 def mock_socketio():
     with patch("app.api.websocket.handlers.socketio") as mock:
         mock.emit = AsyncMock()
+        mock.enter_room = AsyncMock()
         yield mock
 
 
@@ -18,6 +19,7 @@ def mock_manager():
         mock.send_to_user = AsyncMock()
         mock.broadcast_to_chat = AsyncMock()
         mock.join_chat_room = AsyncMock()
+        mock.emit_error = AsyncMock()
         mock.active_connections = {uuid4(): "sid_1", uuid4(): "sid_2"}
         yield mock
 
@@ -52,6 +54,7 @@ async def test_handle_connect_without_token(mock_manager, mock_socketio):
 @pytest.mark.asyncio
 async def test_handle_connect_with_invalid_token(mock_manager, mock_socketio):
     from app.api.websocket.handlers import handle_connect
+    from app.enums.websocket_event_type import ErrorCode
 
     with patch(
         "app.api.websocket.handlers.authenticate_websocket_token",
@@ -60,6 +63,9 @@ async def test_handle_connect_with_invalid_token(mock_manager, mock_socketio):
         environ = {"HTTP_AUTHORIZATION": "Bearer invalid_token"}
         await handle_connect("sid_123", environ)
         mock_manager.connect_user.assert_not_awaited()
+        mock_manager.emit_error.assert_awaited_once_with(
+            "sid_123", ErrorCode.AUTH_FAILED, "Invalid or expired token", "connect"
+        )
 
 
 @pytest.mark.asyncio
@@ -88,8 +94,30 @@ async def test_handle_join_chat(mock_manager):
     user_id = uuid4()
     chat_id = uuid4()
     data = {"user_id": str(user_id), "chat_id": str(chat_id)}
-    await handle_join_chat("sid_123", data)
-    mock_manager.join_chat_room.assert_awaited_once_with(user_id, chat_id)
+
+    mock_chat = MagicMock()
+    mock_chat.id = chat_id
+
+    mock_repo = MagicMock()
+    mock_repo.get = AsyncMock(return_value=mock_chat)
+
+    mock_participant = MagicMock()
+    mock_result = MagicMock()
+    mock_result.scalar_one_or_none.return_value = mock_participant
+
+    mock_session = AsyncMock()
+    mock_session.__aenter__.return_value = mock_session
+    mock_session.execute = AsyncMock(return_value=mock_result)
+
+    mock_app = MagicMock()
+    mock_app.state.async_session.return_value = mock_session
+
+    with (
+        patch("app.main.app", mock_app),
+        patch("app.repositories.chat.ChatRepository", return_value=mock_repo),
+    ):
+        await handle_join_chat("sid_123", data)
+        mock_manager.join_chat_room.assert_awaited_once_with(user_id, chat_id)
 
 
 @pytest.mark.asyncio

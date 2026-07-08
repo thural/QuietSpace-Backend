@@ -2,7 +2,15 @@ from datetime import datetime, timezone
 from uuid import UUID
 from typing import Any
 from pydantic import BaseModel
-from app.enums.websocket_event_type import WebSocketEventType
+from app.enums.websocket_event_type import WebSocketEventType, ErrorCode
+
+
+class ErrorEvent(BaseModel):
+    event_type: str = "error"
+    code: ErrorCode
+    message: str
+    operation: str
+    timestamp: datetime
 
 
 class BaseEvent(BaseModel):

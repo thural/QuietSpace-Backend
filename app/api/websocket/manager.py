@@ -1,7 +1,9 @@
+from datetime import datetime, timezone
 from typing import Dict, Set
 from uuid import UUID
 from app.api.websocket.socketio import socketio
 from app.config.redis import redis_client
+from app.enums.websocket_event_type import ErrorCode
 
 ONLINE_USERS_KEY = "online_users"
 
@@ -10,6 +12,19 @@ class ConnectionManager:
     def __init__(self):
         self.active_connections: Dict[UUID, str] = {}
         self.user_rooms: Dict[UUID, Set[UUID]] = {}
+
+    async def emit_error(self, sid: str, code: ErrorCode, message: str, operation: str):
+        await socketio.emit(
+            "error",
+            {
+                "event_type": "error",
+                "code": code.value,
+                "message": message,
+                "operation": operation,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            },
+            to=sid,
+        )
 
     async def connect_user(self, user_id: UUID, session_id: str):
         self.active_connections[user_id] = session_id
