@@ -22,6 +22,12 @@ async def test_get_user_not_found(client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_get_user_detail_not_found(client: AsyncClient):
+    response = await client.get("/api/v1/users/00000000-0000-0000-0000-000000000000/detail")
+    assert response.status_code == 404
+
+
+@pytest.mark.asyncio
 async def test_remove_follower_requires_auth(client: AsyncClient):
     response = await client.delete(
         "/api/v1/users/00000000-0000-0000-0000-000000000000/followers/00000000-0000-0000-0000-000000000001"

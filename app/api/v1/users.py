@@ -281,6 +281,15 @@ async def remove_follower_deprecated(
     return {"message": "Follower removed successfully"}
 
 
+@router.get("/{user_id}/detail", response_model=UserResponse)
+async def get_user_detail(user_id: UUID, db: AsyncSession = Depends(get_db)):
+    repo = UserRepository(db)
+    user = await repo.get_with_posts(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
 @router.get("/{user_id}/save", response_model=UserResponse)
 async def get_user_with_relations(user_id: UUID, db: AsyncSession = Depends(get_db)):
     repo = UserRepository(db)
