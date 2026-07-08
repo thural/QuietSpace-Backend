@@ -11,15 +11,17 @@ class ReactionService:
     def __init__(self, session: AsyncSession):
         self.reaction_repo = ReactionRepository(session)
 
-    async def toggle_reaction(self, user_id: UUID, reaction_in: ReactionCreate) -> Reaction:
+    async def create_reaction(self, user_id: UUID, reaction_in: ReactionCreate) -> Reaction:
         existing = await self.reaction_repo.get_by_user_and_target(
             user_id, reaction_in.post_id, reaction_in.comment_id
         )
         if existing:
-            await self.reaction_repo.delete(existing.id)
-            return existing
+            raise ValueError("Reaction already exists")
         reaction = Reaction(**reaction_in.model_dump(), user_id=user_id)
         return await self.reaction_repo.create(reaction)
+
+    async def delete_reaction(self, reaction_id: UUID) -> bool:
+        return await self.reaction_repo.delete(reaction_id)
 
     async def get_reactions(self, post_id: UUID | None = None, comment_id: UUID | None = None) -> list[Reaction]:
         if post_id:

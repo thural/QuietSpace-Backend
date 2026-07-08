@@ -41,10 +41,22 @@ async def get_content_reactions(
 
 @router.post("", response_model=ReactionResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit(CONTENT_LIMIT)
-async def toggle_reaction(request: Request, reaction_in: ReactionCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def create_reaction(request: Request, reaction_in: ReactionCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = ReactionService(db)
-    reaction = await service.toggle_reaction(current_user.id, reaction_in)
+    try:
+        reaction = await service.create_reaction(current_user.id, reaction_in)
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Reaction already exists")
     return reaction
+
+
+@router.delete("/{reaction_id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit(CONTENT_LIMIT)
+async def delete_reaction(request: Request, reaction_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    service = ReactionService(db)
+    success = await service.delete_reaction(reaction_id)
+    if not success:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reaction not found")
 
 
 @router.get("/post/{post_id}", response_model=list[ReactionResponse])
