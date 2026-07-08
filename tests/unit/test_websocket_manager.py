@@ -26,9 +26,13 @@ async def test_connect_user(manager, mock_socketio):
     session_id = "test_sid_123"
     await manager.connect_user(user_id, session_id)
     assert manager.active_connections[user_id] == session_id
-    mock_socketio.emit.assert_awaited_once_with(
-        "user_connected", {"user_id": str(user_id)}
-    )
+    mock_socketio.emit.assert_awaited_once()
+    args, kwargs = mock_socketio.emit.await_args
+    assert args[0] == "user_connected"
+    data = args[1]
+    assert data["user_id"] == str(user_id)
+    assert data["event_type"] == "USER_ONLINE"
+    assert "timestamp" in data
 
 
 @pytest.mark.asyncio
@@ -38,9 +42,13 @@ async def test_disconnect_user(manager, mock_socketio):
     await manager.disconnect_user(user_id)
     assert user_id not in manager.active_connections
     assert mock_socketio.emit.await_count == 2
-    mock_socketio.emit.assert_awaited_with(
-        "user_disconnected", {"user_id": str(user_id)}
-    )
+    _, disconnect_call = mock_socketio.emit.await_args_list
+    args, kwargs = disconnect_call
+    assert args[0] == "user_disconnected"
+    data = args[1]
+    assert data["user_id"] == str(user_id)
+    assert data["event_type"] == "USER_OFFLINE"
+    assert "timestamp" in data
 
 
 @pytest.mark.asyncio

@@ -39,13 +39,23 @@ class ConnectionManager:
     async def connect_user(self, user_id: UUID, session_id: str):
         self.active_connections[user_id] = session_id
         await redis_client.sadd(ONLINE_USERS_KEY, str(user_id))
-        await socketio.emit("user_connected", {"user_id": str(user_id)})
+        now = datetime.now(timezone.utc).isoformat()
+        await socketio.emit("user_connected", {
+            "event_type": "USER_ONLINE",
+            "user_id": str(user_id),
+            "timestamp": now,
+        })
 
     async def disconnect_user(self, user_id: UUID):
         if user_id in self.active_connections:
             del self.active_connections[user_id]
             await redis_client.srem(ONLINE_USERS_KEY, str(user_id))
-            await socketio.emit("user_disconnected", {"user_id": str(user_id)})
+            now = datetime.now(timezone.utc).isoformat()
+            await socketio.emit("user_disconnected", {
+                "event_type": "USER_OFFLINE",
+                "user_id": str(user_id),
+                "timestamp": now,
+            })
 
     async def get_online_users(self) -> list[UUID]:
         user_ids = await redis_client.smembers(ONLINE_USERS_KEY)

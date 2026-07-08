@@ -14,6 +14,7 @@ class ErrorEvent(BaseModel):
 
 
 class BaseEvent(BaseModel):
+    event_version: int = 1
     event_type: WebSocketEventType
     timestamp: datetime
     actor_id: UUID
