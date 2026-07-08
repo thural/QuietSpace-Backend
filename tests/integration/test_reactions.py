@@ -75,6 +75,49 @@ async def test_get_content_reactions_post(client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_create_and_delete_reaction(client: AsyncClient, db_session):
+    from app.main import app
+    from app.api.deps import get_current_user
+    from app.models.user import User
+    from app.models.post import Post
+
+    user = User(username="reactuser", email="reactuser@test.com", password_hash="x")
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+
+    post = Post(text="Test post for reaction", author_id=user.id)
+    db_session.add(post)
+    await db_session.commit()
+    await db_session.refresh(post)
+
+    app.dependency_overrides[get_current_user] = lambda: user
+
+    response = await client.post(
+        "/api/v1/reactions",
+        json={"type": "LIKE", "post_id": str(post.id)},
+    )
+    assert response.status_code == 201
+    data = response.json()
+    assert data["type"] == "LIKE"
+    reaction_id = data["id"]
+
+    response = await client.post(
+        "/api/v1/reactions",
+        json={"type": "LIKE", "post_id": str(post.id)},
+    )
+    assert response.status_code == 409
+
+    response = await client.delete(f"/api/v1/reactions/{reaction_id}")
+    assert response.status_code == 204
+
+    response = await client.delete(f"/api/v1/reactions/{reaction_id}")
+    assert response.status_code == 404
+
+    del app.dependency_overrides[get_current_user]
+
+
+@pytest.mark.asyncio
 async def test_get_content_reactions_invalid_type(client: AsyncClient):
     response = await client.get(
         "/api/v1/reactions/content",
