@@ -52,7 +52,6 @@ async def test_asyncapi_spec_channels():
     assert "typing_status" in channels
     assert "notification" in channels
     assert "unread_count" in channels
-    assert "new_notification" in channels
     assert "system" in channels
 
 
@@ -83,7 +82,6 @@ async def test_asyncapi_spec_has_publish_and_subscribe():
     assert "subscribe" in channels["typing_status"]
     assert "subscribe" in channels["notification"]
     assert "subscribe" in channels["unread_count"]
-    assert "subscribe" in channels["new_notification"]
     assert "subscribe" in channels["system"]
 
     # Bidirectional (both publish and subscribe)

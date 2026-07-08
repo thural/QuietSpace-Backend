@@ -462,18 +462,6 @@ channels:
               type: integer
               description: Number of unread notifications
 
-  new_notification:
-    description: |
-      A new notification model instance pushed to the connected user
-      (raw notification data, not wrapped in an event envelope).
-    subscribe:
-      summary: A new notification was created
-      operationId: onNewNotification
-      message:
-        name: NewNotificationPayload
-        payload:
-          $ref: "#/components/schemas/Notification"
-
   system:
     description: |
       System-level events broadcast to all connected clients.
