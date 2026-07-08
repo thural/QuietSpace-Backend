@@ -75,6 +75,15 @@ class CommentRepository(BaseRepository[Comment]):
         stmt = select(Comment).where(Comment.author_id == author_id)
         return await self.paginate_cursor(stmt, cursor, limit)
 
+    async def get_latest_by_user_on_post(self, user_id: UUID, post_id: UUID) -> Comment | None:
+        result = await self.session.execute(
+            select(Comment)
+            .where(Comment.author_id == user_id, Comment.post_id == post_id)
+            .order_by(Comment.created_at.desc())
+            .limit(1)
+        )
+        return result.scalar_one_or_none()
+
     async def get_replies_count(self, parent_id: UUID) -> int:
         result = await self.session.execute(
             select(func.count()).where(Comment.parent_id == parent_id)

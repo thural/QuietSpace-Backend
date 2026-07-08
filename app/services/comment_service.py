@@ -62,6 +62,9 @@ class CommentService:
             logger.info("comment_deleted", comment_id=str(comment_id))
         return result
 
+    async def get_latest_comment_by_user_on_post(self, user_id: UUID, post_id: UUID) -> Comment | None:
+        return await self.comment_repo.get_latest_by_user_on_post(user_id, post_id)
+
     async def get_comment(self, comment_id: UUID, current_user_id: UUID | None = None) -> Comment | None:
         comment = await self.comment_repo.get(comment_id)
         if not comment:
