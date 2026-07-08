@@ -29,3 +29,25 @@ async def test_get_message_not_found(client: AsyncClient):
         "/api/v1/messages/00000000-0000-0000-0000-000000000000"
     )
     assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_get_unread_messages_requires_auth(client: AsyncClient):
+    response = await client.get("/api/v1/messages/unread")
+    assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_mark_message_read_not_found(client: AsyncClient):
+    response = await client.put(
+        "/api/v1/messages/00000000-0000-0000-0000-000000000000/read"
+    )
+    assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_delete_message_requires_auth(client: AsyncClient):
+    response = await client.delete(
+        "/api/v1/messages/00000000-0000-0000-0000-000000000000"
+    )
+    assert response.status_code == 403

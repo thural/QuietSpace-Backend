@@ -155,3 +155,68 @@ async def test_send_message_via_handler(ws_test_client: AsyncClient, shared_sess
     messages = msg_resp.json()
     assert len(messages) >= 1
     assert messages[-1]["text"] == "Hello via WS!"
+
+
+@pytest.mark.asyncio
+async def test_handle_connect_missing_token(ws_test_client, shared_session_factory):
+    from app.api.websocket.handlers import handle_connect
+    from app.api.websocket.manager import manager
+    from unittest.mock import AsyncMock, patch
+
+    with (
+        patch.object(manager, "connect_user", new=AsyncMock()) as mock_connect,
+        patch.object(manager, "emit_error", new=AsyncMock()) as mock_error,
+    ):
+        await handle_connect("sid_no_token", {})
+        mock_connect.assert_not_awaited()
+        mock_error.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_handle_leave_chat(ws_test_client, shared_session_factory, patch_app_session):
+    from app.api.websocket.handlers import handle_leave_chat
+    from app.api.websocket.manager import manager
+    from unittest.mock import AsyncMock, patch
+
+    token_a, user_a = await _register_and_activate(ws_test_client, shared_session_factory, "leave1")
+    token_b, user_b = await _register_and_activate(ws_test_client, shared_session_factory, "leave2")
+
+    chat_resp = await ws_test_client.post(
+        "/api/v1/chats",
+        json={
+            "participant_ids": [str(user_a["id"]), str(user_b["id"])],
+            "is_group": False,
+        },
+        headers={"Authorization": f"Bearer {token_a}"},
+    )
+    assert chat_resp.status_code == 201
+    chat_id = chat_resp.json()["id"]
+
+    with patch.object(manager, "broadcast_to_chat", new=AsyncMock()) as mock_broadcast:
+        await handle_leave_chat(
+            "test-sid",
+            {
+                "user_id": str(user_a["id"]),
+                "chat_id": str(chat_id),
+            },
+        )
+        mock_broadcast.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_handle_online_status_via_handler(ws_test_client, shared_session_factory, patch_app_session):
+    from app.api.websocket.handlers import handle_online_status
+    from app.api.websocket.manager import manager
+    from unittest.mock import AsyncMock, patch
+
+    token_a, user_a = await _register_and_activate(ws_test_client, shared_session_factory, "onl1")
+
+    with patch.object(manager, "broadcast_to_chat", new=AsyncMock()) as mock_broadcast:
+        await handle_online_status(
+            "test-sid",
+            {
+                "user_id": str(user_a["id"]),
+                "status": "online",
+            },
+        )
+        mock_broadcast.assert_awaited_once()

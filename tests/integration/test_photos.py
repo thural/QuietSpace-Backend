@@ -41,3 +41,40 @@ async def test_delete_profile_photo_not_found(client: AsyncClient, db_session):
     assert response.status_code == 404
 
     del app.dependency_overrides[get_current_user]
+
+
+@pytest.mark.asyncio
+async def test_create_photo_success(client: AsyncClient, db_session):
+    from app.main import app
+    from app.api.deps import get_current_user
+    from app.models.user import User
+    from app.models.post import Post
+
+    user = User(username="photocreator", email="photocreator@test.com", password_hash="x")
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+
+    post = Post(text="Post with photo", author_id=user.id)
+    db_session.add(post)
+    await db_session.commit()
+    await db_session.refresh(post)
+
+    app.dependency_overrides[get_current_user] = lambda: user
+    response = await client.post(
+        "/api/v1/photos",
+        json={"post_id": str(post.id), "url": "http://example.com/photo.jpg"},
+    )
+    assert response.status_code == 201
+    data = response.json()
+    assert "id" in data
+
+    del app.dependency_overrides[get_current_user]
+
+
+@pytest.mark.asyncio
+async def test_delete_photo_requires_auth(client: AsyncClient):
+    response = await client.delete(
+        "/api/v1/photos/00000000-0000-0000-0000-000000000000"
+    )
+    assert response.status_code == 403

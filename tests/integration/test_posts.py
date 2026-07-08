@@ -114,3 +114,48 @@ async def test_get_post_reaction_count_nested(client: AsyncClient):
     assert response.status_code == 200
     data = response.json()
     assert "count" in data
+
+
+@pytest.mark.asyncio
+async def test_save_post_requires_auth(client: AsyncClient):
+    response = await client.post(
+        "/api/v1/posts/00000000-0000-0000-0000-000000000000/save"
+    )
+    assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_unsave_post_requires_auth(client: AsyncClient):
+    response = await client.delete(
+        "/api/v1/posts/00000000-0000-0000-0000-000000000000/save"
+    )
+    assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_get_saved_posts_requires_auth(client: AsyncClient):
+    response = await client.get("/api/v1/posts/saved")
+    assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_get_commented_posts_requires_auth(client: AsyncClient):
+    response = await client.get(
+        "/api/v1/posts/commented/00000000-0000-0000-0000-000000000000"
+    )
+    assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_update_post_requires_auth(client: AsyncClient):
+    response = await client.patch(
+        "/api/v1/posts/00000000-0000-0000-0000-000000000000",
+        json={"text": "Updated text"},
+    )
+    assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_delete_post_requires_auth(client: AsyncClient):
+    response = await client.delete("/api/v1/posts/00000000-0000-0000-0000-000000000000")
+    assert response.status_code == 403

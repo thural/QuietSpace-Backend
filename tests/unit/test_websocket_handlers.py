@@ -346,6 +346,86 @@ async def test_authenticate_websocket_token_success():
 
 
 @pytest.mark.asyncio
+async def test_handle_delete_message_not_authorized(mock_manager):
+    from app.api.websocket.handlers import handle_delete_message
+
+    data = {
+        "message_id": str(uuid4()),
+        "user_id": str(uuid4()),
+        "chat_id": str(uuid4()),
+    }
+    mock_service = MagicMock()
+    mock_service.delete_message = AsyncMock(side_effect=ValueError("Not authorized"))
+    mock_session = AsyncMock()
+    mock_session.__aenter__.return_value = mock_session
+    mock_app = MagicMock()
+    mock_app.state.async_session.return_value = mock_session
+
+    with (
+        patch("app.main.app", mock_app),
+        patch("app.services.message_service.MessageService", return_value=mock_service),
+    ):
+        await handle_delete_message("sid_123", data)
+        mock_manager.emit_error.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_handle_seen_message_not_found(mock_manager):
+    from app.api.websocket.handlers import handle_seen_message
+
+    data = {
+        "message_id": str(uuid4()),
+        "user_id": str(uuid4()),
+        "chat_id": str(uuid4()),
+    }
+    mock_service = MagicMock()
+    mock_service.mark_as_read = AsyncMock(return_value=None)
+    mock_session = AsyncMock()
+    mock_session.__aenter__.return_value = mock_session
+    mock_app = MagicMock()
+    mock_app.state.async_session.return_value = mock_session
+
+    with (
+        patch("app.main.app", mock_app),
+        patch("app.services.message_service.MessageService", return_value=mock_service),
+    ):
+        await handle_seen_message("sid_123", data)
+        mock_manager.emit_error.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_handle_get_online_users_not_authenticated(mock_manager, mock_socketio):
+    from app.api.websocket.handlers import handle_get_online_users
+
+    mock_manager.sid_to_user = {}
+    data = {}
+    await handle_get_online_users("sid_123", data)
+    mock_socketio.emit.assert_awaited_once_with(
+        "online_users", {"online_users": []}, to="sid_123"
+    )
+
+
+@pytest.mark.asyncio
+async def test_handle_public_message_rate_limited(mock_manager, mock_rate_limiter):
+    from app.api.websocket.handlers import handle_public_message
+
+    mock_rate_limiter.check = AsyncMock(return_value=False)
+    data = {"user_id": str(uuid4()), "message": "Hello", "type": "message"}
+    await handle_public_message("sid_123", data)
+    mock_manager.emit_error.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_handle_online_status_rate_limited(mock_manager, mock_rate_limiter):
+    from app.api.websocket.handlers import handle_online_status
+
+    mock_rate_limiter.check = AsyncMock(return_value=False)
+    data = {"user_id": str(uuid4()), "status": "online"}
+    await handle_online_status("sid_123", data)
+    mock_manager.broadcast_to_chat.assert_not_awaited()
+
+
+@pytest.mark.asyncio
 async def test_authenticate_websocket_token_failure():
     from app.api.websocket.handlers import authenticate_websocket_token
 
