@@ -140,6 +140,17 @@ async def handle_online_status(sid, data):
     await manager.broadcast_to_chat(user_id, "user_status", {"user_id": str(user_id), "status": status})
 
 
+@socketio.on("typing_status")
+async def handle_typing_status(sid, data):
+    user_id = UUID(data["user_id"])
+    chat_id = UUID(data["chat_id"])
+    if manager.should_throttle_typing(user_id, chat_id):
+        return
+    await manager.broadcast_to_chat(
+        chat_id, "typing_status", {"user_id": str(user_id), "chat_id": str(chat_id)}
+    )
+
+
 @socketio.on("get_online_users")
 async def handle_get_online_users(sid, data):
     user_id = manager.sid_to_user.get(sid)

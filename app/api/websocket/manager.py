@@ -1,5 +1,6 @@
+import time
 from datetime import datetime, timezone
-from typing import Dict, Set
+from typing import Dict, Set, Tuple
 from uuid import UUID
 from app.api.websocket.socketio import socketio
 from app.config.redis import redis_client
@@ -13,6 +14,16 @@ class ConnectionManager:
         self.active_connections: Dict[UUID, str] = {}
         self.sid_to_user: Dict[str, UUID] = {}
         self.user_rooms: Dict[UUID, Set[UUID]] = {}
+        self.last_typing_broadcast: Dict[Tuple[UUID, UUID], float] = {}
+
+    def should_throttle_typing(self, user_id: UUID, chat_id: UUID, cooldown: float = 2.0) -> bool:
+        key = (user_id, chat_id)
+        now = time.time()
+        last = self.last_typing_broadcast.get(key, 0.0)
+        if now - last < cooldown:
+            return True
+        self.last_typing_broadcast[key] = now
+        return False
 
     DEDUP_KEY = "ws_dedup"
     DEDUP_TTL = 86400
