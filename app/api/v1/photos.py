@@ -46,6 +46,20 @@ async def upload_profile_photo(
     return settings
 
 
+@router.delete("/profile/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit(CONTENT_LIMIT)
+async def delete_profile_photo(
+    request: Request,
+    user_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    service = PhotoService(db)
+    success = await service.delete_profile_photo(user_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Profile photo not found")
+
+
 @router.get("/post/{post_id}", response_model=list[PhotoResponse])
 async def get_photos(post_id: UUID, db: AsyncSession = Depends(get_db)):
     service = PhotoService(db)
