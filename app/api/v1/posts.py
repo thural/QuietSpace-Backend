@@ -53,6 +53,18 @@ async def get_posts(
     return CursorResponse(items=posts, next_cursor=next_cursor, has_more=has_more)
 
 
+@router.get("/search", response_model=CursorResponse[PostResponse])
+async def search_posts(
+    q: str = Query(..., min_length=1),
+    cursor: str | None = Query(None),
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+):
+    service = PostService(db)
+    posts, next_cursor, has_more = await service.search_posts(q, cursor=cursor, limit=limit)
+    return CursorResponse(items=posts, next_cursor=next_cursor, has_more=has_more)
+
+
 @router.get("/{post_id}", response_model=PostResponse)
 async def get_post(post_id: UUID, current_user: User | None = Depends(get_optional_current_user), db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
     service = PostService(db, cache_service=cache)

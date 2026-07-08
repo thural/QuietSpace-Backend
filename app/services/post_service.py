@@ -112,6 +112,15 @@ class PostService:
             posts = await self._filter_blocked(posts, current_user_id)
         return posts, next_cursor, has_more
 
+    async def search_posts(self, query: str, cursor: str | None = None, limit: int = 20, current_user_id: UUID | None = None) -> tuple[list[Post], str | None, bool]:
+        stmt = select(Post).where(Post.text.ilike(f"%{query}%"))
+        posts, next_cursor, has_more = await self.post_repo.paginate_cursor(stmt, cursor, limit)
+        for post in posts:
+            await self.session.refresh(post, attribute_names=["polls"])
+        if current_user_id:
+            posts = await self._filter_blocked(posts, current_user_id)
+        return posts, next_cursor, has_more
+
     async def _filter_blocked(self, posts: list[Post], current_user_id: UUID) -> list[Post]:
         blocked_ids = await self.block_repo.get_blocked_ids(current_user_id)
         blocker_ids = await self.block_repo.get_blocker_ids(current_user_id)

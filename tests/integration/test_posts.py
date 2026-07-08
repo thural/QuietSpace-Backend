@@ -43,3 +43,33 @@ async def test_get_posts_by_user_nonexistent(client: AsyncClient):
     assert response.status_code == 200
     data = response.json()
     assert data["items"] == []
+
+
+@pytest.mark.asyncio
+async def test_search_posts(client: AsyncClient):
+    response = await client.get("/api/v1/posts/search", params={"q": "test"})
+    assert response.status_code == 200
+    data = response.json()
+    assert "items" in data
+    assert isinstance(data["items"], list)
+    assert "has_more" in data
+
+
+@pytest.mark.asyncio
+async def test_search_posts_empty_query(client: AsyncClient):
+    response = await client.get("/api/v1/posts/search")
+    assert response.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_search_posts_with_cursor(client: AsyncClient):
+    response = await client.get("/api/v1/posts/search", params={"q": "hello", "limit": 1})
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data["items"], list)
+    if data["next_cursor"]:
+        response2 = await client.get(
+            "/api/v1/posts/search",
+            params={"q": "hello", "cursor": data["next_cursor"], "limit": 1},
+        )
+        assert response2.status_code == 200
