@@ -1,4 +1,12 @@
+springwolf.docket.base-package: dev.thural.quietspace
+springwolf.docket.info.title: QuietSpace API
+springwolf.docket.info.version: 1.0
+springwolf.docket.servers.stomp.protocol: stomp
+springwolf.docket.servers.stomp.host: localhost:8080
+
 spring:
+  main:
+    allow-bean-definition-overriding: true
   servlet.multipart:
     enabled: true
     max-file-size: 3MB

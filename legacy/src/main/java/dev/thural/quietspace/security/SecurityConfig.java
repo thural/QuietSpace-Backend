@@ -33,15 +33,15 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
                                 request
-                                        .requestMatchers("api/v1/admin/**")
+                                        .requestMatchers("/api/v1/admin/**")
                                         .hasRole(ADMIN.toString())
 //                                .requestMatchers(GET, "api/v1/posts/**")
 //                                .hasAnyAuthority(USER_READ.toString(), ADMIN_READ.toString())
                                         .requestMatchers(
                                                 "/ws",
                                                 "/ws/**",
-                                                "api/v1/ws/**",
-                                                "api/v1/auth/**",
+                                                "/api/v1/ws/**",
+                                                "/api/v1/auth/**",
                                                 "/hello/**",
                                                 "/v2/api-docs",
                                                 "/v3/api-docs",
@@ -52,8 +52,8 @@ public class SecurityConfig {
                                                 "/configuration/security",
                                                 "/swagger-ui/**",
                                                 "/webjars/**",
-                                                "/swagger-ui.html"
-                                        )
+                                                "/swagger-ui.html",
+                                                "/springwolf/**")
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated()
