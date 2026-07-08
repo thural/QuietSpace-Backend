@@ -23,6 +23,12 @@ async def test_get_post_comments(client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_get_comment_not_found(client: AsyncClient):
+    response = await client.get("/api/v1/comments/00000000-0000-0000-0000-000000000000")
+    assert response.status_code == 404
+
+
+@pytest.mark.asyncio
 async def test_delete_comment_not_found(client: AsyncClient):
     response = await client.delete("/api/v1/comments/00000000-0000-0000-0000-000000000000")
     assert response.status_code == 403

@@ -33,6 +33,20 @@ async def get_comments(
     return CursorResponse(items=comments, next_cursor=next_cursor, has_more=has_more)
 
 
+@router.get("/{comment_id}", response_model=CommentResponse)
+async def get_comment(
+    comment_id: UUID,
+    current_user: User | None = Depends(get_optional_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    service = CommentService(db)
+    user_id = current_user.id if current_user else None
+    comment = await service.get_comment(comment_id, current_user_id=user_id)
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    return comment
+
+
 @router.get("/{comment_id}/replies", response_model=CursorResponse[CommentResponse])
 async def get_replies(
     comment_id: UUID,

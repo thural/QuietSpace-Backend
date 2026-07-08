@@ -62,6 +62,17 @@ class CommentService:
             logger.info("comment_deleted", comment_id=str(comment_id))
         return result
 
+    async def get_comment(self, comment_id: UUID, current_user_id: UUID | None = None) -> Comment | None:
+        comment = await self.comment_repo.get(comment_id)
+        if not comment:
+            return None
+        if current_user_id:
+            blocked = await self.block_repo.get_blocked_ids(current_user_id)
+            blockers = await self.block_repo.get_blocker_ids(current_user_id)
+            if comment.author_id in blocked | blockers:
+                return None
+        return comment
+
     async def get_comments(
         self, post_id: UUID, cursor: str | None = None, limit: int = 20, current_user_id: UUID | None = None
     ) -> tuple[list[Comment], str | None, bool]:
