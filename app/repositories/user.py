@@ -128,5 +128,10 @@ class UserRepository(BaseRepository[User]):
         result = await self.session.execute(stmt)
         return list(result.scalars().all()), total
 
+    async def get_following_ids(self, user_id: UUID) -> set[UUID]:
+        stmt = select(UserFollow.following_id).where(UserFollow.follower_id == user_id)
+        result = await self.session.execute(stmt)
+        return {row[0] for row in result.fetchall()}
+
 
 

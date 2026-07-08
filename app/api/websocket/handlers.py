@@ -128,8 +128,18 @@ async def handle_online_status(sid, data):
 
 @socketio.on("get_online_users")
 async def handle_get_online_users(sid, data):
+    user_id = manager.sid_to_user.get(sid)
+    if not user_id:
+        await socketio.emit("online_users", {"online_users": []}, to=sid)
+        return
+    from app.main import app
+    from app.repositories.user import UserRepository
+    async with app.state.async_session() as session:
+        repo = UserRepository(session)
+        following_ids = await repo.get_following_ids(user_id)
     online_users = await manager.get_online_users()
-    await socketio.emit("online_users", {"online_users": [str(uid) for uid in online_users]}, to=sid)
+    scoped = [uid for uid in online_users if uid in following_ids]
+    await socketio.emit("online_users", {"online_users": [str(uid) for uid in scoped]}, to=sid)
 
 
 @socketio.on("public_message")

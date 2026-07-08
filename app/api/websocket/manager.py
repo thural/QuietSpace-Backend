@@ -11,6 +11,7 @@ ONLINE_USERS_KEY = "online_users"
 class ConnectionManager:
     def __init__(self):
         self.active_connections: Dict[UUID, str] = {}
+        self.sid_to_user: Dict[str, UUID] = {}
         self.user_rooms: Dict[UUID, Set[UUID]] = {}
 
     DEDUP_KEY = "ws_dedup"
@@ -38,6 +39,7 @@ class ConnectionManager:
 
     async def connect_user(self, user_id: UUID, session_id: str):
         self.active_connections[user_id] = session_id
+        self.sid_to_user[session_id] = user_id
         await redis_client.sadd(ONLINE_USERS_KEY, str(user_id))
         now = datetime.now(timezone.utc).isoformat()
         await socketio.emit("user_connected", {
@@ -48,7 +50,8 @@ class ConnectionManager:
 
     async def disconnect_user(self, user_id: UUID):
         if user_id in self.active_connections:
-            del self.active_connections[user_id]
+            session_id = self.active_connections.pop(user_id)
+            self.sid_to_user.pop(session_id, None)
             await redis_client.srem(ONLINE_USERS_KEY, str(user_id))
             now = datetime.now(timezone.utc).isoformat()
             await socketio.emit("user_disconnected", {
