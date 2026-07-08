@@ -25,7 +25,7 @@ async def get_message(
     return message
 
 
-@router.post("", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=MessageResponse, status_code=status.HTTP_201_CREATED, summary="Send a new message")
 @limiter.limit(CONTENT_LIMIT)
 async def send_message(request: Request, message_in: MessageCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if message_in.sender_id != current_user.id:
@@ -38,14 +38,14 @@ async def send_message(request: Request, message_in: MessageCreate, current_user
     return message
 
 
-@router.get("/chat/{chat_id}", response_model=CursorResponse[MessageResponse])
+@router.get("/chat/{chat_id}", response_model=CursorResponse[MessageResponse], summary="Get messages for a chat (cursor paginated)")
 async def get_messages(chat_id: UUID, current_user: User = Depends(get_current_user), cursor: str | None = Query(None), limit: int = Query(50, ge=1, le=100), db: AsyncSession = Depends(get_db)):
     service = MessageService(db)
     messages, next_cursor, has_more = await service.get_messages(chat_id, cursor=cursor, limit=limit, current_user_id=current_user.id)
     return CursorResponse(items=messages, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.get("/unread", response_model=CursorResponse[MessageResponse])
+@router.get("/unread", response_model=CursorResponse[MessageResponse], summary="Get user's unread messages (cursor paginated)")
 async def get_unread_messages(
     current_user: User = Depends(get_current_user),
     cursor: str | None = Query(None),
@@ -57,7 +57,7 @@ async def get_unread_messages(
     return CursorResponse(items=messages, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.delete("/{message_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{message_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete a message")
 async def delete_message(
     message_id: UUID,
     current_user: User = Depends(get_current_user),
@@ -84,7 +84,7 @@ async def delete_message(
         await uow.commit()
 
 
-@router.put("/{message_id}/read", response_model=dict)
+@router.put("/{message_id}/read", response_model=dict, summary="Mark a message as read")
 async def mark_message_read(
     message_id: UUID,
     current_user: User = Depends(get_current_user),

@@ -18,7 +18,7 @@ from app.enums.websocket_event_type import WebSocketEventType
 router = APIRouter()
 
 
-@router.post("", response_model=ChatResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=ChatResponse, status_code=status.HTTP_201_CREATED, summary="Create a new chat")
 @limiter.limit(CONTENT_LIMIT)
 async def create_chat(request: Request, chat_in: ChatCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = ChatService(db)
@@ -29,7 +29,7 @@ async def create_chat(request: Request, chat_in: ChatCreate, current_user: User 
     return chat
 
 
-@router.get("", response_model=CursorResponse[ChatResponse])
+@router.get("", response_model=CursorResponse[ChatResponse], summary="Get user's chats (cursor paginated)")
 async def get_chats(
     current_user: User = Depends(get_current_user),
     cursor: str | None = Query(None),
@@ -41,7 +41,7 @@ async def get_chats(
     return CursorResponse(items=chats, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.get("/{chat_id}", response_model=ChatResponse)
+@router.get("/{chat_id}", response_model=ChatResponse, summary="Get a single chat by ID")
 async def get_chat(chat_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = ChatService(db)
     chat = await service.get_chat(chat_id)
@@ -50,7 +50,7 @@ async def get_chat(chat_id: UUID, current_user: User = Depends(get_current_user)
     return chat
 
 
-@router.get("/{chat_id}/messages", response_model=CursorResponse[MessageResponse])
+@router.get("/{chat_id}/messages", response_model=CursorResponse[MessageResponse], summary="Get messages for a chat (cursor paginated)")
 async def get_chat_messages(
     chat_id: UUID,
     current_user: User = Depends(get_current_user),
@@ -63,7 +63,7 @@ async def get_chat_messages(
     return CursorResponse(items=messages, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.post("/{chat_id}/messages", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/{chat_id}/messages", response_model=MessageResponse, status_code=status.HTTP_201_CREATED, summary="Send a message in a chat")
 @limiter.limit(CONTENT_LIMIT)
 async def send_chat_message(request: Request, chat_id: UUID, message_in: MessageCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if message_in.chat_id != chat_id:
@@ -76,7 +76,7 @@ async def send_chat_message(request: Request, chat_id: UUID, message_in: Message
     return message
 
 
-@router.patch("/{chat_id}", response_model=ChatResponse)
+@router.patch("/{chat_id}", response_model=ChatResponse, summary="Update a chat")
 @limiter.limit(CONTENT_LIMIT)
 async def update_chat(request: Request, chat_id: UUID, chat_in: ChatUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     result = await db.execute(
@@ -109,7 +109,7 @@ async def delete_chat(
         raise HTTPException(status_code=404, detail="Chat not found")
 
 
-@router.post("/{chat_id}/participants")
+@router.post("/{chat_id}/participants", summary="Add a participant to a chat")
 async def add_participant(
     chat_id: UUID,
     user_id: UUID,
@@ -140,7 +140,7 @@ async def add_participant(
     return {"message": "Participant added"}
 
 
-@router.delete("/{chat_id}/participants/{user_id}")
+@router.delete("/{chat_id}/participants/{user_id}", summary="Remove a participant from a chat")
 async def remove_participant(
     chat_id: UUID,
     user_id: UUID,

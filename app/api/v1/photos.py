@@ -13,7 +13,7 @@ router = APIRouter()
 UPLOAD_DIR = "uploads/photos"
 
 
-@router.post("", response_model=PhotoResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=PhotoResponse, status_code=status.HTTP_201_CREATED, summary="Create a photo record")
 @limiter.limit(CONTENT_LIMIT)
 async def create_photo(request: Request, photo_in: PhotoCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = PhotoService(db)
@@ -21,7 +21,7 @@ async def create_photo(request: Request, photo_in: PhotoCreate, current_user: Us
     return photo
 
 
-@router.post("/profile", response_model=PhotoResponse)
+@router.post("/profile", response_model=PhotoResponse, summary="Upload a profile photo")
 @limiter.limit(CONTENT_LIMIT)
 async def upload_profile_photo(
     request: Request,
@@ -60,7 +60,7 @@ async def delete_profile_photo(
         raise HTTPException(status_code=404, detail="Profile photo not found")
 
 
-@router.get("/post/{post_id}")
+@router.get("/post/{post_id}", summary="Get photos for a post (cursor paginated)")
 async def get_photos(
     post_id: UUID,
     cursor: str | None = Query(None),
@@ -74,7 +74,7 @@ async def get_photos(
     return CursorResponse(items=photos, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.get("/{filename}")
+@router.get("/{filename}", summary="Get a photo file by filename")
 async def get_photo_file(filename: str):
     file_path = os.path.join(UPLOAD_DIR, filename)
     if not os.path.exists(file_path):
@@ -82,7 +82,7 @@ async def get_photo_file(filename: str):
     return FileResponse(file_path)
 
 
-@router.delete("/{photo_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{photo_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete a photo")
 @limiter.limit(CONTENT_LIMIT)
 async def delete_photo(request: Request, photo_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = PhotoService(db)

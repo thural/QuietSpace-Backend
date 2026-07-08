@@ -10,7 +10,7 @@ from app.schemas.pagination import CursorResponse
 router = APIRouter()
 
 
-@router.get("", response_model=CursorResponse[NotificationResponse])
+@router.get("", response_model=CursorResponse[NotificationResponse], summary="Get user's notifications (cursor paginated)")
 async def get_notifications(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -23,7 +23,7 @@ async def get_notifications(
     return CursorResponse(items=notifications, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.get("/unread/count")
+@router.get("/unread/count", summary="Get count of unread notifications")
 async def get_unread_count(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = NotificationService(db)
     count = await service.get_unread_count(current_user.id)
@@ -43,7 +43,7 @@ async def mark_multiple_as_read(
     return {"marked": marked}
 
 
-@router.put("/{notification_id}/read", response_model=NotificationResponse)
+@router.put("/{notification_id}/read", response_model=NotificationResponse, summary="Mark a single notification as read")
 async def mark_as_read(notification_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = NotificationService(db)
     notification = await service.mark_as_read(notification_id, actor_id=current_user.id)

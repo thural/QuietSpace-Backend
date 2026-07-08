@@ -19,7 +19,7 @@ router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED, summary="Register a new user")
 @limiter.limit(AUTH_LIMIT)
 async def register(request: Request, user_in: UserCreate, db: AsyncSession = Depends(get_db)):
     auth_service = AuthService(db)
@@ -36,7 +36,7 @@ async def register(request: Request, user_in: UserCreate, db: AsyncSession = Dep
     return user
 
 
-@router.post("/login")
+@router.post("/login", summary="Authenticate user and return tokens")
 @limiter.limit(AUTH_LIMIT)
 async def login(request: Request, username: str = Body(...), password: str = Body(...), db: AsyncSession = Depends(get_db)):
     auth_service = AuthService(db)
@@ -47,7 +47,7 @@ async def login(request: Request, username: str = Body(...), password: str = Bod
     return result
 
 
-@router.post("/refresh")
+@router.post("/refresh", summary="Refresh access token")
 @limiter.limit(AUTH_LIMIT)
 async def refresh(request: Request, token: str = Body(..., embed=True), db: AsyncSession = Depends(get_db)):
     auth_service = AuthService(db)
@@ -58,7 +58,7 @@ async def refresh(request: Request, token: str = Body(..., embed=True), db: Asyn
     return result
 
 
-@router.post("/logout")
+@router.post("/logout", summary="Logout user and invalidate token")
 @limiter.limit(AUTH_LIMIT)
 async def logout(request: Request, token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
     auth_service = AuthService(db)
@@ -66,7 +66,7 @@ async def logout(request: Request, token: str = Depends(oauth2_scheme), db: Asyn
     return {"message": "Logged out successfully"}
 
 
-@router.post("/activate-account")
+@router.post("/activate-account", summary="Activate user account with activation code")
 @limiter.limit(AUTH_LIMIT)
 async def activate_account(request: Request, code: str = Body(..., embed=True), db: AsyncSession = Depends(get_db)):
     auth_service = AuthService(db)
@@ -76,7 +76,7 @@ async def activate_account(request: Request, code: str = Body(..., embed=True), 
     return {"message": "Account activated successfully"}
 
 
-@router.post("/resend-code")
+@router.post("/resend-code", summary="Resend activation code to email")
 @limiter.limit(RESEND_CODE_LIMIT)
 async def resend_code(
     request: Request,

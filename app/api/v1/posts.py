@@ -19,7 +19,7 @@ from app.services.poll_service import PollService
 router = APIRouter()
 
 
-@router.post("", response_model=PostResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=PostResponse, status_code=status.HTTP_201_CREATED, summary="Create a new post")
 @limiter.limit(CONTENT_LIMIT)
 async def create_post(request: Request, post_in: PostCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
     service = PostService(db, cache_service=cache)
@@ -27,7 +27,7 @@ async def create_post(request: Request, post_in: PostCreate, current_user: User 
     return post
 
 
-@router.post("/repost", response_model=PostResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/repost", response_model=PostResponse, status_code=status.HTTP_201_CREATED, summary="Create a repost")
 @limiter.limit(CONTENT_LIMIT)
 async def create_repost(request: Request, repost_in: RepostRequest, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
     service = PostService(db, cache_service=cache)
@@ -38,7 +38,7 @@ async def create_repost(request: Request, repost_in: RepostRequest, current_user
     return post
 
 
-@router.get("", response_model=CursorResponse[PostResponse])
+@router.get("", response_model=CursorResponse[PostResponse], summary="Get posts (optionally by user, with search)")
 async def get_posts(
     user_id: UUID | None = Query(None),
     q: str | None = Query(None),
@@ -57,7 +57,7 @@ async def get_posts(
     return CursorResponse(items=posts, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.get("/search", response_model=CursorResponse[PostResponse])
+@router.get("/search", response_model=CursorResponse[PostResponse], summary="Search posts by text query")
 async def search_posts(
     q: str = Query(..., min_length=1),
     cursor: str | None = Query(None),
@@ -69,7 +69,7 @@ async def search_posts(
     return CursorResponse(items=posts, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.get("/{post_id}", response_model=PostResponse)
+@router.get("/{post_id}", response_model=PostResponse, summary="Get a single post by ID")
 async def get_post(post_id: UUID, current_user: User | None = Depends(get_optional_current_user), db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
     service = PostService(db, cache_service=cache)
     user_id = current_user.id if current_user else None
@@ -79,7 +79,7 @@ async def get_post(post_id: UUID, current_user: User | None = Depends(get_option
     return post
 
 
-@router.get("/{post_id}/comments", response_model=CursorResponse[CommentResponse])
+@router.get("/{post_id}/comments", response_model=CursorResponse[CommentResponse], summary="Get comments for a post (cursor paginated)")
 async def get_post_comments(
     post_id: UUID,
     cursor: str | None = Query(None),
@@ -93,7 +93,7 @@ async def get_post_comments(
     return CursorResponse(items=comments, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.post("/{post_id}/comments", response_model=CommentResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/{post_id}/comments", response_model=CommentResponse, status_code=status.HTTP_201_CREATED, summary="Create a comment on a post")
 @limiter.limit(CONTENT_LIMIT)
 async def create_post_comment(request: Request, post_id: UUID, comment_in: CommentCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if comment_in.post_id != post_id:
@@ -103,7 +103,7 @@ async def create_post_comment(request: Request, post_id: UUID, comment_in: Comme
     return comment
 
 
-@router.get("/{post_id}/reactions", response_model=CursorResponse[ReactionResponse])
+@router.get("/{post_id}/reactions", response_model=CursorResponse[ReactionResponse], summary="Get reactions for a post (cursor paginated)")
 async def get_post_reactions(
     post_id: UUID,
     cursor: str | None = Query(None),
@@ -115,7 +115,7 @@ async def get_post_reactions(
     return CursorResponse(items=reactions, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.get("/{post_id}/reactions/count")
+@router.get("/{post_id}/reactions/count", summary="Get reaction count for a post")
 async def get_post_reaction_count(
     post_id: UUID,
     db: AsyncSession = Depends(get_db),
@@ -125,7 +125,7 @@ async def get_post_reaction_count(
     return {"post_id": str(post_id), "count": count}
 
 
-@router.patch("/{post_id}", response_model=PostResponse)
+@router.patch("/{post_id}", response_model=PostResponse, summary="Update a post")
 @limiter.limit(CONTENT_LIMIT)
 async def update_post(request: Request, post_id: UUID, post_in: PostUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
     service = PostService(db, cache_service=cache)
@@ -136,7 +136,7 @@ async def update_post(request: Request, post_id: UUID, post_in: PostUpdate, curr
     return updated
 
 
-@router.post("/{post_id}/save")
+@router.post("/{post_id}/save", summary="Save a post for later")
 @limiter.limit(CONTENT_LIMIT)
 async def save_post(request: Request, post_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     from app.models.saved_post import SavedPost
@@ -156,7 +156,7 @@ async def save_post(request: Request, post_id: UUID, current_user: User = Depend
     return {"message": "Post saved"}
 
 
-@router.delete("/{post_id}/save", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{post_id}/save", status_code=status.HTTP_204_NO_CONTENT, summary="Unsave a saved post")
 async def unsave_post(post_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     from app.models.saved_post import SavedPost
     from sqlalchemy import select
@@ -173,7 +173,7 @@ async def unsave_post(post_id: UUID, current_user: User = Depends(get_current_us
     await db.commit()
 
 
-@router.get("/saved", response_model=CursorResponse[PostResponse])
+@router.get("/saved", response_model=CursorResponse[PostResponse], summary="Get user's saved posts (cursor paginated)")
 async def get_saved_posts(
     current_user: User = Depends(get_current_user),
     cursor: str | None = Query(None),
@@ -185,7 +185,7 @@ async def get_saved_posts(
     return CursorResponse(items=posts, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.get("/user/{user_id}", response_model=CursorResponse[PostResponse])
+@router.get("/user/{user_id}", response_model=CursorResponse[PostResponse], summary="Get posts by a specific user (cursor paginated)")
 async def get_posts_by_user(
     user_id: UUID,
     cursor: str | None = Query(None),
@@ -199,7 +199,7 @@ async def get_posts_by_user(
     return CursorResponse(items=posts, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.get("/commented/{user_id}", response_model=CursorResponse[PostResponse])
+@router.get("/commented/{user_id}", response_model=CursorResponse[PostResponse], summary="Get posts commented on by a user (cursor paginated)")
 async def get_commented_posts(
     user_id: UUID,
     current_user: User = Depends(get_current_user),
@@ -212,7 +212,7 @@ async def get_commented_posts(
     return CursorResponse(items=posts, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete a post")
 async def delete_post(post_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
     service = PostService(db, cache_service=cache)
     post = await service.get_post(post_id)
@@ -221,7 +221,7 @@ async def delete_post(post_id: UUID, current_user: User = Depends(get_current_us
     await service.delete_post(post_id)
 
 
-@router.post("/vote-poll", status_code=status.HTTP_200_OK)
+@router.post("/vote-poll", status_code=status.HTTP_200_OK, summary="Vote in a poll")
 @limiter.limit(CONTENT_LIMIT)
 async def vote_poll(
     request: Request,

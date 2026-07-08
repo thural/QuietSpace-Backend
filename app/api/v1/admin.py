@@ -10,7 +10,7 @@ from app.repositories.user import UserRepository
 router = APIRouter()
 
 
-@router.get("/users")
+@router.get("/users", summary="List all users (admin only)")
 @limiter.limit(SENSITIVE_LIMIT)
 async def list_users(
     request: Request,
@@ -36,7 +36,7 @@ async def list_users(
     )
 
 
-@router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete a user (admin only)")
 @limiter.limit(SENSITIVE_LIMIT)
 async def delete_user(request: Request, user_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if current_user.role != Role.ADMIN:
@@ -48,7 +48,7 @@ async def delete_user(request: Request, user_id: UUID, current_user: User = Depe
     await repo.delete(user_id)
 
 
-@router.put("/users/{user_id}/disable")
+@router.put("/users/{user_id}/disable", summary="Disable a user account (admin only)")
 @limiter.limit(SENSITIVE_LIMIT)
 async def disable_user(request: Request, user_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if current_user.role != Role.ADMIN:

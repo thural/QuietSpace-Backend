@@ -11,7 +11,7 @@ from app.schemas.pagination import CursorResponse
 router = APIRouter()
 
 
-@router.post("", response_model=CommentResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=CommentResponse, status_code=status.HTTP_201_CREATED, summary="Create a comment on a post")
 @limiter.limit(CONTENT_LIMIT)
 async def create_comment(request: Request, comment_in: CommentCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = CommentService(db)
@@ -19,7 +19,7 @@ async def create_comment(request: Request, comment_in: CommentCreate, current_us
     return comment
 
 
-@router.get("/post/{post_id}", response_model=CursorResponse[CommentResponse])
+@router.get("/post/{post_id}", response_model=CursorResponse[CommentResponse], summary="Get comments for a post (cursor paginated)")
 async def get_comments(
     post_id: UUID,
     cursor: str | None = Query(None),
@@ -33,7 +33,7 @@ async def get_comments(
     return CursorResponse(items=comments, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.get("/user/{user_id}", response_model=CursorResponse[CommentResponse])
+@router.get("/user/{user_id}", response_model=CursorResponse[CommentResponse], summary="Get comments by a user (cursor paginated)")
 async def get_comments_by_user(
     user_id: UUID,
     cursor: str | None = Query(None),
@@ -58,7 +58,7 @@ async def get_latest_comment(
     return comment
 
 
-@router.get("/{comment_id}", response_model=CommentResponse)
+@router.get("/{comment_id}", response_model=CommentResponse, summary="Get a single comment by ID")
 async def get_comment(
     comment_id: UUID,
     current_user: User | None = Depends(get_optional_current_user),
@@ -72,7 +72,7 @@ async def get_comment(
     return comment
 
 
-@router.get("/{comment_id}/replies", response_model=CursorResponse[CommentResponse])
+@router.get("/{comment_id}/replies", response_model=CursorResponse[CommentResponse], summary="Get replies to a comment (cursor paginated)")
 async def get_replies(
     comment_id: UUID,
     cursor: str | None = Query(None),
@@ -86,7 +86,7 @@ async def get_replies(
     return CursorResponse(items=replies, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.patch("/{comment_id}", response_model=CommentResponse)
+@router.patch("/{comment_id}", response_model=CommentResponse, summary="Update a comment")
 @limiter.limit(CONTENT_LIMIT)
 async def update_comment(request: Request, comment_id: UUID, comment_in: CommentUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = CommentService(db)
@@ -99,7 +99,7 @@ async def update_comment(request: Request, comment_id: UUID, comment_in: Comment
     return comment
 
 
-@router.delete("/{comment_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{comment_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete a comment")
 async def delete_comment(comment_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = CommentService(db)
     success = await service.delete_comment(comment_id)

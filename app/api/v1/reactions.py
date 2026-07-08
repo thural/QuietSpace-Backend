@@ -12,7 +12,7 @@ from app.enums.reaction_type import ReactionType
 router = APIRouter()
 
 
-@router.get("/user", response_model=CursorResponse[ReactionResponse])
+@router.get("/user", response_model=CursorResponse[ReactionResponse], summary="Get current user's reactions (cursor paginated)")
 async def get_user_reactions(
     type: ReactionType | None = Query(None),
     cursor: str | None = Query(None),
@@ -63,7 +63,7 @@ async def delete_reaction(request: Request, reaction_id: UUID, current_user: Use
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reaction not found")
 
 
-@router.get("/post/{post_id}")
+@router.get("/post/{post_id}", summary="Get reactions for a post (cursor paginated)")
 async def get_post_reactions(
     post_id: UUID,
     cursor: str | None = Query(None),
@@ -77,7 +77,7 @@ async def get_post_reactions(
     return CursorResponse(items=reactions, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.get("/count/{post_id}")
+@router.get("/count/{post_id}", summary="Get reaction count for a post")
 async def get_reaction_count(post_id: UUID, db: AsyncSession = Depends(get_db)):
     service = ReactionService(db)
     count = await service.get_reaction_count(post_id)

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from app.api.deps import get_db, get_current_user, get_optional_current_user, get_cache
@@ -17,12 +17,12 @@ from app.services.block_service import BlockService
 router = APIRouter()
 
 
-@router.get("/me", response_model=UserResponse)
+@router.get("/me", response_model=UserResponse, summary="Get current authenticated user")
 async def get_me(current_user: User = Depends(get_current_user)):
     return current_user
 
 
-@router.get("/me/settings", response_model=ProfileSettingsResponse)
+@router.get("/me/settings", response_model=ProfileSettingsResponse, summary="Get current user's profile settings")
 async def get_my_settings(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     repo = ProfileSettingsRepository(db)
     settings = await repo.get_by_user_id(current_user.id)
@@ -31,7 +31,7 @@ async def get_my_settings(current_user: User = Depends(get_current_user), db: As
     return settings
 
 
-@router.put("/me/settings", response_model=ProfileSettingsResponse)
+@router.put("/me/settings", response_model=ProfileSettingsResponse, summary="Update current user's profile settings")
 async def update_my_settings(
     settings_in: ProfileSettingsUpdate,
     current_user: User = Depends(get_current_user),
@@ -50,7 +50,7 @@ async def update_my_settings(
     return settings
 
 
-@router.patch("/me", response_model=UserResponse)
+@router.patch("/me", response_model=UserResponse, summary="Update current user's profile")
 @limiter.limit(SENSITIVE_LIMIT)
 async def update_me(request: Request, user_in: UserUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     repo = UserRepository(db)
@@ -61,7 +61,7 @@ async def update_me(request: Request, user_in: UserUpdate, current_user: User = 
     return current_user
 
 
-@router.post("/me/block/{user_id}")
+@router.post("/me/block/{user_id}", summary="Block another user")
 @limiter.limit(SENSITIVE_LIMIT)
 async def block_user_me(
     request: Request,
@@ -77,7 +77,7 @@ async def block_user_me(
     return {"message": "User blocked successfully"}
 
 
-@router.delete("/me/block/{user_id}")
+@router.delete("/me/block/{user_id}", summary="Unblock a previously blocked user")
 @limiter.limit(SENSITIVE_LIMIT)
 async def unblock_user_me(
     request: Request,
@@ -93,7 +93,7 @@ async def unblock_user_me(
     return {"message": "User unblocked successfully"}
 
 
-@router.get("/me/blocked")
+@router.get("/me/blocked", summary="Get list of users blocked by current user")
 async def get_blocked_users_me(
     page: int = Query(1, ge=1),
     size: int = Query(20, ge=1, le=100),
@@ -113,7 +113,7 @@ async def get_blocked_users_me(
     )
 
 
-@router.get("/query")
+@router.get("/query", summary="Advanced search users by username, firstname, lastname")
 async def query_users(
     username: str | None = Query(None, min_length=1),
     firstname: str | None = Query(None, min_length=1),
@@ -123,7 +123,9 @@ async def query_users(
     current_user: User | None = Depends(get_optional_current_user),
     db: AsyncSession = Depends(get_db),
     cache: CacheService = Depends(get_cache),
+    response: Response = None,
 ):
+    response.headers["Deprecation"] = "true"
     from app.schemas.pagination import OffsetResponse
     service = UserService(db, cache_service=cache)
     user_id = current_user.id if current_user else None
@@ -144,7 +146,7 @@ async def query_users(
     )
 
 
-@router.get("/search")
+@router.get("/search", summary="Search users by text query (cursor paginated)")
 async def search_users(
     q: str = Query(..., min_length=1),
     cursor: str | None = Query(None),
@@ -160,7 +162,7 @@ async def search_users(
     return CursorResponse(items=users, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.get("/online", response_model=list[UserResponse])
+@router.get("/online", response_model=list[UserResponse], summary="Get currently online users")
 async def get_online_users(db: AsyncSession = Depends(get_db)):
     online_user_ids = await manager.get_online_users()
     if not online_user_ids:
@@ -170,7 +172,7 @@ async def get_online_users(db: AsyncSession = Depends(get_db)):
     return users
 
 
-@router.get("/{user_id}", response_model=UserResponse)
+@router.get("/{user_id}", response_model=UserResponse, summary="Get a user by ID")
 async def get_user(user_id: UUID, db: AsyncSession = Depends(get_db), cache: CacheService = Depends(get_cache)):
     service = UserService(db, cache_service=cache)
     user = await service.get_user(str(user_id))
@@ -194,7 +196,7 @@ async def delete_user(
         raise HTTPException(status_code=404, detail="User not found")
 
 
-@router.post("/{user_id}/follow")
+@router.post("/{user_id}/follow", summary="Follow a user")
 @limiter.limit(SENSITIVE_LIMIT)
 async def follow_user(
     request: Request,
@@ -210,7 +212,7 @@ async def follow_user(
     return {"message": "User followed successfully"}
 
 
-@router.delete("/{user_id}/follow")
+@router.delete("/{user_id}/follow", summary="Unfollow a user")
 @limiter.limit(SENSITIVE_LIMIT)
 async def unfollow_user(
     request: Request,
@@ -226,7 +228,7 @@ async def unfollow_user(
     return {"message": "User unfollowed successfully"}
 
 
-@router.get("/{user_id}/followers")
+@router.get("/{user_id}/followers", summary="Get followers of a user (offset paginated)")
 async def get_followers(
     user_id: UUID,
     page: int = Query(1, ge=1),
@@ -246,7 +248,7 @@ async def get_followers(
     )
 
 
-@router.get("/{user_id}/following")
+@router.get("/{user_id}/following", summary="Get users followed by a user (offset paginated)")
 async def get_following(
     user_id: UUID,
     page: int = Query(1, ge=1),
@@ -266,7 +268,7 @@ async def get_following(
     )
 
 
-@router.delete("/{user_id}/followers/{follower_id}")
+@router.delete("/{user_id}/followers/{follower_id}", summary="Remove a follower (self only)")
 @limiter.limit(SENSITIVE_LIMIT)
 async def remove_follower_rest(
     request: Request,
@@ -285,15 +287,17 @@ async def remove_follower_rest(
     return {"message": "Follower removed successfully"}
 
 
-@router.post("/followers/remove/{follower_id}")
+@router.post("/followers/remove/{follower_id}", summary="Remove a follower (deprecated path)")
 @limiter.limit(SENSITIVE_LIMIT)
 async def remove_follower_deprecated(
     request: Request,
+    response: Response,
     follower_id: UUID,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
     cache: CacheService = Depends(get_cache),
 ):
+    response.headers["Deprecation"] = "true"
     service = UserService(db, cache_service=cache)
     success = await service.remove_follower(current_user.id, follower_id)
     if not success:
@@ -301,7 +305,7 @@ async def remove_follower_deprecated(
     return {"message": "Follower removed successfully"}
 
 
-@router.get("/{user_id}/detail", response_model=UserResponse)
+@router.get("/{user_id}/detail", response_model=UserResponse, summary="Get user detail with posts")
 async def get_user_detail(user_id: UUID, db: AsyncSession = Depends(get_db)):
     repo = UserRepository(db)
     user = await repo.get_with_posts(user_id)
@@ -310,8 +314,9 @@ async def get_user_detail(user_id: UUID, db: AsyncSession = Depends(get_db)):
     return user
 
 
-@router.get("/{user_id}/save", response_model=UserResponse)
-async def get_user_with_relations(user_id: UUID, db: AsyncSession = Depends(get_db)):
+@router.get("/{user_id}/save", response_model=UserResponse, summary="Get user with relations (deprecated path)")
+async def get_user_with_relations(user_id: UUID, db: AsyncSession = Depends(get_db), response: Response = None):
+    response.headers["Deprecation"] = "true"
     repo = UserRepository(db)
     user = await repo.get_with_posts(user_id)
     if not user:
@@ -319,15 +324,17 @@ async def get_user_with_relations(user_id: UUID, db: AsyncSession = Depends(get_
     return user
 
 
-@router.post("/profile/block/{user_id}")
+@router.post("/profile/block/{user_id}", summary="Block a user (profile path)")
 @limiter.limit(SENSITIVE_LIMIT)
 async def block_user(
     request: Request,
+    response: Response,
     user_id: UUID,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
     cache: CacheService = Depends(get_cache),
 ):
+    response.headers["Deprecation"] = "true"
     service = BlockService(db, cache_service=cache)
     success = await service.block_user(current_user.id, user_id)
     if not success:
@@ -335,15 +342,17 @@ async def block_user(
     return {"message": "User blocked successfully"}
 
 
-@router.delete("/profile/block/{user_id}")
+@router.delete("/profile/block/{user_id}", summary="Unblock a user (profile path)")
 @limiter.limit(SENSITIVE_LIMIT)
 async def unblock_user(
     request: Request,
+    response: Response,
     user_id: UUID,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
     cache: CacheService = Depends(get_cache),
 ):
+    response.headers["Deprecation"] = "true"
     service = BlockService(db, cache_service=cache)
     success = await service.unblock_user(current_user.id, user_id)
     if not success:
@@ -351,14 +360,16 @@ async def unblock_user(
     return {"message": "User unblocked successfully"}
 
 
-@router.get("/profile/blocked")
+@router.get("/profile/blocked", summary="Get blocked users (profile path)")
 async def get_blocked_users(
     page: int = Query(1, ge=1),
     size: int = Query(20, ge=1, le=100),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
     cache: CacheService = Depends(get_cache),
+    response: Response = None,
 ):
+    response.headers["Deprecation"] = "true"
     from app.schemas.pagination import OffsetResponse
     service = BlockService(db, cache_service=cache)
     users, total = await service.get_blocked_users(current_user.id, page=page, size=size)
