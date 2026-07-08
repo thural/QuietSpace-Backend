@@ -73,3 +73,23 @@ async def test_search_posts_with_cursor(client: AsyncClient):
             params={"q": "hello", "cursor": data["next_cursor"], "limit": 1},
         )
         assert response2.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_get_post_comments_nested(client: AsyncClient):
+    response = await client.get(
+        "/api/v1/posts/00000000-0000-0000-0000-000000000000/comments"
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "items" in data
+    assert isinstance(data["items"], list)
+
+
+@pytest.mark.asyncio
+async def test_create_post_comment_nested_requires_auth(client: AsyncClient):
+    response = await client.post(
+        "/api/v1/posts/00000000-0000-0000-0000-000000000000/comments",
+        json={"text": "Nice post!", "post_id": "00000000-0000-0000-0000-000000000000"},
+    )
+    assert response.status_code == 403
