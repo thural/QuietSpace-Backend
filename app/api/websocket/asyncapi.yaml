@@ -30,6 +30,8 @@ servers:
         description: The API host
     security:
       - bearerAuth: []
+    x-heartbeat-interval: 25
+    x-heartbeat-timeout: 60
 
 channels:
   connect:
@@ -49,6 +51,13 @@ channels:
           properties:
             user_id:
               $ref: "#/components/schemas/UUIDStr"
+            event_type:
+              type: string
+              description: Event type discriminator
+            timestamp:
+              type: string
+              format: date-time
+              description: ISO 8601 datetime when the event occurred
           description: Confirms the authenticated user session
 
   disconnect:
@@ -75,9 +84,16 @@ channels:
           type: object
           required:
             - user_id
+            - event_type
+            - timestamp
           properties:
             user_id:
               $ref: "#/components/schemas/UUIDStr"
+            event_type:
+              type: string
+              description: Event type discriminator
+            timestamp:
+              $ref: "#/components/schemas/DateTimeStr"
 
   user_disconnected:
     description: |
@@ -91,9 +107,48 @@ channels:
           type: object
           required:
             - user_id
+            - event_type
+            - timestamp
           properties:
             user_id:
               $ref: "#/components/schemas/UUIDStr"
+            event_type:
+              type: string
+              description: Event type discriminator
+            timestamp:
+              $ref: "#/components/schemas/DateTimeStr"
+
+  error:
+    description: |
+      Error event sent to a client whenever an operation fails or an
+      error condition is encountered.
+    subscribe:
+      summary: An error occurred
+      operationId: onError
+      message:
+        name: ErrorPayload
+        payload:
+          type: object
+          required:
+            - event_type
+            - code
+            - message
+            - operation
+            - timestamp
+          properties:
+            event_type:
+              type: string
+              description: Event type discriminator
+            code:
+              $ref: "#/components/schemas/ErrorCode"
+            message:
+              type: string
+              description: Human-readable error description
+            operation:
+              type: string
+              description: The operation that triggered the error
+            timestamp:
+              $ref: "#/components/schemas/DateTimeStr"
 
   join_chat:
     description: |
@@ -451,6 +506,17 @@ components:
       format: date-time
       description: ISO 8601 datetime string
 
+    ErrorCode:
+      type: string
+      description: Machine-readable error code
+      enum:
+        - AUTH_FAILED
+        - FORBIDDEN
+        - NOT_FOUND
+        - VALIDATION_ERROR
+        - RATE_LIMITED
+        - INTERNAL_ERROR
+
     Message:
       type: object
       description: A chat message
@@ -533,6 +599,10 @@ components:
         - timestamp
         - actor_id
       properties:
+        event_version:
+          type: integer
+          default: 1
+          description: Schema version for the event payload
         event_type:
           type: string
           description: Event discriminator
