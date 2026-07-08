@@ -34,3 +34,22 @@ async def test_get_reaction_count(client: AsyncClient):
     assert response.status_code == 200
     data = response.json()
     assert "count" in data
+
+
+@pytest.mark.asyncio
+async def test_get_content_reactions_post(client: AsyncClient):
+    response = await client.get(
+        "/api/v1/reactions/content",
+        params={"content_type": "post", "content_id": "00000000-0000-0000-0000-000000000000"},
+    )
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+
+
+@pytest.mark.asyncio
+async def test_get_content_reactions_invalid_type(client: AsyncClient):
+    response = await client.get(
+        "/api/v1/reactions/content",
+        params={"content_type": "invalid", "content_id": "00000000-0000-0000-0000-000000000000"},
+    )
+    assert response.status_code == 422

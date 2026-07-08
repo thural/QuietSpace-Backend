@@ -27,6 +27,18 @@ async def get_user_reactions(
     return CursorResponse(items=reactions, next_cursor=next_cursor, has_more=has_more)
 
 
+@router.get("/content", response_model=list[ReactionResponse])
+async def get_content_reactions(
+    content_type: str = Query(..., pattern="^(post|comment)$"),
+    content_id: UUID = Query(...),
+    db: AsyncSession = Depends(get_db),
+):
+    service = ReactionService(db)
+    kwargs = {f"{content_type}_id": content_id}
+    reactions = await service.get_reactions(**kwargs)
+    return reactions
+
+
 @router.post("", response_model=ReactionResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit(CONTENT_LIMIT)
 async def toggle_reaction(request: Request, reaction_in: ReactionCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
