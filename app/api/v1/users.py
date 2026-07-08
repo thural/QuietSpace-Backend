@@ -179,7 +179,7 @@ async def get_user(user_id: UUID, db: AsyncSession = Depends(get_db), cache: Cac
     return user
 
 
-@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Soft-delete a user (self or admin)")
 @limiter.limit(SENSITIVE_LIMIT)
 async def delete_user(
     request: Request,

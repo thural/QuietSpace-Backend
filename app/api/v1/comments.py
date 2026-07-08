@@ -47,7 +47,7 @@ async def get_comments_by_user(
     return CursorResponse(items=comments, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.get("/user/{user_id}/post/{post_id}/latest", response_model=CommentResponse | None)
+@router.get("/user/{user_id}/post/{post_id}/latest", response_model=CommentResponse | None, summary="Get latest comment by user on a post")
 async def get_latest_comment(
     user_id: UUID,
     post_id: UUID,

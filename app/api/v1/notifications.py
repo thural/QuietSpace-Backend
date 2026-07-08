@@ -30,7 +30,7 @@ async def get_unread_count(current_user: User = Depends(get_current_user), db: A
     return {"count": count}
 
 
-@router.put("/read", status_code=status.HTTP_200_OK)
+@router.put("/read", status_code=status.HTTP_200_OK, summary="Mark multiple notifications as read")
 async def mark_multiple_as_read(
     body: BatchReadRequest,
     current_user: User = Depends(get_current_user),

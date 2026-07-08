@@ -46,7 +46,7 @@ async def upload_profile_photo(
     return settings
 
 
-@router.delete("/profile/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/profile/{user_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete a user's profile photo")
 @limiter.limit(CONTENT_LIMIT)
 async def delete_profile_photo(
     request: Request,

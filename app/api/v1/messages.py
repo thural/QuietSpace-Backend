@@ -11,7 +11,7 @@ from app.schemas.pagination import CursorResponse
 router = APIRouter()
 
 
-@router.get("/{message_id}", response_model=MessageResponse)
+@router.get("/{message_id}", response_model=MessageResponse, summary="Get a single message by ID")
 async def get_message(
     message_id: UUID,
     current_user: User | None = Depends(get_optional_current_user),

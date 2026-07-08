@@ -94,7 +94,7 @@ async def update_chat(request: Request, chat_id: UUID, chat_in: ChatUpdate, curr
     return chat
 
 
-@router.delete("/{chat_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{chat_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Soft-delete a chat")
 async def delete_chat(
     chat_id: UUID,
     current_user: User = Depends(get_current_user),

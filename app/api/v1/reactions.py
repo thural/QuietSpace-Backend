@@ -27,7 +27,7 @@ async def get_user_reactions(
     return CursorResponse(items=reactions, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.get("/content")
+@router.get("/content", summary="Get reactions for specific content by type and ID")
 async def get_content_reactions(
     content_type: str = Query(..., pattern="^(post|comment)$"),
     content_id: UUID = Query(...),
@@ -43,7 +43,7 @@ async def get_content_reactions(
     return CursorResponse(items=reactions, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.post("", response_model=ReactionResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=ReactionResponse, status_code=status.HTTP_201_CREATED, summary="Create a reaction (idempotent)")
 @limiter.limit(CONTENT_LIMIT)
 async def create_reaction(request: Request, reaction_in: ReactionCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = ReactionService(db)
@@ -54,7 +54,7 @@ async def create_reaction(request: Request, reaction_in: ReactionCreate, current
     return reaction
 
 
-@router.delete("/{reaction_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{reaction_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete a reaction by ID")
 @limiter.limit(CONTENT_LIMIT)
 async def delete_reaction(request: Request, reaction_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     service = ReactionService(db)
