@@ -45,11 +45,16 @@ async def get_messages(chat_id: UUID, current_user: User = Depends(get_current_u
     return CursorResponse(items=messages, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.get("/unread", response_model=list[MessageResponse])
-async def get_unread_messages(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@router.get("/unread", response_model=CursorResponse[MessageResponse])
+async def get_unread_messages(
+    current_user: User = Depends(get_current_user),
+    cursor: str | None = Query(None),
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+):
     service = MessageService(db)
-    messages = await service.get_unread(current_user.id)
-    return messages
+    messages, next_cursor, has_more = await service.get_unread(current_user.id, cursor=cursor, limit=limit)
+    return CursorResponse(items=messages, next_cursor=next_cursor, has_more=has_more)
 
 
 @router.delete("/{message_id}", status_code=status.HTTP_204_NO_CONTENT)

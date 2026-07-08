@@ -60,11 +60,18 @@ async def delete_profile_photo(
         raise HTTPException(status_code=404, detail="Profile photo not found")
 
 
-@router.get("/post/{post_id}", response_model=list[PhotoResponse])
-async def get_photos(post_id: UUID, db: AsyncSession = Depends(get_db)):
+@router.get("/post/{post_id}")
+async def get_photos(
+    post_id: UUID,
+    cursor: str | None = Query(None),
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+):
+    from app.schemas.pagination import CursorResponse
+    from app.schemas.photo import PhotoResponse
     service = PhotoService(db)
-    photos = await service.get_photos(post_id)
-    return photos
+    photos, next_cursor, has_more = await service.get_photos(post_id, cursor=cursor, limit=limit)
+    return CursorResponse(items=photos, next_cursor=next_cursor, has_more=has_more)
 
 
 @router.get("/{filename}")

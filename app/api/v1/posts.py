@@ -103,14 +103,16 @@ async def create_post_comment(request: Request, post_id: UUID, comment_in: Comme
     return comment
 
 
-@router.get("/{post_id}/reactions", response_model=list[ReactionResponse])
+@router.get("/{post_id}/reactions", response_model=CursorResponse[ReactionResponse])
 async def get_post_reactions(
     post_id: UUID,
+    cursor: str | None = Query(None),
+    limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
 ):
     service = ReactionService(db)
-    reactions = await service.get_reactions(post_id=post_id)
-    return reactions
+    reactions, next_cursor, has_more = await service.get_reactions(post_id=post_id, cursor=cursor, limit=limit)
+    return CursorResponse(items=reactions, next_cursor=next_cursor, has_more=has_more)
 
 
 @router.get("/{post_id}/reactions/count")

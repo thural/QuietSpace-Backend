@@ -40,9 +40,10 @@ class MessageService:
             return None
         return message
 
-    async def get_unread(self, user_id: UUID) -> list[Message]:
-        messages = await self.message_repo.get_unread(user_id)
-        return await self._filter_blocked_messages(messages, user_id)
+    async def get_unread(self, user_id: UUID, cursor: str | None = None, limit: int = 20) -> tuple[list[Message], str | None, bool]:
+        messages, next_cursor, has_more = await self.message_repo.get_unread(user_id, cursor, limit)
+        messages = await self._filter_blocked_messages(messages, user_id)
+        return messages, next_cursor, has_more
 
     async def mark_as_read(self, message_id: UUID, user_id: UUID) -> tuple[UUID, UUID] | None:
         message = await self.message_repo.get(message_id)

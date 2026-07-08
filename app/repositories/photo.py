@@ -9,11 +9,9 @@ class PhotoRepository(BaseRepository[Photo]):
     def __init__(self, session: AsyncSession):
         super().__init__(Photo, session)
 
-    async def get_by_post(self, post_id: UUID) -> list[Photo]:
-        result = await self.session.execute(
-            select(Photo).where(Photo.post_id == post_id)
-        )
-        return result.scalars().all()
+    async def get_by_post(self, post_id: UUID, cursor: str | None = None, limit: int = 20) -> tuple[list[Photo], str | None, bool]:
+        stmt = select(Photo).where(Photo.post_id == post_id)
+        return await self.paginate_cursor(stmt, cursor, limit)
 
 
 photo_repository = PhotoRepository

@@ -23,18 +23,12 @@ class ReactionService:
     async def delete_reaction(self, reaction_id: UUID) -> bool:
         return await self.reaction_repo.delete(reaction_id)
 
-    async def get_reactions(self, post_id: UUID | None = None, comment_id: UUID | None = None) -> list[Reaction]:
+    async def get_reactions(self, post_id: UUID | None = None, comment_id: UUID | None = None, cursor: str | None = None, limit: int = 20) -> tuple[list[Reaction], str | None, bool]:
         if post_id:
-            result = await self.reaction_repo.session.execute(
-                select(Reaction).where(Reaction.post_id == post_id)
-            )
-            return result.scalars().all()
+            return await self.reaction_repo.get_by_post(post_id, cursor, limit)
         if comment_id:
-            result = await self.reaction_repo.session.execute(
-                select(Reaction).where(Reaction.comment_id == comment_id)
-            )
-            return result.scalars().all()
-        return []
+            return await self.reaction_repo.get_by_comment(comment_id, cursor, limit)
+        return [], None, False
 
     async def get_user_reactions(self, user_id: UUID, reaction_type: ReactionType | None = None, cursor: str | None = None, limit: int = 20) -> tuple[list[Reaction], str | None, bool]:
         return await self.reaction_repo.get_by_user(user_id, reaction_type, cursor, limit)

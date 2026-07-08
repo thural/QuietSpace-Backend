@@ -101,7 +101,9 @@ async def test_get_post_reactions_nested(client: AsyncClient):
         "/api/v1/posts/00000000-0000-0000-0000-000000000000/reactions"
     )
     assert response.status_code == 200
-    assert isinstance(response.json(), list)
+    data = response.json()
+    assert "items" in data
+    assert isinstance(data["items"], list)
 
 
 @pytest.mark.asyncio

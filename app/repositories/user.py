@@ -41,13 +41,12 @@ class UserRepository(BaseRepository[User]):
         return list(result.scalars().all())
 
     async def search(
-        self, query: str, limit: int = 20, load_options: Optional[list[Load]] = None
-    ) -> list[User]:
-        stmt = select(User).where(User.username.ilike(f"%{query}%")).limit(limit)
+        self, query: str, cursor: str | None = None, limit: int = 20, load_options: Optional[list[Load]] = None
+    ) -> tuple[list[User], str | None, bool]:
+        stmt = select(User).where(User.username.ilike(f"%{query}%"))
         if load_options:
             stmt = stmt.options(*load_options)
-        result = await self.session.execute(stmt)
-        return result.scalars().all()
+        return await self.paginate_cursor(stmt, cursor, limit)
 
     async def advanced_search(
         self,

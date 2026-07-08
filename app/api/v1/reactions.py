@@ -27,16 +27,20 @@ async def get_user_reactions(
     return CursorResponse(items=reactions, next_cursor=next_cursor, has_more=has_more)
 
 
-@router.get("/content", response_model=list[ReactionResponse])
+@router.get("/content")
 async def get_content_reactions(
     content_type: str = Query(..., pattern="^(post|comment)$"),
     content_id: UUID = Query(...),
+    cursor: str | None = Query(None),
+    limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
 ):
+    from app.schemas.pagination import CursorResponse
+    from app.schemas.reaction import ReactionResponse
     service = ReactionService(db)
-    kwargs = {f"{content_type}_id": content_id}
-    reactions = await service.get_reactions(**kwargs)
-    return reactions
+    kwargs = {f"{content_type}_id": content_id, "cursor": cursor, "limit": limit}
+    reactions, next_cursor, has_more = await service.get_reactions(**kwargs)
+    return CursorResponse(items=reactions, next_cursor=next_cursor, has_more=has_more)
 
 
 @router.post("", response_model=ReactionResponse, status_code=status.HTTP_201_CREATED)
@@ -59,11 +63,18 @@ async def delete_reaction(request: Request, reaction_id: UUID, current_user: Use
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reaction not found")
 
 
-@router.get("/post/{post_id}", response_model=list[ReactionResponse])
-async def get_post_reactions(post_id: UUID, db: AsyncSession = Depends(get_db)):
+@router.get("/post/{post_id}")
+async def get_post_reactions(
+    post_id: UUID,
+    cursor: str | None = Query(None),
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+):
+    from app.schemas.pagination import CursorResponse
+    from app.schemas.reaction import ReactionResponse
     service = ReactionService(db)
-    reactions = await service.get_reactions(post_id=post_id)
-    return reactions
+    reactions, next_cursor, has_more = await service.get_reactions(post_id=post_id, cursor=cursor, limit=limit)
+    return CursorResponse(items=reactions, next_cursor=next_cursor, has_more=has_more)
 
 
 @router.get("/count/{post_id}")

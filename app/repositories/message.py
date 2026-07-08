@@ -16,13 +16,11 @@ class MessageRepository(BaseRepository[Message]):
             stmt = stmt.where(Message.deleted_at.is_(None))
         return await self.paginate_cursor(stmt, cursor, limit)
 
-    async def get_unread(self, user_id: UUID, include_deleted: bool = False) -> list[Message]:
+    async def get_unread(self, user_id: UUID, cursor: str | None = None, limit: int = 20, include_deleted: bool = False) -> tuple[list[Message], str | None, bool]:
         stmt = select(Message).where(Message.recipient_id == user_id, Message.read == False)
         if not include_deleted:
             stmt = stmt.where(Message.deleted_at.is_(None))
-        stmt = stmt.order_by(Message.created_at.asc())
-        result = await self.session.execute(stmt)
-        return result.scalars().all()
+        return await self.paginate_cursor(stmt, cursor, limit)
 
     async def soft_delete(self, message_id: UUID) -> Message | None:
         message = await self.get(message_id)

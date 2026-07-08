@@ -12,7 +12,9 @@ async def test_get_me_unauthenticated(client: AsyncClient):
 async def test_search_users(client: AsyncClient):
     response = await client.get("/api/v1/users/search", params={"q": "test"})
     assert response.status_code == 200
-    assert isinstance(response.json(), list)
+    data = response.json()
+    assert "items" in data
+    assert isinstance(data["items"], list)
 
 
 @pytest.mark.asyncio

@@ -29,11 +29,16 @@ async def create_chat(request: Request, chat_in: ChatCreate, current_user: User 
     return chat
 
 
-@router.get("", response_model=list[ChatResponse])
-async def get_chats(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@router.get("", response_model=CursorResponse[ChatResponse])
+async def get_chats(
+    current_user: User = Depends(get_current_user),
+    cursor: str | None = Query(None),
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+):
     service = ChatService(db)
-    chats = await service.get_user_chats(current_user.id)
-    return chats
+    chats, next_cursor, has_more = await service.get_user_chats(current_user.id, cursor=cursor, limit=limit)
+    return CursorResponse(items=chats, next_cursor=next_cursor, has_more=has_more)
 
 
 @router.get("/{chat_id}", response_model=ChatResponse)

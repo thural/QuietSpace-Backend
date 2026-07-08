@@ -37,14 +37,14 @@ class UserService:
             await self.cache.delete(f"user:{user_id}")
         return deleted is not None
 
-    async def search_users(self, query: str, current_user_id: UUID | None = None, limit: int = 20) -> list[User]:
-        users = await self.user_repo.search(query, limit)
+    async def search_users(self, query: str, current_user_id: UUID | None = None, cursor: str | None = None, limit: int = 20) -> tuple[list[User], str | None, bool]:
+        users, next_cursor, has_more = await self.user_repo.search(query, cursor, limit)
         if current_user_id:
             blocked_ids = await self.block_repo.get_blocked_ids(current_user_id)
             blocker_ids = await self.block_repo.get_blocker_ids(current_user_id)
             excluded = blocked_ids | blocker_ids
             users = [u for u in users if u.id not in excluded]
-        return users
+        return users, next_cursor, has_more
 
     async def advanced_search(
         self,

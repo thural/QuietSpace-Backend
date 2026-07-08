@@ -27,8 +27,8 @@ class ChatService:
     async def get_chat(self, chat_id: UUID) -> Chat | None:
         return await self.chat_repo.get(chat_id)
 
-    async def get_user_chats(self, user_id: UUID) -> list[Chat]:
-        return await self.chat_repo.get_by_participant(user_id)
+    async def get_user_chats(self, user_id: UUID, cursor: str | None = None, limit: int = 20) -> tuple[list[Chat], str | None, bool]:
+        return await self.chat_repo.get_by_participant(user_id, cursor, limit)
 
     async def add_member(self, chat_id: UUID, user_id: UUID, actor_id: UUID) -> bool:
         result = await self.session.execute(

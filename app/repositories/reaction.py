@@ -18,6 +18,14 @@ class ReactionRepository(BaseRepository[Reaction]):
             stmt = stmt.where(Reaction.type == reaction_type)
         return await self.paginate_cursor(stmt, cursor, limit)
 
+    async def get_by_post(self, post_id: UUID, cursor: str | None = None, limit: int = 20) -> tuple[list[Reaction], str | None, bool]:
+        stmt = select(Reaction).where(Reaction.post_id == post_id)
+        return await self.paginate_cursor(stmt, cursor, limit)
+
+    async def get_by_comment(self, comment_id: UUID, cursor: str | None = None, limit: int = 20) -> tuple[list[Reaction], str | None, bool]:
+        stmt = select(Reaction).where(Reaction.comment_id == comment_id)
+        return await self.paginate_cursor(stmt, cursor, limit)
+
     async def get_by_user_and_target(self, user_id: UUID, post_id: UUID | None = None, comment_id: UUID | None = None) -> Reaction | None:
         stmt = select(Reaction).where(Reaction.user_id == user_id)
         if post_id:

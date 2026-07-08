@@ -16,8 +16,8 @@ class PhotoService:
         photo = Photo(**photo_in.model_dump())
         return await self.photo_repo.create(photo)
 
-    async def get_photos(self, post_id: UUID) -> list[Photo]:
-        return await self.photo_repo.get_by_post(post_id)
+    async def get_photos(self, post_id: UUID, cursor: str | None = None, limit: int = 20) -> tuple[list[Photo], str | None, bool]:
+        return await self.photo_repo.get_by_post(post_id, cursor, limit)
 
     async def delete_photo(self, photo_id: UUID) -> bool:
         return await self.photo_repo.delete(photo_id)

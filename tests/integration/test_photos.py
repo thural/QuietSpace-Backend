@@ -9,7 +9,9 @@ async def test_get_post_photos(client: AsyncClient):
         "/api/v1/photos/post/00000000-0000-0000-0000-000000000000"
     )
     assert response.status_code == 200
-    assert isinstance(response.json(), list)
+    data = response.json()
+    assert "items" in data
+    assert isinstance(data["items"], list)
 
 
 @pytest.mark.asyncio

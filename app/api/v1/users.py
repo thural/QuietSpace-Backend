@@ -144,16 +144,20 @@ async def query_users(
     )
 
 
-@router.get("/search", response_model=list[UserResponse])
+@router.get("/search")
 async def search_users(
     q: str = Query(..., min_length=1),
+    cursor: str | None = Query(None),
+    limit: int = Query(20, ge=1, le=100),
     current_user: User | None = Depends(get_optional_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    from app.schemas.pagination import CursorResponse
+    from app.schemas.user import UserResponse
     service = UserService(db)
     user_id = current_user.id if current_user else None
-    users = await service.search_users(q, current_user_id=user_id, limit=20)
-    return users
+    users, next_cursor, has_more = await service.search_users(q, current_user_id=user_id, cursor=cursor, limit=limit)
+    return CursorResponse(items=users, next_cursor=next_cursor, has_more=has_more)
 
 
 @router.get("/online", response_model=list[UserResponse])
