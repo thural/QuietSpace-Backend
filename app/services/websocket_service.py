@@ -16,7 +16,7 @@ class WebSocketService:
             title="New Message",
             content=message_text,
         )
-        await manager.send_to_user(recipient_id, "new_notification", notification.model_dump())
+        await manager.send_to_user(recipient_id, "notification", notification.model_dump())
 
     async def send_typing_indicator(self, chat_id: UUID, user_id: UUID, is_typing: bool):
         await manager.broadcast_to_chat(
