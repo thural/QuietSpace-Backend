@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from uuid import UUID
 import structlog
 from app.api.websocket.socketio import socketio
@@ -87,6 +88,7 @@ async def handle_send_message(sid, data):
         return
 
     sender_id = UUID(data["sender_id"])
+    client_ts = data.get("client_timestamp")
     if not await rate_limiter.check(sender_id, "send_message", 10, 10):
         await manager.emit_error(sid, ErrorCode.RATE_LIMITED, "Too many messages", "send_message")
         return
@@ -104,11 +106,15 @@ async def handle_send_message(sid, data):
         service = MessageService(session)
         saved_message = await service.add_message(message_data)
 
+        raw_data = saved_message.model_dump(mode="json")
+        if client_ts:
+            raw_data["client_timestamp"] = client_ts
+            raw_data["server_timestamp"] = datetime.now(timezone.utc).isoformat()
         event = EventFactory.create_chat_event(
             event_type=WebSocketEventType.NEW_MESSAGE,
             actor_id=saved_message.sender_id,
             chat_id=saved_message.chat_id,
-            data=saved_message.model_dump(mode="json"),
+            data=raw_data,
         )
         envelope = event.model_dump(mode="json")
 
