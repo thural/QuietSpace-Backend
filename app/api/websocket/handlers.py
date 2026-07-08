@@ -4,6 +4,7 @@ from app.api.websocket.socketio import socketio
 from app.api.websocket.manager import manager
 from app.models.websocket_event import EventFactory
 from app.enums.websocket_event_type import WebSocketEventType, ErrorCode
+from app.api.websocket.rate_limiter import rate_limiter
 
 logger = structlog.get_logger()
 
@@ -85,13 +86,18 @@ async def handle_send_message(sid, data):
         logger.warning("ws_duplicate_message", client_message_id=client_message_id)
         return
 
+    sender_id = UUID(data["sender_id"])
+    if not await rate_limiter.check(sender_id, "send_message", 10, 10):
+        await manager.emit_error(sid, ErrorCode.RATE_LIMITED, "Too many messages", "send_message")
+        return
+
     from app.main import app
     from app.services.message_service import MessageService
 
     async with app.state.async_session() as session:
         message_data = {
             "chat_id": UUID(data["chat_id"]),
-            "sender_id": UUID(data["sender_id"]),
+            "sender_id": sender_id,
             "recipient_id": UUID(data["recipient_id"]),
             "text": data["text"],
         }
@@ -122,6 +128,8 @@ async def handle_send_message(sid, data):
 @socketio.on("set_online_status")
 async def handle_online_status(sid, data):
     user_id = UUID(data["user_id"])
+    if not await rate_limiter.check(user_id, "set_online_status", 5, 60):
+        return
     status = data["status"]
     await manager.broadcast_to_chat(user_id, "user_status", {"user_id": str(user_id), "status": status})
 
@@ -144,12 +152,20 @@ async def handle_get_online_users(sid, data):
 
 @socketio.on("public_message")
 async def handle_public_message(sid, data):
-    user_id = data.get("user_id")
+    user_id_raw = data.get("user_id")
+    if user_id_raw:
+        try:
+            user_uuid = UUID(user_id_raw)
+            if not await rate_limiter.check(user_uuid, "public_message", 5, 10):
+                await manager.emit_error(sid, ErrorCode.RATE_LIMITED, "Too many public messages", "public_message")
+                return
+        except ValueError:
+            pass
     message = data.get("message", "")
     await manager.broadcast_to_public(
         "public_message",
         {
-            "user_id": user_id,
+            "user_id": user_id_raw,
             "message": message,
             "type": data.get("type", "message"),
         },

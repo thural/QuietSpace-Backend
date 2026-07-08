@@ -12,6 +12,13 @@ def mock_socketio():
 
 
 @pytest.fixture(autouse=True)
+def mock_rate_limiter():
+    with patch("app.api.websocket.handlers.rate_limiter") as mock:
+        mock.check = AsyncMock(return_value=True)
+        yield mock
+
+
+@pytest.fixture(autouse=True)
 def mock_manager():
     with patch("app.api.websocket.handlers.manager") as mock:
         mock.connect_user = AsyncMock()
