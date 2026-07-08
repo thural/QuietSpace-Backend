@@ -1,3 +1,4 @@
+import structlog
 from uuid import UUID
 from datetime import datetime
 from sqlalchemy import select
@@ -9,6 +10,8 @@ from app.schemas.chat import ChatCreate, ChatUpdate
 from app.core.unit_of_work import UnitOfWork
 from app.models.websocket_event import EventFactory
 from app.enums.websocket_event_type import WebSocketEventType
+
+logger = structlog.get_logger()
 
 
 class ChatService:
@@ -52,6 +55,24 @@ class ChatService:
             return False
         await self.session.delete(participant)
         return True
+
+    async def delete_chat(self, chat_id: UUID, user_id: UUID) -> Chat | None:
+        chat = await self.chat_repo.get(chat_id)
+        if not chat:
+            return None
+        result = await self.session.execute(
+            select(ChatParticipant).where(
+                ChatParticipant.chat_id == chat_id,
+                ChatParticipant.user_id == user_id,
+            )
+        )
+        if not result.scalar_one_or_none():
+            raise ValueError("Not a chat member")
+        deleted = await self.chat_repo.soft_delete(chat_id)
+        if not deleted:
+            return None
+        logger.info("chat_soft_deleted", chat_id=str(chat_id), user_id=str(user_id))
+        return deleted
 
     async def update_chat(self, chat_id: UUID, chat_in: ChatUpdate) -> Chat | None:
         chat = await self.chat_repo.get(chat_id)

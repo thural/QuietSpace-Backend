@@ -89,6 +89,21 @@ async def update_chat(request: Request, chat_id: UUID, chat_in: ChatUpdate, curr
     return chat
 
 
+@router.delete("/{chat_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_chat(
+    chat_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    service = ChatService(db)
+    try:
+        deleted = await service.delete_chat(chat_id, current_user.id)
+    except ValueError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Chat not found")
+
+
 @router.post("/{chat_id}/participants")
 async def add_participant(
     chat_id: UUID,

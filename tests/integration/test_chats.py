@@ -36,3 +36,9 @@ async def test_send_chat_message_requires_auth(client: AsyncClient):
         json={"chat_id": "00000000-0000-0000-0000-000000000000", "recipient_id": "00000000-0000-0000-0000-000000000001", "text": "Hello"},
     )
     assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_delete_chat_requires_auth(client: AsyncClient):
+    response = await client.delete("/api/v1/chats/00000000-0000-0000-0000-000000000000")
+    assert response.status_code == 403

@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
@@ -18,6 +19,13 @@ class ChatRepository(BaseRepository[Chat]):
             .order_by(Chat.updated_at.desc())
         )
         return result.scalars().all()
+
+    async def soft_delete(self, chat_id: UUID) -> Chat | None:
+        chat = await self.get(chat_id)
+        if not chat:
+            return None
+        chat.deleted_at = datetime.utcnow()
+        return await self.update(chat)
 
 
 chat_repository = ChatRepository
