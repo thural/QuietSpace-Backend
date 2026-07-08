@@ -170,6 +170,7 @@ async def handle_get_online_users(sid, data):
 @socketio.on("public_message")
 async def handle_public_message(sid, data):
     user_id_raw = data.get("user_id")
+    user_uuid = None
     if user_id_raw:
         try:
             user_uuid = UUID(user_id_raw)
@@ -179,6 +180,21 @@ async def handle_public_message(sid, data):
         except ValueError:
             pass
     message = data.get("message", "")
+    if user_uuid:
+        from app.main import app
+        from app.models.message import Message
+        from app.repositories.chat import ChatRepository
+        async with app.state.async_session() as session:
+            chat_repo = ChatRepository(session)
+            public_chat = await chat_repo.get_or_create_public_chat()
+            msg = Message(
+                chat_id=public_chat.id,
+                sender_id=user_uuid,
+                recipient_id=user_uuid,
+                text=message,
+            )
+            session.add(msg)
+            await session.commit()
     await manager.broadcast_to_public(
         "public_message",
         {

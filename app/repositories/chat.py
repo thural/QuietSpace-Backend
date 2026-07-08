@@ -1,9 +1,11 @@
 from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from uuid import UUID
+from uuid import UUID, uuid5, NAMESPACE_DNS
 from app.models.chat import Chat
 from app.repositories.base import BaseRepository
+
+PUBLIC_CHAT_ID = uuid5(NAMESPACE_DNS, "quietspace.public.chat")
 
 
 class ChatRepository(BaseRepository[Chat]):
@@ -26,6 +28,17 @@ class ChatRepository(BaseRepository[Chat]):
             return None
         chat.deleted_at = datetime.utcnow()
         return await self.update(chat)
+
+    async def get_or_create_public_chat(self) -> Chat:
+        chat = await self.get(PUBLIC_CHAT_ID)
+        if chat:
+            return chat
+        chat = Chat(
+            id=PUBLIC_CHAT_ID,
+            name="Public Room",
+            is_group=True,
+        )
+        return await self.create(chat)
 
 
 chat_repository = ChatRepository
