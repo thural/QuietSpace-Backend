@@ -21,3 +21,11 @@ async def test_get_chat_messages_requires_auth(client: AsyncClient):
         "/api/v1/messages/chat/00000000-0000-0000-0000-000000000000"
     )
     assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_get_message_not_found(client: AsyncClient):
+    response = await client.get(
+        "/api/v1/messages/00000000-0000-0000-0000-000000000000"
+    )
+    assert response.status_code == 404

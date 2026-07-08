@@ -32,6 +32,14 @@ class MessageService:
             messages = await self._filter_blocked_messages(messages, current_user_id)
         return messages, next_cursor, has_more
 
+    async def get_message(self, message_id: UUID, current_user_id: UUID | None = None) -> Message | None:
+        message = await self.message_repo.get(message_id)
+        if not message:
+            return None
+        if current_user_id and message.sender_id != current_user_id and message.recipient_id != current_user_id:
+            return None
+        return message
+
     async def get_unread(self, user_id: UUID) -> list[Message]:
         messages = await self.message_repo.get_unread(user_id)
         return await self._filter_blocked_messages(messages, user_id)
