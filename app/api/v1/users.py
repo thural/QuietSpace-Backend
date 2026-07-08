@@ -60,6 +60,58 @@ async def update_me(request: Request, user_in: UserUpdate, current_user: User = 
     return current_user
 
 
+@router.post("/me/block/{user_id}")
+@limiter.limit(SENSITIVE_LIMIT)
+async def block_user_me(
+    request: Request,
+    user_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    cache: CacheService = Depends(get_cache),
+):
+    service = BlockService(db, cache_service=cache)
+    success = await service.block_user(current_user.id, user_id)
+    if not success:
+        raise HTTPException(status_code=400, detail="Cannot block user")
+    return {"message": "User blocked successfully"}
+
+
+@router.delete("/me/block/{user_id}")
+@limiter.limit(SENSITIVE_LIMIT)
+async def unblock_user_me(
+    request: Request,
+    user_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    cache: CacheService = Depends(get_cache),
+):
+    service = BlockService(db, cache_service=cache)
+    success = await service.unblock_user(current_user.id, user_id)
+    if not success:
+        raise HTTPException(status_code=400, detail="Cannot unblock user")
+    return {"message": "User unblocked successfully"}
+
+
+@router.get("/me/blocked")
+async def get_blocked_users_me(
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    cache: CacheService = Depends(get_cache),
+):
+    from app.schemas.pagination import OffsetResponse
+    service = BlockService(db, cache_service=cache)
+    users, total = await service.get_blocked_users(current_user.id, page=page, size=size)
+    return OffsetResponse(
+        items=users,
+        total=total,
+        page=page,
+        size=size,
+        pages=(total + size - 1) // size if total > 0 else 0,
+    )
+
+
 @router.get("/query")
 async def query_users(
     username: str | None = Query(None, min_length=1),
