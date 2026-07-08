@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
@@ -6,7 +6,10 @@ from app.api.deps import get_db, get_current_user
 from app.models.user import User
 from app.models.chat_participant import ChatParticipant
 from app.services.chat_service import ChatService
+from app.services.message_service import MessageService
 from app.schemas.chat import ChatCreate, ChatUpdate, ChatResponse
+from app.schemas.message import MessageCreate, MessageResponse
+from app.schemas.pagination import CursorResponse
 from app.core.rate_limiter import limiter, CONTENT_LIMIT
 from app.core.unit_of_work import UnitOfWork
 from app.models.websocket_event import EventFactory
@@ -40,6 +43,32 @@ async def get_chat(chat_id: UUID, current_user: User = Depends(get_current_user)
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found")
     return chat
+
+
+@router.get("/{chat_id}/messages", response_model=CursorResponse[MessageResponse])
+async def get_chat_messages(
+    chat_id: UUID,
+    current_user: User = Depends(get_current_user),
+    cursor: str | None = Query(None),
+    limit: int = Query(50, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+):
+    service = MessageService(db)
+    messages, next_cursor, has_more = await service.get_messages(chat_id, cursor=cursor, limit=limit, current_user_id=current_user.id)
+    return CursorResponse(items=messages, next_cursor=next_cursor, has_more=has_more)
+
+
+@router.post("/{chat_id}/messages", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit(CONTENT_LIMIT)
+async def send_chat_message(request: Request, chat_id: UUID, message_in: MessageCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    if message_in.chat_id != chat_id:
+        raise HTTPException(status_code=400, detail="chat_id in body does not match path")
+    service = MessageService(db)
+    try:
+        message = await service.add_message({**message_in.model_dump(), "sender_id": current_user.id})
+    except ValueError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+    return message
 
 
 @router.patch("/{chat_id}", response_model=ChatResponse)
