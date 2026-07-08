@@ -4,6 +4,7 @@ from uuid import UUID
 from app.models.reaction import Reaction
 from app.repositories.reaction import ReactionRepository
 from app.schemas.reaction import ReactionCreate
+from app.enums.reaction_type import ReactionType
 
 
 class ReactionService:
@@ -32,6 +33,9 @@ class ReactionService:
             )
             return result.scalars().all()
         return []
+
+    async def get_user_reactions(self, user_id: UUID, reaction_type: ReactionType | None = None, cursor: str | None = None, limit: int = 20) -> tuple[list[Reaction], str | None, bool]:
+        return await self.reaction_repo.get_by_user(user_id, reaction_type, cursor, limit)
 
     async def get_reaction_count(self, post_id: UUID) -> int:
         return await self.reaction_repo.count_by_post(post_id)

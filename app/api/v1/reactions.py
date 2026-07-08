@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from app.api.deps import get_db, get_current_user
@@ -6,8 +6,25 @@ from app.models.user import User
 from app.core.rate_limiter import limiter, CONTENT_LIMIT
 from app.services.reaction_service import ReactionService
 from app.schemas.reaction import ReactionCreate, ReactionResponse
+from app.schemas.pagination import CursorResponse
+from app.enums.reaction_type import ReactionType
 
 router = APIRouter()
+
+
+@router.get("/user", response_model=CursorResponse[ReactionResponse])
+async def get_user_reactions(
+    type: ReactionType | None = Query(None),
+    cursor: str | None = Query(None),
+    limit: int = Query(20, ge=1, le=100),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    service = ReactionService(db)
+    reactions, next_cursor, has_more = await service.get_user_reactions(
+        current_user.id, reaction_type=type, cursor=cursor, limit=limit
+    )
+    return CursorResponse(items=reactions, next_cursor=next_cursor, has_more=has_more)
 
 
 @router.post("", response_model=ReactionResponse, status_code=status.HTTP_201_CREATED)

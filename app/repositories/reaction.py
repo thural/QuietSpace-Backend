@@ -3,11 +3,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from app.models.reaction import Reaction
 from app.repositories.base import BaseRepository
+from app.enums.reaction_type import ReactionType
 
 
 class ReactionRepository(BaseRepository[Reaction]):
     def __init__(self, session: AsyncSession):
         super().__init__(Reaction, session)
+
+    async def get_by_user(
+        self, user_id: UUID, reaction_type: ReactionType | None = None, cursor: str | None = None, limit: int = 20
+    ) -> tuple[list[Reaction], str | None, bool]:
+        stmt = select(Reaction).where(Reaction.user_id == user_id)
+        if reaction_type:
+            stmt = stmt.where(Reaction.type == reaction_type)
+        return await self.paginate_cursor(stmt, cursor, limit)
 
     async def get_by_user_and_target(self, user_id: UUID, post_id: UUID | None = None, comment_id: UUID | None = None) -> Reaction | None:
         stmt = select(Reaction).where(Reaction.user_id == user_id)
