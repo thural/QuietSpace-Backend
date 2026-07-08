@@ -41,4 +41,5 @@ class User(BaseEntity, table=True):
         back_populates="blocked",
         sa_relationship_kwargs={"foreign_keys": "BlockedUser.blocked_id"}
     )
+    poll_votes: list["PollVote"] = Relationship(back_populates="user")
 

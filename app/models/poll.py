@@ -18,7 +18,7 @@ class Poll(BaseEntity, table=True):
 class PollOption(BaseEntity, table=True):
     __tablename__ = "poll_options"
 
-    poll_id: UUID = Field(foreign_key="poll.id", index=True)
+    poll_id: UUID = Field(foreign_key="polls.id", index=True)
     option_text: str = Field(max_length=255)
     vote_count: int = Field(default=0)
 

@@ -123,6 +123,20 @@ async def get_saved_posts(
     return CursorResponse(items=posts, next_cursor=next_cursor, has_more=has_more)
 
 
+@router.get("/user/{user_id}", response_model=CursorResponse[PostResponse])
+async def get_posts_by_user(
+    user_id: UUID,
+    cursor: str | None = Query(None),
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+):
+    service = PostService(db)
+    posts, next_cursor, has_more = await service.get_posts(
+        author_id=user_id, cursor=cursor, limit=limit
+    )
+    return CursorResponse(items=posts, next_cursor=next_cursor, has_more=has_more)
+
+
 @router.get("/commented/{user_id}", response_model=CursorResponse[PostResponse])
 async def get_commented_posts(
     user_id: UUID,
