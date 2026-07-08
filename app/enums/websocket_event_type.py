@@ -13,6 +13,7 @@ class ErrorCode(str, Enum):
 class WebSocketEventType(str, Enum):
     JOIN_CHAT = "JOIN_CHAT"
     LEAVE_CHAT = "LEAVE_CHAT"
+    NEW_MESSAGE = "NEW_MESSAGE"
     DELETE_MESSAGE = "DELETE_MESSAGE"
     SEEN_MESSAGE = "SEEN_MESSAGE"
     TYPING = "TYPING"

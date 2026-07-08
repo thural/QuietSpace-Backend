@@ -150,9 +150,22 @@ async def test_handle_send_message(mock_manager, mock_socketio):
     mock_service = MagicMock()
     mock_service.add_message = AsyncMock(return_value=mock_saved_message)
 
+    mock_chat_event = MagicMock()
+    expected_envelope = {
+        "event_type": "NEW_MESSAGE",
+        "timestamp": "2025-01-01T00:00:00",
+        "actor_id": str(sender_id),
+        "data": {"id": "msg_1", "text": "Hello!"},
+        "chat_id": str(chat_id),
+        "message_id": None,
+        "recipient_id": None,
+    }
+    mock_chat_event.model_dump.return_value = expected_envelope
+
     with (
         patch("app.main.app", mock_app),
         patch("app.services.message_service.MessageService", return_value=mock_service),
+        patch("app.api.websocket.handlers.EventFactory.create_chat_event", return_value=mock_chat_event),
     ):
         await handle_send_message("sid_123", data)
 
@@ -164,13 +177,13 @@ async def test_handle_send_message(mock_manager, mock_socketio):
         })
         assert mock_manager.send_to_user.await_count == 2
         mock_manager.send_to_user.assert_any_await(
-            sender_id, "new_message", {"id": "msg_1", "text": "Hello!"}
+            sender_id, "new_message", expected_envelope
         )
         mock_manager.send_to_user.assert_any_await(
-            recipient_id, "new_message", {"id": "msg_1", "text": "Hello!"}
+            recipient_id, "new_message", expected_envelope
         )
         mock_manager.broadcast_to_chat.assert_awaited_once_with(
-            chat_id, "message_in_chat", {"id": "msg_1", "text": "Hello!"}
+            chat_id, "message_in_chat", expected_envelope
         )
         mock_session.commit.assert_awaited_once()
 

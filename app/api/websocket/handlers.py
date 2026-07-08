@@ -98,14 +98,22 @@ async def handle_send_message(sid, data):
         service = MessageService(session)
         saved_message = await service.add_message(message_data)
 
+        event = EventFactory.create_chat_event(
+            event_type=WebSocketEventType.NEW_MESSAGE,
+            actor_id=saved_message.sender_id,
+            chat_id=saved_message.chat_id,
+            data=saved_message.model_dump(mode="json"),
+        )
+        envelope = event.model_dump(mode="json")
+
         await manager.send_to_user(
-            saved_message.sender_id, "new_message", saved_message.model_dump(mode="json")
+            saved_message.sender_id, "new_message", envelope
         )
         await manager.send_to_user(
-            saved_message.recipient_id, "new_message", saved_message.model_dump(mode="json")
+            saved_message.recipient_id, "new_message", envelope
         )
         await manager.broadcast_to_chat(
-            saved_message.chat_id, "message_in_chat", saved_message.model_dump(mode="json")
+            saved_message.chat_id, "message_in_chat", envelope
         )
         await session.commit()
         logger.info("ws_message_sent", message_id=str(saved_message.id), chat_id=str(saved_message.chat_id), sender_id=str(saved_message.sender_id))
