@@ -93,3 +93,22 @@ async def test_create_post_comment_nested_requires_auth(client: AsyncClient):
         json={"text": "Nice post!", "post_id": "00000000-0000-0000-0000-000000000000"},
     )
     assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_get_post_reactions_nested(client: AsyncClient):
+    response = await client.get(
+        "/api/v1/posts/00000000-0000-0000-0000-000000000000/reactions"
+    )
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+
+
+@pytest.mark.asyncio
+async def test_get_post_reaction_count_nested(client: AsyncClient):
+    response = await client.get(
+        "/api/v1/posts/00000000-0000-0000-0000-000000000000/reactions/count"
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "count" in data

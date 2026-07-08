@@ -9,8 +9,10 @@ from app.schemas.pagination import CursorResponse
 from app.schemas.post import PostCreate, PostUpdate, PostResponse, RepostRequest
 from app.schemas.poll import VoteRequest
 from app.schemas.comment import CommentCreate, CommentResponse
+from app.schemas.reaction import ReactionResponse
 from app.services.post_service import PostService
 from app.services.comment_service import CommentService
+from app.services.reaction_service import ReactionService
 from app.core.rate_limiter import limiter, CONTENT_LIMIT
 from app.services.poll_service import PollService
 
@@ -99,6 +101,26 @@ async def create_post_comment(request: Request, post_id: UUID, comment_in: Comme
     service = CommentService(db)
     comment = await service.create_comment(current_user.id, comment_in)
     return comment
+
+
+@router.get("/{post_id}/reactions", response_model=list[ReactionResponse])
+async def get_post_reactions(
+    post_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    service = ReactionService(db)
+    reactions = await service.get_reactions(post_id=post_id)
+    return reactions
+
+
+@router.get("/{post_id}/reactions/count")
+async def get_post_reaction_count(
+    post_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    service = ReactionService(db)
+    count = await service.get_reaction_count(post_id)
+    return {"post_id": str(post_id), "count": count}
 
 
 @router.patch("/{post_id}", response_model=PostResponse)
