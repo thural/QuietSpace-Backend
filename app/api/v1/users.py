@@ -194,9 +194,28 @@ async def get_following(
     )
 
 
+@router.delete("/{user_id}/followers/{follower_id}")
+@limiter.limit(SENSITIVE_LIMIT)
+async def remove_follower_rest(
+    request: Request,
+    user_id: UUID,
+    follower_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    cache: CacheService = Depends(get_cache),
+):
+    if current_user.id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    service = UserService(db, cache_service=cache)
+    success = await service.remove_follower(current_user.id, follower_id)
+    if not success:
+        raise HTTPException(status_code=400, detail="Not a follower")
+    return {"message": "Follower removed successfully"}
+
+
 @router.post("/followers/remove/{follower_id}")
 @limiter.limit(SENSITIVE_LIMIT)
-async def remove_follower(
+async def remove_follower_deprecated(
     request: Request,
     follower_id: UUID,
     current_user: User = Depends(get_current_user),
