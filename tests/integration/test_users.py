@@ -63,3 +63,9 @@ async def test_unblock_user_me_requires_auth(client: AsyncClient):
 async def test_get_blocked_users_me_requires_auth(client: AsyncClient):
     response = await client.get("/api/v1/users/me/blocked")
     assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_delete_user_requires_auth(client: AsyncClient):
+    response = await client.delete("/api/v1/users/00000000-0000-0000-0000-000000000000")
+    assert response.status_code == 403

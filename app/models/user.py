@@ -19,6 +19,7 @@ class User(BaseEntity, table=True):
     enabled: bool = Field(default=True)
     activation_code: str | None = Field(default=None, max_length=255)
     activation_code_expires_at: datetime | None = Field(default=None)
+    deleted_at: datetime | None = Field(default=None, index=True)
 
     profile_settings: list["ProfileSettings"] = Relationship(back_populates="user")
     posts: list["Post"] = Relationship(back_populates="author")

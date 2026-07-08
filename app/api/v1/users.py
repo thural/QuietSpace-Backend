@@ -6,6 +6,7 @@ from app.api.websocket.manager import manager
 from app.core.cache import CacheService
 from app.core.rate_limiter import limiter, SENSITIVE_LIMIT
 from app.models.user import User
+from app.enums.role import Role
 from app.repositories.user import UserRepository
 from app.repositories.profile_settings import ProfileSettingsRepository
 from app.schemas.user import UserUpdate, UserResponse
@@ -172,6 +173,21 @@ async def get_user(user_id: UUID, db: AsyncSession = Depends(get_db), cache: Cac
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit(SENSITIVE_LIMIT)
+async def delete_user(
+    request: Request,
+    user_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    cache: CacheService = Depends(get_cache),
+):
+    service = UserService(db, cache_service=cache)
+    success = await service.delete_user(user_id, current_user.id, is_admin=current_user.role == Role.ADMIN)
+    if not success:
+        raise HTTPException(status_code=404, detail="User not found")
 
 
 @router.post("/{user_id}/follow")

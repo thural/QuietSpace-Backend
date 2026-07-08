@@ -29,6 +29,14 @@ class UserService:
             await self.cache.set(f"user:{uid}", user, ttl=300)
         return user
 
+    async def delete_user(self, user_id: UUID, actor_id: UUID, is_admin: bool = False) -> bool:
+        if user_id != actor_id and not is_admin:
+            return False
+        deleted = await self.user_repo.soft_delete(user_id)
+        if deleted and self.cache:
+            await self.cache.delete(f"user:{user_id}")
+        return deleted is not None
+
     async def search_users(self, query: str, current_user_id: UUID | None = None, limit: int = 20) -> list[User]:
         users = await self.user_repo.search(query, limit)
         if current_user_id:

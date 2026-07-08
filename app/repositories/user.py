@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_, func
@@ -76,6 +77,13 @@ class UserRepository(BaseRepository[User]):
             stmt = stmt.options(*load_options)
         result = await self.session.execute(stmt)
         return list(result.scalars().all()), total
+
+    async def soft_delete(self, user_id: UUID) -> User | None:
+        user = await self.get(user_id)
+        if not user:
+            return None
+        user.deleted_at = datetime.utcnow()
+        return await self.update(user)
 
     async def get_with_posts(self, user_id: UUID) -> User | None:
         return await self.get(
