@@ -69,6 +69,12 @@ class CommentRepository(BaseRepository[Comment]):
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
+    async def get_by_author(
+        self, author_id: UUID, cursor: str | None = None, limit: int = 20
+    ) -> tuple[list[Comment], str | None, bool]:
+        stmt = select(Comment).where(Comment.author_id == author_id)
+        return await self.paginate_cursor(stmt, cursor, limit)
+
     async def get_replies_count(self, parent_id: UUID) -> int:
         result = await self.session.execute(
             select(func.count()).where(Comment.parent_id == parent_id)

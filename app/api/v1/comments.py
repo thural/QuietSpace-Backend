@@ -33,6 +33,20 @@ async def get_comments(
     return CursorResponse(items=comments, next_cursor=next_cursor, has_more=has_more)
 
 
+@router.get("/user/{user_id}", response_model=CursorResponse[CommentResponse])
+async def get_comments_by_user(
+    user_id: UUID,
+    cursor: str | None = Query(None),
+    limit: int = Query(20, ge=1, le=100),
+    current_user: User | None = Depends(get_optional_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    service = CommentService(db)
+    user_id_ = current_user.id if current_user else None
+    comments, next_cursor, has_more = await service.get_comments_by_user(user_id, cursor, limit, current_user_id=user_id_)
+    return CursorResponse(items=comments, next_cursor=next_cursor, has_more=has_more)
+
+
 @router.get("/{comment_id}", response_model=CommentResponse)
 async def get_comment(
     comment_id: UUID,
