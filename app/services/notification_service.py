@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -74,7 +74,7 @@ class NotificationService:
                 notification = await self.notification_repo.get(nid)
                 if notification and notification.user_id == user_id and not notification.read:
                     notification.read = True
-                    notification.read_at = datetime.utcnow()
+                    notification.read_at = datetime.now(timezone.utc)
                     await self.notification_repo.update(notification)
                     count += 1
             marked = count
@@ -88,7 +88,7 @@ class NotificationService:
         notification = await self.notification_repo.get(notification_id)
         if notification:
             notification.read = True
-            notification.read_at = datetime.utcnow()
+            notification.read_at = datetime.now(timezone.utc)
             result = await self.notification_repo.update(notification)
             try:
                 from app.models.websocket_event import EventFactory

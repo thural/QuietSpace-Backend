@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID, uuid4
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 @pytest.fixture
@@ -13,7 +13,7 @@ def mock_user():
     user.enabled = False
     user.password_hash = "hashed_pass"
     user.activation_code = str(uuid4())
-    user.activation_code_expires_at = datetime.utcnow() + timedelta(hours=24)
+    user.activation_code_expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
     return user
 
 
@@ -86,7 +86,7 @@ async def test_activate_account_invalid_code(auth_service):
 
 @pytest.mark.asyncio
 async def test_activate_account_expired_code(auth_service, mock_user):
-    mock_user.activation_code_expires_at = datetime.utcnow() - timedelta(hours=1)
+    mock_user.activation_code_expires_at = datetime.now(timezone.utc) - timedelta(hours=1)
     mock_result = MagicMock()
     mock_result.scalar_one_or_none.return_value = mock_user
     auth_service.session.execute = AsyncMock(return_value=mock_result)
@@ -104,7 +104,7 @@ async def test_login_success(auth_service, mock_user):
     with (
         patch("app.services.auth_service.verify_password", return_value=True),
         patch("app.services.auth_service.create_access_token", return_value="jwt_token"),
-        patch("app.services.auth_service.decode_token", return_value={"jti": "test-jti", "exp": datetime.utcnow().timestamp()}),
+        patch("app.services.auth_service.decode_token", return_value={"jti": "test-jti", "exp": datetime.now(timezone.utc).timestamp()}),
     ):
         result = await auth_service.login("testuser", "password123")
         assert result["access_token"] == "jwt_token"
@@ -142,7 +142,7 @@ async def test_refresh_token_success(auth_service, mock_user):
     ):
         mock_decode.side_effect = [
             {"jti": "old-jti", "sub": "test@example.com"},
-            {"jti": "new-jti", "exp": datetime.utcnow().timestamp()},
+            {"jti": "new-jti", "exp": datetime.now(timezone.utc).timestamp()},
         ]
         result = await auth_service.refresh_token("old_token")
         assert result["access_token"] == "new_jwt"

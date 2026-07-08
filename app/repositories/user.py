@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_, func
@@ -81,7 +81,7 @@ class UserRepository(BaseRepository[User]):
         user = await self.get(user_id)
         if not user:
             return None
-        user.deleted_at = datetime.utcnow()
+        user.deleted_at = datetime.now(timezone.utc)
         return await self.update(user)
 
     async def get_with_posts(self, user_id: UUID) -> User | None:

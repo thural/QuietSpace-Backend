@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
@@ -26,7 +26,7 @@ class MessageRepository(BaseRepository[Message]):
         message = await self.get(message_id)
         if not message:
             return None
-        message.deleted_at = datetime.utcnow()
+        message.deleted_at = datetime.now(timezone.utc)
         return await self.update(message)
 
 

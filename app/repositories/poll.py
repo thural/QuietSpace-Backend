@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timezone
 from app.models.poll import Poll, PollOption, PollVote
 from app.repositories.base import BaseRepository
 
@@ -86,7 +86,7 @@ class PollVoteRepository(BaseRepository[PollVote]):
         return result.scalar_one_or_none() is not None
 
     async def vote(self, poll_option_id: UUID, user_id: UUID) -> PollVote:
-        vote = PollVote(poll_option_id=poll_option_id, user_id=user_id, voted_at=datetime.utcnow())
+        vote = PollVote(poll_option_id=poll_option_id, user_id=user_id, voted_at=datetime.now(timezone.utc))
         self.session.add(vote)
         return vote
 

@@ -18,14 +18,14 @@ class NotificationRepository(BaseRepository[Notification]):
         return await self.paginate_cursor(stmt, cursor, limit)
 
     async def mark_all_as_read(self, user_id: UUID) -> int:
-        from datetime import datetime
+        from datetime import datetime, timezone
         result = await self.session.execute(
             select(Notification).where(
                 Notification.user_id == user_id, Notification.read == False
             )
         )
         notifications = result.scalars().all()
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)()
         for n in notifications:
             n.read = True
             n.read_at = now

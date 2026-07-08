@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 
@@ -11,5 +11,5 @@ class AuditService:
         obj.updated_by = self.current_user_id
 
     def populate_update(self, obj) -> None:
-        obj.updated_at = datetime.utcnow()
+        obj.updated_at = datetime.now(timezone.utc)
         obj.updated_by = self.current_user_id

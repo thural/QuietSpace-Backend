@@ -1,4 +1,4 @@
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -87,7 +87,7 @@ async def test_expired_token(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_wrong_signature(client: AsyncClient):
     token = pyjwt.encode(
-        {"sub": "anyone@test.com", "exp": datetime.utcnow() + timedelta(hours=1), "jti": str(uuid4())},
+        {"sub": "anyone@test.com", "exp": datetime.now(timezone.utc) + timedelta(hours=1), "jti": str(uuid4())},
         "wrong-secret-key",
         algorithm="HS256",
     )
@@ -174,7 +174,7 @@ async def test_token_without_jti(sec_client: AsyncClient, sec_db):
     await session.refresh(user)
 
     token = pyjwt.encode(
-        {"sub": email, "exp": datetime.utcnow() + timedelta(hours=1)},
+        {"sub": email, "exp": datetime.now(timezone.utc) + timedelta(hours=1)},
         settings.SECRET_KEY,
         algorithm="HS256",
     )

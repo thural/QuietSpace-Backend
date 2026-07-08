@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import UUID, uuid4
 from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,7 +30,7 @@ class AuthService:
             email=email,
             password_hash=hash_password(password),
             activation_code=activation_code,
-            activation_code_expires_at=datetime.utcnow() + timedelta(hours=24),
+            activation_code_expires_at=datetime.now(timezone.utc) + timedelta(hours=24),
             enabled=False,
             status=StatusType.PENDING,
         )
@@ -44,7 +44,7 @@ class AuthService:
         user = result.scalar_one_or_none()
         if not user:
             return None
-        if user.activation_code_expires_at and user.activation_code_expires_at < datetime.utcnow():
+        if user.activation_code_expires_at and user.activation_code_expires_at < datetime.now(timezone.utc):
             return None
         user.enabled = True
         user.status = StatusType.ACTIVE
@@ -60,7 +60,7 @@ class AuthService:
         if user.enabled and user.status == StatusType.ACTIVE:
             raise ValueError("Account already activated")
         user.activation_code = str(uuid4())
-        user.activation_code_expires_at = datetime.utcnow() + timedelta(hours=24)
+        user.activation_code_expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
         await self.user_repo.update(user)
         return user
 

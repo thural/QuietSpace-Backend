@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlmodel import SQLModel, Field, Relationship
 from uuid import UUID
 from app.models.base import BaseEntity
@@ -31,7 +31,7 @@ class PollVote(BaseEntity, table=True):
 
     poll_option_id: UUID = Field(foreign_key="poll_options.id", index=True)
     user_id: UUID = Field(foreign_key="user.id", index=True)
-    voted_at: datetime = Field(default_factory=datetime.utcnow)
+    voted_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     option: PollOption = Relationship(back_populates="votes")
     user: "User" = Relationship(back_populates="poll_votes")

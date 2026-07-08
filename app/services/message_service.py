@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
@@ -53,7 +53,7 @@ class MessageService:
             return None
         if not message.read:
             message.read = True
-            message.read_at = datetime.utcnow()
+            message.read_at = datetime.now(timezone.utc)
             await self.message_repo.update(message)
         return message.sender_id, message.chat_id
 

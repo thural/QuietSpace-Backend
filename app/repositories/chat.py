@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID, uuid5, NAMESPACE_DNS
@@ -26,7 +26,7 @@ class ChatRepository(BaseRepository[Chat]):
         chat = await self.get(chat_id)
         if not chat:
             return None
-        chat.deleted_at = datetime.utcnow()
+        chat.deleted_at = datetime.now(timezone.utc)
         return await self.update(chat)
 
     async def get_or_create_public_chat(self) -> Chat:
