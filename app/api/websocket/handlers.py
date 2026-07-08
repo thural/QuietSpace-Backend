@@ -80,6 +80,11 @@ async def handle_leave_chat(sid, data):
 
 @socketio.on("send_message")
 async def handle_send_message(sid, data):
+    client_message_id = data.get("client_message_id")
+    if client_message_id and await manager.is_duplicate(client_message_id):
+        logger.warning("ws_duplicate_message", client_message_id=client_message_id)
+        return
+
     from app.main import app
     from app.services.message_service import MessageService
 
@@ -135,6 +140,11 @@ async def handle_public_message(sid, data):
 
 @socketio.on("delete_message")
 async def handle_delete_message(sid, data):
+    client_message_id = data.get("client_message_id")
+    if client_message_id and await manager.is_duplicate(client_message_id):
+        logger.warning("ws_duplicate_message", client_message_id=client_message_id)
+        return
+
     from app.main import app
     from app.services.message_service import MessageService
 
@@ -161,6 +171,11 @@ async def handle_delete_message(sid, data):
 
 @socketio.on("seen_message")
 async def handle_seen_message(sid, data):
+    client_message_id = data.get("client_message_id")
+    if client_message_id and await manager.is_duplicate(client_message_id):
+        logger.warning("ws_duplicate_message", client_message_id=client_message_id)
+        return
+
     from app.main import app
     from app.services.message_service import MessageService
 
@@ -174,9 +189,6 @@ async def handle_seen_message(sid, data):
         if result:
             await session.commit()
             sender_id, _ = result
-        else:
-            await manager.emit_error(sid, ErrorCode.NOT_FOUND, "Message not found", "seen_message")
-            return
             event = EventFactory.create_chat_event(
                 event_type=WebSocketEventType.SEEN_MESSAGE,
                 actor_id=user_id,
@@ -186,6 +198,8 @@ async def handle_seen_message(sid, data):
                 data={"read_by": str(user_id)},
             )
             await manager.broadcast_to_chat(chat_id, "chat_event", event.model_dump(mode="json"))
+        else:
+            await manager.emit_error(sid, ErrorCode.NOT_FOUND, "Message not found", "seen_message")
 
 
 async def authenticate_websocket_token(token: str):

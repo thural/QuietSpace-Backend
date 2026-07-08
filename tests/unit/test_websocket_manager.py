@@ -92,3 +92,29 @@ async def test_join_chat_room(manager, mock_socketio):
 async def test_join_chat_room_not_connected(manager, mock_socketio):
     await manager.join_chat_room(uuid4(), uuid4())
     mock_socketio.enter_room.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_is_duplicate_new(manager):
+    with patch("app.api.websocket.manager.redis_client") as mock_redis:
+        mock_redis.sismember = AsyncMock(return_value=False)
+        mock_redis.sadd = AsyncMock()
+        mock_redis.expire = AsyncMock()
+
+        result = await manager.is_duplicate("msg_001")
+        assert result is False
+        mock_redis.sismember.assert_awaited_once_with("ws_dedup", "msg_001")
+        mock_redis.sadd.assert_awaited_once_with("ws_dedup", "msg_001")
+        mock_redis.expire.assert_awaited_once_with("ws_dedup", 86400)
+
+
+@pytest.mark.asyncio
+async def test_is_duplicate_existing(manager):
+    with patch("app.api.websocket.manager.redis_client") as mock_redis:
+        mock_redis.sismember = AsyncMock(return_value=True)
+
+        result = await manager.is_duplicate("msg_001")
+        assert result is True
+        mock_redis.sismember.assert_awaited_once_with("ws_dedup", "msg_001")
+        mock_redis.sadd.assert_not_awaited()
+        mock_redis.expire.assert_not_awaited()

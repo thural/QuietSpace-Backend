@@ -20,6 +20,7 @@ def mock_manager():
         mock.broadcast_to_chat = AsyncMock()
         mock.join_chat_room = AsyncMock()
         mock.emit_error = AsyncMock()
+        mock.is_duplicate = AsyncMock(return_value=False)
         mock.active_connections = {uuid4(): "sid_1", uuid4(): "sid_2"}
         yield mock
 
@@ -172,6 +173,23 @@ async def test_handle_send_message(mock_manager, mock_socketio):
             chat_id, "message_in_chat", {"id": "msg_1", "text": "Hello!"}
         )
         mock_session.commit.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_handle_send_message_dedup(mock_manager, mock_socketio):
+    from app.api.websocket.handlers import handle_send_message
+
+    mock_manager.is_duplicate = AsyncMock(return_value=True)
+    data = {
+        "chat_id": str(uuid4()),
+        "sender_id": str(uuid4()),
+        "recipient_id": str(uuid4()),
+        "text": "Hello!",
+        "client_message_id": "dup_001",
+    }
+    await handle_send_message("sid_123", data)
+    mock_manager.is_duplicate.assert_awaited_once_with("dup_001")
+    mock_manager.send_to_user.assert_not_awaited()
 
 
 @pytest.mark.asyncio

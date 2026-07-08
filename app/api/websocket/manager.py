@@ -13,6 +13,16 @@ class ConnectionManager:
         self.active_connections: Dict[UUID, str] = {}
         self.user_rooms: Dict[UUID, Set[UUID]] = {}
 
+    DEDUP_KEY = "ws_dedup"
+    DEDUP_TTL = 86400
+
+    async def is_duplicate(self, client_message_id: str) -> bool:
+        exists = await redis_client.sismember(self.DEDUP_KEY, client_message_id)
+        if not exists:
+            await redis_client.sadd(self.DEDUP_KEY, client_message_id)
+            await redis_client.expire(self.DEDUP_KEY, self.DEDUP_TTL)
+        return bool(exists)
+
     async def emit_error(self, sid: str, code: ErrorCode, message: str, operation: str):
         await socketio.emit(
             "error",
