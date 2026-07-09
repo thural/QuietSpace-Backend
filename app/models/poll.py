@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from sqlmodel import SQLModel, Field, Relationship
+from sqlalchemy import DateTime
 from uuid import UUID
 from app.models.base import BaseEntity
 
@@ -9,7 +10,7 @@ class Poll(BaseEntity, table=True):
 
     post_id: UUID = Field(foreign_key="post.id", index=True)
     question: str = Field(max_length=500)
-    expires_at: datetime | None = Field(default=None)
+    expires_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
 
     post: "Post" = Relationship(back_populates="polls")
     options: list["PollOption"] = Relationship(back_populates="poll")
@@ -31,7 +32,7 @@ class PollVote(BaseEntity, table=True):
 
     poll_option_id: UUID = Field(foreign_key="poll_options.id", index=True)
     user_id: UUID = Field(foreign_key="user.id", index=True)
-    voted_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    voted_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), sa_type=DateTime(timezone=True))
 
     option: PollOption = Relationship(back_populates="votes")
     user: "User" = Relationship(back_populates="poll_votes")

@@ -1,17 +1,20 @@
 from datetime import datetime
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field, Relationship, Index
+from sqlalchemy import DateTime
 from uuid import UUID
 from app.models.base import BaseEntity
 
 
 class Message(BaseEntity, table=True):
+    __table_args__ = (Index("ix_message_deleted_at", "deleted_at"),)
+
     chat_id: UUID = Field(foreign_key="chat.id", index=True)
     sender_id: UUID = Field(foreign_key="user.id", index=True)
     recipient_id: UUID = Field(foreign_key="user.id", index=True)
     text: str = Field(max_length=1000)
     read: bool = Field(default=False)
-    read_at: datetime | None = Field(default=None)
-    deleted_at: datetime | None = Field(default=None, index=True)
+    read_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
+    deleted_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
 
     @property
     def is_deleted(self) -> bool:

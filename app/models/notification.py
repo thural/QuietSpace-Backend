@@ -1,5 +1,6 @@
 from datetime import datetime
 from sqlmodel import SQLModel, Field, Relationship
+from sqlalchemy import DateTime
 from uuid import UUID
 from app.enums.notification_type import NotificationType
 from app.models.base import BaseEntity
@@ -11,6 +12,6 @@ class Notification(BaseEntity, table=True):
     title: str = Field(max_length=255)
     content: str = Field(max_length=1000)
     read: bool = Field(default=False)
-    read_at: datetime | None = Field(default=None)
+    read_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
 
     user: "User" = Relationship(back_populates="notifications")
