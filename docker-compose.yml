@@ -15,6 +15,12 @@ services:
     ports:
       - "6379:6379"
 
+  mail-dev:
+    image: maildev/maildev
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+
   api:
     build: .
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
@@ -27,9 +33,14 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=dev-secret-key
       - DEBUG=True
+      - SMTP_HOST=mail-dev
+      - SMTP_PORT=1025
+      - SMTP_USER=noreply@example.com
+      - SMTP_PASSWORD=
     depends_on:
       - postgres
       - redis
+      - mail-dev
 
   celery:
     build: .
@@ -43,6 +54,7 @@ services:
     depends_on:
       - postgres
       - redis
+      - mail-dev
 
 volumes:
   postgres_data:

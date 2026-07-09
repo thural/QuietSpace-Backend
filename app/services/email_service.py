@@ -4,17 +4,30 @@ from jinja2 import Template
 from app.config.settings import settings
 from app.enums.email_template import EmailTemplateName
 
-conf = ConnectionConfig(
-    MAIL_USERNAME=settings.SMTP_USER,
-    MAIL_PASSWORD=settings.SMTP_PASSWORD,
-    MAIL_FROM=settings.SMTP_USER,
-    MAIL_PORT=settings.SMTP_PORT,
-    MAIL_SERVER=settings.SMTP_HOST,
-    MAIL_STARTTLS=True,
-    MAIL_SSL_TLS=False,
-    USE_CREDENTIALS=True,
-    VALIDATE_CERTS=True,
-)
+if settings.DEBUG:
+    conf = ConnectionConfig(
+        MAIL_USERNAME="",
+        MAIL_PASSWORD="",
+        MAIL_FROM=settings.SMTP_USER,
+        MAIL_PORT=settings.SMTP_PORT,
+        MAIL_SERVER=settings.SMTP_HOST,
+        MAIL_STARTTLS=False,
+        MAIL_SSL_TLS=False,
+        USE_CREDENTIALS=False,
+        VALIDATE_CERTS=False,
+    )
+else:
+    conf = ConnectionConfig(
+        MAIL_USERNAME=settings.SMTP_USER,
+        MAIL_PASSWORD=settings.SMTP_PASSWORD,
+        MAIL_FROM=settings.SMTP_USER,
+        MAIL_PORT=settings.SMTP_PORT,
+        MAIL_SERVER=settings.SMTP_HOST,
+        MAIL_STARTTLS=True,
+        MAIL_SSL_TLS=False,
+        USE_CREDENTIALS=True,
+        VALIDATE_CERTS=True,
+    )
 
 fastmail = FastMail(conf)
 
