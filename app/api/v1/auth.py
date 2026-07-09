@@ -13,7 +13,6 @@ from app.repositories.user import UserRepository
 from app.schemas.user import UserCreate, UserResponse
 from app.services.auth_service import AuthService
 from app.services.email_service import EmailService
-from app.utils.helpers import generate_activation_code
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")

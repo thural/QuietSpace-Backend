@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from uuid import UUID, uuid4
+import structlog
 from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.config.settings import settings
@@ -9,6 +9,7 @@ from app.models.user import User
 from app.models.token import Token
 from app.repositories.user import UserRepository
 from app.repositories.token import TokenRepository
+from app.utils.helpers import generate_activation_code
 
 
 class AuthService:
@@ -16,6 +17,7 @@ class AuthService:
         self.session = session
         self.user_repo = UserRepository(session)
         self.token_repo = TokenRepository(session)
+        self.logger = structlog.get_logger()
 
     async def register(self, username: str, email: str, password: str) -> User:
         existing = await self.user_repo.get_by_email(email)
@@ -24,7 +26,14 @@ class AuthService:
         existing = await self.user_repo.get_by_username(username)
         if existing:
             raise ValueError("Username already taken")
-        activation_code = str(uuid4())
+        activation_code = generate_activation_code()
+        if settings.DEBUG:
+            self.logger.info(
+                "activation_code_generated",
+                activation_code=activation_code,
+                username=username,
+                email=email,
+            )
         user = User(
             username=username,
             email=email,
@@ -59,7 +68,7 @@ class AuthService:
             raise ValueError("User not found")
         if user.enabled and user.status == StatusType.ACTIVE:
             raise ValueError("Account already activated")
-        user.activation_code = str(uuid4())
+        user.activation_code = generate_activation_code()
         user.activation_code_expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
         await self.user_repo.update(user)
         return user
