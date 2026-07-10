@@ -24,6 +24,8 @@ import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -70,6 +72,14 @@ class CommentControllerTest {
     TokenRepository tokenRepository;
     @MockitoBean
     UserDetailsService userDetailsService;
+
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        ObjectMapper objectMapper() {
+            return new com.fasterxml.jackson.databind.ObjectMapper();
+        }
+    }
 
     @Captor
     ArgumentCaptor<UUID> uuidArgumentCaptor;
