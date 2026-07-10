@@ -85,27 +85,6 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-fun loadDotEnv(envFile: java.io.File): Map<String, String> {
-    if (!envFile.exists()) return emptyMap()
-    return envFile.readLines()
-        .map { it.trim() }
-        .filter { it.isNotEmpty() && !it.startsWith("#") }
-        .associate { line ->
-            val idx = line.indexOf('=')
-            if (idx == -1) line to "" else line.substring(0, idx) to line.substring(idx + 1)
-        }
-}
-
-val env = loadDotEnv(rootProject.file(".env"))
-
-tasks.named<JavaExec>("bootRun") {
-    environment(env)
-}
-
-tasks.named<Test>("test") {
-    environment(env)
-}
-
 tasks.withType<JavaCompile> {
     options.compilerArgs.add("-Amapstruct.defaultComponentModel=spring")
 }
