@@ -1,5 +1,6 @@
 package dev.thural.quietspace.model.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -26,5 +27,6 @@ public class PostRequest {
 
     private PollRequest poll;
 
+    @JsonIgnore
     private MultipartFile photoData;
 }

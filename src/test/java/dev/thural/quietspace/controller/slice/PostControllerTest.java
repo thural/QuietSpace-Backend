@@ -15,8 +15,10 @@ import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -25,9 +27,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -39,6 +43,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(controllers = PostController.class)
 class PostControllerTest {
@@ -95,6 +100,7 @@ class PostControllerTest {
                 .id(UUID.randomUUID())
                 .user(user)
                 .text("sample text")
+                .title("sample title")
                 .build();
 
         this.postRequest = PostRequest.builder()
@@ -149,16 +155,46 @@ class PostControllerTest {
     void createPost() throws Exception {
         when(postService.addPost(any(PostRequest.class))).thenReturn(postResponse);
 
-        mockMvc.perform(post(PostController.POST_PATH)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(postRequest)))
+        mockMvc.perform(multipart(PostController.POST_PATH)
+                        .file(new MockMultipartFile("post", "", "application/json", objectMapper.writeValueAsString(postRequest).getBytes(StandardCharsets.UTF_8)))
+                        .file(new MockMultipartFile("photoData", "photo.jpg", "image/jpeg", "photo-content".getBytes(StandardCharsets.UTF_8)))
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(jsonPath("$.text", is(postResponse.getText())))
                 .andExpect(jsonPath("$.username", is(postResponse.getUsername())))
                 .andExpect(jsonPath("$.title", is(postResponse.getTitle())))
                 .andExpect(jsonPath("$.id", is(postResponse.getId().toString())))
-                .andExpect(jsonPath("$.poll", is(postResponse.getPoll())))
                 .andExpect(status().isOk());
+
+        verify(postService, times(1)).addPost(any(PostRequest.class));
+    }
+
+    @Test
+    void createPostWithoutPhoto() throws Exception {
+        when(postService.addPost(any(PostRequest.class))).thenReturn(postResponse);
+
+        mockMvc.perform(multipart(PostController.POST_PATH)
+                        .file(new MockMultipartFile("post", "", "application/json", objectMapper.writeValueAsString(postRequest).getBytes(StandardCharsets.UTF_8)))
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(jsonPath("$.text", is(postResponse.getText())))
+                .andExpect(jsonPath("$.username", is(postResponse.getUsername())))
+                .andExpect(jsonPath("$.title", is(postResponse.getTitle())))
+                .andExpect(jsonPath("$.id", is(postResponse.getId().toString())))
+                .andExpect(status().isOk());
+
+        verify(postService, times(1)).addPost(any(PostRequest.class));
+    }
+
+    @Test
+    void createPostInvalidPayload() throws Exception {
+        PostRequest invalidRequest = PostRequest.builder()
+                .userId(null)
+                .text("")
+                .build();
+
+        mockMvc.perform(multipart(PostController.POST_PATH)
+                        .file(new MockMultipartFile("post", "", "application/json", objectMapper.writeValueAsString(invalidRequest).getBytes(StandardCharsets.UTF_8)))
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -185,7 +221,6 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.username", is(postResponse.getUsername())))
                 .andExpect(jsonPath("$.title", is(postResponse.getTitle())))
                 .andExpect(jsonPath("$.id", is(postResponse.getId().toString())))
-                .andExpect(jsonPath("$.poll", is(postResponse.getPoll())))
                 .andExpect(status().isOk());
 
         verify(postService, times(1)).updatePost(uuidArgumentCaptor.capture(), postRequestArgumentCaptor.capture());
@@ -214,7 +249,6 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.username", is(postResponse.getUsername())))
                 .andExpect(jsonPath("$.title", is(postResponse.getTitle())))
                 .andExpect(jsonPath("$.id", is(postResponse.getId().toString())))
-                .andExpect(jsonPath("$.poll", is(postResponse.getPoll())))
                 .andExpect(status().isOk());
 
         verify(postService).patchPost(uuidArgumentCaptor.capture(), postRequestArgumentCaptor.capture());

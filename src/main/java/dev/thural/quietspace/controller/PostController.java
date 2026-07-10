@@ -8,10 +8,13 @@ import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -79,8 +82,11 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping
-    ResponseEntity<PostResponse> createPost(@ModelAttribute @Validated PostRequest post) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ResponseEntity<PostResponse> createPost(
+            @RequestPart @Valid PostRequest post,
+            @RequestPart(value = "photoData", required = false) MultipartFile photoData) {
+        post.setPhotoData(photoData);
         return ResponseEntity.ok(postService.addPost(post));
     }
 

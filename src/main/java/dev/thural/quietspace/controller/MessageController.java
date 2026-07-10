@@ -5,10 +5,13 @@ import dev.thural.quietspace.model.response.MessageResponse;
 import dev.thural.quietspace.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -24,8 +27,11 @@ public class MessageController {
     private final MessageService messageService;
 
 
-    @PostMapping
-    ResponseEntity<MessageResponse> createMessage(@ModelAttribute @Validated MessageRequest messageRequest) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ResponseEntity<MessageResponse> createMessage(
+            @RequestPart @Valid MessageRequest messageRequest,
+            @RequestPart(value = "photoData", required = false) MultipartFile photoData) {
+        messageRequest.setPhotoData(photoData);
         return ResponseEntity.ok(messageService.addMessage(messageRequest));
     }
 

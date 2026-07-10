@@ -1,5 +1,6 @@
 package dev.thural.quietspace.model.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -29,5 +30,6 @@ public class MessageRequest {
     @Size(min = 1, max = 1000, message = "at lest 1 and max 1000 characters expected")
     private String text;
 
+    @JsonIgnore
     private MultipartFile photoData;
 }

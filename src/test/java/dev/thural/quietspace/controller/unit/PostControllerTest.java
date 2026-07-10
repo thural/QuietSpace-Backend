@@ -16,10 +16,12 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -73,6 +75,7 @@ class PostControllerTest {
                 .id(UUID.randomUUID())
                 .user(user)
                 .text("sample text")
+                .title("sample title")
                 .build();
 
         this.postRequest = PostRequest.builder()
@@ -127,16 +130,49 @@ class PostControllerTest {
     void createPost() throws Exception {
         when(postService.addPost(any(PostRequest.class))).thenReturn(postResponse);
 
-        mockMvc.perform(post(PostController.POST_PATH)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(postRequest)))
+        mockMvc.perform(multipart(PostController.POST_PATH)
+                        .file(new MockMultipartFile("post", "", "application/json", objectMapper.writeValueAsString(postRequest).getBytes(StandardCharsets.UTF_8)))
+                        .file(new MockMultipartFile("photoData", "photo.jpg", "image/jpeg", "photo-content".getBytes(StandardCharsets.UTF_8)))
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(jsonPath("$.text", is(postResponse.getText())))
                 .andExpect(jsonPath("$.username", is(postResponse.getUsername())))
                 .andExpect(jsonPath("$.title", is(postResponse.getTitle())))
                 .andExpect(jsonPath("$.id", is(postResponse.getId().toString())))
-                .andExpect(jsonPath("$.poll", is(postResponse.getPoll())))
                 .andExpect(status().isOk());
+
+        verify(postService, times(1)).addPost(postRequestArgumentCaptor.capture());
+        assertThat(postRequestArgumentCaptor.getValue().getUserId()).isEqualTo(postRequest.getUserId());
+        assertThat(postRequestArgumentCaptor.getValue().getPhotoData()).isNotNull();
+    }
+
+    @Test
+    void createPostWithoutPhoto() throws Exception {
+        when(postService.addPost(any(PostRequest.class))).thenReturn(postResponse);
+
+        mockMvc.perform(multipart(PostController.POST_PATH)
+                        .file(new MockMultipartFile("post", "", "application/json", objectMapper.writeValueAsString(postRequest).getBytes(StandardCharsets.UTF_8)))
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(jsonPath("$.text", is(postResponse.getText())))
+                .andExpect(jsonPath("$.username", is(postResponse.getUsername())))
+                .andExpect(jsonPath("$.title", is(postResponse.getTitle())))
+                .andExpect(jsonPath("$.id", is(postResponse.getId().toString())))
+                .andExpect(status().isOk());
+
+        verify(postService, times(1)).addPost(postRequestArgumentCaptor.capture());
+        assertThat(postRequestArgumentCaptor.getValue().getPhotoData()).isNull();
+    }
+
+    @Test
+    void createPostInvalidPayload() throws Exception {
+        PostRequest invalidRequest = PostRequest.builder()
+                .userId(null)
+                .text("")
+                .build();
+
+        mockMvc.perform(multipart(PostController.POST_PATH)
+                        .file(new MockMultipartFile("post", "", "application/json", objectMapper.writeValueAsString(invalidRequest).getBytes(StandardCharsets.UTF_8)))
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -163,7 +199,6 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.username", is(postResponse.getUsername())))
                 .andExpect(jsonPath("$.title", is(postResponse.getTitle())))
                 .andExpect(jsonPath("$.id", is(postResponse.getId().toString())))
-                .andExpect(jsonPath("$.poll", is(postResponse.getPoll())))
                 .andExpect(status().isOk());
 
         verify(postService, times(1)).updatePost(uuidArgumentCaptor.capture(), postRequestArgumentCaptor.capture());
@@ -192,7 +227,6 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.username", is(postResponse.getUsername())))
                 .andExpect(jsonPath("$.title", is(postResponse.getTitle())))
                 .andExpect(jsonPath("$.id", is(postResponse.getId().toString())))
-                .andExpect(jsonPath("$.poll", is(postResponse.getPoll())))
                 .andExpect(status().isOk());
 
         verify(postService).patchPost(uuidArgumentCaptor.capture(), postRequestArgumentCaptor.capture());

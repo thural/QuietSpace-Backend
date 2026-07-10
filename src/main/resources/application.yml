@@ -46,3 +46,6 @@ springwolf:
     info:
       title: QuietSpace WebSocket API
       version: 1.0.0
+
+springdoc:
+  use-fqn: true

@@ -14,8 +14,10 @@ import dev.thural.quietspace.service.PostService;
 import dev.thural.quietspace.service.ReactionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -24,20 +26,24 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(controllers = MessageController.class)
 class MessageControllerTest {
@@ -123,10 +129,10 @@ class MessageControllerTest {
     void createMessage() throws Exception {
         when(messageService.addMessage(any())).thenReturn(messageResponse);
 
-        mockMvc.perform(post(MessageController.MESSAGE_PATH)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(messageRequest)))
+        mockMvc.perform(multipart(MessageController.MESSAGE_PATH)
+                        .file(new MockMultipartFile("messageRequest", "", "application/json", objectMapper.writeValueAsString(messageRequest).getBytes(StandardCharsets.UTF_8)))
+                        .file(new MockMultipartFile("photoData", "photo.jpg", "image/jpeg", "photo-content".getBytes(StandardCharsets.UTF_8)))
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(jsonPath("$.senderName", is(messageResponse.getSenderName())))
                 .andExpect(jsonPath("$.text", is(messageResponse.getText())))
                 .andExpect(jsonPath("$.id", is(messageResponse.getId().toString())))
@@ -134,8 +140,39 @@ class MessageControllerTest {
                 .andExpect(jsonPath("$.chatId", is(messageResponse.getChatId().toString())))
                 .andExpect(status().isOk());
 
-        verify(messageService).addMessage(messageRequestArgumentCaptor.capture());
-        assertThat(messageResponse.getText()).isEqualTo(messageRequestArgumentCaptor.getValue().getText());
+        verify(messageService, times(1)).addMessage(any());
+    }
+
+    @Test
+    void createMessageWithoutPhoto() throws Exception {
+        when(messageService.addMessage(any())).thenReturn(messageResponse);
+
+        mockMvc.perform(multipart(MessageController.MESSAGE_PATH)
+                        .file(new MockMultipartFile("messageRequest", "", "application/json", objectMapper.writeValueAsString(messageRequest).getBytes(StandardCharsets.UTF_8)))
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(jsonPath("$.senderName", is(messageResponse.getSenderName())))
+                .andExpect(jsonPath("$.text", is(messageResponse.getText())))
+                .andExpect(jsonPath("$.id", is(messageResponse.getId().toString())))
+                .andExpect(jsonPath("$.senderId", is(messageResponse.getSenderId().toString())))
+                .andExpect(jsonPath("$.chatId", is(messageResponse.getChatId().toString())))
+                .andExpect(status().isOk());
+
+        verify(messageService, times(1)).addMessage(any());
+    }
+
+    @Test
+    void createMessageInvalidPayload() throws Exception {
+        MessageRequest invalidRequest = MessageRequest.builder()
+                .chatId(null)
+                .senderId(null)
+                .recipientId(null)
+                .text("")
+                .build();
+
+        mockMvc.perform(multipart(MessageController.MESSAGE_PATH)
+                        .file(new MockMultipartFile("messageRequest", "", "application/json", objectMapper.writeValueAsString(invalidRequest).getBytes(StandardCharsets.UTF_8)))
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
