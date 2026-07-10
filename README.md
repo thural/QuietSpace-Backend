@@ -58,16 +58,17 @@ networking, emphasizing clean code, security, and real-time interaction.
 
 ### Backend
 
-- Framework: Spring Boot 3.3.4
-- Language: Java 17
-- Security: Spring Security, JWT
-- API Documentation: Swagger/OpenAPI
-- Development Tools: Lombok
-- Containerization: Docker, Kubernetes
-- ORM: JPA/Hibernate
+- Framework: Spring Boot 4.1.0
+- Language: Java 25
+- Security: Spring Security 7.x, JWT (JJWT 0.13.0)
+- API Documentation: Swagger/OpenAPI (springdoc 3.0.3)
+- Development Tools: Lombok 1.18.46, MapStruct 1.6.3
+- Serialization: Jackson 3.x
+- Containerization: Docker, Docker Compose
+- ORM: JPA/Hibernate 7.4.1
 - Database: MySQL
 - Migration: Flyway
-- Test: Junit5, Mockito
+- Test: JUnit 5, Mockito, Spring Boot Test
 
 ### Real-Time WebSocket Communication
 
@@ -87,7 +88,7 @@ networking, emphasizing clean code, security, and real-time interaction.
 
 ### Development Tools
 
-- Maven
+- Gradle 9.6.1 (Kotlin DSL)
 - Lombok
 - MapStruct
 - Mockito
@@ -106,37 +107,38 @@ QuietSpace-Backend/
 ├── src/
 │   ├── main/
 │   │   ├── java/
-│   │   │   └── com/quietspace/
-│   │   │       ├── controller/     # REST API endpoints
-│   │   │       │   ├── UserController.java
-│   │   │       │   ├── PostController.java
-│   │   │       │   └── CommentController.java
-│   │   │       ├── model/          # Data Transfer Objects
-│   │   │       │   ├── request/    # Input DTOs
-│   │   │       │   └── response/   # Output DTOs
-│   │   │       ├── entity/         # Database entities
-│   │   │       │   ├── User.java
-│   │   │       │   ├── Post.java
-│   │   │       │   └── Comment.java
-│   │   │       ├── repository/     # Data access layers
-│   │   │       ├── service/        # Business logic
-│   │   │       ├── config/         # Application configurations
-│   │   │       │   ├── WebSocketConfig.java
-│   │   │       │   └── SecurityConfig.java
-│   │   │       ├── security/       # Authentication components
-│   │   │       │   ├── JwtAuthenticationFilter.java
-│   │   │       │   └── JwtUtil.java
-│   │   │       └── exception/      # Error handling
+│   │   │   └── dev/thural/quietspace/
+│   │   │       ├── controller/       # REST API endpoints
+│   │   │       ├── model/            # Data Transfer Objects
+│   │   │       │   ├── request/      # Input DTOs
+│   │   │       │   └── response/     # Output DTOs
+│   │   │       ├── entity/           # Database entities
+│   │   │       ├── repository/       # Data access layers
+│   │   │       ├── service/          # Business logic
+│   │   │       ├── mapper/           # Object mapping
+│   │   │       ├── config/           # Application configurations
+│   │   │       ├── security/         # Authentication components
+│   │   │       ├── exception/        # Error handling
+│   │   │       └── utils/            # Utility classes
 │   │   └── resources/
-│   │       ├── application.properties
-│   │       └── db/migration/       # Flyway database scripts
-│   └── test/                       # Comprehensive test suites
-│       ├── unit/
-│       ├── integration/
-│       └── mock/
+│   │       ├── application.yml
+│   │       └── db/migration/         # Flyway database scripts
+│   └── test/
+│       ├── java/
+│       │   └── dev/thural/quietspace/
+│       │       ├── controller/       # MVC slice & integration tests
+│       │       ├── service/          # Service unit tests
+│       │       ├── mapper/           # Mapper tests
+│       │       └── repository/       # Data layer tests
+│       └── resources/
+│           └── application.yml       # Test config (H2)
+├── build.gradle.kts                  # Gradle build configuration
+├── settings.gradle.kts               # Gradle settings
+├── gradlew / gradlew.bat             # Gradle wrapper
+├── .env                              # Environment variables
 └── infrastructure/
-    ├── docker/                     # Containerization configs
-    └── k8s/                        # Kubernetes deployment
+    ├── docker/                       # Containerization configs
+    └── k8s/                          # Kubernetes deployment
 ```
 
 ## Code Quality Principles
@@ -156,11 +158,10 @@ QuietSpace-Backend/
 
 ### Prerequisites
 
-- Java 17+
-- Maven
-- MySQL
-- Docker (optional)
-- Kubernetes (optional)
+- Java 25+
+- Gradle 9.x (or use the included wrapper)
+- MySQL 8+
+- Docker (optional, for containerized deployment)
 
 ### Quick Setup
 
@@ -171,18 +172,20 @@ QuietSpace-Backend/
    ```
 
 2. Configure Environment
-    - Create a `.env` file with database and JWT configurations
+    - Copy or create a `.env` file at the project root with:
    ```
-   SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/quietspace
-   SPRING_DATASOURCE_USERNAME=your_username
-   SPRING_DATASOURCE_PASSWORD=your_password
+   ACTIVE_PROFILE=dev
+   DB_PORT_NUMBER=3306
+   SERVER_PORT_NUMBER=8080
    JWT_SECRET=your_secret_key
+   JWT_EXPIRATION=86400000
+   JWT_EXPIRATION_REFRESH=604800000
    ```
 
 3. Build and Run
    ```bash
-   mvn clean install
-   mvn spring-boot:run
+   ./gradlew build
+   ./gradlew bootRun
    ```
 
 ## API Documentation
