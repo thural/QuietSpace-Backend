@@ -1,7 +1,6 @@
 package dev.thural.quietspace.websocket.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.thural.quietspace.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +29,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 import java.util.List;
 
-import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
+import static tools.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON;
 
 @Slf4j
@@ -46,7 +45,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private ObjectMapper objectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(WRITE_DATES_AS_TIMESTAMPS);
         return objectMapper;
     }
