@@ -1,6 +1,5 @@
 package dev.thural.quietspace.websocket.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 import java.util.List;
 
-import static tools.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON;
 
 @Slf4j
@@ -42,12 +40,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final CustomHandshakeHandler handshakeHandler;
-
-    private ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.disable(WRITE_DATES_AS_TIMESTAMPS);
-        return objectMapper;
-    }
 
     @Value("${spring.application.urls.frontend}")
     private String FRONTEND_URL;
@@ -72,7 +64,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         DefaultContentTypeResolver resolver = new DefaultContentTypeResolver();
         resolver.setDefaultMimeType(APPLICATION_JSON);
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-        converter.setObjectMapper(objectMapper());
         converter.setContentTypeResolver(resolver);
         messageConverters.add(converter);
         return false;

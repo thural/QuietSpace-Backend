@@ -29,6 +29,7 @@ val jjwtVersion = "0.13.0"
 val springDocVersion = "3.0.3"
 val springDotenvVersion = "4.0.0"
 val thumbnailatorVersion = "0.4.20"
+val lombokVersion = "1.18.46"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -58,13 +59,13 @@ dependencies {
     runtimeOnly("com.mysql:mysql-connector-j")
     runtimeOnly("com.h2database:h2")
 
-    compileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
+    compileOnly("org.projectlombok:lombok:$lombokVersion")
+    annotationProcessor("org.projectlombok:lombok:$lombokVersion")
     annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
     annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
 
-    testCompileOnly("org.projectlombok:lombok")
-    testAnnotationProcessor("org.projectlombok:lombok")
+    testCompileOnly("org.projectlombok:lombok:$lombokVersion")
+    testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
     testAnnotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
     testAnnotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
 
