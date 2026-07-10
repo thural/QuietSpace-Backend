@@ -1,6 +1,6 @@
 plugins {
     java
-    id("org.springframework.boot") version "3.3.4"
+    id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
     id("jacoco")
 }
@@ -10,7 +10,7 @@ version = "0.0.1-SNAPSHOT"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -24,13 +24,11 @@ repositories {
     mavenCentral()
 }
 
-val mapstructVersion = "1.5.5.Final"
-val jjwtVersion = "0.11.5"
-val springDocVersion = "2.1.0"
+val mapstructVersion = "1.6.3"
+val jjwtVersion = "0.13.0"
+val springDocVersion = "3.0.3"
 val springDotenvVersion = "4.0.0"
 val thumbnailatorVersion = "0.4.20"
-val jacksonDatatypeVersion = "2.17.2"
-val springSecurityTestVersion = "6.1.4"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -52,7 +50,6 @@ dependencies {
     implementation("net.coobird:thumbnailator:$thumbnailatorVersion")
 
     implementation("com.fasterxml.jackson.core:jackson-core")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDatatypeVersion")
 
     implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
@@ -72,7 +69,7 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.security:spring-security-test:$springSecurityTestVersion")
+    testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
