@@ -27,7 +27,6 @@ repositories {
 val mapstructVersion = "1.6.3"
 val jjwtVersion = "0.13.0"
 val springDocVersion = "3.0.3"
-val springDotenvVersion = "4.0.0"
 val thumbnailatorVersion = "0.4.20"
 val lombokVersion = "1.18.46"
 val springwolfVersion = "2.5.0"
@@ -51,7 +50,6 @@ dependencies {
     implementation("io.github.springwolf:springwolf-stomp:$springwolfVersion")
     implementation("io.github.springwolf:springwolf-ui:$springwolfVersion")
     runtimeOnly("io.github.springwolf:springwolf-stomp-binding:$springwolfVersion")
-    implementation("me.paulschwarz:spring-dotenv:$springDotenvVersion")
     implementation("net.coobird:thumbnailator:$thumbnailatorVersion")
 
     implementation("com.fasterxml.jackson.core:jackson-core")
@@ -85,6 +83,27 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+fun loadDotEnv(envFile: java.io.File): Map<String, String> {
+    if (!envFile.exists()) return emptyMap()
+    return envFile.readLines()
+        .map { it.trim() }
+        .filter { it.isNotEmpty() && !it.startsWith("#") }
+        .associate { line ->
+            val idx = line.indexOf('=')
+            if (idx == -1) line to "" else line.substring(0, idx) to line.substring(idx + 1)
+        }
+}
+
+val env = loadDotEnv(rootProject.file(".env"))
+
+tasks.named<JavaExec>("bootRun") {
+    environment(env)
+}
+
+tasks.named<Test>("test") {
+    environment(env)
 }
 
 tasks.withType<JavaCompile> {
