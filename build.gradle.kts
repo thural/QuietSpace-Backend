@@ -74,6 +74,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test:$springSecurityTestVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     runtimeOnly("org.springframework.boot:spring-boot-devtools")
 }
