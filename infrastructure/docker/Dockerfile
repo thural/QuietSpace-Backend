@@ -1,4 +1,4 @@
-FROM gradle:9.6.1-jdk17-alpine AS build
+FROM gradle:9.6.1-jdk25-alpine AS build
 
 WORKDIR /build
 
@@ -14,7 +14,7 @@ RUN ./gradlew clean bootJar -x test
 
 
 
-FROM eclipse-temurin:17-jre-alpine AS builder
+FROM eclipse-temurin:25-jre-alpine AS builder
 
 WORKDIR extracted
 
@@ -24,7 +24,7 @@ RUN java -Djarmode=layertools -jar app.jar extract
 
 
 
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 
 WORKDIR application
 
