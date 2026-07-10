@@ -61,7 +61,7 @@ networking, emphasizing clean code, security, and real-time interaction.
 - Framework: Spring Boot 4.1.0
 - Language: Java 25
 - Security: Spring Security 7.x, JWT (JJWT 0.13.0)
-- API Documentation: Swagger/OpenAPI (springdoc 3.0.3)
+- API Documentation: Swagger/OpenAPI (springdoc 3.0.3), AsyncAPI (Springwolf 2.5.0)
 - Development Tools: Lombok 1.18.46, MapStruct 1.6.3
 - Serialization: Jackson 3.x
 - Containerization: Docker, Docker Compose
@@ -190,8 +190,13 @@ QuietSpace-Backend/
 
 ## API Documentation
 
-Swagger/OpenAPI documentation available at:
-`http://localhost:8080/swagger-ui.html`
+### REST API (OpenAPI 3.1 — springdoc)
+- UI: `http://localhost:8080/swagger-ui.html`
+- JSON: `http://localhost:8080/v3/api-docs`
+
+### WebSocket/STOMP (AsyncAPI v3 — Springwolf)
+- UI: `http://localhost:8080/springwolf/asyncapi-ui.html`
+- JSON: `http://localhost:8080/springwolf/docs`
 
 ## Contributing
 
