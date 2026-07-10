@@ -1,6 +1,6 @@
 package dev.thural.quietspace.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.Role;
 import dev.thural.quietspace.mapper.UserMapper;

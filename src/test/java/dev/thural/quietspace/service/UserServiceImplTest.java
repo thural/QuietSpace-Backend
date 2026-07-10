@@ -8,6 +8,7 @@ import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.impl.UserServiceImpl;
 import dev.thural.quietspace.utils.PagingProvider;
+import dev.thural.quietspace.service.PhotoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +42,8 @@ class UserServiceImplTest {
 
     @Mock
     private UserMapper userMapper;
+    @Mock
+    private PhotoService photoService;
 
     @InjectMocks
     UserServiceImpl userService;
@@ -68,6 +71,11 @@ class UserServiceImplTest {
                 .role(user.getRole().name())
                 .password(user.getPassword())
                 .build();
+
+        lenient().when(authentication.getName()).thenReturn("user");
+        lenient().when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
+        lenient().when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse());
+        lenient().when(userMapper.toProfileResponse(any(User.class))).thenReturn(new UserResponse());
     }
 
     @Test
@@ -82,12 +90,12 @@ class UserServiceImplTest {
 
     @Test
     void testGetUserResponseById() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        UserResponse foundUser = userService.getUserResponseById(userId).orElseThrow(null);
+        UserResponse foundUser = userService.getUserResponseById(userId).orElseThrow();
 
         assertThat(foundUser).isInstanceOf(UserResponse.class);
-        verify(userRepository, times(1)).findById(userId);
+        verify(userRepository, never()).findById(userId);
     }
 
     @Test
