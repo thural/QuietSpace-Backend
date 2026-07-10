@@ -30,6 +30,7 @@ val springDocVersion = "3.0.3"
 val springDotenvVersion = "4.0.0"
 val thumbnailatorVersion = "0.4.20"
 val lombokVersion = "1.18.46"
+val springwolfVersion = "2.5.0"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -47,6 +48,9 @@ dependencies {
     implementation("org.mapstruct:mapstruct:$mapstructVersion")
 
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
+    implementation("io.github.springwolf:springwolf-stomp:$springwolfVersion")
+    implementation("io.github.springwolf:springwolf-ui:$springwolfVersion")
+    runtimeOnly("io.github.springwolf:springwolf-stomp-binding:$springwolfVersion")
     implementation("me.paulschwarz:spring-dotenv:$springDotenvVersion")
     implementation("net.coobird:thumbnailator:$thumbnailatorVersion")
 
