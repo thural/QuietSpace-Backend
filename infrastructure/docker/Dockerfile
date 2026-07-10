@@ -1,22 +1,24 @@
-FROM maven:3.9.6-eclipse-temurin-17-alpine as build
+FROM gradle:9.6.1-jdk17-alpine AS build
 
-WORKDIR ./build
+WORKDIR /build
 
-COPY pom.xml .
+COPY gradlew gradlew.bat ./
+COPY gradle ./gradle
 
-RUN mvn dependency:go-offline
+RUN ./gradlew --version
 
+COPY build.gradle.kts settings.gradle.kts ./
 COPY src ./src
 
-RUN mvn clean package -DskipTests
+RUN ./gradlew clean bootJar -x test
 
 
 
-FROM eclipse-temurin:17-jre-alpine as builder
+FROM eclipse-temurin:17-jre-alpine AS builder
 
 WORKDIR extracted
 
-COPY --from=build /build/target/*.jar ./app.jar
+COPY --from=build /build/build/libs/*.jar ./app.jar
 
 RUN java -Djarmode=layertools -jar app.jar extract
 
