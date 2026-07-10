@@ -17,6 +17,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -60,6 +61,8 @@ public class UserControllerTest {
     ReactionService reactionService;
     @MockitoBean
     JwtService jwtService;
+    @MockitoBean
+    UserDetailsService userDetailsService;
 
     private UUID userId;
     private UserRequest registerRequest;

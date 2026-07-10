@@ -39,7 +39,7 @@ class UserServiceImplTest {
     @Mock
     SecurityContext securityContext;
 
-    @Spy
+    @Mock
     private UserMapper userMapper;
 
     @InjectMocks

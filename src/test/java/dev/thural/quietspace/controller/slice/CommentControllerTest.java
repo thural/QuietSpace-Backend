@@ -26,6 +26,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -67,6 +68,8 @@ class CommentControllerTest {
     JwtService jwtService;
     @MockitoBean
     TokenRepository tokenRepository;
+    @MockitoBean
+    UserDetailsService userDetailsService;
 
     @Captor
     ArgumentCaptor<UUID> uuidArgumentCaptor;

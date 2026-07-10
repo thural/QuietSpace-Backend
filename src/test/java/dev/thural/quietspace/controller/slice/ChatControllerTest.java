@@ -26,6 +26,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -62,6 +63,8 @@ class ChatControllerTest {
     MessageRepository messageRepository;
     @MockitoBean
     JwtService jwtService;
+    @MockitoBean
+    UserDetailsService userDetailsService;
 
     @Captor
     ArgumentCaptor<UUID> uuidArgumentCaptor;
