@@ -53,7 +53,6 @@ public class User extends BaseEntity implements UserDetails, Principal {
     )
     private List<Post> savedPosts;
 
-    @NotNull
     @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     ProfileSettings profileSettings;
