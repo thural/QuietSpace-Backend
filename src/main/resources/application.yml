@@ -37,3 +37,10 @@ spring:
     mailing:
       frontend:
         activation-url: ${ACTIVATION_URL}
+
+springwolf:
+  docket:
+    base-package: dev.thural.quietspace
+    info:
+      title: QuietSpace WebSocket API
+      version: 1.0.0
