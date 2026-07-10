@@ -21,9 +21,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.web.servlet.MockMvc;
@@ -48,19 +48,19 @@ class ChatControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     ChatService chatService;
-    @MockBean
+    @MockitoBean
     MessageService messageService;
-    @MockBean
+    @MockitoBean
     SimpMessagingTemplate template;
-    @MockBean
+    @MockitoBean
     ReactionService reactionService;
-    @MockBean
+    @MockitoBean
     TokenRepository tokenRepository;
-    @MockBean
+    @MockitoBean
     MessageRepository messageRepository;
-    @MockBean
+    @MockitoBean
     JwtService jwtService;
 
     @Captor
