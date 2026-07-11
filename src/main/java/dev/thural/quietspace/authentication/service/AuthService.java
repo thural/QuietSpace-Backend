@@ -19,6 +19,7 @@ import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -140,7 +141,8 @@ public class AuthService {
         return activationCode;
     }
 
-    private void sendValidationEmail(User user) throws MessagingException {
+    @Async
+    public void sendValidationEmail(User user) throws MessagingException {
         log.info("sending activation code to email address: {}", user.getEmail());
         String newActivationCode = generateAndSaveActivationToken(user);
 

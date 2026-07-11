@@ -1,29 +1,38 @@
 package dev.thural.quietspace.service;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import dev.thural.quietspace.config.TestcontainersConfig;
 import dev.thural.quietspace.enums.EmailTemplateName;
 import dev.thural.quietspace.service.impl.EmailService;
+import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @Import(TestcontainersConfig.class)
 @ActiveProfiles("testcontainers")
-@WireMockTest(httpPort = 1025)
 class EmailServiceIT {
 
     @Autowired
     private EmailService emailService;
 
+    @MockitoBean
+    private JavaMailSender mailSender;
+
     @Test
     void sendEmail_shouldDeliverSuccessfully() throws Exception {
-        stubFor(post("/").willReturn(aResponse().withStatus(200)));
+        MimeMessage mimeMessage = mock(MimeMessage.class);
+        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
         emailService.sendEmail(
                 "recipient@test.com",
@@ -34,6 +43,6 @@ class EmailServiceIT {
                 "Account Activation"
         );
 
-        verify(postRequestedFor(urlEqualTo("/")));
+        verify(mailSender, timeout(3000)).send(mimeMessage);
     }
 }
