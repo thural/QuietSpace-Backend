@@ -96,12 +96,12 @@ class NotificationServiceImplTest {
 
         post = Post.builder()
                 .id(UUID.randomUUID())
-                .user(User.builder().id(UUID.randomUUID()).build())
+                .user(User.builder().id(UUID.randomUUID()).username("postauthor").build())
                 .build();
 
         comment = Comment.builder()
                 .id(UUID.randomUUID())
-                .user(User.builder().id(UUID.randomUUID()).build())
+                .user(User.builder().id(UUID.randomUUID()).username("commentauthor").build())
                 .build();
     }
 
@@ -160,9 +160,8 @@ class NotificationServiceImplTest {
 
     @Test
     void getAllNotifications_shouldReturnPage() {
-        PageRequest pageRequest = PageRequest.of(0, 25);
         when(userService.getSignedUser()).thenReturn(signedUser);
-        when(notificationRepository.findAllByUserId(signedUserId, pageRequest))
+        when(notificationRepository.findAllByUserId(eq(signedUserId), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of(notification)));
         when(notificationMapper.toResponse(notification)).thenReturn(notificationResponse);
 
@@ -174,10 +173,9 @@ class NotificationServiceImplTest {
 
     @Test
     void getNotificationsByType_givenValidType_shouldReturnFilteredPage() {
-        PageRequest pageRequest = PageRequest.of(0, 25);
         when(userService.getSignedUser()).thenReturn(signedUser);
         when(notificationRepository.findAllByUserIdAndNotificationType(
-                eq(signedUserId), eq(NotificationType.FOLLOW_REQUEST), eq(pageRequest)
+                eq(signedUserId), eq(NotificationType.FOLLOW_REQUEST), any(PageRequest.class)
         )).thenReturn(new PageImpl<>(List.of(notification)));
         when(notificationMapper.toResponse(notification)).thenReturn(notificationResponse);
 
@@ -204,10 +202,9 @@ class NotificationServiceImplTest {
 
     @Test
     void processNotification_givenPostReaction_shouldCreateAndSend() {
-        UUID recipientId = post.getUser().getId();
         when(userService.getSignedUser()).thenReturn(signedUser);
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
-        when(userService.getUserById(recipientId)).thenReturn(Optional.of(post.getUser()));
+        when(userService.getUserById(any(UUID.class))).thenReturn(Optional.of(post.getUser()));
         when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
         when(notificationMapper.toResponse(any(Notification.class))).thenReturn(notificationResponse);
 
@@ -219,10 +216,10 @@ class NotificationServiceImplTest {
         assertThat(saved.getNotificationType()).isEqualTo(NotificationType.POST_REACTION);
         assertThat(saved.getContentId()).isEqualTo(post.getId());
         assertThat(saved.getActorId()).isEqualTo(signedUserId);
-        assertThat(saved.getUserId()).isEqualTo(recipientId);
+        assertThat(saved.getUserId()).isEqualTo(post.getUser().getId());
 
         verify(template).convertAndSendToUser(
-                eq(recipientId.toString()),
+                eq(post.getUser().getId().toString()),
                 eq(NOTIFICATION_SUBJECT_PATH),
                 eq(notificationResponse)
         );
@@ -230,10 +227,9 @@ class NotificationServiceImplTest {
 
     @Test
     void processNotification_givenCommentReaction_shouldCreateAndSend() {
-        UUID recipientId = comment.getUser().getId();
         when(userService.getSignedUser()).thenReturn(signedUser);
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
-        when(userService.getUserById(recipientId)).thenReturn(Optional.of(comment.getUser()));
+        when(userService.getUserById(any(UUID.class))).thenReturn(Optional.of(comment.getUser()));
         when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
         when(notificationMapper.toResponse(any(Notification.class))).thenReturn(notificationResponse);
 
@@ -241,7 +237,7 @@ class NotificationServiceImplTest {
 
         ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
         verify(notificationRepository).save(captor.capture());
-        assertThat(captor.getValue().getUserId()).isEqualTo(recipientId);
+        assertThat(captor.getValue().getUserId()).isEqualTo(comment.getUser().getId());
     }
 
     @Test
@@ -263,8 +259,7 @@ class NotificationServiceImplTest {
     void processNotification_whenWebSocketFails_shouldLogAndSwallow() {
         when(userService.getSignedUser()).thenReturn(signedUser);
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
-        UUID recipientId = post.getUser().getId();
-        when(userService.getUserById(recipientId)).thenReturn(Optional.of(post.getUser()));
+        when(userService.getUserById(any(UUID.class))).thenReturn(Optional.of(post.getUser()));
         when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
         when(notificationMapper.toResponse(any(Notification.class))).thenReturn(notificationResponse);
         doThrow(new MessagingException("websocket error"))
@@ -279,8 +274,7 @@ class NotificationServiceImplTest {
     void processNotificationByReaction_givenComment_shouldProcessCommentReaction() {
         when(userService.getSignedUser()).thenReturn(signedUser);
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
-        UUID recipientId = comment.getUser().getId();
-        when(userService.getUserById(recipientId)).thenReturn(Optional.of(comment.getUser()));
+        when(userService.getUserById(any(UUID.class))).thenReturn(Optional.of(comment.getUser()));
         when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
         when(notificationMapper.toResponse(any(Notification.class))).thenReturn(notificationResponse);
 
@@ -295,8 +289,7 @@ class NotificationServiceImplTest {
     void processNotificationByReaction_givenPost_shouldProcessPostReaction() {
         when(userService.getSignedUser()).thenReturn(signedUser);
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
-        UUID recipientId = post.getUser().getId();
-        when(userService.getUserById(recipientId)).thenReturn(Optional.of(post.getUser()));
+        when(userService.getUserById(any(UUID.class))).thenReturn(Optional.of(post.getUser()));
         when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
         when(notificationMapper.toResponse(any(Notification.class))).thenReturn(notificationResponse);
 

@@ -1,6 +1,7 @@
 package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.Chat;
+import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.mapper.ChatMapper;
 import dev.thural.quietspace.mapper.UserMapper;
@@ -8,6 +9,7 @@ import dev.thural.quietspace.model.request.CreateChatRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.ChatRepository;
+import dev.thural.quietspace.repository.MessageRepository;
 import dev.thural.quietspace.service.impl.ChatServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,6 +40,8 @@ public class ChatServiceImplTest {
     private ChatMapper chatMapper;
     @Mock
     private UserMapper userMapper;
+    @Mock
+    private MessageRepository messageRepository;
 
     @InjectMocks
     private ChatServiceImpl chatService;
@@ -86,6 +90,8 @@ public class ChatServiceImplTest {
 
         this.chatRequest = CreateChatRequest.builder()
                 .userIds(List.of(userId, memberId))
+                .recipientId(userId)
+                .text("hello")
                 .build();
 
         this.chatResponse = new ChatResponse();
@@ -160,10 +166,12 @@ public class ChatServiceImplTest {
     void testCreateChat() {
         when(userService.getSignedUser()).thenReturn(user1);
         when(userService.getUsersFromIdList(anyList())).thenReturn(userList);
+        when(userService.getUserById(chatRequest.getRecipientId())).thenReturn(Optional.of(user1));
         when(chatRepository.findAllByUsersIn(userList)).thenReturn(List.of());
         when(chatMapper.chatEntityToResponse(chat)).thenReturn(chatResponse);
         when(chatMapper.chatRequestToEntity(chatRequest)).thenReturn(chat);
         when(chatRepository.save(chat)).thenReturn(chat);
+        when(messageRepository.save(any(Message.class))).thenReturn(null);
 
         ChatResponse createdChat = chatService.createChat(chatRequest);
 

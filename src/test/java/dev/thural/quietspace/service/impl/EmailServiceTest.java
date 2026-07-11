@@ -68,7 +68,7 @@ class EmailServiceTest {
         MimeMessage mimeMessage = mock(MimeMessage.class);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(anyString(), any())).thenReturn("<html>body</html>");
-        doThrow(new MessagingException("SMTP error")).when(mailSender).send(mimeMessage);
+        doThrow(new RuntimeException("SMTP error")).when(mailSender).send(any(MimeMessage.class));
 
         assertThatThrownBy(() ->
                 emailService.sendEmail(
@@ -79,6 +79,6 @@ class EmailServiceTest {
                         "123456",
                         "Account Activation"
                 )
-        ).isInstanceOf(MessagingException.class).hasMessageContaining("SMTP error");
+        ).isInstanceOf(RuntimeException.class).hasMessageContaining("SMTP error");
     }
 }

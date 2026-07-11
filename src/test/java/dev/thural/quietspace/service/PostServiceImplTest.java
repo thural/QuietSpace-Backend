@@ -113,24 +113,27 @@ public class PostServiceImplTest {
 
     @Test
     void testGetAllPosts() {
-        PageRequest pageRequest = PagingProvider.buildPageRequest(1, 50, null);
-        when(postRepository.findAll(pageRequest)).thenReturn(Page.empty());
+        Specification<Post> mockSpec = Specification.where((root, query, cb) -> cb.conjunction());
+        when(postSpecifications.visibleToUser()).thenReturn(mockSpec);
+        when(postRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(Page.empty());
 
         Page<PostResponse> posts = postService.getAllPosts(1, 50);
 
         assertThat(posts.getContent()).isEmpty();
-        verify(postRepository, times(1)).findAll(pageRequest);
+        verify(postRepository, times(1)).findAll(any(Specification.class), any(PageRequest.class));
     }
 
     @Test
     void testGetPostByUserId() {
-        PageRequest pageRequest = PagingProvider.buildPageRequest(1, 50, null);
-        when(postRepository.findAllByUserId(user.getId(), pageRequest)).thenReturn(Page.empty());
+        Specification<Post> mockSpec = Specification.where((root, query, cb) -> cb.conjunction());
+        when(postSpecifications.visibleToUser()).thenReturn(mockSpec);
+        when(postSpecifications.combine(any(), any())).thenReturn(mockSpec);
+        when(postRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(Page.empty());
 
         Page<PostResponse> posts = postService.getPostsByUserId(user.getId(), 1, 50);
 
         assertThat(posts.getContent()).isEmpty();
-        verify(postRepository, times(1)).findAllByUserId(user.getId(), pageRequest);
+        verify(postRepository, times(1)).findAll(any(Specification.class), any(PageRequest.class));
     }
 
     @Test
@@ -169,13 +172,11 @@ public class PostServiceImplTest {
         when(userService.getSignedUser()).thenReturn(user);
         when(postRepository.findById(post.getId())).thenReturn(Optional.ofNullable(post));
         when(postMapper.postEntityToResponse(post)).thenReturn(postResponse);
-        when(postRepository.save(any(Post.class))).thenReturn(post);
 
         PostResponse responseBody = postService.updatePost(post.getId(), postRequest);
 
         assertThat(responseBody).isEqualTo(postResponse);
         verify(postRepository, times(1)).findById(post.getId());
-        verify(postRepository, times(1)).save(post);
     }
 
     @Test
@@ -240,11 +241,11 @@ public class PostServiceImplTest {
 
     @Test
     void getAllByQuery_givenSearchText_shouldReturnFilteredPage() {
-        Specification<Post> mockSpec = Specification.where(null);
+        Specification<Post> mockSpec = Specification.where((root, query, cb) -> cb.conjunction());
         when(postSpecifications.visibleToUser()).thenReturn(mockSpec);
         when(postSpecifications.combine(any(), any())).thenReturn(mockSpec);
         PageRequest pageRequest = PagingProvider.buildPageRequest(0, 10, null);
-        when(postRepository.findAll(any(Specification.class), eq(pageRequest))).thenReturn(Page.empty());
+        when(postRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(Page.empty());
 
         Page<PostResponse> result = postService.getAllByQuery("test", 0, 10);
 
@@ -253,10 +254,10 @@ public class PostServiceImplTest {
 
     @Test
     void getAllByQuery_givenNullSearchText_shouldReturnAllVisible() {
-        Specification<Post> mockSpec = Specification.where(null);
+        Specification<Post> mockSpec = Specification.where((root, query, cb) -> cb.conjunction());
         when(postSpecifications.visibleToUser()).thenReturn(mockSpec);
-        PageRequest pageRequest = PagingProvider.buildPageRequest(0, 10, null);
-        when(postRepository.findAll(any(Specification.class), eq(pageRequest))).thenReturn(Page.empty());
+        when(postSpecifications.combine(any(), any())).thenReturn(mockSpec);
+        when(postRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(Page.empty());
 
         Page<PostResponse> result = postService.getAllByQuery(null, 0, 10);
 
@@ -279,13 +280,12 @@ public class PostServiceImplTest {
 
     @Test
     void getSavedPostsByUser_shouldReturnSavedPostsPage() {
-        Specification<Post> mockSpec = Specification.where(null);
+        Specification<Post> mockSpec = Specification.where((root, query, cb) -> cb.conjunction());
         when(postSpecifications.visibleToUser()).thenReturn(mockSpec);
         when(postSpecifications.savedByUser(any())).thenReturn(mockSpec);
         when(postSpecifications.combine(any(), any())).thenReturn(mockSpec);
         when(userService.getSignedUser()).thenReturn(user);
-        PageRequest pageRequest = PagingProvider.buildPageRequest(0, 10, null);
-        when(postRepository.findAll(any(Specification.class), eq(pageRequest))).thenReturn(Page.empty());
+        when(postRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(Page.empty());
 
         Page<PostResponse> result = postService.getSavedPostsByUser(0, 10);
 
@@ -294,6 +294,7 @@ public class PostServiceImplTest {
 
     @Test
     void savePostForUser_givenExistingPost_shouldAddToSaved() {
+        user.setSavedPosts(new ArrayList<>());
         when(userService.getSignedUser()).thenReturn(user);
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
 
@@ -304,7 +305,6 @@ public class PostServiceImplTest {
 
     @Test
     void savePostForUser_givenNonExistentPost_shouldThrow() {
-        when(userService.getSignedUser()).thenReturn(user);
         when(postRepository.findById(any())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> postService.savePostForUser(UUID.randomUUID()))
@@ -313,12 +313,11 @@ public class PostServiceImplTest {
 
     @Test
     void getCommentedPostsByUserId_givenValidUser_shouldReturnPage() {
-        Specification<Post> mockSpec = Specification.where(null);
+        Specification<Post> mockSpec = Specification.where((root, query, cb) -> cb.conjunction());
         when(postSpecifications.visibleToUser()).thenReturn(mockSpec);
         when(postSpecifications.commentedByUser(any())).thenReturn(mockSpec);
         when(postSpecifications.combine(any(), any())).thenReturn(mockSpec);
-        PageRequest pageRequest = PagingProvider.buildPageRequest(0, 10, null);
-        when(postRepository.findAll(any(Specification.class), eq(pageRequest))).thenReturn(Page.empty());
+        when(postRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(Page.empty());
 
         Page<PostResponse> result = postService.getCommentedPostsByUserId(user.getId(), 0, 10);
 

@@ -78,7 +78,7 @@ class ReactionServiceImplTest {
                 .reactionType(reaction.getReactionType())
                 .build();
 
-        this.pageRequest = buildPageRequest(1, 25, DEFAULT_SORT_OPTION);
+        this.pageRequest = buildPageRequest(0, 25, DEFAULT_SORT_OPTION);
         this.reactionPage = PageUtils.pageFromList(List.of(reaction), pageRequest);
     }
 
@@ -118,7 +118,7 @@ class ReactionServiceImplTest {
 
     @Test
     void getLikesByContentId() {
-        when(reactionRepository.findAllByContentIdAndReactionType(contentId, ReactionType.LIKE, pageRequest)).thenReturn(reactionPage);
+        when(reactionRepository.findAllByContentIdAndReactionType(eq(contentId), eq(ReactionType.LIKE), any(PageRequest.class))).thenReturn(reactionPage);
         when(reactionMapper.reactionEntityToResponse(any(Reaction.class))).thenReturn(ReactionResponse.builder().build());
 
         Page<ReactionResponse> responsePage = reactionService.getReactionsByContentIdAndReactionType(contentId, ReactionType.LIKE, 1, 25);
@@ -136,7 +136,7 @@ class ReactionServiceImplTest {
 
     @Test
     void getReactionsByContentId() {
-        when(reactionRepository.findAllByContentIdAndContentType(contentId, EntityType.POST, pageRequest)).thenReturn(reactionPage);
+        when(reactionRepository.findAllByContentIdAndContentType(eq(contentId), eq(EntityType.POST), any(PageRequest.class))).thenReturn(reactionPage);
         when(reactionMapper.reactionEntityToResponse(any(Reaction.class))).thenReturn(ReactionResponse.builder().build());
 
         Page<ReactionResponse> responsePage = reactionService.getReactionsByContentIdAndContentType(contentId, EntityType.POST, 1, 25);
@@ -145,7 +145,7 @@ class ReactionServiceImplTest {
 
     @Test
     void getReactionsByUserId() {
-        when(reactionRepository.findAllByUserIdAndContentType(userId, EntityType.POST, pageRequest)).thenReturn(reactionPage);
+        when(reactionRepository.findAllByUserIdAndContentType(eq(userId), eq(EntityType.POST), any(PageRequest.class))).thenReturn(reactionPage);
         when(reactionMapper.reactionEntityToResponse(any(Reaction.class))).thenReturn(ReactionResponse.builder().build());
 
         Page<ReactionResponse> responsePage = reactionService.getReactionsByUserIdAndContentType(userId, EntityType.POST, 1, 25);

@@ -134,7 +134,6 @@ class UserServiceImplTest {
     }
 
     @Test
-    @WithMockUser(username = "user", roles = "USER")
     void testGetSignedUser() {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
@@ -186,7 +185,6 @@ class UserServiceImplTest {
     void queryUsers_givenUsernameAndPagination_shouldReturnPage() {
         PageRequest pageRequest = PagingProvider.buildPageRequest(0, 10, null);
         when(userQuery.findAllByQuery("testuser", null, null, pageRequest)).thenReturn(Page.empty());
-        when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse());
 
         Page<UserResponse> result = userService.queryUsers("testuser", null, null, 0, 10);
 
@@ -198,7 +196,6 @@ class UserServiceImplTest {
     void listUsersByUsername_givenSearchTerm_shouldReturnMatchingPage() {
         PageRequest pageRequest = PagingProvider.buildPageRequest(0, 10, null);
         when(userRepository.findAllBySearchTerm("testuser", pageRequest)).thenReturn(Page.empty());
-        when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse());
 
         Page<UserResponse> result = userService.listUsersByUsername("testuser", 0, 10);
 
@@ -210,7 +207,6 @@ class UserServiceImplTest {
     void listUsersByUsername_givenBlankSearchTerm_shouldReturnAll() {
         PageRequest pageRequest = PagingProvider.buildPageRequest(0, 10, null);
         when(userRepository.findAll(pageRequest)).thenReturn(Page.empty());
-        when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse());
 
         Page<UserResponse> result = userService.listUsersByUsername("", 0, 10);
 
@@ -220,16 +216,17 @@ class UserServiceImplTest {
 
     @Test
     void listFollowings_givenPublicProfile_shouldReturnPage() {
+        user.setFollowings(List.of(User.builder().id(UUID.randomUUID()).build()));
         profileSettings = ProfileSettings.builder().isPrivateAccount(false).build();
         user.setProfileSettings(profileSettings);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse());
         SecurityContextHolder.setContext(securityContext);
 
         Page<UserResponse> result = userService.listFollowings(userId, 10, 0);
 
-        assertThat(result).isEmpty();
+        assertThat(result).hasSize(1);
     }
 
     @Test

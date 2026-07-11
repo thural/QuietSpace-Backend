@@ -8,6 +8,7 @@ import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.MessageResponse;
 import dev.thural.quietspace.repository.ChatRepository;
 import dev.thural.quietspace.repository.MessageRepository;
+import dev.thural.quietspace.service.PhotoService;
 import dev.thural.quietspace.service.impl.MessageServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,8 @@ class MessageServiceImplTest {
 
     @Mock
     private MessageMapper messageMapper;
+    @Mock
+    private PhotoService photoService;
 
     @InjectMocks
     private MessageServiceImpl messageService;
@@ -140,7 +143,6 @@ class MessageServiceImplTest {
 
     @Test
     void setMessageSeen_givenExistingMessage_shouldSaveAndReturnSeenResponse() {
-        when(userService.getSignedUser()).thenReturn(user);
         when(messageRepository.findById(message.getId())).thenReturn(Optional.of(message));
         when(messageRepository.save(any(Message.class))).thenReturn(message);
         when(messageMapper.toResponse(message)).thenReturn(messageResponse);
@@ -154,7 +156,6 @@ class MessageServiceImplTest {
 
     @Test
     void setMessageSeen_givenNonExistentMessage_shouldThrow() {
-        when(userService.getSignedUser()).thenReturn(user);
         when(messageRepository.findById(any())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> messageService.setMessageSeen(UUID.randomUUID()))

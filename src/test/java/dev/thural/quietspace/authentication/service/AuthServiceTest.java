@@ -30,6 +30,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -200,7 +201,8 @@ class AuthServiceTest {
 
     @Test
     void signout_givenValidHeader_shouldBlacklistAndClearContext() {
-        SecurityContextHolder.getContext().setAuthentication(() -> "testuser");
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("testuser", null, Collections.emptyList()));
         when(tokenRepository.existsByToken(anyString())).thenReturn(false);
         when(userRepository.findUserByUsername("testuser")).thenReturn(Optional.of(user));
 
@@ -212,7 +214,8 @@ class AuthServiceTest {
 
     @Test
     void signout_givenNullHeader_shouldDoNothing() {
-        SecurityContextHolder.getContext().setAuthentication(() -> "testuser");
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("testuser", null, Collections.emptyList()));
 
         authService.signout(null);
 
@@ -221,7 +224,8 @@ class AuthServiceTest {
 
     @Test
     void signout_givenNonBearerHeader_shouldDoNothing() {
-        SecurityContextHolder.getContext().setAuthentication(() -> "testuser");
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("testuser", null, Collections.emptyList()));
 
         authService.signout("Basic some.token");
 

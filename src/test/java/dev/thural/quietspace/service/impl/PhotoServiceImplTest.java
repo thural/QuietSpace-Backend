@@ -21,6 +21,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -75,7 +76,7 @@ class PhotoServiceImplTest {
                 "image", "photo.jpg", "image/jpeg", "original-image-data".getBytes()
         );
         when(commonService.getSignedUser()).thenReturn(signedUser);
-        when(imageCompressionUtil.compressImage(any(), anyInt())).thenReturn(compressedData);
+        when(imageCompressionUtil.compressImage(any(InputStream.class), anyInt())).thenReturn(compressedData);
         when(photoRepository.save(any(Photo.class))).thenReturn(photo);
 
         String photoName = photoService.uploadProfilePhoto(file);
@@ -94,6 +95,7 @@ class PhotoServiceImplTest {
         MockMultipartFile file = new MockMultipartFile(
                 "image", "large.jpg", "image/jpeg", new byte[3 * 1024 * 1024]
         );
+        when(commonService.getSignedUser()).thenReturn(signedUser);
 
         assertThatThrownBy(() -> photoService.uploadProfilePhoto(file))
                 .isInstanceOf(ImageUploadException.class)
@@ -105,6 +107,7 @@ class PhotoServiceImplTest {
         MockMultipartFile file = new MockMultipartFile(
                 "image", "file.txt", "text/plain", "data".getBytes()
         );
+        when(commonService.getSignedUser()).thenReturn(signedUser);
 
         assertThatThrownBy(() -> photoService.uploadProfilePhoto(file))
                 .isInstanceOf(UnsupportedImageTypeException.class)
@@ -116,6 +119,7 @@ class PhotoServiceImplTest {
         MockMultipartFile file = new MockMultipartFile(
                 "image", "file.dat", null, "data".getBytes()
         );
+        when(commonService.getSignedUser()).thenReturn(signedUser);
 
         assertThatThrownBy(() -> photoService.uploadProfilePhoto(file))
                 .isInstanceOf(UnsupportedImageTypeException.class)
@@ -128,7 +132,7 @@ class PhotoServiceImplTest {
                 "image", "photo.jpg", "image/jpeg", "data".getBytes()
         );
         when(commonService.getSignedUser()).thenReturn(signedUser);
-        when(imageCompressionUtil.compressImage(any(), anyInt())).thenThrow(new IOException("compression failed"));
+        when(imageCompressionUtil.compressImage(any(InputStream.class), anyInt())).thenThrow(new IOException("compression failed"));
 
         assertThatThrownBy(() -> photoService.persistPhotoEntity(file, userId, EntityType.USER))
                 .isInstanceOf(ImageUploadException.class)

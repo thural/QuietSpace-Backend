@@ -142,6 +142,8 @@ class CommentServiceImplTest {
 
     @Test
     void testUpdateComment() {
+        User otherUser = User.builder().id(UUID.randomUUID()).username("other").build();
+        comment.setUser(otherUser);
         when(userService.getSignedUser()).thenReturn(user);
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
         when(commentMapper.commentEntityToResponse(any(Comment.class))).thenReturn(commentResponse);
@@ -154,6 +156,7 @@ class CommentServiceImplTest {
 
     @Test
     void testDeleteComment() {
+        comment.setParentId(null);
         when(userService.getSignedUser()).thenReturn(user);
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
 
@@ -161,7 +164,7 @@ class CommentServiceImplTest {
 
         verify(commentRepository, times(1)).findById(comment.getId());
         verify(commentRepository, times(1)).deleteById(comment.getId());
-        verify(commentRepository, times(1)).deleteAllByParentId(comment.getParentId());
+        verify(commentRepository, times(1)).deleteAllByParentId(comment.getId());
     }
 
     @Test
