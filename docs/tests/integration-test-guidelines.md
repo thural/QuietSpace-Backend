@@ -52,7 +52,12 @@ Do not use `@SpringBootTest` for every integration test. Use Spring's slice anno
 
 Use for testing HTTP endpoints, request validation, response serialization, and security gating. Mock all service-layer dependencies with `@MockitoBean`.
 
+> **Spring Boot 4.x package change:** `@WebMvcTest` and `@AutoConfigureMockMvc` are now in `org.springframework.boot.webmvc.test.autoconfigure.*` (the `spring-boot-webmvc-test` module), **not** `org.springframework.boot.test.autoconfigure.web.servlet.*`.
+
 ```java
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(controllers = PostController.class)
 class PostControllerTest {
@@ -75,6 +80,7 @@ class PostControllerTest {
 
 **Key rules:**
 - Use `@AutoConfigureMockMvc(addFilters = false)` to disable security filters for standard controller tests.
+- In Spring Boot 4.x, `@WebMvcTest` does **not** auto-exclude `JwtFilter`. You **must** add `@MockitoBean` for all three of its dependencies (`TokenRepository`, `JwtService`, `UserDetailsService`) in every slice test.
 - Provide an `ObjectMapper` bean in a **static inner `@TestConfiguration`**:
   ```java
   @TestConfiguration
@@ -122,9 +128,10 @@ class PostRepositoryTest {
 
 ## 4. Full-Context Integration Tests
 
-Use `@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)` for tests that exercise multiple layers end-to-end. Every `@SpringBootTest` integration test must follow this template:
+Use `@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)` for tests that exercise multiple layers end-to-end. Every `@SpringBootTest` integration test must follow this template (note: `@AutoConfigureMockMvc` is **required** in Spring Boot 4.x for `@Autowired MockMvc` to work with `RANDOM_PORT`):
 
 ```java
+@AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestcontainersConfig.class)
 @ActiveProfiles("testcontainers")
@@ -164,6 +171,7 @@ class PostFlowIT {
 ```
 
 **Key rules:**
+- Always add `@AutoConfigureMockMvc` with `@SpringBootTest(webEnvironment = RANDOM_PORT)` — Spring Boot 4.x does **not** auto-configure MockMvc for `RANDOM_PORT` contexts.
 - Use `RANDOM_PORT` to avoid port conflicts.
 - Import `TestcontainersConfig` and activate `testcontainers` profile for a real MySQL container.
 - Mock all **external** services (`EmailService`, `PhotoService`) with `@MockitoBean`.
