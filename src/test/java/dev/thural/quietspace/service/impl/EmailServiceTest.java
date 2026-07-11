@@ -10,7 +10,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -21,16 +25,19 @@ class EmailServiceTest {
     @Mock
     private JavaMailSender mailSender;
     @Mock
-    private SpringTemplateEngine templateEngine;
+    private ResourceLoader resourceLoader;
 
     @InjectMocks
     private EmailService emailService;
 
     @Test
-    void sendEmail_givenAllParams_shouldSendMimeMessage() throws MessagingException {
+    void sendEmail_givenAllParams_shouldSendMimeMessage() throws MessagingException, IOException {
         MimeMessage mimeMessage = mock(MimeMessage.class);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        when(templateEngine.process(anyString(), any())).thenReturn("<html>email body</html>");
+        
+        Resource resource = mock(Resource.class);
+        when(resourceLoader.getResource(anyString())).thenReturn(resource);
+        when(resource.getInputStream()).thenReturn(new ByteArrayInputStream("<html>Hello {{username}}</html>".getBytes()));
 
         emailService.sendEmail(
                 "recipient@example.com",
@@ -45,10 +52,13 @@ class EmailServiceTest {
     }
 
     @Test
-    void sendEmail_givenNullTemplate_shouldUseDefaultName() throws MessagingException {
+    void sendEmail_givenNullTemplate_shouldUseDefaultName() throws MessagingException, IOException {
         MimeMessage mimeMessage = mock(MimeMessage.class);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        when(templateEngine.process(eq("confirm-email"), any())).thenReturn("<html>email body</html>");
+
+        Resource resource = mock(Resource.class);
+        when(resourceLoader.getResource("classpath:templates/confirm-email.html")).thenReturn(resource);
+        when(resource.getInputStream()).thenReturn(new ByteArrayInputStream("<html>Hello {{username}}</html>".getBytes()));
 
         emailService.sendEmail(
                 "recipient@example.com",
@@ -59,15 +69,19 @@ class EmailServiceTest {
                 "Account Activation"
         );
 
-        verify(templateEngine).process(eq("confirm-email"), any());
+        verify(resourceLoader).getResource("classpath:templates/confirm-email.html");
         verify(mailSender).send(mimeMessage);
     }
 
     @Test
-    void sendEmail_whenMailSenderFails_shouldPropagate() throws MessagingException {
+    void sendEmail_whenMailSenderFails_shouldPropagate() throws MessagingException, IOException {
         MimeMessage mimeMessage = mock(MimeMessage.class);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        when(templateEngine.process(anyString(), any())).thenReturn("<html>body</html>");
+
+        Resource resource = mock(Resource.class);
+        when(resourceLoader.getResource(anyString())).thenReturn(resource);
+        when(resource.getInputStream()).thenReturn(new ByteArrayInputStream("<html>Hello {{username}}</html>".getBytes()));
+
         doThrow(new RuntimeException("SMTP error")).when(mailSender).send(any(MimeMessage.class));
 
         assertThatThrownBy(() ->
