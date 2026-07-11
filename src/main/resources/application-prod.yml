@@ -1,16 +1,10 @@
 spring:
 
-  devtools:
-    livereload.enabled: false
-    restart:
-      enabled: false
-
   application:
     urls:
       frontend: http://${FRONTEND_HOST}:${FRONTEND_PORT}
 
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
     username: ${DB_USER_USERNAME}
     password: ${DB_USER_PASSWORD}
@@ -33,21 +27,15 @@ spring:
   jpa:
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
         show_sql: false
         format_sql: false
     hibernate:
       ddl-auto: validate
-    database: mysql
-    open-in-view: true
 
   flyway:
     enabled: true
     baseline-on-migrate: true
     validate-on-migrate: true
-    baseline-description: "init"
-    baseline-version: 0
-    locations: classpath:db/migration/structure, classpath:db/migration/data
 
   sql:
     init:
