@@ -6,11 +6,14 @@ import dev.thural.quietspace.authentication.model.AuthRequest;
 import dev.thural.quietspace.authentication.model.AuthResponse;
 import dev.thural.quietspace.authentication.model.RegistrationRequest;
 import dev.thural.quietspace.authentication.service.AuthService;
+import dev.thural.quietspace.repository.TokenRepository;
+import dev.thural.quietspace.security.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -32,6 +35,12 @@ class AuthControllerTest {
 
     @MockitoBean
     private AuthService authService;
+    @MockitoBean
+    private TokenRepository tokenRepository;
+    @MockitoBean
+    private JwtService jwtService;
+    @MockitoBean
+    private UserDetailsService userDetailsService;
 
     @Test
     void register_givenValidRequest_shouldReturn200() throws Exception {

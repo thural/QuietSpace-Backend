@@ -5,6 +5,8 @@ import dev.thural.quietspace.controller.ReactionController;
 import dev.thural.quietspace.enums.EntityType;
 import dev.thural.quietspace.enums.ReactionType;
 import dev.thural.quietspace.model.request.ReactionRequest;
+import dev.thural.quietspace.repository.TokenRepository;
+import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.ReactionService;
 import org.junit.jupiter.api.Test;
@@ -15,6 +17,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -43,6 +46,12 @@ class ReactionControllerTest {
 
     @MockitoBean
     NotificationService notificationService;
+    @MockitoBean
+    TokenRepository tokenRepository;
+    @MockitoBean
+    JwtService jwtService;
+    @MockitoBean
+    UserDetailsService userDetailsService;
 
     @TestConfiguration
     static class TestConfig {
