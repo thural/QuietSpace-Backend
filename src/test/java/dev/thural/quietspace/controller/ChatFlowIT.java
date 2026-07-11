@@ -1,0 +1,165 @@
+package dev.thural.quietspace.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.thural.quietspace.config.TestcontainersConfig;
+import dev.thural.quietspace.model.request.CreateChatRequest;
+import dev.thural.quietspace.repository.ChatRepository;
+import dev.thural.quietspace.repository.MessageRepository;
+import dev.thural.quietspace.repository.UserRepository;
+import dev.thural.quietspace.service.PhotoService;
+import dev.thural.quietspace.utils.IntegrationTestHelper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
+import java.util.UUID;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(TestcontainersConfig.class)
+@ActiveProfiles("testcontainers")
+class ChatFlowIT {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ChatRepository chatRepository;
+
+    @Autowired
+    private MessageRepository messageRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @MockitoBean
+    private PhotoService photoService;
+
+    private IntegrationTestHelper helper;
+    private String user1Jwt;
+    private String user2Jwt;
+    private UUID user1Id;
+    private UUID user2Id;
+
+    @BeforeEach
+    void setUp() {
+        messageRepository.deleteAll();
+        chatRepository.deleteAll();
+        userRepository.deleteAll();
+
+        helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
+        user1Jwt = helper.registerAndLogin("chatuser1@test.com", "password123");
+        user1Id = userRepository.findUserEntityByEmail("chatuser1@test.com").orElseThrow().getId();
+        user2Jwt = helper.registerAndLogin("chatuser2@test.com", "password456");
+        user2Id = userRepository.findUserEntityByEmail("chatuser2@test.com").orElseThrow().getId();
+    }
+
+    @Test
+    void createChat_givenValidRequest_shouldReturn200() throws Exception {
+        CreateChatRequest request = CreateChatRequest.builder()
+                .isGroupChat(false)
+                .recipientId(user2Id)
+                .text("Hello!")
+                .userIds(List.of(user1Id, user2Id))
+                .build();
+
+        mockMvc.perform(post("/api/v1/chats")
+                        .header("Authorization", "Bearer " + user1Jwt)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNotEmpty());
+    }
+
+    @Test
+    void getChatById_givenExistingId_shouldReturn200() throws Exception {
+        CreateChatRequest request = CreateChatRequest.builder()
+                .isGroupChat(false)
+                .recipientId(user2Id)
+                .text("Hi!")
+                .userIds(List.of(user1Id, user2Id))
+                .build();
+
+        String responseBody = mockMvc.perform(post("/api/v1/chats")
+                        .header("Authorization", "Bearer " + user1Jwt)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String chatId = objectMapper.readTree(responseBody).get("id").asText();
+
+        mockMvc.perform(get("/api/v1/chats/{chatId}", chatId)
+                        .header("Authorization", "Bearer " + user1Jwt))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(chatId));
+    }
+
+    @Test
+    void getChatById_givenNonExistentId_shouldReturn404() throws Exception {
+        mockMvc.perform(get("/api/v1/chats/{chatId}", UUID.randomUUID())
+                        .header("Authorization", "Bearer " + user1Jwt))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getChatsByMemberId_shouldReturnList() throws Exception {
+        CreateChatRequest request = CreateChatRequest.builder()
+                .isGroupChat(false)
+                .recipientId(user2Id)
+                .text("Hello!")
+                .userIds(List.of(user1Id, user2Id))
+                .build();
+
+        mockMvc.perform(post("/api/v1/chats")
+                        .header("Authorization", "Bearer " + user1Jwt)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/chats/members/{userId}", user1Id)
+                        .header("Authorization", "Bearer " + user1Jwt))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    void deleteChat_givenExistingId_shouldReturn204() throws Exception {
+        CreateChatRequest request = CreateChatRequest.builder()
+                .isGroupChat(false)
+                .recipientId(user2Id)
+                .text("Bye!")
+                .userIds(List.of(user1Id, user2Id))
+                .build();
+
+        String responseBody = mockMvc.perform(post("/api/v1/chats")
+                        .header("Authorization", "Bearer " + user1Jwt)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String chatId = objectMapper.readTree(responseBody).get("id").asText();
+
+        mockMvc.perform(delete("/api/v1/chats/{chatId}", chatId)
+                        .header("Authorization", "Bearer " + user1Jwt))
+                .andExpect(status().isNoContent());
+    }
+}

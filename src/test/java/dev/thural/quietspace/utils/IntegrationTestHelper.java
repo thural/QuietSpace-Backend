@@ -1,0 +1,101 @@
+package dev.thural.quietspace.utils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.thural.quietspace.authentication.model.AuthRequest;
+import dev.thural.quietspace.authentication.model.AuthResponse;
+import dev.thural.quietspace.entity.ProfileSettings;
+import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.Role;
+import dev.thural.quietspace.repository.UserRepository;
+import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.OffsetDateTime;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+public class IntegrationTestHelper {
+
+    private final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public IntegrationTestHelper(MockMvc mockMvc, ObjectMapper objectMapper,
+                                  UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.mockMvc = mockMvc;
+        this.objectMapper = objectMapper;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public String registerAndLogin(String email, String password) throws Exception {
+        User user = User.builder()
+                .username(email.split("@")[0])
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .firstname("Test")
+                .lastname("User")
+                .role(Role.USER)
+                .enabled(true)
+                .accountLocked(false)
+                .createDate(OffsetDateTime.now())
+                .updateDate(OffsetDateTime.now())
+                .build();
+        ProfileSettings settings = ProfileSettings.builder()
+                .user(user)
+                .build();
+        user.setProfileSettings(settings);
+        userRepository.save(user);
+
+        AuthRequest authRequest = AuthRequest.builder()
+                .email(email)
+                .password(password)
+                .build();
+
+        String responseBody = mockMvc.perform(post("/api/v1/auth/authenticate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(authRequest)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        AuthResponse authResponse = objectMapper.readValue(responseBody, AuthResponse.class);
+        return authResponse.getAccessToken();
+    }
+
+    public String registerAndLoginAdmin(String email, String password) throws Exception {
+        User user = User.builder()
+                .username(email.split("@")[0])
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .firstname("Admin")
+                .lastname("User")
+                .role(Role.ADMIN)
+                .enabled(true)
+                .accountLocked(false)
+                .createDate(OffsetDateTime.now())
+                .updateDate(OffsetDateTime.now())
+                .build();
+        ProfileSettings settings = ProfileSettings.builder()
+                .user(user)
+                .build();
+        user.setProfileSettings(settings);
+        userRepository.save(user);
+
+        AuthRequest authRequest = AuthRequest.builder()
+                .email(email)
+                .password(password)
+                .build();
+
+        String responseBody = mockMvc.perform(post("/api/v1/auth/authenticate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(authRequest)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        AuthResponse authResponse = objectMapper.readValue(responseBody, AuthResponse.class);
+        return authResponse.getAccessToken();
+    }
+}
