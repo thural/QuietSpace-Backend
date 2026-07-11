@@ -178,4 +178,62 @@ class CommentFlowIT {
                         .header("Authorization", "Bearer " + user2Jwt))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void getReplies_toComment_shouldReturn200() throws Exception {
+        CommentRequest parentReq = CommentRequest.builder()
+                .userId(user2Id)
+                .postId(UUID.fromString(postId))
+                .text("Parent comment")
+                .build();
+
+        String parentBody = mockMvc.perform(post("/api/v1/comments")
+                        .header("Authorization", "Bearer " + user2Jwt)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(parentReq)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String parentCommentId = objectMapper.readTree(parentBody).get("id").asText();
+
+        CommentRequest replyReq = CommentRequest.builder()
+                .userId(user1Id)
+                .postId(UUID.fromString(postId))
+                .parentId(UUID.fromString(parentCommentId))
+                .text("Reply to parent")
+                .build();
+
+        mockMvc.perform(post("/api/v1/comments")
+                        .header("Authorization", "Bearer " + user1Jwt)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(replyReq)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/comments/{commentId}/replies", parentCommentId)
+                        .header("Authorization", "Bearer " + user1Jwt)
+                        .param("page-number", "1")
+                        .param("page-size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
+    void getLatestComment_byUserOnPost_shouldReturn200() throws Exception {
+        CommentRequest request = CommentRequest.builder()
+                .userId(user2Id)
+                .postId(UUID.fromString(postId))
+                .text("Latest comment by this user")
+                .build();
+
+        mockMvc.perform(post("/api/v1/comments")
+                        .header("Authorization", "Bearer " + user2Jwt)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/comments/user/{userId}/post/{postId}/latest", user2Id, postId)
+                        .header("Authorization", "Bearer " + user2Jwt))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.text").value("Latest comment by this user"));
+    }
 }
