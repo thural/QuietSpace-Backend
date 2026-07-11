@@ -1,5 +1,6 @@
 package dev.thural.quietspace.repository;
 
+import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.Role;
@@ -23,6 +24,8 @@ class PostRepositoryTest {
     UserRepository userRepository;
     @Autowired
     PostRepository postRepository;
+    @Autowired
+    CommentRepository commentRepository;
 
     private final User user = User.builder()
             .email("user@email.com")
@@ -71,5 +74,42 @@ class PostRepositoryTest {
         Page<Post> list = postRepository.findAllByQuery("sample", null);
         assertThat(list.toList().size()).isEqualTo(1);
         assertThat(list.toList().get(0)).isEqualTo(savedPost);
+    }
+
+    @Test
+    void testFindSavedPostsByUserId() {
+        savedUser.getSavedPosts().add(savedPost);
+        userRepository.save(savedUser);
+        Page<Post> list = postRepository.findSavedPostsByUserId(savedUser.getId(), null);
+        assertThat(list.toList()).hasSize(1);
+    }
+
+    @Test
+    void testFindByCommentsUserId() {
+        Comment comment = Comment.builder()
+                .text("test comment")
+                .user(savedUser)
+                .post(savedPost)
+                .createDate(OffsetDateTime.now())
+                .updateDate(OffsetDateTime.now())
+                .build();
+        commentRepository.save(comment);
+        Page<Post> list = postRepository.findByCommentsUserId(savedUser.getId(), null);
+        assertThat(list.toList()).hasSize(1);
+    }
+
+    @Test
+    void testDeleteByRepostId() {
+        Post repost = Post.builder()
+                .text("repost")
+                .user(savedUser)
+                .repostId(savedPost.getId().toString())
+                .createDate(OffsetDateTime.now())
+                .updateDate(OffsetDateTime.now())
+                .build();
+        postRepository.save(repost);
+        postRepository.deleteByRepostId(savedPost.getId().toString());
+        Page<Post> list = postRepository.findAllByQuery("repost", null);
+        assertThat(list.toList()).isEmpty();
     }
 }

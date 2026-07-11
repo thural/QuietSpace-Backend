@@ -107,4 +107,12 @@ class CommentRepositoryTest {
         assertThat(commentPage.toList().size()).isEqualTo(1);
         assertThat(commentPage.toList().get(0)).isEqualTo(savedComment);
     }
+
+    @Test
+    void findLatestCommentByPostAndUserByUpdateDate() {
+        var latestComment = commentRepository
+                .findLatestCommentByPostAndUserByUpdateDate(savedPost.getId(), savedUser.getId());
+        assertThat(latestComment).isPresent();
+        assertThat(latestComment.get().getText()).isEqualTo("sample text");
+    }
 }

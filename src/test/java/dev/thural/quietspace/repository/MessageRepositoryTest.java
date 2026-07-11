@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -100,5 +101,20 @@ class MessageRepositoryTest {
         Message latestMessage = messageRepository.findFirstByChatOrderByCreateDateDesc(chat).orElse(null);
         assertThat(latestMessage).isNotNull();
         assertThat(latestMessage.getText()).isEqualTo(savedMessage.getText());
+    }
+
+    @Test
+    void findByMessageIdAndChatId() {
+        Message foundMessage = messageRepository
+                .findByMessageIdAndChatId(savedMessage.getId(), savedChat.getId()).orElse(null);
+        assertThat(foundMessage).isNotNull();
+        assertThat(foundMessage.getText()).isEqualTo("sample text");
+    }
+
+    @Test
+    void findByMessageIdAndChatId_givenNonExistent_shouldReturnEmpty() {
+        Message foundMessage = messageRepository
+                .findByMessageIdAndChatId(UUID.randomUUID(), savedChat.getId()).orElse(null);
+        assertThat(foundMessage).isNull();
     }
 }

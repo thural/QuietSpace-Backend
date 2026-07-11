@@ -84,6 +84,9 @@ dependencies {
     testImplementation("org.testcontainers:mysql")
     testImplementation("org.testcontainers:junit-jupiter")
 
+    // WireMock
+    testImplementation("org.wiremock:wiremock-standalone:3.9.1")
+
     runtimeOnly("org.springframework.boot:spring-boot-devtools")
 }
 
