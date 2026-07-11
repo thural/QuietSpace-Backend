@@ -1,0 +1,157 @@
+package dev.thural.quietspace.controller.slice;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.thural.quietspace.authentication.controller.AuthController;
+import dev.thural.quietspace.authentication.model.AuthRequest;
+import dev.thural.quietspace.authentication.model.AuthResponse;
+import dev.thural.quietspace.authentication.model.RegistrationRequest;
+import dev.thural.quietspace.authentication.service.AuthService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(controllers = AuthController.class)
+@Import(AuthControllerTest.TestSecurityConfig.class)
+class AuthControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private AuthService authService;
+
+    @TestConfiguration
+    static class TestSecurityConfig {
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+            http
+                    .csrf(AbstractHttpConfigurer::disable)
+                    .authorizeHttpRequests(auth -> auth
+                            .requestMatchers("/api/v1/auth/**").permitAll()
+                            .anyRequest().authenticated()
+                    )
+                    .sessionManagement(session -> session
+                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    );
+            return http.build();
+        }
+    }
+
+    @Test
+    void register_givenValidRequest_shouldReturn200() throws Exception {
+        RegistrationRequest request = RegistrationRequest.builder()
+                .username("testuser")
+                .firstname("Test")
+                .lastname("User")
+                .email("test@example.com")
+                .password("password123")
+                .build();
+
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void register_givenInvalidEmail_shouldReturn400() throws Exception {
+        RegistrationRequest request = RegistrationRequest.builder()
+                .username("testuser")
+                .firstname("Test")
+                .lastname("User")
+                .email("invalid")
+                .password("password123")
+                .build();
+
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void register_givenMissingBody_shouldReturn400() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void authenticate_givenValidCredentials_shouldReturn200WithBody() throws Exception {
+        AuthResponse authResponse = AuthResponse.builder()
+                .accessToken("access-token")
+                .refreshToken("refresh-token")
+                .userId("user-id")
+                .message("authentication was successful")
+                .build();
+        when(authService.authenticate(any(AuthRequest.class))).thenReturn(authResponse);
+
+        AuthRequest request = AuthRequest.builder()
+                .email("test@example.com")
+                .password("password123")
+                .build();
+
+        mockMvc.perform(post("/api/v1/auth/authenticate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("access-token"))
+                .andExpect(jsonPath("$.refreshToken").value("refresh-token"))
+                .andExpect(jsonPath("$.userId").value("user-id"))
+                .andExpect(jsonPath("$.message").value("authentication was successful"));
+    }
+
+    @Test
+    void activateAccount_givenValidToken_shouldReturn200() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/activate-account")
+                        .param("token", "valid-code"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void activateAccount_givenMissingToken_shouldReturn400() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/activate-account"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void refreshToken_givenAuthHeader_shouldReturn200WithBody() throws Exception {
+        AuthResponse authResponse = AuthResponse.builder()
+                .accessToken("new-access-token")
+                .message("token was refreshed")
+                .build();
+        when(authService.refreshToken(any())).thenReturn(authResponse);
+
+        mockMvc.perform(post("/api/v1/auth/refresh-token")
+                        .header("Authorization", "Bearer some.refresh.token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("new-access-token"))
+                .andExpect(jsonPath("$.message").value("token was refreshed"));
+    }
+
+    @Test
+    void signout_givenAuthHeader_shouldReturn200() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/signout")
+                        .header("Authorization", "Bearer some.jwt.token"))
+                .andExpect(status().isOk());
+    }
+}
