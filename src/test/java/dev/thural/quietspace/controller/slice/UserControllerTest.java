@@ -190,5 +190,25 @@ public class UserControllerTest {
         verify(userService, times(1)).getLoggedUserResponse();
     }
 
+    @Test
+    void updateUser_givenTooLongUsername_shouldReturn400() throws Exception {
+        registerRequest.setUsername("a".repeat(33));
+
+        mockMvc.perform(patch(UserController.USER_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registerRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateUser_givenTooLongPassword_shouldReturn400() throws Exception {
+        registerRequest.setPassword("a".repeat(33));
+
+        mockMvc.perform(patch(UserController.USER_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registerRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
 
 }
