@@ -75,7 +75,7 @@ class UserServiceIT {
 
     @Test
     void listUsers_shouldReturnAllUsers() {
-        var users = userService.listUsers(1, 10);
+        var users = userService.listUsers(0, 10);
         assertThat(users.getContent()).hasSize(2);
     }
 

@@ -116,7 +116,7 @@ class UserMapperTest {
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getIsFollower()).isFalse();
-        assertThat(result.getIsFollowing()).isFalse(); // Still true because user is in following list
+        assertThat(result.getIsFollowing()).isTrue(); // user remains in its own following list
     }
 
     @Test

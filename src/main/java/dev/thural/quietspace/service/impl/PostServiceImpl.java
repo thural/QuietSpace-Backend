@@ -159,6 +159,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public Page<PostResponse> getSavedPostsByUser(Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         UUID userId = userService.getSignedUser().getId();

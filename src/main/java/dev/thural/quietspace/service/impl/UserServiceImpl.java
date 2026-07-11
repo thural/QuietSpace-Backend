@@ -50,12 +50,14 @@ public class UserServiceImpl implements UserService {
     private final PhotoService photoService;
 
     @Override
+    @Transactional
     public Page<UserResponse> listUsers(Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
         return userRepository.findAll(pageRequest).map(userMapper::toResponse);
     }
 
     @Override
+    @Transactional
     public Page<UserResponse> queryUsers(String username, String firstname, String lastname, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
         return userQuery.findAllByQuery(username, firstname, lastname, pageRequest).map(userMapper::toResponse);
@@ -83,6 +85,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public Page<UserResponse> listUsersByUsername(String username, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
         if (StringUtils.hasText(username)) {
@@ -154,6 +157,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public Page<UserResponse> listFollowings(UUID userId, Integer pageSize, Integer pageNumber) {
         User user = checkUserProfileAccessAndReturnUser(userId);
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
@@ -162,6 +166,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public Page<UserResponse> listFollowers(UUID userId, Integer pageNumber, Integer pageSize) {
         User user = checkUserProfileAccessAndReturnUser(userId);
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
