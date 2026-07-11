@@ -170,4 +170,15 @@ public class User extends BaseEntity implements UserDetails, Principal {
     void onRemove() {
         // TODO: remove photo associated
     }
+
+    @PrePersist
+    @PreUpdate
+    void ensureProfileSettings() {
+        if (profileSettings == null) {
+            profileSettings = new ProfileSettings();
+        }
+        if (profileSettings.getUser() == null) {
+            profileSettings.setUser(this);
+        }
+    }
 }
