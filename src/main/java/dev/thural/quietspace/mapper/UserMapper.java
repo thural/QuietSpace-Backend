@@ -1,6 +1,7 @@
 package dev.thural.quietspace.mapper;
 
 import dev.thural.quietspace.entity.BaseEntity;
+import dev.thural.quietspace.entity.ProfileSettings;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.model.response.PhotoResponse;
 import dev.thural.quietspace.model.response.ProfileSettingsResponse;

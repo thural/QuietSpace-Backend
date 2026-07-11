@@ -15,7 +15,7 @@ public class PagingProvider {
         int queryPageSize;
         Sort querySortOption;
 
-        if (pageNumber != null && pageNumber > 0) queryPageNumber = pageNumber;
+        if (pageNumber != null && pageNumber > 0) queryPageNumber = pageNumber - 1;
         else queryPageNumber = DEFAULT_PAGE;
 
         if (pageSize == null) queryPageSize = DEFAULT_PAGE_SIZE;
