@@ -16,8 +16,8 @@ spring:
   mail:
     host: ${MAILDEV_HOST}
     port: ${MAILDEV_PORT}
-    username: thural
-    password: thural
+    username: ${MAIL_USERNAME:thural}
+    password: ${MAIL_PASSWORD:thural}
     properties:
       mail:
         smtp:
@@ -28,6 +28,15 @@ spring:
         connectiontimeout: 5000
         timeout: 3000
         writetimeout: 5000
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database: mysql
+    open-in-view: false
+  flyway:
+    baseline-description: "init"
+    baseline-version: 0
+    locations: classpath:db/migration/structure, classpath:db/migration/data
   application:
     name: quietspace-backend
     security:
