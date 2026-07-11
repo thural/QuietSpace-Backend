@@ -132,6 +132,7 @@ Use `@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 
 ```java
 @AutoConfigureMockMvc
+@Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestcontainersConfig.class)
 @ActiveProfiles("testcontainers")
@@ -172,6 +173,7 @@ class PostFlowIT {
 
 **Key rules:**
 - Always add `@AutoConfigureMockMvc` with `@SpringBootTest(webEnvironment = RANDOM_PORT)` — Spring Boot 4.x does **not** auto-configure MockMvc for `RANDOM_PORT` contexts.
+- Add `@Transactional` to the test class when `@BeforeEach` performs **direct** `repository`/`EntityManager` operations (e.g., `deleteAll()`, native cleanup queries via `IntegrationTestHelper.cleanDatabase`). Without an active transaction, Spring Boot 4.x throws `TransactionRequiredException` because no web request is in flight. The transaction rolls back after each test, keeping tests isolated.
 - Use `RANDOM_PORT` to avoid port conflicts.
 - Import `TestcontainersConfig` and activate `testcontainers` profile for a real MySQL container.
 - Mock all **external** services (`EmailService`, `PhotoService`) with `@MockitoBean`.
