@@ -5,6 +5,7 @@ import dev.thural.quietspace.controller.ChatController;
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.enums.Role;
 import dev.thural.quietspace.model.request.CreateChatRequest;
 import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
@@ -92,16 +93,30 @@ class ChatControllerTest {
     void setUp() {
         this.user1 = User.builder()
                 .id(UUID.randomUUID())
+                .username("user1")
+                .email("user1@test.com")
+                .password("password")
+                .role(Role.USER)
                 .build();
         this.user2 = User.builder()
                 .id(UUID.randomUUID())
+                .username("user2")
+                .email("user2@test.com")
+                .password("password")
+                .role(Role.USER)
                 .build();
 
         this.userResponse1 = UserResponse.builder()
                 .id(user1.getId())
+                .username(user1.getUsername())
+                .email(user1.getEmail())
+                .role(user1.getRole().name())
                 .build();
         this.userResponse2 = UserResponse.builder()
                 .id(user2.getId())
+                .username(user2.getUsername())
+                .email(user2.getEmail())
+                .role(user2.getRole().name())
                 .build();
 
         this.chat = Chat.builder()
