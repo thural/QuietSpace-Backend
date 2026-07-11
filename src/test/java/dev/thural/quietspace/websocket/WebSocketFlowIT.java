@@ -17,6 +17,7 @@ import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
+import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -58,7 +59,7 @@ class WebSocketFlowIT {
     private String user1Jwt;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         userRepository.deleteAll();
         helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
         user1Jwt = helper.registerAndLogin("wsuser@test.com", "password123");
@@ -74,7 +75,8 @@ class WebSocketFlowIT {
 
         CompletableFuture<String> receivedMessage = new CompletableFuture<>();
 
-        stompClient.connectAsync("ws://localhost:" + port + "/ws", connectHeaders,
+        WebSocketHttpHeaders handshakeHeaders = new WebSocketHttpHeaders();
+        stompClient.connectAsync("ws://localhost:" + port + "/ws", handshakeHeaders, connectHeaders,
                         new StompSessionHandlerAdapter() {
                             @Override
                             public void afterConnected(StompSession session, StompHeaders connectedHeaders) {

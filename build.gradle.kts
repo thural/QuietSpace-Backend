@@ -80,9 +80,9 @@ dependencies {
 
     // Testcontainers
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("org.testcontainers:testcontainers")
-    testImplementation("org.testcontainers:mysql")
-    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:testcontainers:1.20.4")
+    testImplementation("org.testcontainers:mysql:1.20.4")
+    testImplementation("org.testcontainers:junit-jupiter:1.20.4")
 
     // WireMock
     testImplementation("org.wiremock:wiremock-standalone:3.9.1")

@@ -59,7 +59,7 @@ class ChatFlowIT {
     private UUID user2Id;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         messageRepository.deleteAll();
         chatRepository.deleteAll();
         userRepository.deleteAll();

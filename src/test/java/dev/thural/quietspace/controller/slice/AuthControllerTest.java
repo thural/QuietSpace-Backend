@@ -8,15 +8,9 @@ import dev.thural.quietspace.authentication.model.RegistrationRequest;
 import dev.thural.quietspace.authentication.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -26,8 +20,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(controllers = AuthController.class)
-@Import(AuthControllerTest.TestSecurityConfig.class)
 class AuthControllerTest {
 
     @Autowired
@@ -38,23 +32,6 @@ class AuthControllerTest {
 
     @MockitoBean
     private AuthService authService;
-
-    @TestConfiguration
-    static class TestSecurityConfig {
-        @Bean
-        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-            http
-                    .csrf(AbstractHttpConfigurer::disable)
-                    .authorizeHttpRequests(auth -> auth
-                            .requestMatchers("/api/v1/auth/**").permitAll()
-                            .anyRequest().authenticated()
-                    )
-                    .sessionManagement(session -> session
-                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                    );
-            return http.build();
-        }
-    }
 
     @Test
     void register_givenValidRequest_shouldReturn200() throws Exception {

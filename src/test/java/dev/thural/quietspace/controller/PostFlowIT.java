@@ -53,7 +53,7 @@ class PostFlowIT {
     private UUID userId;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         postRepository.deleteAll();
         userRepository.deleteAll();
         helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
