@@ -91,6 +91,24 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+val integrationTest by tasks.registering(Test::class) {
+    description = "Runs integration tests only."
+    group = "verification"
+
+    useJUnitPlatform()
+
+    filter {
+        includeTestsMatching("*IT")
+        includeTestsMatching("*ITCase")
+    }
+
+    shouldRunAfter(tasks.named("test"))
+}
+
+tasks.named("check") {
+    dependsOn(integrationTest)
+}
+
 tasks.withType<JavaCompile> {
     options.compilerArgs.add("-Amapstruct.defaultComponentModel=spring")
 }
