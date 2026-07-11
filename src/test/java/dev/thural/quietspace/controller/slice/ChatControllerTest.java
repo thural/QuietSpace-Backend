@@ -19,7 +19,6 @@ import dev.thural.quietspace.service.ReactionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -76,10 +75,8 @@ class ChatControllerTest {
         }
     }
 
-    @Captor
-    ArgumentCaptor<UUID> uuidArgumentCaptor;
-    @Captor
-    ArgumentCaptor<CreateChatRequest> chatRequestArgumentCaptor;
+    ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
+    ArgumentCaptor<CreateChatRequest> chatRequestArgumentCaptor = ArgumentCaptor.forClass(CreateChatRequest.class);
 
     private User user1;
     private User user2;

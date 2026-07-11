@@ -10,7 +10,6 @@ import dev.thural.quietspace.service.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -42,10 +41,8 @@ public class UserControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
-    @Captor
-    ArgumentCaptor<UUID> uuidArgumentCaptor;
-    @Captor
-    ArgumentCaptor<UserRequest> userArgumentCaptor;
+    ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
+    ArgumentCaptor<UserRequest> userArgumentCaptor = ArgumentCaptor.forClass(UserRequest.class);
 
     @MockitoBean
     UserService userService;
@@ -155,7 +152,7 @@ public class UserControllerTest {
 
         String userBodyJson = objectMapper.writeValueAsString(registerRequest);
 
-        mockMvc.perform(patch(UserController.USER_PATH, registerRequest)
+        mockMvc.perform(patch(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userBodyJson))

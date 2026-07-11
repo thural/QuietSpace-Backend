@@ -20,7 +20,6 @@ import dev.thural.quietspace.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -29,7 +28,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
@@ -81,10 +80,8 @@ class CommentControllerTest {
         }
     }
 
-    @Captor
-    ArgumentCaptor<UUID> uuidArgumentCaptor;
-    @Captor
-    ArgumentCaptor<CommentRequest> commentRequestCaptor;
+    ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
+    ArgumentCaptor<CommentRequest> commentRequestCaptor = ArgumentCaptor.forClass(CommentRequest.class);
 
     private Comment comment;
     private CommentResponse commentResponse;
@@ -183,7 +180,7 @@ class CommentControllerTest {
     }
 
     @Test
-    @WithUserDetails
+    @WithMockUser(username = "user", roles = "USER")
     void createComment() throws Exception {
         when(commentService.createComment(any(CommentRequest.class))).thenReturn(commentResponse);
 

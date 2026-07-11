@@ -80,9 +80,9 @@ dependencies {
 
     // Testcontainers
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("org.testcontainers:testcontainers:1.20.4")
-    testImplementation("org.testcontainers:mysql:1.20.4")
-    testImplementation("org.testcontainers:junit-jupiter:1.20.4")
+    testImplementation("org.testcontainers:testcontainers:1.21.4")
+    testImplementation("org.testcontainers:mysql:1.21.4")
+    testImplementation("org.testcontainers:junit-jupiter:1.21.4")
 
     // WireMock
     testImplementation("org.wiremock:wiremock-standalone:3.9.1")
@@ -92,6 +92,7 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    environment("DOCKER_API_VERSION", "1.40")
 }
 
 val integrationTest by tasks.registering(Test::class) {

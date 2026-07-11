@@ -80,7 +80,7 @@ public class UserController {
     }
 
     @PatchMapping
-    ResponseEntity<UserResponse> patchUser(@RequestBody UserRequest userRequest) {
+    ResponseEntity<UserResponse> patchUser(@RequestBody @Valid UserRequest userRequest) {
         return ResponseEntity.ok(userService.patchUser(userRequest));
     }
 
