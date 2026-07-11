@@ -31,7 +31,7 @@ spring:
       frontend: http://localhost:3000
     security:
       jwt:
-        secret-key: test-secret-key-for-testing-only
+        secret-key: OLY8kXzmCJ6QTovj6BdaFHVaDGkAulLXXeZeUidysM/1+L8/AN5ko3NyXLZSRL9rShr/IaO85CV10vCs5k2MXg==
         expiration: 600000
         refresh-token:
           expiration: 86400000
