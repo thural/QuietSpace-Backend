@@ -25,6 +25,17 @@ import static org.springframework.http.HttpStatus.*;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(io.jsonwebtoken.JwtException.class)
+    public ResponseEntity<CustomErrorResponse> handleJwtException(RuntimeException e) {
+        HttpStatus status = UNAUTHORIZED;
+        return ResponseEntity.status(status)
+                .body(CustomErrorResponse.builder()
+                        .status(status.name())
+                        .message(e.getMessage())
+                        .timestamp(new Date())
+                        .build());
+    }
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<CustomErrorResponse> handleEntityNotFoundException(EntityNotFoundException e) {
         HttpStatus status = NOT_FOUND;
