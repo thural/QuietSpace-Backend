@@ -7,28 +7,19 @@ spring:
     restart:
       enabled: true
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${DB_HOST_NAME:localhost}:3306/${DB_NAME:quietspace}
     username: ${DB_USER_USERNAME}
     password: ${DB_USER_PASSWORD}
   jpa:
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
         show_sql: true
         format_sql: true
     hibernate:
       ddl-auto: update
-    database: mysql
-    open-in-view: true
     show-sql: true
   flyway:
     enabled: false
-    baseline-on-migrate: false
-    validate-on-migrate: false
-    baseline-description: "init"
-    baseline-version: 0
-    locations: classpath:db/migration/structure, classpath:db/migration/data
 logging:
   #  file:
   #    name: quietspace.log
