@@ -19,6 +19,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -207,5 +209,191 @@ class PostFlowIT {
                         .param("page-size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
+    void searchPosts_byQuery_shouldReturn200() throws Exception {
+        PostRequest request = PostRequest.builder()
+                .userId(userId)
+                .title("Unique Search Title")
+                .text("This is a unique searchable text")
+                .build();
+
+        mockMvc.perform(multipart("/api/v1/posts")
+                        .file(new org.springframework.mock.web.MockMultipartFile(
+                                "post", "", "application/json",
+                                objectMapper.writeValueAsString(request).getBytes(StandardCharsets.UTF_8)))
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/posts/search")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("query", "Unique Search")
+                        .param("page-number", "1")
+                        .param("page-size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
+    void getPosts_byUser_shouldReturn200() throws Exception {
+        PostRequest request = PostRequest.builder()
+                .userId(userId)
+                .title("User Post")
+                .text("Post by this user")
+                .build();
+
+        mockMvc.perform(multipart("/api/v1/posts")
+                        .file(new org.springframework.mock.web.MockMultipartFile(
+                                "post", "", "application/json",
+                                objectMapper.writeValueAsString(request).getBytes(StandardCharsets.UTF_8)))
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/posts/user/{userId}", userId)
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("page-number", "1")
+                        .param("page-size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
+    void getCommentedPosts_shouldReturn200() throws Exception {
+        String postId = objectMapper.readTree(mockMvc.perform(multipart("/api/v1/posts")
+                        .file(new org.springframework.mock.web.MockMultipartFile(
+                                "post", "", "application/json",
+                                objectMapper.writeValueAsString(
+                                        PostRequest.builder().userId(userId).title("C Post").text("Comment target").build()
+                                ).getBytes(StandardCharsets.UTF_8)))
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString()).get("id").asText();
+
+        var commentReq = dev.thural.quietspace.model.request.CommentRequest.builder()
+                .userId(userId)
+                .postId(UUID.fromString(postId))
+                .text("A comment on this post")
+                .build();
+
+        mockMvc.perform(post("/api/v1/comments")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentReq)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/posts/user/{userId}/commented", userId)
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("page-number", "1")
+                        .param("page-size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
+    void savePost_shouldReturn200() throws Exception {
+        String postId = objectMapper.readTree(mockMvc.perform(multipart("/api/v1/posts")
+                        .file(new org.springframework.mock.web.MockMultipartFile(
+                                "post", "", "application/json",
+                                objectMapper.writeValueAsString(
+                                        PostRequest.builder().userId(userId).title("Savable").text("Save me").build()
+                                ).getBytes(StandardCharsets.UTF_8)))
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString()).get("id").asText();
+
+        mockMvc.perform(patch("/api/v1/posts/saved/{postId}", postId)
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getSavedPosts_shouldReturn200() throws Exception {
+        String postId = objectMapper.readTree(mockMvc.perform(multipart("/api/v1/posts")
+                        .file(new org.springframework.mock.web.MockMultipartFile(
+                                "post", "", "application/json",
+                                objectMapper.writeValueAsString(
+                                        PostRequest.builder().userId(userId).title("Saved Target").text("To be saved").build()
+                                ).getBytes(StandardCharsets.UTF_8)))
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString()).get("id").asText();
+
+        mockMvc.perform(patch("/api/v1/posts/saved/{postId}", postId)
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/posts/saved")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("page-number", "1")
+                        .param("page-size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
+    void repost_shouldReturn200() throws Exception {
+        String postId = objectMapper.readTree(mockMvc.perform(multipart("/api/v1/posts")
+                        .file(new org.springframework.mock.web.MockMultipartFile(
+                                "post", "", "application/json",
+                                objectMapper.writeValueAsString(
+                                        PostRequest.builder().userId(userId).title("Original").text("To be reposted").build()
+                                ).getBytes(StandardCharsets.UTF_8)))
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString()).get("id").asText();
+
+        var repostReq = dev.thural.quietspace.model.request.RepostRequest.builder()
+                .postId(UUID.fromString(postId))
+                .text("Reposting this!")
+                .build();
+
+        mockMvc.perform(post("/api/v1/posts/repost")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(repostReq)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void votePoll_shouldReturn200() throws Exception {
+        var pollReq = dev.thural.quietspace.model.request.PollRequest.builder()
+                .dueDate(OffsetDateTime.now().plusDays(7))
+                .options(List.of("Option A", "Option B"))
+                .build();
+
+        PostRequest postWithPoll = PostRequest.builder()
+                .userId(userId)
+                .title("Poll Post")
+                .text("Vote on this poll")
+                .poll(pollReq)
+                .build();
+
+        String postId = objectMapper.readTree(mockMvc.perform(multipart("/api/v1/posts")
+                        .file(new org.springframework.mock.web.MockMultipartFile(
+                                "post", "", "application/json",
+                                objectMapper.writeValueAsString(postWithPoll).getBytes(StandardCharsets.UTF_8)))
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString()).get("id").asText();
+
+        var voteReq = dev.thural.quietspace.model.request.VoteRequest.builder()
+                .userId(userId)
+                .postId(UUID.fromString(postId))
+                .option("Option A")
+                .build();
+
+        mockMvc.perform(post("/api/v1/posts/vote-poll")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(voteReq)))
+                .andExpect(status().isOk());
     }
 }
