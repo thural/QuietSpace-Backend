@@ -19,6 +19,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -51,7 +52,7 @@ public class ChatServiceImpl implements ChatService {
     public UserResponse addMemberWithId(UUID memberId, UUID chatId) {
         Chat foundChat = findChatEntityById(chatId);
         User foundMember = userService.getUserById(memberId).orElseThrow(UserNotFoundException::new);
-        List<User> members = foundChat.getUsers();
+        List<User> members = new ArrayList<>(foundChat.getUsers());
         members.add(foundMember);
         foundChat.setUsers(members);
         return userMapper.toResponse(foundMember);
@@ -61,7 +62,7 @@ public class ChatServiceImpl implements ChatService {
     public List<UserResponse> removeMemberWithId(UUID memberId, UUID chatId) {
         Chat foundChat = findChatEntityById(chatId);
         User foundMember = getUserById(memberId);
-        List<User> members = foundChat.getUsers();
+        List<User> members = new ArrayList<>(foundChat.getUsers());
         members.remove(foundMember);
         foundChat.setUsers(members);
         chatRepository.save(foundChat);
