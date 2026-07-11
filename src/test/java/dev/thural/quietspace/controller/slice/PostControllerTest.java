@@ -15,10 +15,7 @@ import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -43,7 +40,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(controllers = PostController.class)
 class PostControllerTest {
@@ -76,10 +72,8 @@ class PostControllerTest {
         }
     }
 
-    @Captor
-    ArgumentCaptor<UUID> uuidArgumentCaptor;
-    @Captor
-    ArgumentCaptor<PostRequest> postRequestArgumentCaptor;
+    ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
+    ArgumentCaptor<PostRequest> postRequestArgumentCaptor = ArgumentCaptor.forClass(PostRequest.class);
 
     private PostRequest postRequest;
     private VoteRequest voteRequest;

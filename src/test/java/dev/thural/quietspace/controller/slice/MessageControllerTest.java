@@ -14,10 +14,7 @@ import dev.thural.quietspace.service.PostService;
 import dev.thural.quietspace.service.ReactionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -43,7 +40,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(controllers = MessageController.class)
 class MessageControllerTest {
@@ -74,10 +70,8 @@ class MessageControllerTest {
         }
     }
 
-    @Captor
-    ArgumentCaptor<UUID> uuidArgumentCaptor;
-    @Captor
-    ArgumentCaptor<MessageRequest> messageRequestArgumentCaptor;
+    ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
+    ArgumentCaptor<MessageRequest> messageRequestArgumentCaptor = ArgumentCaptor.forClass(MessageRequest.class);
 
     private MessageRequest messageRequest;
     private MessageResponse messageResponse;
