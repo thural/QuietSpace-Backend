@@ -7,11 +7,15 @@ import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.Role;
 import dev.thural.quietspace.mapper.PostMapper;
 import dev.thural.quietspace.model.request.PostRequest;
+import dev.thural.quietspace.model.request.RepostRequest;
 import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
 import dev.thural.quietspace.repository.PostRepository;
+import dev.thural.quietspace.repository.specifications.PostSpecifications;
+import dev.thural.quietspace.service.PhotoService;
 import dev.thural.quietspace.service.impl.PostServiceImpl;
 import dev.thural.quietspace.utils.PagingProvider;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,10 +24,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,6 +41,10 @@ public class PostServiceImplTest {
     private UserService userService;
     @Mock
     private PostRepository postRepository;
+    @Mock
+    private PostSpecifications postSpecifications;
+    @Mock
+    private PhotoService photoService;
 
     @InjectMocks
     private PostServiceImpl postService;
@@ -191,6 +201,128 @@ public class PostServiceImplTest {
 
         verify(postRepository, times(1)).findById(post.getId());
         verify(postRepository, times(1)).deleteById(post.getId());
+    }
+
+    @Test
+    void patchPost_givenAuthor_shouldUpdateFieldsAndReturn() {
+        when(userService.getSignedUser()).thenReturn(user);
+        when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
+        when(postMapper.postEntityToResponse(post)).thenReturn(postResponse);
+
+        PostResponse result = postService.patchPost(post.getId(), postRequest);
+
+        assertThat(result).isEqualTo(postResponse);
+    }
+
+    @Test
+    void patchPost_givenNonAuthor_shouldThrow() {
+        User otherUser = User.builder().id(UUID.randomUUID()).build();
+        Post otherPost = Post.builder().id(UUID.randomUUID()).user(otherUser).build();
+        when(userService.getSignedUser()).thenReturn(user);
+        when(postRepository.findById(otherPost.getId())).thenReturn(Optional.of(otherPost));
+
+        assertThatThrownBy(() -> postService.patchPost(otherPost.getId(), postRequest))
+                .isInstanceOf(AccessDeniedException.class);
+    }
+
+    @Test
+    void patchPost_givenNullPhotoData_shouldDeleteExistingPhoto() {
+        PostRequest requestWithoutPhoto = PostRequest.builder()
+                .userId(user.getId()).text("updated").photoData(null).build();
+        when(userService.getSignedUser()).thenReturn(user);
+        when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
+        when(postMapper.postEntityToResponse(post)).thenReturn(postResponse);
+
+        postService.patchPost(post.getId(), requestWithoutPhoto);
+
+        verify(photoService).deletePhotoByEntityId(post.getId());
+    }
+
+    @Test
+    void getAllByQuery_givenSearchText_shouldReturnFilteredPage() {
+        Specification<Post> mockSpec = Specification.where(null);
+        when(postSpecifications.visibleToUser()).thenReturn(mockSpec);
+        when(postSpecifications.combine(any(), any())).thenReturn(mockSpec);
+        PageRequest pageRequest = PagingProvider.buildPageRequest(0, 10, null);
+        when(postRepository.findAll(any(Specification.class), eq(pageRequest))).thenReturn(Page.empty());
+
+        Page<PostResponse> result = postService.getAllByQuery("test", 0, 10);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void getAllByQuery_givenNullSearchText_shouldReturnAllVisible() {
+        Specification<Post> mockSpec = Specification.where(null);
+        when(postSpecifications.visibleToUser()).thenReturn(mockSpec);
+        PageRequest pageRequest = PagingProvider.buildPageRequest(0, 10, null);
+        when(postRepository.findAll(any(Specification.class), eq(pageRequest))).thenReturn(Page.empty());
+
+        Page<PostResponse> result = postService.getAllByQuery(null, 0, 10);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void addRepost_givenValidRequest_shouldSaveAndReturn() {
+        RepostRequest repostRequest = RepostRequest.builder().build();
+        Post repostPost = Post.builder().id(UUID.randomUUID()).build();
+        when(postMapper.repostRequestToEntity(repostRequest)).thenReturn(repostPost);
+        when(postRepository.save(repostPost)).thenReturn(repostPost);
+        when(postMapper.postEntityToResponse(repostPost)).thenReturn(postResponse);
+
+        PostResponse result = postService.addRepost(repostRequest);
+
+        assertThat(result).isEqualTo(postResponse);
+        verify(postRepository).save(repostPost);
+    }
+
+    @Test
+    void getSavedPostsByUser_shouldReturnSavedPostsPage() {
+        Specification<Post> mockSpec = Specification.where(null);
+        when(postSpecifications.visibleToUser()).thenReturn(mockSpec);
+        when(postSpecifications.savedByUser(any())).thenReturn(mockSpec);
+        when(postSpecifications.combine(any(), any())).thenReturn(mockSpec);
+        when(userService.getSignedUser()).thenReturn(user);
+        PageRequest pageRequest = PagingProvider.buildPageRequest(0, 10, null);
+        when(postRepository.findAll(any(Specification.class), eq(pageRequest))).thenReturn(Page.empty());
+
+        Page<PostResponse> result = postService.getSavedPostsByUser(0, 10);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void savePostForUser_givenExistingPost_shouldAddToSaved() {
+        when(userService.getSignedUser()).thenReturn(user);
+        when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
+
+        postService.savePostForUser(post.getId());
+
+        assertThat(user.getSavedPosts()).contains(post);
+    }
+
+    @Test
+    void savePostForUser_givenNonExistentPost_shouldThrow() {
+        when(userService.getSignedUser()).thenReturn(user);
+        when(postRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> postService.savePostForUser(UUID.randomUUID()))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    void getCommentedPostsByUserId_givenValidUser_shouldReturnPage() {
+        Specification<Post> mockSpec = Specification.where(null);
+        when(postSpecifications.visibleToUser()).thenReturn(mockSpec);
+        when(postSpecifications.commentedByUser(any())).thenReturn(mockSpec);
+        when(postSpecifications.combine(any(), any())).thenReturn(mockSpec);
+        PageRequest pageRequest = PagingProvider.buildPageRequest(0, 10, null);
+        when(postRepository.findAll(any(Specification.class), eq(pageRequest))).thenReturn(Page.empty());
+
+        Page<PostResponse> result = postService.getCommentedPostsByUserId(user.getId(), 0, 10);
+
+        assertThat(result).isEmpty();
     }
 
 }

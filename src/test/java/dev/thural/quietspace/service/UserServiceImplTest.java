@@ -1,10 +1,17 @@
 package dev.thural.quietspace.service;
 
+import dev.thural.quietspace.entity.ProfileSettings;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.Role;
+import dev.thural.quietspace.enums.StatusType;
+import dev.thural.quietspace.exception.CustomErrorException;
+import dev.thural.quietspace.exception.UnauthorizedException;
 import dev.thural.quietspace.mapper.UserMapper;
+import dev.thural.quietspace.model.request.ProfileSettingsRequest;
 import dev.thural.quietspace.model.request.UserRequest;
+import dev.thural.quietspace.model.response.ProfileSettingsResponse;
 import dev.thural.quietspace.model.response.UserResponse;
+import dev.thural.quietspace.query.UserQuery;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.impl.UserServiceImpl;
 import dev.thural.quietspace.utils.PagingProvider;
@@ -14,20 +21,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithMockUser;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,6 +52,8 @@ class UserServiceImplTest {
     private UserMapper userMapper;
     @Mock
     private PhotoService photoService;
+    @Mock
+    private UserQuery userQuery;
 
     @InjectMocks
     UserServiceImpl userService;
@@ -51,6 +61,9 @@ class UserServiceImplTest {
     private UUID userId;
     private User user;
     private UserRequest registerRequest;
+    private ProfileSettings profileSettings;
+    private User followingUser;
+    private User followerUser;
 
     @BeforeEach
     void initMockData() {
@@ -169,5 +182,198 @@ class UserServiceImplTest {
         verify(userRepository, times(1)).save(any(User.class));
     }
 
+    @Test
+    void queryUsers_givenUsernameAndPagination_shouldReturnPage() {
+        PageRequest pageRequest = PagingProvider.buildPageRequest(0, 10, null);
+        when(userQuery.findAllByQuery("testuser", null, null, pageRequest)).thenReturn(Page.empty());
+        when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse());
+
+        Page<UserResponse> result = userService.queryUsers("testuser", null, null, 0, 10);
+
+        assertThat(result).isEmpty();
+        verify(userQuery).findAllByQuery("testuser", null, null, pageRequest);
+    }
+
+    @Test
+    void listUsersByUsername_givenSearchTerm_shouldReturnMatchingPage() {
+        PageRequest pageRequest = PagingProvider.buildPageRequest(0, 10, null);
+        when(userRepository.findAllBySearchTerm("testuser", pageRequest)).thenReturn(Page.empty());
+        when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse());
+
+        Page<UserResponse> result = userService.listUsersByUsername("testuser", 0, 10);
+
+        assertThat(result).isEmpty();
+        verify(userRepository).findAllBySearchTerm("testuser", pageRequest);
+    }
+
+    @Test
+    void listUsersByUsername_givenBlankSearchTerm_shouldReturnAll() {
+        PageRequest pageRequest = PagingProvider.buildPageRequest(0, 10, null);
+        when(userRepository.findAll(pageRequest)).thenReturn(Page.empty());
+        when(userMapper.toResponse(any(User.class))).thenReturn(new UserResponse());
+
+        Page<UserResponse> result = userService.listUsersByUsername("", 0, 10);
+
+        assertThat(result).isEmpty();
+        verify(userRepository).findAll(pageRequest);
+    }
+
+    @Test
+    void listFollowings_givenPublicProfile_shouldReturnPage() {
+        profileSettings = ProfileSettings.builder().isPrivateAccount(false).build();
+        user.setProfileSettings(profileSettings);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        SecurityContextHolder.setContext(securityContext);
+
+        Page<UserResponse> result = userService.listFollowings(userId, 10, 0);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void toggleFollow_givenNotCurrentlyFollowing_shouldAdd() {
+        User target = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        User signedUser = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(signedUser));
+        when(userRepository.findById(target.getId())).thenReturn(Optional.of(target));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        userService.toggleFollow(target.getId());
+
+        assertThat(signedUser.getFollowings()).contains(target);
+        assertThat(target.getFollowers()).contains(signedUser);
+    }
+
+    @Test
+    void toggleFollow_givenCurrentlyFollowing_shouldRemove() {
+        User target = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        User signedUser = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        signedUser.getFollowings().add(target);
+        target.getFollowers().add(signedUser);
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(signedUser));
+        when(userRepository.findById(target.getId())).thenReturn(Optional.of(target));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        userService.toggleFollow(target.getId());
+
+        assertThat(signedUser.getFollowings()).doesNotContain(target);
+        assertThat(target.getFollowers()).doesNotContain(signedUser);
+    }
+
+    @Test
+    void toggleFollow_givenSelfTarget_shouldThrow() {
+        User signedUser = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(signedUser));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        assertThatThrownBy(() -> userService.toggleFollow(signedUser.getId()))
+                .isInstanceOf(CustomErrorException.class)
+                .hasMessageContaining("can't unfollow themselves");
+    }
+
+    @Test
+    void removeFollower_givenValidFollower_shouldRemove() {
+        User signedUser = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        User follower = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        signedUser.getFollowers().add(follower);
+        follower.getFollowings().add(signedUser);
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(signedUser));
+        when(userRepository.findById(follower.getId())).thenReturn(Optional.of(follower));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        userService.removeFollower(follower.getId());
+
+        assertThat(signedUser.getFollowers()).doesNotContain(follower);
+        assertThat(follower.getFollowings()).doesNotContain(signedUser);
+    }
+
+    @Test
+    void removeFollower_givenNotAFollower_shouldThrow() {
+        User signedUser = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        User nonFollower = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(signedUser));
+        when(userRepository.findById(nonFollower.getId())).thenReturn(Optional.of(nonFollower));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        assertThatThrownBy(() -> userService.removeFollower(nonFollower.getId()))
+                .isInstanceOf(CustomErrorException.class)
+                .hasMessageContaining("not found in followers");
+    }
+
+    @Test
+    void removeFollower_givenSelfTarget_shouldThrow() {
+        User signedUser = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(signedUser));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        assertThatThrownBy(() -> userService.removeFollower(signedUser.getId()))
+                .isInstanceOf(CustomErrorException.class)
+                .hasMessageContaining("can't unfollow themselves");
+    }
+
+    @Test
+    void setOnlineStatus_givenExistingEmail_shouldSetUserOffline() {
+        when(userRepository.findUserEntityByEmail("test@example.com")).thenReturn(Optional.of(user));
+
+        userService.setOnlineStatus("test@example.com", StatusType.OFFLINE);
+
+        assertThat(user.getStatusType()).isEqualTo(StatusType.OFFLINE);
+    }
+
+    @Test
+    void findConnectedFollowings_givenOnlineFollowings_shouldReturnList() {
+        User signedUser = User.builder().id(UUID.randomUUID()).followings(new ArrayList<>()).followings(new ArrayList<>()).build();
+        User onlineFollowing = User.builder().statusType(StatusType.ONLINE).build();
+        User offlineFollowing = User.builder().statusType(StatusType.OFFLINE).build();
+        signedUser.getFollowings().add(onlineFollowing);
+        signedUser.getFollowings().add(offlineFollowing);
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(signedUser));
+        when(userMapper.toResponse(onlineFollowing)).thenReturn(new UserResponse());
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        List<UserResponse> result = userService.findConnectedFollowings();
+
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void saveProfileSettings_givenValidRequest_shouldCopyAndReturnResponse() {
+        ProfileSettings settings = ProfileSettings.builder().build();
+        user.setProfileSettings(settings);
+        ProfileSettingsRequest request = ProfileSettingsRequest.builder().bio("new bio").build();
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
+        when(userMapper.toSettingsResponse(user)).thenReturn(new ProfileSettingsResponse());
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        ProfileSettingsResponse result = userService.saveProfileSettings(request);
+
+        assertThat(result).isInstanceOf(ProfileSettingsResponse.class);
+        assertThat(user.getProfileSettings().getBio()).isEqualTo("new bio");
+    }
+
+    @Test
+    void addUserToBlockList_givenExistingUser_shouldAddToBlocked() {
+        ProfileSettings settings = ProfileSettings.builder().blockedUsers(new ArrayList<>()).build();
+        user.setProfileSettings(settings);
+        User target = User.builder().id(UUID.randomUUID()).build();
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
+        when(userRepository.findById(target.getId())).thenReturn(Optional.of(target));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        userService.addUserToBlockList(target.getId());
+
+        assertThat(user.getProfileSettings().getBlockedUsers()).contains(target);
+    }
 
 }

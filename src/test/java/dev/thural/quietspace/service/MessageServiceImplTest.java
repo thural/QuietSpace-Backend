@@ -23,8 +23,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import jakarta.persistence.EntityNotFoundException;
+import java.util.Optional;
 import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -133,6 +136,47 @@ class MessageServiceImplTest {
 
         assertThat(messageResponse).isPresent();
         assertThat(messageResponse.get()).isInstanceOf(MessageResponse.class);
+    }
+
+    @Test
+    void setMessageSeen_givenExistingMessage_shouldSaveAndReturnSeenResponse() {
+        when(userService.getSignedUser()).thenReturn(user);
+        when(messageRepository.findById(message.getId())).thenReturn(Optional.of(message));
+        when(messageRepository.save(any(Message.class))).thenReturn(message);
+        when(messageMapper.toResponse(message)).thenReturn(messageResponse);
+
+        Optional<MessageResponse> result = messageService.setMessageSeen(message.getId());
+
+        assertThat(result).isPresent();
+        assertThat(message.getIsSeen()).isTrue();
+        verify(messageRepository).save(message);
+    }
+
+    @Test
+    void setMessageSeen_givenNonExistentMessage_shouldThrow() {
+        when(userService.getSignedUser()).thenReturn(user);
+        when(messageRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> messageService.setMessageSeen(UUID.randomUUID()))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    void getMessageById_givenValidIds_shouldReturnResponse() {
+        when(messageRepository.findByMessageIdAndChatId(message.getId(), chat.getId())).thenReturn(Optional.of(message));
+        when(messageMapper.toResponse(message)).thenReturn(messageResponse);
+
+        MessageResponse result = messageService.getMessageById(message.getId(), chat.getId());
+
+        assertThat(result).isEqualTo(messageResponse);
+    }
+
+    @Test
+    void getMessageById_givenMismatchedIds_shouldThrow() {
+        when(messageRepository.findByMessageIdAndChatId(any(), any())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> messageService.getMessageById(UUID.randomUUID(), UUID.randomUUID()))
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
 }

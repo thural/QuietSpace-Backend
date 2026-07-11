@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import jakarta.persistence.EntityNotFoundException;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -168,6 +170,26 @@ public class ChatServiceImplTest {
         assertThat(createdChat).isEqualTo(chatResponse);
         verify(chatRepository, times(1)).findAllByUsersIn(userList);
         verify(chatRepository, times(1)).save(chat);
+    }
+
+    @Test
+    void getChatById_givenValidId_shouldReturnResponse() {
+        when(userService.getSignedUser()).thenReturn(user1);
+        when(chatRepository.findById(chat.getId())).thenReturn(Optional.of(chat));
+        when(chatMapper.chatEntityToResponse(chat)).thenReturn(chatResponse);
+
+        ChatResponse result = chatService.getChatById(chat.getId());
+
+        assertThat(result).isEqualTo(chatResponse);
+    }
+
+    @Test
+    void getChatById_givenNonExistentChat_shouldThrow() {
+        when(userService.getSignedUser()).thenReturn(user1);
+        when(chatRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> chatService.getChatById(UUID.randomUUID()))
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
 }

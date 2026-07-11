@@ -187,4 +187,26 @@ class CommentServiceImplTest {
         verify(commentRepository, times(1)).findById(comment.getId());
     }
 
+    @Test
+    void getLatestCommentByUserIdAndPostId_givenExistingComment_shouldReturnResponse() {
+        when(commentRepository.findLatestCommentByPostAndUserByUpdateDate(post.getId(), userId))
+                .thenReturn(Optional.of(comment));
+        when(commentMapper.commentEntityToResponse(comment)).thenReturn(commentResponse);
+
+        Optional<CommentResponse> result = commentService.getLatestCommentByUserIdAndPostId(userId, post.getId());
+
+        assertThat(result).isPresent();
+        assertThat(result.get()).isEqualTo(commentResponse);
+    }
+
+    @Test
+    void getLatestCommentByUserIdAndPostId_givenNoComment_shouldReturnEmpty() {
+        when(commentRepository.findLatestCommentByPostAndUserByUpdateDate(post.getId(), userId))
+                .thenReturn(Optional.empty());
+
+        Optional<CommentResponse> result = commentService.getLatestCommentByUserIdAndPostId(userId, post.getId());
+
+        assertThat(result).isEmpty();
+    }
+
 }
