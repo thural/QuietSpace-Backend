@@ -1,0 +1,123 @@
+package dev.thural.quietspace.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.thural.quietspace.config.TestcontainersConfig;
+import dev.thural.quietspace.repository.UserRepository;
+import dev.thural.quietspace.service.PhotoService;
+import dev.thural.quietspace.utils.IntegrationTestHelper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.UUID;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(TestcontainersConfig.class)
+@ActiveProfiles("testcontainers")
+class NotificationFlowIT {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @MockitoBean
+    private PhotoService photoService;
+
+    @MockitoBean
+    private SimpMessagingTemplate simpMessagingTemplate;
+
+    private IntegrationTestHelper helper;
+    private String user1Jwt;
+    private String user2Jwt;
+    private UUID user1Id;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        userRepository.deleteAll();
+        helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
+        user1Jwt = helper.registerAndLogin("notifuser1@test.com", "password123");
+        user1Id = userRepository.findUserEntityByEmail("notifuser1@test.com").orElseThrow().getId();
+        user2Jwt = helper.registerAndLogin("notifuser2@test.com", "password456");
+    }
+
+    @Test
+    void getAllNotifications_shouldReturn200() throws Exception {
+        mockMvc.perform(post("/api/v1/users/follow/{userId}/toggle-follow", user1Id)
+                        .header("Authorization", "Bearer " + user2Jwt))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/notifications")
+                        .header("Authorization", "Bearer " + user1Jwt)
+                        .param("pageNumber", "1")
+                        .param("pageSize", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
+    void getNotificationsByType_shouldReturn200() throws Exception {
+        mockMvc.perform(post("/api/v1/users/follow/{userId}/toggle-follow", user1Id)
+                        .header("Authorization", "Bearer " + user2Jwt))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/notifications/type/{type}", "FOLLOW_REQUEST")
+                        .header("Authorization", "Bearer " + user1Jwt)
+                        .param("pageNumber", "1")
+                        .param("pageSize", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
+    void countPendingNotifications_shouldReturn200() throws Exception {
+        mockMvc.perform(post("/api/v1/users/follow/{userId}/toggle-follow", user1Id)
+                        .header("Authorization", "Bearer " + user2Jwt))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/notifications/count-pending")
+                        .header("Authorization", "Bearer " + user1Jwt))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isNumber());
+    }
+
+    @Test
+    void markNotificationAsSeen_shouldReturn202() throws Exception {
+        mockMvc.perform(post("/api/v1/users/follow/{userId}/toggle-follow", user1Id)
+                        .header("Authorization", "Bearer " + user2Jwt))
+                .andExpect(status().isOk());
+
+        var notificationId = user1Id;
+        mockMvc.perform(post("/api/v1/notifications/seen/{contentId}", notificationId)
+                        .header("Authorization", "Bearer " + user1Jwt))
+                .andExpect(status().isAccepted());
+    }
+
+    @Test
+    void processNotification_shouldReturn200() throws Exception {
+        mockMvc.perform(post("/api/v1/notifications/process")
+                        .header("Authorization", "Bearer " + user1Jwt)
+                        .param("type", "FOLLOW_REQUEST")
+                        .param("contentId", UUID.randomUUID().toString()))
+                .andExpect(status().isOk());
+    }
+}
