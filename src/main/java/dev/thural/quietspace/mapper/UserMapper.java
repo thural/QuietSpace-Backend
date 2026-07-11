@@ -24,11 +24,12 @@ public class UserMapper {
         var response = new UserResponse();
         BeanUtils.copyProperties(user, response);
         response.setPhoto(profilePhoto);
-        response.setIsFollower(user.getFollowers().contains(user));
-        response.setIsFollowing(user.getFollowers().contains(user));
+        response.setIsFollower(user.getFollowers() != null && user.getFollowers().contains(user));
+        response.setIsFollowing(user.getFollowings() != null && user.getFollowings().contains(user));
         response.setRole(user.getRole().name());
-        response.setIsPrivateAccount(user.getProfileSettings().getIsPrivateAccount());
-        response.setBio(user.getProfileSettings().getBio());
+        ProfileSettings profileSettings = user.getProfileSettings();
+        response.setIsPrivateAccount(profileSettings != null ? profileSettings.getIsPrivateAccount() : null);
+        response.setBio(profileSettings != null ? profileSettings.getBio() : null);
         return response;
     }
 
@@ -38,11 +39,14 @@ public class UserMapper {
         BeanUtils.copyProperties(user, response);
         response.setPhoto(profilePhoto);
         response.setRole(user.getRole().name());
-        response.setIsPrivateAccount(user.getProfileSettings().getIsPrivateAccount());
-        response.setBio(user.getProfileSettings().getBio());
-        var settings = new ProfileSettingsResponse();
-        BeanUtils.copyProperties(user.getProfileSettings(), settings);
-        response.setSettings(settings);
+        ProfileSettings profileSettings = user.getProfileSettings();
+        response.setIsPrivateAccount(profileSettings != null ? profileSettings.getIsPrivateAccount() : null);
+        response.setBio(profileSettings != null ? profileSettings.getBio() : null);
+        if (profileSettings != null) {
+            var settings = new ProfileSettingsResponse();
+            BeanUtils.copyProperties(profileSettings, settings);
+            response.setSettings(settings);
+        }
         return response;
     }
 
