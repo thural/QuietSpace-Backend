@@ -3,6 +3,7 @@ package dev.thural.quietspace.controller.slice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.controller.NotificationController;
 import dev.thural.quietspace.enums.NotificationType;
+import dev.thural.quietspace.model.response.NotificationResponse;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.NotificationService;
@@ -13,17 +14,20 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc(addFilters = false)
@@ -55,13 +59,18 @@ class NotificationControllerTest {
 
     @Test
     void getAllNotifications_shouldReturnPage() throws Exception {
-        when(notificationService.getAllNotifications(any(), any())).thenReturn(Page.empty());
+        NotificationResponse response = NotificationResponse.builder()
+                .type(NotificationType.FOLLOW_REQUEST)
+                .build();
+        when(notificationService.getAllNotifications(any(), any()))
+                .thenReturn(new PageImpl<>(List.of(response)));
 
         mockMvc.perform(get(NotificationController.NOTIFICATION_PATH)
                         .param("pageNumber", "1")
                         .param("pageSize", "10")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].type").value("FOLLOW_REQUEST"));
     }
 
     @Test
@@ -86,5 +95,13 @@ class NotificationControllerTest {
     void handleSeen_shouldReturn202() throws Exception {
         mockMvc.perform(post(NotificationController.NOTIFICATION_PATH + "/seen/{contentId}", UUID.randomUUID()))
                 .andExpect(status().isAccepted());
+    }
+
+    @Test
+    void processNotificationByReaction_shouldReturn200() throws Exception {
+        mockMvc.perform(post(NotificationController.NOTIFICATION_PATH + "/process-reaction")
+                        .param("type", "POST")
+                        .param("contentId", UUID.randomUUID().toString()))
+                .andExpect(status().isOk());
     }
 }
