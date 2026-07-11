@@ -162,4 +162,53 @@ class ChatFlowIT {
                         .header("Authorization", "Bearer " + user1Jwt))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    void addMember_toChat_shouldReturn200() throws Exception {
+        CreateChatRequest request = CreateChatRequest.builder()
+                .isGroupChat(false)
+                .recipientId(user2Id)
+                .text("Group chat")
+                .userIds(List.of(user1Id, user2Id))
+                .build();
+
+        String responseBody = mockMvc.perform(post("/api/v1/chats")
+                        .header("Authorization", "Bearer " + user1Jwt)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String chatId = objectMapper.readTree(responseBody).get("id").asText();
+
+        var user3Jwt = helper.registerAndLogin("chatuser3@test.com", "password789");
+        var user3Id = userRepository.findUserEntityByEmail("chatuser3@test.com").orElseThrow().getId();
+
+        mockMvc.perform(patch("/api/v1/chats/{chatId}/members/add/{userId}", chatId, user3Id)
+                        .header("Authorization", "Bearer " + user1Jwt))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void removeMember_fromChat_shouldReturn200() throws Exception {
+        CreateChatRequest request = CreateChatRequest.builder()
+                .isGroupChat(true)
+                .recipientId(user2Id)
+                .text("Group chat")
+                .userIds(List.of(user1Id, user2Id))
+                .build();
+
+        String responseBody = mockMvc.perform(post("/api/v1/chats")
+                        .header("Authorization", "Bearer " + user1Jwt)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String chatId = objectMapper.readTree(responseBody).get("id").asText();
+
+        mockMvc.perform(patch("/api/v1/chats/{chatId}/members/remove/{userId}", chatId, user2Id)
+                        .header("Authorization", "Bearer " + user1Jwt))
+                .andExpect(status().isOk());
+    }
 }
