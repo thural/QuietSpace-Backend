@@ -162,44 +162,97 @@ Expected: ~40 `*FlowIT` tests pass (controllers → real MySQL via Docker).
 
 ---
 
-## Tier 4 — Scattered Pre-Existing Failures (lower priority)
+## Tier 4 — Remaining Failures (post Tier 1–3 remediation)
 
-These are the remaining ~30 failures not covered by Tiers 1–3:
+After implementing Tiers 1–3, **118 failures remain** (from ~513 total tests). These break down into a few systemic categories + scattered individual issues.
 
-| Issue | Affected Tests | Likely Fix |
-|-------|---------------|------------|
-| `PageImpl` serialization warning → 500 | `AdminControllerTest.getPagedUsers()`, `ReactionControllerTest.getReactionsByContent()` | Add `@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)` to `@TestConfiguration` or application config |
-| `@ExtendWith(MockitoExtension.class)` alongside `@WebMvcTest` | `MessageControllerTest`, `PostControllerTest` (in `slice/`) | Remove `@ExtendWith(MockitoExtension.class)` — `@MockitoBean` is sufficient; inline `@Captor` fields |
-| Duplicate test classes (`controller/unit/` vs `controller/slice/`) | 10 pair of test classes | Evaluate which ones to keep; delete duplicates |
-| NPE in mapper tests | `mapper/EntityMapperTest` etc. | Individual diagnosis |
-| NPE in repository tests | `repository/PostRepositoryTest` etc. | Individual diagnosis |
-| `UserControllerTest.patchUser()` assertion | Line 159 | Already partially fixed (inline captor + `@Valid` + fix `patch(path, body)` → `patch(path)`). Verify. |
+### 4.1 Cascading ApplicationContext Failures (74 tests / 62.7%)
+
+These are **not real failures**. When a FlowIT test class's first test fails to load the Spring context (due to a real error), JUnit reports all subsequent tests in that class as `ApplicationContext failure threshold exceeded`. The true root causes are documented below.
+
+**Affected classes:** `AdminFlowIT`, `AuthFlowIT`, `ChatFlowIT`, `CommentFlowIT`, `MessageFlowIT`, `NotificationFlowIT`, `PhotoFlowIT`, `PostFlowIT`, `ReactionFlowIT`, `UserFlowIT`, `WebSocketFlowIT`
+
+When run in isolation (e.g., `--tests "*UserFlowIT"`), these classes expose their real failures:
+- `AuthFlowIT` / `PostFlowIT` / `UserFlowIT`: `DataIntegrityViolationException` — FK constraints prevent `deleteAll()` cleanup in `@BeforeEach`
+- `WebSocketFlowIT`: `UnsatisfiedDependencyException` — no MockMvc bean (missing `@AutoConfigureMockMvc`)
+
+**Root cause:** Multiple FlowIT classes share the same Testcontainers MySQL container (via `@TestConfiguration(proxyBeanMethods = false)` + `@ServiceConnection`). When one class fails to clean up, the corrupted schema state causes subsequent classes to fail context loading.
+
+**Fix:** Isolate test container instances per class, or ensure cleanup is robust.
 
 ---
 
-## Effort Estimate
+### 4.2 NullPointerException (21 tests / 17.8%)
+
+| Test Class | Root Cause | Fix |
+|-----------|------------|-----|
+| `UserMapperTest` (16 tests) | `User` entity built with only `id` — `profileSettings`, `savedPosts` are null | Add `@Builder.Default` initialization to `User` entity fields or populate in test `setUp()` |
+| `PostMapperTest` (4 tests) | `Poll` is null in test `Post` entity | Add `@Builder.Default private Poll poll;` or build explicitly |
+| `AuthServiceTest.signout()` | Mocked `UserDetailsService` returns `null` user | Add mock answer that returns a valid `User` |
+| `PostRepositoryTest` | `user.getSavedPosts()` returns null | Add `@Builder.Default private List<Post> savedPosts = new ArrayList<>();` on `User` entity |
+
+---
+
+### 4.3 Wrong HTTP Status Assertions (8 tests / 6.8%)
+
+| Test | Actual Status | Root Cause |
+|------|-------------|------------|
+| `AdminControllerTest.getPagedUsers` | 500 | `PageImpl` serialization — `@EnableSpringDataWebSupport(VIA_DTO)` was added but may not be recognized in `@WebMvcTest` slice |
+| `ReactionControllerTest.getReactionsByContent` | 500 | Same as above |
+| `slice.NotificationControllerTest.getNotificationsByType` | 400 | Validation error — request parameters may be invalid |
+| `PostControllerSecurityTest.*` (4 tests) | 200/404/204/415 | Security filters not active — `@WebMvcTest` in SB 4.x may auto-set `addFilters=false` |
+| `UserControllerTest.patchUser()` (2 tests: slice + unit) | 400 | `@Valid` validation failing on request body |
+| `UserServiceIT.listUsers` | size 0 | Test data not persisted — `@BeforeEach` cleanup deletes seed data |
+
+---
+
+### 4.4 Missing `@AutoConfigureMockMvc` — WebSocketFlowIT (6 tests)
+
+`@SpringBootTest(webEnvironment = RANDOM_PORT)` requires `@AutoConfigureMockMvc` for `@Autowired MockMvc` to work, same as all other FlowITs.
+
+**Fix:** Add `@AutoConfigureMockMvc` to `WebSocketFlowIT.java`.
+
+---
+
+### 4.5 Individual Issues (5 tests)
+
+| Test | Issue | Fix |
+|------|-------|-----|
+| `NotificationControllerTest.getAllNotifications` | Mockito `PotentialStubbingProblem` — stubbed with `anyInt()` but invoked with `null` | Fix stub or invocation to match |
+| `PhotoControllerTest.getPhotoByName` | `EntityNotFoundException` returns 500 instead of 404 | Add `@ExceptionHandler` in controller or use `ResponseEntity` |
+| `CommentMapperTest` | String comparison `"DISLIKE"` (with quotes) vs `DISLIKE` | Fix test assertion — `.isEqualTo("DISLIKE")` vs `.isEqualTo(DISLIKE)` |
+| `UserMapperTest.toSettingsResponse` | `IllegalArgumentException` | Check for null collection in mapper |
+| `EmailServiceIT` | WireMock received no POST request | Check WireMock port config and stubbing order |
+
+---
+
+## Updated Effort Estimate
 
 | Tier | Changes | Files | Est. effort |
 |------|---------|-------|-------------|
-| 1.1 Add `@AutoConfigureMockMvc` | 9 annotations + imports | 9 | 15 min |
-| 1.2 Add missing `@MockitoBean` | 18 annotations (3 × 6 classes) + imports | 6 | 20 min |
-| 1.3 Fix mock response data | Populate builder fields | 2–4 | 10 min |
-| 2 Update guidelines | Edit sections 3.1, 4 | 1 | 10 min |
-| 3 Verify Docker + run FlowIT | Test run | — | 5 min |
-| 4 Scattered fixes | Individual diagnosis | ~15 | 1–2 hrs |
+| 1.1 Add `@AutoConfigureMockMvc` | 9 annotations + imports | 9 | ✅ Done |
+| 1.2 Add missing `@MockitoBean` | 18 annotations (3 × 6 classes) + imports | 6 | ✅ Done |
+| 1.3 Fix mock response data | Populate builder fields | 2–4 | ✅ Done |
+| 2 Update guidelines | Edit sections 3.1, 4 | 1 | ✅ Done |
+| 3 Fix Jackson constructors + JWT key | 4 files | 4 | ✅ Done |
+| 4.1 Fix cascading ApplicationContext failures | Isolate test containers | 1–2 | 30 min |
+| 4.2 Fix NPEs in mappers/repos | Add builder defaults | 2–3 | 20 min |
+| 4.3 Fix wrong HTTP status assertions | Various | 4–5 | 30 min |
+| 4.4 Add `@AutoConfigureMockMvc` to WebSocketFlowIT | 1 file | 1 | 5 min |
+| 4.5 Fix individual issues | Various | 5 | 30 min |
 
-**Total:** ~3 hours
+**Remaining effort:** ~2 hours
 
 ---
 
-## Recommended Order
+## Recommended Order for Remaining Fixes
 
 ```
-Tier 1.1 (MockMvc) ──→ Tier 1.2 (mock beans) ──→ Tier 1.3 (JSON paths)
-        │                       │
-        ▼                       ▼
-Tier 3 (Docker verify)    Tier 2 (update guidelines)
+4.4 (WebSocketFlowIT MockMvc) ──→ 4.2 (NPEs in entity builder defaults)
+        │                               │
+        ▼                               ▼
+4.1 (Testcontainers isolation)     4.3 (HTTP status assertions)
         │
         ▼
-Tier 4 (scattered fixes)
+4.5 (individual scattered fixes)
 ```
