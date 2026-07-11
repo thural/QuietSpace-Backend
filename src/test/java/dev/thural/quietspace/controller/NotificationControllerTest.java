@@ -4,17 +4,13 @@ import dev.thural.quietspace.enums.EntityType;
 import dev.thural.quietspace.enums.NotificationType;
 import dev.thural.quietspace.model.response.NotificationResponse;
 import dev.thural.quietspace.service.NotificationService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,21 +20,14 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(controllers = NotificationController.class)
 class NotificationControllerTest {
 
+    @Autowired
     MockMvc mockMvc;
 
-    @Mock
+    @MockitoBean
     private NotificationService notificationService;
-
-    @InjectMocks
-    private NotificationController notificationController;
-
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(notificationController).build();
-    }
 
     @Test
     void handleSeen_shouldReturn202() throws Exception {
@@ -53,12 +42,12 @@ class NotificationControllerTest {
         NotificationResponse response = NotificationResponse.builder()
                 .type(NotificationType.FOLLOW_REQUEST)
                 .build();
-        when(notificationService.getAllNotifications(anyInt(), anyInt()))
+        when(notificationService.getAllNotifications(any(), any()))
                 .thenReturn(new PageImpl<>(List.of(response)));
 
         mockMvc.perform(get("/api/v1/notifications")
-                        .param("page-number", "0")
-                        .param("page-size", "10")
+                        .param("pageNumber", "0")
+                        .param("pageSize", "10")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].type").value("FOLLOW_REQUEST"));
@@ -69,12 +58,12 @@ class NotificationControllerTest {
         NotificationResponse response = NotificationResponse.builder()
                 .type(NotificationType.FOLLOW_REQUEST)
                 .build();
-        when(notificationService.getNotificationsByType(anyInt(), anyInt(), eq("FOLLOW_REQUEST")))
+        when(notificationService.getNotificationsByType(any(), any(), eq("FOLLOW_REQUEST")))
                 .thenReturn(new PageImpl<>(List.of(response)));
 
         mockMvc.perform(get("/api/v1/notifications/type/FOLLOW_REQUEST")
-                        .param("page-number", "0")
-                        .param("page-size", "10")
+                        .param("pageNumber", "0")
+                        .param("pageSize", "10")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }

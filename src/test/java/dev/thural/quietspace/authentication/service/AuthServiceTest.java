@@ -205,6 +205,7 @@ class AuthServiceTest {
                 new UsernamePasswordAuthenticationToken("testuser", null, Collections.emptyList()));
         when(tokenRepository.existsByToken(anyString())).thenReturn(false);
         when(userRepository.findUserByUsername("testuser")).thenReturn(Optional.of(user));
+        when(userService.getSignedUser()).thenReturn(user);
 
         authService.signout("Bearer some.jwt.token");
 

@@ -4,19 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.enums.EntityType;
 import dev.thural.quietspace.enums.ReactionType;
 import dev.thural.quietspace.model.request.ReactionRequest;
-import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.ReactionService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,26 +22,20 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(controllers = ReactionController.class)
 class ReactionControllerTest {
 
+    @Autowired
     MockMvc mockMvc;
 
-    @Mock
-    private ReactionService reactionService;
-    @Mock
-    private NotificationService notificationService;
-
-    @InjectMocks
-    private ReactionController reactionController;
-
+    @Autowired
     ObjectMapper objectMapper;
 
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(reactionController).build();
-        objectMapper = new ObjectMapper();
-    }
+    @MockitoBean
+    private ReactionService reactionService;
+
+    @MockitoBean
+    private NotificationService notificationService;
 
     @Test
     void getReactionsByUser_shouldReturn200WithPage() throws Exception {
@@ -55,8 +45,8 @@ class ReactionControllerTest {
         mockMvc.perform(get("/api/v1/reactions/user")
                         .param("userId", UUID.randomUUID().toString())
                         .param("contentType", "POST")
-                        .param("page-number", "0")
-                        .param("page-size", "10")
+                        .param("pageNumber", "0")
+                        .param("pageSize", "10")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
@@ -69,8 +59,8 @@ class ReactionControllerTest {
         mockMvc.perform(get("/api/v1/reactions/content")
                         .param("contentId", UUID.randomUUID().toString())
                         .param("contentType", "POST")
-                        .param("page-number", "0")
-                        .param("page-size", "10")
+                        .param("pageNumber", "0")
+                        .param("pageSize", "10")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }

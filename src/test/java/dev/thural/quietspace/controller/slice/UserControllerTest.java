@@ -83,6 +83,8 @@ public class UserControllerTest {
 
         this.registerRequest = UserRequest.builder()
                 .username("user")
+                .firstname("Test")
+                .lastname("User")
                 .role("user")
                 .email("user@email.com")
                 .build();

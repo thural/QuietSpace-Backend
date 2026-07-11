@@ -1,15 +1,10 @@
 package dev.thural.quietspace.controller.slice;
 
 import dev.thural.quietspace.controller.PostController;
-import dev.thural.quietspace.repository.TokenRepository;
-import dev.thural.quietspace.security.JwtService;
-import dev.thural.quietspace.service.NotificationService;
-import dev.thural.quietspace.service.PostService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
@@ -19,23 +14,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = PostController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 class PostControllerSecurityTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @MockitoBean
-    private PostService postService;
-
-    @MockitoBean
-    private NotificationService notificationService;
-    @MockitoBean
-    private TokenRepository tokenRepository;
-    @MockitoBean
-    private JwtService jwtService;
-    @MockitoBean
-    private UserDetailsService userDetailsService;
 
     @Test
     void getPostById_withoutToken_shouldReturn401() throws Exception {

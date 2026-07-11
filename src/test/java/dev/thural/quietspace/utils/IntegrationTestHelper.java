@@ -7,6 +7,7 @@ import dev.thural.quietspace.entity.ProfileSettings;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.Role;
 import dev.thural.quietspace.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -17,6 +18,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class IntegrationTestHelper {
+
+    public static void cleanDatabase(EntityManager entityManager) {
+        entityManager.createNativeQuery("DELETE FROM token").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM user_followings").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM user_chat").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM user_saved_posts").executeUpdate();
+    }
 
     private final MockMvc mockMvc;
     private final ObjectMapper objectMapper;

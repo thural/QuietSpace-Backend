@@ -14,6 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+
+import jakarta.persistence.EntityManager;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
@@ -44,6 +46,9 @@ class UserFlowIT {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EntityManager entityManager;
+
     @MockitoBean
     private PhotoService photoService;
 
@@ -58,6 +63,7 @@ class UserFlowIT {
 
     @BeforeEach
     void setUp() throws Exception {
+        IntegrationTestHelper.cleanDatabase(entityManager);
         userRepository.deleteAll();
         helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
         user1Jwt = helper.registerAndLogin("user1@test.com", "password123");

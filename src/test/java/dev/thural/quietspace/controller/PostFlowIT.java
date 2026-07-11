@@ -14,6 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+
+import jakarta.persistence.EntityManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -49,6 +51,9 @@ class PostFlowIT {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EntityManager entityManager;
+
     @MockitoBean
     private PhotoService photoService;
 
@@ -58,6 +63,7 @@ class PostFlowIT {
 
     @BeforeEach
     void setUp() throws Exception {
+        IntegrationTestHelper.cleanDatabase(entityManager);
         postRepository.deleteAll();
         userRepository.deleteAll();
         helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);

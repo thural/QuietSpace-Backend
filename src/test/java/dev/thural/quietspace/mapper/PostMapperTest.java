@@ -119,6 +119,7 @@ class PostMapperTest {
                 .dueDate(OffsetDateTime.now().plusDays(7))
                 .options(pollOptions)
                 .build();
+        pollOptions.forEach(opt -> opt.setPoll(poll));
 
         originalPost = Post.builder()
                 .id(postId)

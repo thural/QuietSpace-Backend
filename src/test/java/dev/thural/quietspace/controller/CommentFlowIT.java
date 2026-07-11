@@ -16,6 +16,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+
+import jakarta.persistence.EntityManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -52,6 +54,9 @@ class CommentFlowIT {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EntityManager entityManager;
+
     @MockitoBean
     private PhotoService photoService;
 
@@ -64,6 +69,7 @@ class CommentFlowIT {
 
     @BeforeEach
     void setUp() throws Exception {
+        IntegrationTestHelper.cleanDatabase(entityManager);
         commentRepository.deleteAll();
         postRepository.deleteAll();
         userRepository.deleteAll();

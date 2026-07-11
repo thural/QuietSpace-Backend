@@ -339,7 +339,7 @@ class CommentMapperTest {
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getUserReaction()).isEqualTo(dislikeReaction);
-        assertThat(result.getUserReaction().getReactionType()).isEqualTo(ReactionType.DISLIKE.name());
+        assertThat(result.getUserReaction().getReactionType()).isEqualTo(ReactionType.DISLIKE);
 
         verify(reactionService).getUserReactionByContentId(commentId);
         verify(reactionRepository).countByContentIdAndReactionType(commentId, ReactionType.LIKE);

@@ -136,6 +136,7 @@ public class PostMapper {
     }
 
     private String getVoteShare(PollOption option) {
+        if (option.getPoll() == null) return "0%";
         Integer totalVoteCount = getVoteCount(option.getPoll());
         int optionVoteNum = option.getVotes() != null ? option.getVotes().size() : 0;
         if (totalVoteCount < 1) return "0%";

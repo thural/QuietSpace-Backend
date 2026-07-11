@@ -49,8 +49,9 @@ public class UserMapper {
     public ProfileSettingsResponse toSettingsResponse(User user) {
         var response = new ProfileSettingsResponse();
         BeanUtils.copyProperties(user.getProfileSettings(), response);
-        List<UUID> blockedUserIds = user.getProfileSettings().getBlockedUsers().stream()
-                .map(BaseEntity::getId).toList();
+        List<UUID> blockedUserIds = user.getProfileSettings().getBlockedUsers() != null
+                ? user.getProfileSettings().getBlockedUsers().stream().map(BaseEntity::getId).toList()
+                : null;
         response.setBlockedUserIds(blockedUserIds);
         return response;
     }

@@ -20,12 +20,14 @@ import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
+import jakarta.persistence.EntityManager;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +37,7 @@ import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestcontainersConfig.class)
 @ActiveProfiles("testcontainers")
@@ -55,6 +58,9 @@ class WebSocketFlowIT {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private EntityManager entityManager;
+
     @MockitoBean
     private PhotoService photoService;
 
@@ -67,6 +73,7 @@ class WebSocketFlowIT {
 
     @BeforeEach
     void setUp() throws Exception {
+        IntegrationTestHelper.cleanDatabase(entityManager);
         userRepository.deleteAll();
         helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
         user1Jwt = helper.registerAndLogin("wsuser1@test.com", "password123");

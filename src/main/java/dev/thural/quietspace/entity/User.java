@@ -45,38 +45,44 @@ public class User extends BaseEntity implements UserDetails, Principal {
     private UUID photoId;
 
     @JsonIgnore
+    @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_saved_posts",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "post_id")
     )
-    private List<Post> savedPosts;
+    private List<Post> savedPosts = new ArrayList<>();
 
     @JsonIgnore
+    @Builder.Default
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    ProfileSettings profileSettings;
+    ProfileSettings profileSettings = new ProfileSettings();
 
     @JsonIgnore
+    @Builder.Default
     @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Post> posts;
+    private List<Post> posts = new ArrayList<>();
 
+    @Builder.Default
     @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Comment> comments;
+    private List<Comment> comments = new ArrayList<>();
 
+    @Builder.Default
     @JsonManagedReference
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(name = "user_chat",
             joinColumns = @JoinColumn(name = "chat_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "user_id",
                     referencedColumnName = "id"))
-    private List<Chat> chats;
+    private List<Chat> chats = new ArrayList<>();
 
+    @Builder.Default
     @JsonManagedReference
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Message> messages;
+    private List<Message> messages = new ArrayList<>();
 
 
     @JsonIgnore

@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -56,22 +55,22 @@ class NotificationControllerTest {
 
     @Test
     void getAllNotifications_shouldReturnPage() throws Exception {
-        when(notificationService.getAllNotifications(anyInt(), anyInt())).thenReturn(Page.empty());
+        when(notificationService.getAllNotifications(any(), any())).thenReturn(Page.empty());
 
         mockMvc.perform(get(NotificationController.NOTIFICATION_PATH)
-                        .param("page-number", "1")
-                        .param("page-size", "10")
+                        .param("pageNumber", "1")
+                        .param("pageSize", "10")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
     void getNotificationsByType_shouldReturnPage() throws Exception {
-        when(notificationService.getNotificationsByType(anyInt(), anyInt(), any())).thenReturn(Page.empty());
+        when(notificationService.getNotificationsByType(any(), any(), any())).thenReturn(Page.empty());
 
         mockMvc.perform(get(NotificationController.NOTIFICATION_PATH + "/type/{type}", "POST_REACTION")
-                        .param("page-number", "1")
-                        .param("page-size", "10"))
+                        .param("pageNumber", "1")
+                        .param("pageSize", "10"))
                 .andExpect(status().isOk());
     }
 

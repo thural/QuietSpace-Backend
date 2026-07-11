@@ -10,6 +10,7 @@ import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.impl.EmailService;
+import dev.thural.quietspace.utils.IntegrationTestHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+
+import jakarta.persistence.EntityManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -56,6 +59,9 @@ class AuthFlowIT {
     private WebApplicationContext wac;
 
     @Autowired
+    private EntityManager entityManager;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private RegistrationRequest validRequest;
@@ -66,6 +72,7 @@ class AuthFlowIT {
                 .webAppContextSetup(wac)
                 .apply(springSecurity())
                 .build();
+        IntegrationTestHelper.cleanDatabase(entityManager);
         userRepository.deleteAll();
         tokenRepository.deleteAll();
         validRequest = RegistrationRequest.builder()

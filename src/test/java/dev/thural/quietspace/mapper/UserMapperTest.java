@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,13 +53,11 @@ class UserMapperTest {
                 .password("encodedPassword")
                 .photoId(photoId)
                 .role(Role.USER)
-                .followers(List.of(followerUser))
-                .followings(List.of(followerUser))
                 .createDate(OffsetDateTime.now())
                 .updateDate(OffsetDateTime.now())
                 .build();
-
-        user.setProfileSettings(user.getProfileSettings());
+        user.setFollowers(new ArrayList<>(List.of(followerUser, user)));
+        user.setFollowings(new ArrayList<>(List.of(followerUser, user)));
 
         profilePhoto = PhotoResponse.builder()
                 .id(photoId)
