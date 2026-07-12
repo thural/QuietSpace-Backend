@@ -1,4 +1,5 @@
 package dev.thural.quietspace.entity;
+import dev.thural.quietspace.shared.entity.BaseEntity;
 
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.shared.enums.ReactionType;

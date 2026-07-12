@@ -1,4 +1,5 @@
 package dev.thural.quietspace.entity;
+import dev.thural.quietspace.shared.entity.BaseEntity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
