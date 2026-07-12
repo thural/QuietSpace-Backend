@@ -1,4 +1,4 @@
-package dev.thural.quietspace.exception;
+package dev.thural.quietspace.shared.exception;
 
 public class ImageUploadException extends RuntimeException {
     public ImageUploadException(String message) {

@@ -1,6 +1,6 @@
 package dev.thural.quietspace.config;
 
-import dev.thural.quietspace.exception.UserNotFoundException;
+import dev.thural.quietspace.shared.exception.UserNotFoundException;
 import dev.thural.quietspace.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package dev.thural.quietspace.exception;
+package dev.thural.quietspace.shared.exception;
 
 import dev.thural.quietspace.model.response.CustomErrorResponse;
 import jakarta.mail.MessagingException;

@@ -1,7 +1,7 @@
 package dev.thural.quietspace.controller.unit;
 
 import dev.thural.quietspace.controller.PhotoController;
-import dev.thural.quietspace.exception.GlobalExceptionHandler;
+import dev.thural.quietspace.shared.exception.GlobalExceptionHandler;
 import dev.thural.quietspace.model.response.PhotoResponse;
 import dev.thural.quietspace.service.PhotoService;
 import jakarta.persistence.EntityNotFoundException;

@@ -1,4 +1,4 @@
-package dev.thural.quietspace.exception;
+package dev.thural.quietspace.shared.exception;
 
 import org.springframework.messaging.MessagingException;
 

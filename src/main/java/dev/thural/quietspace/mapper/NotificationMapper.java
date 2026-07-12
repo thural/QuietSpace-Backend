@@ -2,7 +2,7 @@ package dev.thural.quietspace.mapper;
 
 import dev.thural.quietspace.entity.Notification;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.exception.UserNotFoundException;
+import dev.thural.quietspace.shared.exception.UserNotFoundException;
 import dev.thural.quietspace.model.response.NotificationResponse;
 import dev.thural.quietspace.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

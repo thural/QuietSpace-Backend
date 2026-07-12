@@ -6,7 +6,7 @@ import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.shared.enums.NotificationType;
-import dev.thural.quietspace.exception.UserNotFoundException;
+import dev.thural.quietspace.shared.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.NotificationMapper;
 import dev.thural.quietspace.model.response.NotificationResponse;
 import dev.thural.quietspace.repository.CommentRepository;
