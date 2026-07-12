@@ -1,5 +1,7 @@
 package dev.thural.quietspace.websocket.config;
 
+import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +11,8 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.messaging.converter.DefaultContentTypeResolver;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
@@ -19,14 +23,18 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.UUID;
 
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON;
 
@@ -39,6 +47,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
     private final CustomHandshakeHandler handshakeHandler;
 
     @Value("${spring.application.urls.frontend}")
@@ -57,6 +66,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setAllowedOrigins(FRONTEND_URL)
                 .setHandshakeHandler(handshakeHandler)
                 .withSockJS();
+
+        registry.addEndpoint("/ws/raw")
+                .setAllowedOrigins(FRONTEND_URL)
+                .setHandshakeHandler(handshakeHandler);
     }
 
     @Override
@@ -64,9 +77,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         DefaultContentTypeResolver resolver = new DefaultContentTypeResolver();
         resolver.setDefaultMimeType(APPLICATION_JSON);
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        converter.setObjectMapper(objectMapper);
         converter.setContentTypeResolver(resolver);
         messageConverters.add(converter);
-        return false;
+        return true;
     }
 
     @Override
@@ -75,29 +91,75 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             @Override
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
                 StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-                log.info("Headers: {}", accessor);
-
-                assert accessor != null;
+                if (accessor == null) return message;
 
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-                    String authorizationHeader = accessor.getFirstNativeHeader("Authorization");
-                    assert authorizationHeader != null;
-                    String token = authorizationHeader.substring(7);
-
-                    String username = jwtService.extractUsername(token);
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                    log.info("username in UserDetails on WebSocket authentication: {}", userDetails.getUsername());
-
-                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            userDetails.getPassword(),
-                            userDetails.getAuthorities()
-                    );
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    accessor.setUser(authenticationToken);
+                    handleConnect(accessor);
+                } else if (accessor.getCommand() == StompCommand.SEND) {
+                    log.warn("SEND dest={} user={}", accessor.getDestination(),
+                            accessor.getUser() != null ? accessor.getUser().getName() : "null");
+                } else if (accessor.getCommand() == StompCommand.SUBSCRIBE) {
+                    log.warn("SUBSCRIBE dest={} user={}", accessor.getDestination(),
+                            accessor.getUser() != null ? accessor.getUser().getName() : "null");
                 }
 
                 return message;
+            }
+
+            private void handleConnect(StompHeaderAccessor accessor) {
+                String authorizationHeader = accessor.getFirstNativeHeader("Authorization");
+                if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+                    log.warn("Missing or invalid Authorization header in STOMP CONNECT");
+                    return;
+                }
+
+                try {
+                    String token = authorizationHeader.substring(7);
+                    String username = jwtService.extractUsername(token);
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    User user = (User) userDetails;
+
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, userDetails.getPassword(), userDetails.getAuthorities()
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                    UsernamePasswordAuthenticationToken stompToken = new UsernamePasswordAuthenticationToken(
+                            user.getId().toString(), userDetails.getPassword(), userDetails.getAuthorities()
+                    );
+                    accessor.setUser(stompToken);
+                    log.warn("STOMP CONNECT auth: SUCCESS principal={}", user.getId());
+                } catch (Exception e) {
+                    log.warn("Authentication failed in STOMP CONNECT: {}; cause: {}", e.getMessage(), e.getClass().getSimpleName());
+                }
+            }
+
+            private boolean restoreSecurityContext(StompHeaderAccessor accessor) {
+                if (SecurityContextHolder.getContext().getAuthentication() != null) {
+                    return true;
+                }
+
+                Principal principal = accessor.getUser();
+                if (principal == null || principal.getName() == null) {
+                    return false;
+                }
+
+                try {
+                    UUID userId = UUID.fromString(principal.getName());
+                    User user = userRepository.findById(userId).orElse(null);
+                    if (user == null) {
+                        log.warn("User not found for principal={}", principal.getName());
+                        return false;
+                    }
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            user, null, user.getAuthorities()
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                    return true;
+                } catch (Exception e) {
+                    log.warn("Failed to restore auth for principal={}: {}", principal.getName(), e.getMessage());
+                    return false;
+                }
             }
         });
     }
