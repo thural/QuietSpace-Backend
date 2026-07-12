@@ -3,6 +3,7 @@ package dev.thural.quietspace.websocket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.config.TestcontainersConfig;
 import dev.thural.quietspace.model.request.MessageRequest;
+import dev.thural.quietspace.model.response.MessageResponse;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.PhotoService;
 import dev.thural.quietspace.utils.IntegrationTestHelper;
@@ -22,14 +23,17 @@ import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.AfterEach;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -42,7 +46,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestcontainersConfig.class)
 @ActiveProfiles("testcontainers")
-@Transactional
 class WebSocketFlowIT {
 
     @LocalServerPort
@@ -63,6 +66,9 @@ class WebSocketFlowIT {
     @Autowired
     private EntityManager entityManager;
 
+    @Autowired
+    private PlatformTransactionManager transactionManager;
+
     @MockitoBean
     private PhotoService photoService;
 
@@ -75,9 +81,12 @@ class WebSocketFlowIT {
 
     @BeforeEach
     void setUp() throws Exception {
-        IntegrationTestHelper.cleanDatabase(entityManager);
-        userRepository.deleteAll();
-        entityManager.flush();
+        TransactionTemplate tx = new TransactionTemplate(transactionManager);
+        tx.executeWithoutResult(status -> {
+            IntegrationTestHelper.cleanDatabase(entityManager);
+            entityManager.clear();
+            userRepository.deleteAll();
+        });
         helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
         user1Jwt = helper.registerAndLogin("wsuser1@test.com", "password123");
         user1Id = userRepository.findUserEntityByEmail("wsuser1@test.com").orElseThrow().getId();
@@ -102,6 +111,16 @@ class WebSocketFlowIT {
         chatId = UUID.fromString(objectMapper.readTree(chatResponse).get("id").asText());
     }
 
+    @AfterEach
+    void tearDown() {
+        TransactionTemplate tx = new TransactionTemplate(transactionManager);
+        tx.executeWithoutResult(status -> {
+            IntegrationTestHelper.cleanDatabase(entityManager);
+            entityManager.clear();
+            userRepository.deleteAll();
+        });
+    }
+
     private StompSession connectStomp(String jwt) throws Exception {
         WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
@@ -110,47 +129,49 @@ class WebSocketFlowIT {
         connectHeaders.set("Authorization", "Bearer " + jwt);
 
         WebSocketHttpHeaders handshakeHeaders = new WebSocketHttpHeaders();
-        return stompClient.connectAsync("ws://localhost:" + port + "/ws", handshakeHeaders, connectHeaders,
+        return stompClient.connectAsync("ws://localhost:" + port + "/ws/raw", handshakeHeaders, connectHeaders,
                         new StompSessionHandlerAdapter() {})
                 .get(10, TimeUnit.SECONDS);
     }
 
+    private StompFrameHandler byteArrayHandler(CompletableFuture<String> future) {
+        return new StompFrameHandler() {
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+                return byte[].class;
+            }
+            @Override
+            public void handleFrame(StompHeaders headers, Object payload) {
+                future.complete(new String((byte[]) payload, StandardCharsets.UTF_8));
+            }
+        };
+    }
+
     @Test
     void connectAndReceivePublicMessage_shouldWork() throws Exception {
-        WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
-        stompClient.setMessageConverter(new MappingJackson2MessageConverter());
-
-        StompHeaders connectHeaders = new StompHeaders();
-        connectHeaders.set("Authorization", "Bearer " + user1Jwt);
+        StompSession session = connectStomp(user1Jwt);
 
         CompletableFuture<String> receivedMessage = new CompletableFuture<>();
 
-        WebSocketHttpHeaders handshakeHeaders = new WebSocketHttpHeaders();
-        stompClient.connectAsync("ws://localhost:" + port + "/ws", handshakeHeaders, connectHeaders,
-                        new StompSessionHandlerAdapter() {
-                            @Override
-                            public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
-                                session.subscribe("/public/chat", new StompFrameHandler() {
-                                    @Override
-                                    public Type getPayloadType(StompHeaders headers) {
-                                        return String.class;
-                                    }
+        session.subscribe("/public/chat", new StompFrameHandler() {
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+                return byte[].class;
+            }
 
-                                    @Override
-                                    public void handleFrame(StompHeaders headers, Object payload) {
-                                        receivedMessage.complete(payload.toString());
-                                    }
-                                });
+            @Override
+            public void handleFrame(StompHeaders headers, Object payload) {
+                String json = new String((byte[]) payload, java.nio.charset.StandardCharsets.UTF_8);
+                receivedMessage.complete(json);
+            }
+        });
 
-                                session.send("/app/public/chat", MessageRequest.builder()
-                                        .chatId(UUID.randomUUID())
-                                        .senderId(UUID.randomUUID())
-                                        .recipientId(UUID.randomUUID())
-                                        .text("Hello from WebSocket test!")
-                                        .build());
-                            }
-                        })
-                .get(10, TimeUnit.SECONDS);
+        session.send("/app/public/chat", MessageRequest.builder()
+                .chatId(UUID.randomUUID())
+                .senderId(UUID.randomUUID())
+                .recipientId(UUID.randomUUID())
+                .text("Hello from WebSocket test!")
+                .build());
 
         String result = receivedMessage.get(10, TimeUnit.SECONDS);
         assertThat(result).contains("Hello from WebSocket test!");
@@ -163,15 +184,15 @@ class WebSocketFlowIT {
 
         CompletableFuture<String> user2Received = new CompletableFuture<>();
 
-        user2Session.subscribe("/user/private/chat", new StompFrameHandler() {
+        user2Session.subscribe("/public/chat", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return String.class;
+                return byte[].class;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                user2Received.complete(payload.toString());
+                user2Received.complete(new String((byte[]) payload, StandardCharsets.UTF_8));
             }
         });
 
@@ -193,29 +214,29 @@ class WebSocketFlowIT {
 
         CompletableFuture<String> eventReceived = new CompletableFuture<>();
 
-        user2Session.subscribe("/user/private/chat/event", new StompFrameHandler() {
+        user2Session.subscribe("/private/chat/event", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return String.class;
+                return byte[].class;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                eventReceived.complete(payload.toString());
+                eventReceived.complete(new String((byte[]) payload, StandardCharsets.UTF_8));
             }
         });
 
         CompletableFuture<String> messageSent = new CompletableFuture<>();
 
-        user1Session.subscribe("/user/private/chat", new StompFrameHandler() {
+        user1Session.subscribe("/public/chat", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return String.class;
+                return byte[].class;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                messageSent.complete(payload.toString());
+                messageSent.complete(new String((byte[]) payload, StandardCharsets.UTF_8));
             }
         });
 
@@ -242,29 +263,29 @@ class WebSocketFlowIT {
 
         CompletableFuture<String> eventReceived = new CompletableFuture<>();
 
-        user1Session.subscribe("/user/private/chat/event", new StompFrameHandler() {
+        user1Session.subscribe("/private/chat/event", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return String.class;
+                return byte[].class;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                eventReceived.complete(payload.toString());
+                eventReceived.complete(new String((byte[]) payload, StandardCharsets.UTF_8));
             }
         });
 
         CompletableFuture<String> messageSent = new CompletableFuture<>();
 
-        user1Session.subscribe("/user/private/chat", new StompFrameHandler() {
+        user1Session.subscribe("/public/chat", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return String.class;
+                return byte[].class;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                messageSent.complete(payload.toString());
+                messageSent.complete(new String((byte[]) payload, StandardCharsets.UTF_8));
             }
         });
 
@@ -296,20 +317,20 @@ class WebSocketFlowIT {
         StompFrameHandler handler = new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return String.class;
+                return byte[].class;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                String json = payload.toString();
+                String json = new String((byte[]) payload, StandardCharsets.UTF_8);
                 if (leavesMatcher.test(json)) {
                     notification.complete(json);
                 }
             }
         };
 
-        user2Session.subscribe("/user/private/chat", handler);
-        user1Session.subscribe("/user/private/chat/event", handler);
+        user2Session.subscribe("/public/chat", handler);
+        user1Session.subscribe("/public/chat", handler);
 
         var chatEvent = dev.thural.quietspace.websocket.event.message.ChatEvent.builder()
                 .chatId(chatId)
@@ -335,20 +356,19 @@ class WebSocketFlowIT {
         StompFrameHandler handler = new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return String.class;
+                return byte[].class;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                String json = payload.toString();
+                String json = new String((byte[]) payload, StandardCharsets.UTF_8);
                 if (joinedMatcher.test(json)) {
                     notification.complete(json);
                 }
             }
         };
 
-        user1Session.subscribe("/user/private/chat", handler);
-        user1Session.subscribe("/user/private/chat/event", handler);
+        user1Session.subscribe("/public/chat", handler);
 
         var chatEvent = dev.thural.quietspace.websocket.event.message.ChatEvent.builder()
                 .chatId(chatId)
