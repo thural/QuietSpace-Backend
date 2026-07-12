@@ -1,6 +1,6 @@
 package dev.thural.quietspace.security;
 
-import dev.thural.quietspace.repository.TokenRepository;
+import dev.thural.quietspace.security.TokenRepository;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

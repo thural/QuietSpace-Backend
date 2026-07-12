@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.user.UserController;
 import dev.thural.quietspace.user.dto.UserRequest;
 import dev.thural.quietspace.user.dto.UserResponse;
-import dev.thural.quietspace.repository.TokenRepository;
+import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.*;
 import dev.thural.quietspace.user.UserService;

@@ -7,7 +7,7 @@ import dev.thural.quietspace.authentication.model.AuthRequest;
 import dev.thural.quietspace.authentication.model.AuthResponse;
 import dev.thural.quietspace.authentication.model.RegistrationRequest;
 import dev.thural.quietspace.authentication.service.AuthService;
-import dev.thural.quietspace.repository.TokenRepository;
+import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

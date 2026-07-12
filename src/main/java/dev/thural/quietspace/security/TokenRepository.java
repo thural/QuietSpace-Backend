@@ -1,6 +1,6 @@
-package dev.thural.quietspace.repository;
+package dev.thural.quietspace.security;
 
-import dev.thural.quietspace.entity.Token;
+import dev.thural.quietspace.security.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

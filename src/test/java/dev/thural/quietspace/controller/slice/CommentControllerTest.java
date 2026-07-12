@@ -11,7 +11,7 @@ import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.repository.CommentRepository;
 import dev.thural.quietspace.repository.PostRepository;
-import dev.thural.quietspace.repository.TokenRepository;
+import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.CommentService;
 import dev.thural.quietspace.service.NotificationService;

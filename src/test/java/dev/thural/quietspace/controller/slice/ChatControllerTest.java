@@ -12,7 +12,7 @@ import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.model.response.MessageResponse;
 import dev.thural.quietspace.user.dto.UserResponse;
 import dev.thural.quietspace.repository.MessageRepository;
-import dev.thural.quietspace.repository.TokenRepository;
+import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.user.UserRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.ChatService;

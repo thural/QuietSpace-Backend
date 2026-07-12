@@ -2,7 +2,7 @@ package dev.thural.quietspace.controller.slice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.controller.AdminController;
-import dev.thural.quietspace.repository.TokenRepository;
+import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.user.UserService;
 import org.junit.jupiter.api.Test;

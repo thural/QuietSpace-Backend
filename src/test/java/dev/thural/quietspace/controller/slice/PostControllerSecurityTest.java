@@ -2,7 +2,7 @@ package dev.thural.quietspace.controller.slice;
 import dev.thural.quietspace.user.User;
 
 import dev.thural.quietspace.controller.PostController;
-import dev.thural.quietspace.repository.TokenRepository;
+import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.NotificationService;
 import dev.thural.quietspace.service.PostService;

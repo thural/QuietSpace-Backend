@@ -7,7 +7,7 @@ import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.VoteRequest;
 import dev.thural.quietspace.model.response.PostResponse;
-import dev.thural.quietspace.repository.TokenRepository;
+import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.PostService;
 import dev.thural.quietspace.service.ReactionService;

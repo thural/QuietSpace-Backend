@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.controller.NotificationController;
 import dev.thural.quietspace.shared.enums.NotificationType;
 import dev.thural.quietspace.model.response.NotificationResponse;
-import dev.thural.quietspace.repository.TokenRepository;
+import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.NotificationService;
 import org.junit.jupiter.api.Test;

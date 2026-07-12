@@ -1,7 +1,8 @@
 package dev.thural.quietspace.repository;
+import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.user.UserRepository;
 
-import dev.thural.quietspace.entity.Token;
+import dev.thural.quietspace.security.Token;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.Role;
 import org.junit.jupiter.api.AfterEach;

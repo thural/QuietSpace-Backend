@@ -3,7 +3,7 @@ package dev.thural.quietspace.controller.slice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.controller.PhotoController;
 import dev.thural.quietspace.model.response.PhotoResponse;
-import dev.thural.quietspace.repository.TokenRepository;
+import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.PhotoService;
 import org.junit.jupiter.api.Test;
