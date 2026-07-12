@@ -5,6 +5,7 @@ import dev.thural.quietspace.entity.ProfileSettings;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.Role;
 import dev.thural.quietspace.repository.UserRepository;
+import dev.thural.quietspace.service.PhotoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
@@ -19,10 +21,14 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestcontainersConfig.class)
 @ActiveProfiles("testcontainers")
+@Transactional
 class UserServiceIT {
+
+    @MockitoBean
+    private PhotoService photoService;
 
     @Autowired
     private UserService userService;

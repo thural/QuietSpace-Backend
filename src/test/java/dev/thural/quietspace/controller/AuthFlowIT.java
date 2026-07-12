@@ -9,6 +9,7 @@ import dev.thural.quietspace.entity.Token;
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.repository.UserRepository;
+import dev.thural.quietspace.service.PhotoService;
 import dev.thural.quietspace.service.impl.EmailService;
 import dev.thural.quietspace.utils.IntegrationTestHelper;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,11 +26,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import static org.hamcrest.core.Is.is;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -57,8 +55,8 @@ class AuthFlowIT {
     @MockitoBean
     private EmailService emailService;
 
-    @Autowired
-    private WebApplicationContext wac;
+    @MockitoBean
+    private PhotoService photoService;
 
     @Autowired
     private EntityManager entityManager;
@@ -70,13 +68,7 @@ class AuthFlowIT {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(wac)
-                .apply(springSecurity())
-                .build();
         IntegrationTestHelper.cleanDatabase(entityManager);
-        userRepository.deleteAll();
-        tokenRepository.deleteAll();
         validRequest = RegistrationRequest.builder()
                 .username("testuser")
                 .firstname("Test")

@@ -2,6 +2,7 @@ package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.config.TestcontainersConfig;
 import dev.thural.quietspace.enums.EmailTemplateName;
+import dev.thural.quietspace.service.PhotoService;
 import dev.thural.quietspace.service.impl.EmailService;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
@@ -18,10 +19,13 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestcontainersConfig.class)
 @ActiveProfiles("testcontainers")
 class EmailServiceIT {
+
+    @MockitoBean
+    private PhotoService photoService;
 
     @Autowired
     private EmailService emailService;

@@ -24,14 +24,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
-import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.AfterEach;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -46,6 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestcontainersConfig.class)
 @ActiveProfiles("testcontainers")
+@Transactional
 class WebSocketFlowIT {
 
     @LocalServerPort
@@ -63,12 +61,6 @@ class WebSocketFlowIT {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private EntityManager entityManager;
-
-    @Autowired
-    private PlatformTransactionManager transactionManager;
-
     @MockitoBean
     private PhotoService photoService;
 
@@ -81,12 +73,6 @@ class WebSocketFlowIT {
 
     @BeforeEach
     void setUp() throws Exception {
-        TransactionTemplate tx = new TransactionTemplate(transactionManager);
-        tx.executeWithoutResult(status -> {
-            IntegrationTestHelper.cleanDatabase(entityManager);
-            entityManager.clear();
-            userRepository.deleteAll();
-        });
         helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
         user1Jwt = helper.registerAndLogin("wsuser1@test.com", "password123");
         user1Id = userRepository.findUserEntityByEmail("wsuser1@test.com").orElseThrow().getId();
@@ -109,16 +95,6 @@ class WebSocketFlowIT {
                 .andReturn().getResponse().getContentAsString();
 
         chatId = UUID.fromString(objectMapper.readTree(chatResponse).get("id").asText());
-    }
-
-    @AfterEach
-    void tearDown() {
-        TransactionTemplate tx = new TransactionTemplate(transactionManager);
-        tx.executeWithoutResult(status -> {
-            IntegrationTestHelper.cleanDatabase(entityManager);
-            entityManager.clear();
-            userRepository.deleteAll();
-        });
     }
 
     private StompSession connectStomp(String jwt) throws Exception {
