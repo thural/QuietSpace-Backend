@@ -1,8 +1,8 @@
 package dev.thural.quietspace.websocket.event.message;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 
 import java.util.UUID;
 
@@ -10,6 +10,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @SuperBuilder
+@NoArgsConstructor
+@Jacksonized
 public class ChatEvent extends BaseEvent {
 
     private UUID chatId;
