@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-import static dev.thural.quietspace.enums.ReactionType.LIKE;
+import static dev.thural.quietspace.shared.enums.ReactionType.LIKE;
 
 @Component
 @RequiredArgsConstructor

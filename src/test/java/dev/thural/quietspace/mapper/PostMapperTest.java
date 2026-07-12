@@ -4,7 +4,7 @@ import dev.thural.quietspace.entity.Poll;
 import dev.thural.quietspace.entity.PollOption;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.ReactionType;
+import dev.thural.quietspace.shared.enums.ReactionType;
 import dev.thural.quietspace.model.request.PollRequest;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.RepostRequest;

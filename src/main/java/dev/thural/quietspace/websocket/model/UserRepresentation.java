@@ -1,7 +1,7 @@
 package dev.thural.quietspace.websocket.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import dev.thural.quietspace.enums.StatusType;
+import dev.thural.quietspace.shared.enums.StatusType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

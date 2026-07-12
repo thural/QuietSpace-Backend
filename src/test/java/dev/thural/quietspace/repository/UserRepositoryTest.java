@@ -1,7 +1,7 @@
 package dev.thural.quietspace.repository;
 
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.Role;
+import dev.thural.quietspace.shared.enums.Role;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

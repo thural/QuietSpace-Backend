@@ -2,9 +2,9 @@ package dev.thural.quietspace.repository;
 
 import dev.thural.quietspace.entity.Notification;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.EntityType;
-import dev.thural.quietspace.enums.NotificationType;
-import dev.thural.quietspace.enums.Role;
+import dev.thural.quietspace.shared.enums.EntityType;
+import dev.thural.quietspace.shared.enums.NotificationType;
+import dev.thural.quietspace.shared.enums.Role;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

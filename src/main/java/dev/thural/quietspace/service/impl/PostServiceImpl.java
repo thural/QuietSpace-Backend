@@ -1,7 +1,7 @@
 package dev.thural.quietspace.service.impl;
 
 import dev.thural.quietspace.entity.*;
-import dev.thural.quietspace.enums.EntityType;
+import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.mapper.PostMapper;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.RepostRequest;

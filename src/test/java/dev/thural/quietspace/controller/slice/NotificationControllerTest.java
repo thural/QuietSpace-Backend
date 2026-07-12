@@ -2,7 +2,7 @@ package dev.thural.quietspace.controller.slice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.controller.NotificationController;
-import dev.thural.quietspace.enums.NotificationType;
+import dev.thural.quietspace.shared.enums.NotificationType;
 import dev.thural.quietspace.model.response.NotificationResponse;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.security.JwtService;

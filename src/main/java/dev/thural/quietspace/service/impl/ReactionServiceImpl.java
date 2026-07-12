@@ -2,8 +2,8 @@ package dev.thural.quietspace.service.impl;
 
 import dev.thural.quietspace.entity.Reaction;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.EntityType;
-import dev.thural.quietspace.enums.ReactionType;
+import dev.thural.quietspace.shared.enums.EntityType;
+import dev.thural.quietspace.shared.enums.ReactionType;
 import dev.thural.quietspace.mapper.ReactionMapper;
 import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.ReactionResponse;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dev.thural.quietspace.enums.ReactionType.LIKE;
+import static dev.thural.quietspace.shared.enums.ReactionType.LIKE;
 import static dev.thural.quietspace.utils.PagingProvider.DEFAULT_SORT_OPTION;
 import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 

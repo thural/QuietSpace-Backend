@@ -1,6 +1,6 @@
 package dev.thural.quietspace.entity;
 
-import dev.thural.quietspace.enums.EntityType;
+import dev.thural.quietspace.shared.enums.EntityType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import jakarta.validation.constraints.NotNull;

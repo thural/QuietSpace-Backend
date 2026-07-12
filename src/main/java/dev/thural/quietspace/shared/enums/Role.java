@@ -1,4 +1,4 @@
-package dev.thural.quietspace.enums;
+package dev.thural.quietspace.shared.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static dev.thural.quietspace.enums.Permission.*;
+import static dev.thural.quietspace.shared.enums.Permission.*;
 
 @Getter
 @RequiredArgsConstructor

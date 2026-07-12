@@ -5,7 +5,7 @@ import dev.thural.quietspace.authentication.model.AuthRequest;
 import dev.thural.quietspace.authentication.model.AuthResponse;
 import dev.thural.quietspace.entity.ProfileSettings;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.Role;
+import dev.thural.quietspace.shared.enums.Role;
 import dev.thural.quietspace.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.http.MediaType;

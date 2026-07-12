@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
-import static dev.thural.quietspace.enums.NotificationType.REPOST;
+import static dev.thural.quietspace.shared.enums.NotificationType.REPOST;
 
 @Slf4j
 @RestController

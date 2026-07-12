@@ -1,7 +1,7 @@
 package dev.thural.quietspace.controller;
 
-import dev.thural.quietspace.enums.EntityType;
-import dev.thural.quietspace.enums.NotificationType;
+import dev.thural.quietspace.shared.enums.EntityType;
+import dev.thural.quietspace.shared.enums.NotificationType;
 import dev.thural.quietspace.model.response.NotificationResponse;
 import dev.thural.quietspace.service.NotificationService;
 import lombok.RequiredArgsConstructor;

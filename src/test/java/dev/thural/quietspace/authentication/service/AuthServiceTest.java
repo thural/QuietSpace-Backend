@@ -5,7 +5,7 @@ import dev.thural.quietspace.authentication.model.AuthResponse;
 import dev.thural.quietspace.authentication.model.RegistrationRequest;
 import dev.thural.quietspace.entity.Token;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.Role;
+import dev.thural.quietspace.shared.enums.Role;
 import dev.thural.quietspace.exception.ActivationTokenException;
 import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.repository.TokenRepository;

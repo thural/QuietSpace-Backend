@@ -2,8 +2,8 @@ package dev.thural.quietspace.mapper;
 
 import dev.thural.quietspace.entity.Reaction;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.EntityType;
-import dev.thural.quietspace.enums.ReactionType;
+import dev.thural.quietspace.shared.enums.EntityType;
+import dev.thural.quietspace.shared.enums.ReactionType;
 import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.repository.UserRepository;

@@ -3,7 +3,7 @@ package dev.thural.quietspace.mapper;
 import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.ReactionType;
+import dev.thural.quietspace.shared.enums.ReactionType;
 import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;

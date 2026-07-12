@@ -4,8 +4,8 @@ import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Notification;
 import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.EntityType;
-import dev.thural.quietspace.enums.NotificationType;
+import dev.thural.quietspace.shared.enums.EntityType;
+import dev.thural.quietspace.shared.enums.NotificationType;
 import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.NotificationMapper;
 import dev.thural.quietspace.model.response.NotificationResponse;
@@ -30,9 +30,9 @@ import java.util.UUID;
 
 import static dev.thural.quietspace.controller.NotificationController.NOTIFICATION_EVENT_PATH;
 import static dev.thural.quietspace.controller.NotificationController.NOTIFICATION_SUBJECT_PATH;
-import static dev.thural.quietspace.enums.EventType.SEEN_NOTIFICATION;
-import static dev.thural.quietspace.enums.NotificationType.COMMENT_REACTION;
-import static dev.thural.quietspace.enums.NotificationType.POST_REACTION;
+import static dev.thural.quietspace.shared.enums.EventType.SEEN_NOTIFICATION;
+import static dev.thural.quietspace.shared.enums.NotificationType.COMMENT_REACTION;
+import static dev.thural.quietspace.shared.enums.NotificationType.POST_REACTION;
 import static dev.thural.quietspace.utils.PagingProvider.DEFAULT_SORT_OPTION;
 import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 

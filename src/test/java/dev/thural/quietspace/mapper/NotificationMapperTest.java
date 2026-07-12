@@ -2,8 +2,8 @@ package dev.thural.quietspace.mapper;
 
 import dev.thural.quietspace.entity.Notification;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.EntityType;
-import dev.thural.quietspace.enums.NotificationType;
+import dev.thural.quietspace.shared.enums.EntityType;
+import dev.thural.quietspace.shared.enums.NotificationType;
 import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.model.response.NotificationResponse;
 import dev.thural.quietspace.repository.UserRepository;

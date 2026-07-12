@@ -1,4 +1,4 @@
-package dev.thural.quietspace.enums;
+package dev.thural.quietspace.shared.enums;
 
 import lombok.Getter;
 

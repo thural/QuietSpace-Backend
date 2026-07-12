@@ -3,7 +3,7 @@ package dev.thural.quietspace.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.config.TestcontainersConfig;
 import dev.thural.quietspace.entity.Notification;
-import dev.thural.quietspace.enums.NotificationType;
+import dev.thural.quietspace.shared.enums.NotificationType;
 import dev.thural.quietspace.repository.NotificationRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.PhotoService;
@@ -126,7 +126,7 @@ class NotificationFlowIT {
                 .actorId(user2Id)
                 .contentId(user2Id)
                 .isSeen(false)
-                .notificationType(dev.thural.quietspace.enums.NotificationType.FOLLOW_REQUEST)
+                .notificationType(dev.thural.quietspace.shared.enums.NotificationType.FOLLOW_REQUEST)
                 .build();
         notificationRepository.save(notification);
 

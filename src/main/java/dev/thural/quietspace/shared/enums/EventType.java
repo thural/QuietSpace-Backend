@@ -1,4 +1,4 @@
-package dev.thural.quietspace.enums;
+package dev.thural.quietspace.shared.enums;
 
 public enum EventType {
     CONNECT,

@@ -2,8 +2,8 @@ package dev.thural.quietspace.controller.slice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.controller.ReactionController;
-import dev.thural.quietspace.enums.EntityType;
-import dev.thural.quietspace.enums.ReactionType;
+import dev.thural.quietspace.shared.enums.EntityType;
+import dev.thural.quietspace.shared.enums.ReactionType;
 import dev.thural.quietspace.model.request.ReactionRequest;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.security.JwtService;

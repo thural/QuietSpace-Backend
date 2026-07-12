@@ -1,8 +1,8 @@
 package dev.thural.quietspace.service.impl;
 
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.Role;
-import dev.thural.quietspace.enums.StatusType;
+import dev.thural.quietspace.shared.enums.Role;
+import dev.thural.quietspace.shared.enums.StatusType;
 import dev.thural.quietspace.exception.CustomErrorException;
 import dev.thural.quietspace.exception.UnauthorizedException;
 import dev.thural.quietspace.exception.UserNotFoundException;
@@ -34,8 +34,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dev.thural.quietspace.enums.StatusType.OFFLINE;
-import static dev.thural.quietspace.enums.StatusType.ONLINE;
+import static dev.thural.quietspace.shared.enums.StatusType.OFFLINE;
+import static dev.thural.quietspace.shared.enums.StatusType.ONLINE;
 import static dev.thural.quietspace.utils.PagingProvider.DEFAULT_SORT_OPTION;
 import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
 

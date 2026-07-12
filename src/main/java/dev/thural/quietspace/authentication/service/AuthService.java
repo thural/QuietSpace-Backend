@@ -6,8 +6,8 @@ import dev.thural.quietspace.authentication.model.RegistrationRequest;
 import dev.thural.quietspace.entity.ProfileSettings;
 import dev.thural.quietspace.entity.Token;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.EmailTemplateName;
-import dev.thural.quietspace.enums.StatusType;
+import dev.thural.quietspace.shared.enums.EmailTemplateName;
+import dev.thural.quietspace.shared.enums.StatusType;
 import dev.thural.quietspace.exception.ActivationTokenException;
 import dev.thural.quietspace.exception.CustomErrorException;
 import dev.thural.quietspace.exception.UserNotFoundException;
@@ -37,9 +37,9 @@ import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 
-import static dev.thural.quietspace.enums.Role.USER;
-import static dev.thural.quietspace.enums.StatusType.OFFLINE;
-import static dev.thural.quietspace.enums.StatusType.ONLINE;
+import static dev.thural.quietspace.shared.enums.Role.USER;
+import static dev.thural.quietspace.shared.enums.StatusType.OFFLINE;
+import static dev.thural.quietspace.shared.enums.StatusType.ONLINE;
 
 @Service
 @RequiredArgsConstructor

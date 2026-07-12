@@ -1,7 +1,7 @@
 package dev.thural.quietspace.utils;
 
 import dev.thural.quietspace.entity.*;
-import dev.thural.quietspace.enums.*;
+import dev.thural.quietspace.shared.enums.*;
 import dev.thural.quietspace.model.response.PhotoResponse;
 
 import java.time.OffsetDateTime;

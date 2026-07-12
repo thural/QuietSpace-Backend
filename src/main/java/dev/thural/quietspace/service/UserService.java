@@ -1,7 +1,7 @@
 package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.StatusType;
+import dev.thural.quietspace.shared.enums.StatusType;
 import dev.thural.quietspace.model.request.ProfileSettingsRequest;
 import dev.thural.quietspace.model.request.UserRequest;
 import dev.thural.quietspace.model.response.ProfileSettingsResponse;

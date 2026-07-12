@@ -1,8 +1,8 @@
 package dev.thural.quietspace.repository;
 
 import dev.thural.quietspace.entity.Reaction;
-import dev.thural.quietspace.enums.EntityType;
-import dev.thural.quietspace.enums.ReactionType;
+import dev.thural.quietspace.shared.enums.EntityType;
+import dev.thural.quietspace.shared.enums.ReactionType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;

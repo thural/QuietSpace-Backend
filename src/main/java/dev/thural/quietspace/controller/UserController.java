@@ -23,8 +23,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static dev.thural.quietspace.enums.NotificationType.FOLLOW_REQUEST;
-import static dev.thural.quietspace.enums.StatusType.OFFLINE;
+import static dev.thural.quietspace.shared.enums.NotificationType.FOLLOW_REQUEST;
+import static dev.thural.quietspace.shared.enums.StatusType.OFFLINE;
 
 @Slf4j
 @RestController

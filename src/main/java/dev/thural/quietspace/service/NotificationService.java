@@ -1,7 +1,7 @@
 package dev.thural.quietspace.service;
 
-import dev.thural.quietspace.enums.EntityType;
-import dev.thural.quietspace.enums.NotificationType;
+import dev.thural.quietspace.shared.enums.EntityType;
+import dev.thural.quietspace.shared.enums.NotificationType;
 import dev.thural.quietspace.model.response.NotificationResponse;
 import org.springframework.data.domain.Page;
 

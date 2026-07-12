@@ -1,6 +1,6 @@
 package dev.thural.quietspace.service.impl;
 
-import dev.thural.quietspace.enums.EmailTemplateName;
+import dev.thural.quietspace.shared.enums.EmailTemplateName;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;

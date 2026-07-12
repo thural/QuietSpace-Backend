@@ -11,7 +11,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import static dev.thural.quietspace.enums.Role.ADMIN;
+import static dev.thural.quietspace.shared.enums.Role.ADMIN;
 
 @Slf4j
 @Component

@@ -2,8 +2,8 @@ package dev.thural.quietspace.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import dev.thural.quietspace.enums.Role;
-import dev.thural.quietspace.enums.StatusType;
+import dev.thural.quietspace.shared.enums.Role;
+import dev.thural.quietspace.shared.enums.StatusType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import static dev.thural.quietspace.enums.StatusType.ONLINE;
+import static dev.thural.quietspace.shared.enums.StatusType.ONLINE;
 
 @Entity
 @Getter

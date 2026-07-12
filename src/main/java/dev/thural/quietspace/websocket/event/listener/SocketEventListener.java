@@ -14,10 +14,10 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.security.Principal;
 
-import static dev.thural.quietspace.enums.EventType.CONNECT;
-import static dev.thural.quietspace.enums.EventType.DISCONNECT;
-import static dev.thural.quietspace.enums.StatusType.OFFLINE;
-import static dev.thural.quietspace.enums.StatusType.ONLINE;
+import static dev.thural.quietspace.shared.enums.EventType.CONNECT;
+import static dev.thural.quietspace.shared.enums.EventType.DISCONNECT;
+import static dev.thural.quietspace.shared.enums.StatusType.OFFLINE;
+import static dev.thural.quietspace.shared.enums.StatusType.ONLINE;
 
 @Slf4j
 @Component

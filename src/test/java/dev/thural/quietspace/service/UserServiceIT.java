@@ -3,7 +3,7 @@ package dev.thural.quietspace.service;
 import dev.thural.quietspace.config.TestcontainersConfig;
 import dev.thural.quietspace.entity.ProfileSettings;
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.enums.Role;
+import dev.thural.quietspace.shared.enums.Role;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.PhotoService;
 import org.junit.jupiter.api.BeforeEach;

@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static dev.thural.quietspace.enums.EventType.*;
+import static dev.thural.quietspace.shared.enums.EventType.*;
 
 @Slf4j
 @RestController

@@ -1,7 +1,7 @@
 package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.entity.Photo;
-import dev.thural.quietspace.enums.EntityType;
+import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.model.response.PhotoResponse;
 import org.springframework.web.multipart.MultipartFile;
 
