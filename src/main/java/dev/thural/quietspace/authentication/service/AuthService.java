@@ -9,6 +9,7 @@ import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.enums.EmailTemplateName;
 import dev.thural.quietspace.enums.StatusType;
 import dev.thural.quietspace.exception.ActivationTokenException;
+import dev.thural.quietspace.exception.CustomErrorException;
 import dev.thural.quietspace.exception.UserNotFoundException;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.repository.UserRepository;
@@ -20,10 +21,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +60,10 @@ public class AuthService {
     public void register(RegistrationRequest request) throws MessagingException {
         log.info("registering new user with email: {}", request.getEmail());
 
+        if (userRepository.existsByEmail(request.getEmail()) || userRepository.existsByUsername(request.getUsername())) {
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, "email or username is already taken");
+        }
+
         User user = User.builder()
                 .username(request.getUsername())
                 .firstname(request.getFirstname())
@@ -77,28 +85,33 @@ public class AuthService {
     @Transactional
     public AuthResponse authenticate(AuthRequest request) {
         log.info("authenticating user by email: {}", request.getEmail());
-        Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+        try {
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
 
-        var claims = new HashMap<String, Object>();
-        User user = ((User) auth.getPrincipal());
-        claims.put("fullName", user.getFullName());
+            var claims = new HashMap<String, Object>();
+            User user = ((User) auth.getPrincipal());
+            claims.put("fullName", user.getFullName());
 
-        String jwtAccessToken = jwtService.generateToken(claims, user);
-        String jwtRefreshToken = jwtService.generateRefreshToken(claims, user);
-        log.info("generated jwt token during authentication: {}", jwtAccessToken);
+            String jwtAccessToken = jwtService.generateToken(claims, user);
+            String jwtRefreshToken = jwtService.generateRefreshToken(claims, user);
+            log.info("generated jwt token during authentication: {}", jwtAccessToken);
 
-        setOnlineStatus(user.getEmail(), ONLINE);
-        return AuthResponse.builder()
-                .message("authentication was successful")
-                .userId(user.getId().toString())
-                .accessToken(jwtAccessToken)
-                .refreshToken(jwtRefreshToken)
-                .build();
+            setOnlineStatus(user.getEmail(), ONLINE);
+
+            return AuthResponse.builder()
+                    .message("authentication was successful")
+                    .userId(user.getId().toString())
+                    .accessToken(jwtAccessToken)
+                    .refreshToken(jwtRefreshToken)
+                    .build();
+        } catch (UsernameNotFoundException e) {
+            throw new org.springframework.security.authentication.BadCredentialsException("Invalid credentials");
+        }
     }
 
     @Transactional

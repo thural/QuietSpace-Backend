@@ -88,11 +88,23 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<CustomErrorResponse> handleBadCredentialsException(RuntimeException e) {
-        return ResponseEntity.badRequest().body(CustomErrorResponse.builder()
-                .status(UNAUTHORIZED.name())
-                .message(e.getMessage())
-                .build());
+    public ResponseEntity<CustomErrorResponse> handleUsernameNotFoundException(UsernameNotFoundException e) {
+        return ResponseEntity.status(UNAUTHORIZED)
+                .body(CustomErrorResponse.builder()
+                        .status(UNAUTHORIZED.name())
+                        .message(e.getMessage())
+                        .timestamp(new Date())
+                        .build());
+    }
+
+    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+    public ResponseEntity<CustomErrorResponse> handleBadCredentialsException(org.springframework.security.authentication.BadCredentialsException e) {
+        return ResponseEntity.status(UNAUTHORIZED)
+                .body(CustomErrorResponse.builder()
+                        .status(UNAUTHORIZED.name())
+                        .message(e.getMessage())
+                        .timestamp(new Date())
+                        .build());
     }
 
     @ExceptionHandler(UnauthorizedException.class)

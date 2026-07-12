@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,7 +42,7 @@ public class AppConfig {
             log.info("username in user details method: {}", username);
             return userRepository.findUserEntityByEmail(username).orElseGet(
                     () -> userRepository.findUserByUsername(username)
-                            .orElseThrow(UserNotFoundException::new)
+                            .orElseThrow(() -> new UsernameNotFoundException("User not found"))
             );
         };
     }
