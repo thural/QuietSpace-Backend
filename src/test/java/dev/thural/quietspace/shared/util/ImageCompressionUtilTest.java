@@ -1,4 +1,4 @@
-package dev.thural.quietspace.utils;
+package dev.thural.quietspace.shared.util;
 
 import org.junit.jupiter.api.Test;
 

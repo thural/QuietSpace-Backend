@@ -19,8 +19,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static dev.thural.quietspace.shared.enums.ReactionType.LIKE;
-import static dev.thural.quietspace.utils.PagingProvider.DEFAULT_SORT_OPTION;
-import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
+import static dev.thural.quietspace.shared.util.PagingProvider.DEFAULT_SORT_OPTION;
+import static dev.thural.quietspace.shared.util.PagingProvider.buildPageRequest;
 
 @Service
 @RequiredArgsConstructor

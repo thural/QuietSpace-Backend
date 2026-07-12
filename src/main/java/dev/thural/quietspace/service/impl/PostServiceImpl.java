@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
+import static dev.thural.quietspace.shared.util.PagingProvider.buildPageRequest;
 
 @Service
 @RequiredArgsConstructor

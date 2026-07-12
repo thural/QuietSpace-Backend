@@ -1,7 +1,7 @@
 package dev.thural.quietspace.query;
 
 import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.utils.PageUtils;
+import dev.thural.quietspace.shared.util.PageUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;

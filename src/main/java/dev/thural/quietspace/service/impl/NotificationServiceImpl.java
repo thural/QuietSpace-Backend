@@ -33,8 +33,8 @@ import static dev.thural.quietspace.controller.NotificationController.NOTIFICATI
 import static dev.thural.quietspace.shared.enums.EventType.SEEN_NOTIFICATION;
 import static dev.thural.quietspace.shared.enums.NotificationType.COMMENT_REACTION;
 import static dev.thural.quietspace.shared.enums.NotificationType.POST_REACTION;
-import static dev.thural.quietspace.utils.PagingProvider.DEFAULT_SORT_OPTION;
-import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
+import static dev.thural.quietspace.shared.util.PagingProvider.DEFAULT_SORT_OPTION;
+import static dev.thural.quietspace.shared.util.PagingProvider.buildPageRequest;
 
 @Slf4j
 @Service

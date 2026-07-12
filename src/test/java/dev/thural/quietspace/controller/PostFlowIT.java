@@ -6,7 +6,7 @@ import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.PhotoService;
-import dev.thural.quietspace.utils.IntegrationTestHelper;
+import dev.thural.quietspace.shared.util.IntegrationTestHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

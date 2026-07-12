@@ -1,4 +1,4 @@
-package dev.thural.quietspace.utils;
+package dev.thural.quietspace.shared.util;
 
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;

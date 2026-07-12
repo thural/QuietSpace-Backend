@@ -26,7 +26,7 @@ import java.util.UUID;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.Optional;
-import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
+import static dev.thural.quietspace.shared.util.PagingProvider.buildPageRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;

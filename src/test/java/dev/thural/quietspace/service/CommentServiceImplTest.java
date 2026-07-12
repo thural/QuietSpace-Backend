@@ -9,7 +9,7 @@ import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.repository.CommentRepository;
 import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.service.impl.CommentServiceImpl;
-import dev.thural.quietspace.utils.PagingProvider;
+import dev.thural.quietspace.shared.util.PagingProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,8 +22,8 @@ import org.springframework.data.domain.PageRequest;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dev.thural.quietspace.utils.PagingProvider.BY_CREATED_DATE_ASC;
-import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
+import static dev.thural.quietspace.shared.util.PagingProvider.BY_CREATED_DATE_ASC;
+import static dev.thural.quietspace.shared.util.PagingProvider.buildPageRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 

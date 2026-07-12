@@ -14,7 +14,7 @@ import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.repository.specifications.PostSpecifications;
 import dev.thural.quietspace.service.PhotoService;
 import dev.thural.quietspace.service.impl.PostServiceImpl;
-import dev.thural.quietspace.utils.PagingProvider;
+import dev.thural.quietspace.shared.util.PagingProvider;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -25,8 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dev.thural.quietspace.utils.PagingProvider.DEFAULT_SORT_OPTION;
-import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
+import static dev.thural.quietspace.shared.util.PagingProvider.DEFAULT_SORT_OPTION;
+import static dev.thural.quietspace.shared.util.PagingProvider.buildPageRequest;
 
 @Slf4j
 @Service

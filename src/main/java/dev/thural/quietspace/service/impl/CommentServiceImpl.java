@@ -24,8 +24,8 @@ import org.springframework.util.StringUtils;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dev.thural.quietspace.utils.PagingProvider.BY_CREATED_DATE_ASC;
-import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
+import static dev.thural.quietspace.shared.util.PagingProvider.BY_CREATED_DATE_ASC;
+import static dev.thural.quietspace.shared.util.PagingProvider.buildPageRequest;
 
 @Slf4j
 @Service

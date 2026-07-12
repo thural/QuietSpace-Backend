@@ -15,8 +15,8 @@ import dev.thural.quietspace.query.UserQuery;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.PhotoService;
 import dev.thural.quietspace.service.UserService;
-import dev.thural.quietspace.utils.PageUtils;
-import dev.thural.quietspace.utils.PagingProvider;
+import dev.thural.quietspace.shared.util.PageUtils;
+import dev.thural.quietspace.shared.util.PagingProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -36,8 +36,8 @@ import java.util.UUID;
 
 import static dev.thural.quietspace.shared.enums.StatusType.OFFLINE;
 import static dev.thural.quietspace.shared.enums.StatusType.ONLINE;
-import static dev.thural.quietspace.utils.PagingProvider.DEFAULT_SORT_OPTION;
-import static dev.thural.quietspace.utils.PagingProvider.buildPageRequest;
+import static dev.thural.quietspace.shared.util.PagingProvider.DEFAULT_SORT_OPTION;
+import static dev.thural.quietspace.shared.util.PagingProvider.buildPageRequest;
 
 @Slf4j
 @Service
