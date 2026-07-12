@@ -138,9 +138,6 @@ class UserFlowIT {
 
     @Test
     void getFollowers_shouldReturn200() throws Exception {
-        user1Jwt = helper.registerAndLogin("user1@test.com", "password123");
-        user2Jwt = helper.registerAndLogin("user2@test.com", "password456");
-
         mockMvc.perform(post(UserController.USER_PATH + "/follow/{userId}/toggle-follow", user2Id)
                         .header("Authorization", "Bearer " + user1Jwt))
                 .andExpect(status().isOk());
