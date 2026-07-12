@@ -1,9 +1,9 @@
 package dev.thural.quietspace.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.authentication.model.AuthRequest;
-import dev.thural.quietspace.authentication.model.AuthResponse;
-import dev.thural.quietspace.authentication.model.RegistrationRequest;
+import dev.thural.quietspace.auth.dto.AuthRequest;
+import dev.thural.quietspace.auth.dto.AuthResponse;
+import dev.thural.quietspace.auth.dto.RegistrationRequest;
 import dev.thural.quietspace.config.TestcontainersConfig;
 import dev.thural.quietspace.security.Token;
 import dev.thural.quietspace.user.User;

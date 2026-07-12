@@ -1,8 +1,8 @@
 package dev.thural.quietspace.shared.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.authentication.model.AuthRequest;
-import dev.thural.quietspace.authentication.model.AuthResponse;
+import dev.thural.quietspace.auth.dto.AuthRequest;
+import dev.thural.quietspace.auth.dto.AuthResponse;
 import dev.thural.quietspace.user.ProfileSettings;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.Role;

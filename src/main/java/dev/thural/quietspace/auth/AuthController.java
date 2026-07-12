@@ -1,9 +1,8 @@
-package dev.thural.quietspace.authentication.controller;
+package dev.thural.quietspace.auth;
 
-import dev.thural.quietspace.authentication.model.AuthRequest;
-import dev.thural.quietspace.authentication.model.AuthResponse;
-import dev.thural.quietspace.authentication.model.RegistrationRequest;
-import dev.thural.quietspace.authentication.service.AuthService;
+import dev.thural.quietspace.auth.dto.AuthRequest;
+import dev.thural.quietspace.auth.dto.AuthResponse;
+import dev.thural.quietspace.auth.dto.RegistrationRequest;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;

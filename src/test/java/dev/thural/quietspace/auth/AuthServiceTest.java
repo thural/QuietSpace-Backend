@@ -1,8 +1,8 @@
-package dev.thural.quietspace.authentication.service;
+package dev.thural.quietspace.auth;
 
-import dev.thural.quietspace.authentication.model.AuthRequest;
-import dev.thural.quietspace.authentication.model.AuthResponse;
-import dev.thural.quietspace.authentication.model.RegistrationRequest;
+import dev.thural.quietspace.auth.dto.AuthRequest;
+import dev.thural.quietspace.auth.dto.AuthResponse;
+import dev.thural.quietspace.auth.dto.RegistrationRequest;
 import dev.thural.quietspace.security.Token;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.Role;

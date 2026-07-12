@@ -1,4 +1,4 @@
-package dev.thural.quietspace.authentication.model;
+package dev.thural.quietspace.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
