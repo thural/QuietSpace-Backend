@@ -1,7 +1,6 @@
-package dev.thural.quietspace.repository.specifications;
+package dev.thural.quietspace.post;
 
 import dev.thural.quietspace.entity.Comment;
-import dev.thural.quietspace.entity.Post;
 import dev.thural.quietspace.user.ProfileSettings;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserService;

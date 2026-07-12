@@ -3,7 +3,7 @@ package dev.thural.quietspace.controller.unit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.controller.CommentController;
 import dev.thural.quietspace.entity.Comment;
-import dev.thural.quietspace.entity.Post;
+import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.Role;
 import dev.thural.quietspace.model.request.CommentRequest;

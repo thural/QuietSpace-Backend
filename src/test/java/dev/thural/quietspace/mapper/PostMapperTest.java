@@ -1,15 +1,16 @@
 package dev.thural.quietspace.mapper;
 
-import dev.thural.quietspace.entity.Poll;
-import dev.thural.quietspace.entity.PollOption;
-import dev.thural.quietspace.entity.Post;
+import dev.thural.quietspace.post.Poll;
+import dev.thural.quietspace.post.PollOption;
+import dev.thural.quietspace.post.Post;
+import dev.thural.quietspace.post.PostMapper;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.ReactionType;
-import dev.thural.quietspace.model.request.PollRequest;
-import dev.thural.quietspace.model.request.PostRequest;
-import dev.thural.quietspace.model.request.RepostRequest;
+import dev.thural.quietspace.post.dto.PollRequest;
+import dev.thural.quietspace.post.dto.PostRequest;
+import dev.thural.quietspace.post.dto.RepostRequest;
 import dev.thural.quietspace.model.response.*;
-import dev.thural.quietspace.repository.PostRepository;
+import dev.thural.quietspace.post.PostRepository;
 import dev.thural.quietspace.service.PhotoService;
 import dev.thural.quietspace.service.ReactionService;
 import dev.thural.quietspace.user.UserService;

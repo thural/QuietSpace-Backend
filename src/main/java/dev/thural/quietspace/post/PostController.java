@@ -1,11 +1,10 @@
-package dev.thural.quietspace.controller;
+package dev.thural.quietspace.post;
 
-import dev.thural.quietspace.model.request.PostRequest;
-import dev.thural.quietspace.model.request.RepostRequest;
-import dev.thural.quietspace.model.request.VoteRequest;
-import dev.thural.quietspace.model.response.PostResponse;
+import dev.thural.quietspace.post.dto.PostRequest;
+import dev.thural.quietspace.post.dto.RepostRequest;
+import dev.thural.quietspace.post.dto.VoteRequest;
+import dev.thural.quietspace.post.dto.PostResponse;
 import dev.thural.quietspace.service.NotificationService;
-import dev.thural.quietspace.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import jakarta.validation.Valid;

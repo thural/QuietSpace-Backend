@@ -8,6 +8,7 @@ import dev.thural.quietspace.user.dto.UserResponse;
 import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.*;
+import dev.thural.quietspace.post.PostService;
 import dev.thural.quietspace.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

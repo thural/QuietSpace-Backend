@@ -2,7 +2,7 @@ package dev.thural.quietspace.service.impl;
 
 import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Notification;
-import dev.thural.quietspace.entity.Post;
+import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.shared.enums.EventType;
@@ -11,7 +11,7 @@ import dev.thural.quietspace.mapper.NotificationMapper;
 import dev.thural.quietspace.model.response.NotificationResponse;
 import dev.thural.quietspace.repository.CommentRepository;
 import dev.thural.quietspace.repository.NotificationRepository;
-import dev.thural.quietspace.repository.PostRepository;
+import dev.thural.quietspace.post.PostRepository;
 import dev.thural.quietspace.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;

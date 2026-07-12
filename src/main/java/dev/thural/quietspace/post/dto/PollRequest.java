@@ -1,4 +1,4 @@
-package dev.thural.quietspace.model.request;
+package dev.thural.quietspace.post.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

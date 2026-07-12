@@ -1,13 +1,13 @@
 package dev.thural.quietspace.mapper;
 
 import dev.thural.quietspace.entity.Comment;
-import dev.thural.quietspace.entity.Post;
+import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
 import dev.thural.quietspace.repository.CommentRepository;
-import dev.thural.quietspace.repository.PostRepository;
+import dev.thural.quietspace.post.PostRepository;
 import dev.thural.quietspace.repository.ReactionRepository;
 import dev.thural.quietspace.user.UserRepository;
 import dev.thural.quietspace.service.ReactionService;

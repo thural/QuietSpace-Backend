@@ -1,4 +1,4 @@
-package dev.thural.quietspace.entity;
+package dev.thural.quietspace.post;
 import dev.thural.quietspace.shared.entity.BaseEntity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;

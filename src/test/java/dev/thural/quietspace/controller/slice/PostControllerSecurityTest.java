@@ -1,11 +1,11 @@
 package dev.thural.quietspace.controller.slice;
 import dev.thural.quietspace.user.User;
 
-import dev.thural.quietspace.controller.PostController;
+import dev.thural.quietspace.post.PostController;
 import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.NotificationService;
-import dev.thural.quietspace.service.PostService;
+import dev.thural.quietspace.post.PostService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

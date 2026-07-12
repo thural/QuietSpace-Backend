@@ -1,4 +1,5 @@
 package dev.thural.quietspace.entity;
+import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.entity.BaseEntity;
 
