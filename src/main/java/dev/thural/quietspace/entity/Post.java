@@ -12,6 +12,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.validator.constraints.Length;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,7 +22,7 @@ import java.util.UUID;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Post extends BaseEntity {
+public class Post extends BaseEntity implements Serializable {
 
     private String title;
     private String repostText;

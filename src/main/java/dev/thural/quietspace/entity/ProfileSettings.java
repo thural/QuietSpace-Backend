@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +17,7 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProfileSettings extends BaseEntity {
+public class ProfileSettings extends BaseEntity implements Serializable {
 
     public ProfileSettings(User user) {
         this.user = user;
