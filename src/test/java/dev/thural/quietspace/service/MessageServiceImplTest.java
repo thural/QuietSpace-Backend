@@ -92,7 +92,7 @@ class MessageServiceImplTest {
     }
 
     @Test
-    void testAddMessage() {
+    void addMessage_shouldReturnMessage() {
         when(messageMapper.toEntity(messageRequest)).thenReturn(message);
         when(messageMapper.toResponse(message)).thenReturn(messageResponse);
         when(userService.getSignedUser()).thenReturn(user);
@@ -108,7 +108,7 @@ class MessageServiceImplTest {
     }
 
     @Test
-    void testDeleteMessage() {
+    void deleteMessage_shouldSucceed() {
         when(userService.getSignedUser()).thenReturn(user);
         when(messageRepository.findById(message.getId())).thenReturn(Optional.of(message));
         when(messageMapper.toResponse(message)).thenReturn(messageResponse);
@@ -120,7 +120,7 @@ class MessageServiceImplTest {
     }
 
     @Test
-    void testGetMessagesByChatId() {
+    void getMessagesByChatId_shouldReturnMessages() {
         PageRequest pageRequest = buildPageRequest(1, 50, null);
         when(messageRepository.findAllByChatId(chat.getId(), pageRequest)).thenReturn(Page.empty());
 
@@ -131,7 +131,7 @@ class MessageServiceImplTest {
     }
 
     @Test
-    void testGetLastMessageByChat() {
+    void getLastMessageByChat_shouldReturnMessage() {
         when(messageRepository.findFirstByChatOrderByCreateDateDesc(chat)).thenReturn(Optional.ofNullable(message));
         when(messageMapper.toResponse(message)).thenReturn(messageResponse);
 

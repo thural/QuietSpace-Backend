@@ -273,54 +273,6 @@ class CommentMapperTest {
     }
 
     @Test
-    void getUserById_shouldReturnUserWhenFound() {
-        // This is tested indirectly through commentRequestToEntity test
-        // User retrieval is verified in the main test above
-    }
-
-    @Test
-    void getUserById_shouldReturnNullWhenNotFound() {
-        // This is tested indirectly through commentRequestToEntity test with non-existent user
-        // Null user handling is verified in the main test above
-    }
-
-    @Test
-    void getPostById_shouldReturnPostWhenFound() {
-        // This is tested indirectly through commentRequestToEntity test
-        // Post retrieval is verified in the main test above
-    }
-
-    @Test
-    void getPostById_shouldReturnNullWhenNotFound() {
-        // This is tested indirectly through commentRequestToEntity test with non-existent post
-        // Null post handling is verified in the main test above
-    }
-
-    @Test
-    void getReplyCount_shouldReturnCorrectCount() {
-        // This is tested indirectly through commentEntityToResponse test
-        // Reply count calculation is verified in the main test above
-    }
-
-    @Test
-    void getLikeCount_shouldReturnCorrectCount() {
-        // This is tested indirectly through commentEntityToResponse test
-        // Like count calculation is verified in the main test above
-    }
-
-    @Test
-    void getUserReaction_shouldReturnReactionWhenFound() {
-        // This is tested indirectly through commentEntityToResponse test
-        // User reaction retrieval is verified in the main test above
-    }
-
-    @Test
-    void getUserReaction_shouldReturnNullWhenNotFound() {
-        // This is tested indirectly through commentEntityToResponse test with null reaction
-        // Null reaction handling is verified in the main test above
-    }
-
-    @Test
     void commentEntityToResponse_shouldHandleDifferentReactionTypes() {
         // Given
         ReactionResponse dislikeReaction = ReactionResponse.builder()

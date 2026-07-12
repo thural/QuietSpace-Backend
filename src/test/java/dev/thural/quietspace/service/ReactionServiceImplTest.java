@@ -83,7 +83,7 @@ class ReactionServiceImplTest {
     }
 
     @Test
-    void testHandleReactionRemoveLike() {
+    void handleReactionRemoveLike_shouldSucceed() {
         when(userService.getSignedUser()).thenReturn(user);
         when(reactionRepository.findByContentIdAndUserId(contentId, userId)).thenReturn(Optional.of(reaction));
 
@@ -93,7 +93,7 @@ class ReactionServiceImplTest {
     }
 
     @Test
-    void testHandleReactionAddLike() {
+    void handleReactionAddLike_shouldSucceed() {
         when(userService.getSignedUser()).thenReturn(user);
         when(reactionMapper.reactionRequestToEntity(any(ReactionRequest.class))).thenReturn(reaction);
         when(reactionRepository.findByContentIdAndUserId(any(UUID.class), any(UUID.class))).thenReturn(Optional.empty());

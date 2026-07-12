@@ -112,7 +112,7 @@ public class PostServiceImplTest {
     }
 
     @Test
-    void testGetAllPosts() {
+    void getAllPosts_shouldReturnPosts() {
         Specification<Post> mockSpec = Specification.where((root, query, cb) -> cb.conjunction());
         when(postSpecifications.visibleToUser()).thenReturn(mockSpec);
         when(postRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(Page.empty());
@@ -124,7 +124,7 @@ public class PostServiceImplTest {
     }
 
     @Test
-    void testGetPostByUserId() {
+    void getPostByUserId_shouldReturnPosts() {
         Specification<Post> mockSpec = Specification.where((root, query, cb) -> cb.conjunction());
         when(postSpecifications.visibleToUser()).thenReturn(mockSpec);
         when(postSpecifications.combine(any(), any())).thenReturn(mockSpec);
@@ -137,7 +137,7 @@ public class PostServiceImplTest {
     }
 
     @Test
-    void testAddPostById() {
+    void addPostById_shouldReturnPost() {
         when(userService.getSignedUser()).thenReturn(user);
         when(postMapper.postRequestToEntity(any(PostRequest.class))).thenReturn(post);
         when(postMapper.postEntityToResponse(post)).thenReturn(postResponse);
@@ -150,14 +150,15 @@ public class PostServiceImplTest {
     }
 
     @Test
-    void testGetVotedOptionLabel() {
+    void getVotedOptionLabel_shouldReturnLabel() {
         when(userService.getSignedUser()).thenReturn(user);
         String optionLabel = postService.getVotedPollOptionLabel(poll);
+
         assertThat(optionLabel).isEqualTo("sample label");
     }
 
     @Test
-    void testGetPostResponseById() {
+    void getPostResponseById_shouldReturnPost() {
         when(postRepository.findById(post.getId())).thenReturn(Optional.ofNullable(post));
         when(postMapper.postEntityToResponse(post)).thenReturn(postResponse);
 
@@ -168,7 +169,7 @@ public class PostServiceImplTest {
     }
 
     @Test
-    void testUpdatePost() {
+    void updatePost_shouldReturnPost() {
         when(userService.getSignedUser()).thenReturn(user);
         when(postRepository.findById(post.getId())).thenReturn(Optional.ofNullable(post));
         when(postMapper.postEntityToResponse(post)).thenReturn(postResponse);
@@ -180,7 +181,7 @@ public class PostServiceImplTest {
     }
 
     @Test
-    void testVotePoll() {
+    void votePoll_shouldSucceed() {
         when(postRepository.findById(post.getId())).thenReturn(Optional.ofNullable(post));
         postService.votePoll(voteRequest);
 
@@ -194,7 +195,7 @@ public class PostServiceImplTest {
     }
 
     @Test
-    void testDeletePost() {
+    void deletePost_shouldSucceed() {
         when(userService.getSignedUser()).thenReturn(user);
         when(postRepository.findById(post.getId())).thenReturn(Optional.ofNullable(post));
 

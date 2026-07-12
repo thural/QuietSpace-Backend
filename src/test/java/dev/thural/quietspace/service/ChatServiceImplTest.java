@@ -98,7 +98,7 @@ public class ChatServiceImplTest {
     }
 
     @Test
-    void testFindChatById() {
+    void findChatById_shouldReturnChat() {
         when(userService.getSignedUser()).thenReturn(user1);
         when(chatRepository.findById(chat.getId())).thenReturn(Optional.of(chat));
 
@@ -110,7 +110,7 @@ public class ChatServiceImplTest {
     }
 
     @Test
-    void testGetChatsByUserId() {
+    void getChatsByUserId_shouldReturnChats() {
         when(userService.getSignedUser()).thenReturn(user1);
         when(chatRepository.findAllByUsersId(userId)).thenReturn(List.of(chat));
         when(chatMapper.chatEntityToResponse(any(Chat.class))).thenReturn(chatResponse);
@@ -124,7 +124,7 @@ public class ChatServiceImplTest {
     }
 
     @Test
-    void testDeleteChatById() {
+    void deleteChatById_shouldSucceed() {
         when(userService.getSignedUser()).thenReturn(user1);
         when(chatRepository.findById(chat.getId())).thenReturn(Optional.of(chat));
 
@@ -135,7 +135,7 @@ public class ChatServiceImplTest {
     }
 
     @Test
-    void testAddMember() {
+    void addMember_shouldReturnUpdatedChat() {
         UserResponse memberResponse = new UserResponse();
         BeanUtils.copyProperties(user2, memberResponse);
 
@@ -145,12 +145,13 @@ public class ChatServiceImplTest {
         when(userMapper.toResponse(user2)).thenReturn(memberResponse);
 
         UserResponse addedUser = chatService.addMemberWithId(memberId, chat.getId());
+
         assertThat(addedUser).isEqualTo(memberResponse);
         verify(userMapper, times(1)).toResponse(user2);
     }
 
     @Test
-    void testRemoveMember() {
+    void removeMember_shouldReturnUpdatedChat() {
         when(userService.getSignedUser()).thenReturn(user1);
         when(chatRepository.findById(chat.getId())).thenReturn(Optional.of(chat));
         when(userService.getUserById(userId)).thenReturn(Optional.of(user1));
@@ -163,7 +164,7 @@ public class ChatServiceImplTest {
     }
 
     @Test
-    void testCreateChat() {
+    void createChat_shouldReturnChat() {
         when(userService.getSignedUser()).thenReturn(user1);
         when(userService.getUsersFromIdList(anyList())).thenReturn(userList);
         when(userService.getUserById(chatRequest.getRecipientId())).thenReturn(Optional.of(user1));

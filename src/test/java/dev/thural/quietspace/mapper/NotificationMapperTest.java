@@ -10,6 +10,8 @@ import dev.thural.quietspace.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -162,48 +164,27 @@ class NotificationMapperTest {
         verify(userRepository).findById(actorId);
     }
 
-    @Test
-    void toResponse_shouldHandleAllNotificationTypes() {
-        // Test all notification types
-        NotificationType[] notificationTypes = NotificationType.values();
-        
-        for (NotificationType type : notificationTypes) {
-            // Given
-            notification.setNotificationType(type);
-            when(userRepository.findById(actorId)).thenReturn(Optional.of(actor));
+    @ParameterizedTest
+    @EnumSource(NotificationType.class)
+    void toResponse_shouldHandleAllNotificationTypes(NotificationType type) {
+        notification.setNotificationType(type);
+        when(userRepository.findById(actorId)).thenReturn(Optional.of(actor));
 
-            // When
-            NotificationResponse result = notificationMapper.toResponse(notification);
+        NotificationResponse result = notificationMapper.toResponse(notification);
 
-            // Then
-            assertThat(result).isNotNull();
-            assertThat(result.getType()).isEqualTo(type);
-
-            // Reset for next iteration
-            reset(userRepository);
-        }
+        assertThat(result).isNotNull();
+        assertThat(result.getType()).isEqualTo(type);
     }
 
-    @Test
-    void toResponse_shouldHandleAllEntityTypes() {
-        // Test all entity types
-        EntityType[] entityTypes = EntityType.values();
-        
-        for (EntityType type : entityTypes) {
-            // Given
-            notification.setContentType(type);
-            when(userRepository.findById(actorId)).thenReturn(Optional.of(actor));
+    @ParameterizedTest
+    @EnumSource(EntityType.class)
+    void toResponse_shouldHandleAllEntityTypes(EntityType type) {
+        notification.setContentType(type);
+        when(userRepository.findById(actorId)).thenReturn(Optional.of(actor));
 
-            // When
-            NotificationResponse result = notificationMapper.toResponse(notification);
+        NotificationResponse result = notificationMapper.toResponse(notification);
 
-            // Then
-            assertThat(result).isNotNull();
-            // Entity type is not directly exposed in response but should be processed
-
-            // Reset for next iteration
-            reset(userRepository);
-        }
+        assertThat(result).isNotNull();
     }
 
     @Test

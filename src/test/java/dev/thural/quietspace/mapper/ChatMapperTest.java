@@ -246,19 +246,6 @@ class ChatMapperTest {
     }
 
     @Test
-    void getUserIdsFromChat_shouldExtractUserIdsCorrectly() {
-        // This is tested indirectly through chatEntityToResponse test
-        // Testing the private method would require reflection or making it package-private
-        // The behavior is verified in the main test above
-    }
-
-    @Test
-    void getChatMembers_shouldFilterLoggedUserCorrectly() {
-        // This is tested indirectly through chatEntityToResponse test
-        // The filtering logic is verified in the main test above
-    }
-
-    @Test
     void getLastMessage_shouldReturnNullWhenNoMessage() {
         // Given
         when(userService.getSignedUser()).thenReturn(loggedUser);

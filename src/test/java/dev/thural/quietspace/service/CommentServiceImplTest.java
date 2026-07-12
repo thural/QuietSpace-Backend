@@ -90,18 +90,19 @@ class CommentServiceImplTest {
     }
 
     @Test
-    void testGetCommentsByPost() {
+    void getCommentsByPost_shouldReturnComments() {
         PageRequest pageRequest = PagingProvider.buildPageRequest(1, 50, BY_CREATED_DATE_ASC);
 
         when(commentRepository.findAllByPostId(post.getId(), pageRequest)).thenReturn(Page.empty());
 
         Page<CommentResponse> commentPage = commentService.getCommentsByPostId(post.getId(), 1, 50);
+
         assertThat(commentPage).isEqualTo(Page.empty());
         verify(commentRepository, times(1)).findAllByPostId(post.getId(), pageRequest);
     }
 
     @Test
-    void testGetCommentsByUser() {
+    void getCommentsByUser_shouldReturnComments() {
         PageRequest pageRequest = PagingProvider.buildPageRequest(1, 50, null);
         when(commentRepository.findAllByUserId(userId, pageRequest)).thenReturn(Page.empty());
         when(userService.getSignedUser()).thenReturn(user);
@@ -113,7 +114,7 @@ class CommentServiceImplTest {
     }
 
     @Test
-    void testCreateComment() {
+    void createComment_shouldReturnComment() {
         when(userService.getSignedUser()).thenReturn(user);
         when(commentRepository.save(comment)).thenReturn(comment);
         when(postRepository.findById(comment.getPost().getId())).thenReturn(Optional.of(post));
@@ -129,7 +130,7 @@ class CommentServiceImplTest {
     }
 
     @Test
-    void testGetCommentById() {
+    void getCommentById_shouldReturnComment() {
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
         when(commentMapper.commentEntityToResponse(comment)).thenReturn(commentResponse);
 
@@ -141,7 +142,7 @@ class CommentServiceImplTest {
     }
 
     @Test
-    void testUpdateComment() {
+    void updateComment_shouldReturnComment() {
         User otherUser = User.builder().id(UUID.randomUUID()).username("other").build();
         comment.setUser(otherUser);
         when(userService.getSignedUser()).thenReturn(user);
@@ -155,7 +156,7 @@ class CommentServiceImplTest {
     }
 
     @Test
-    void testDeleteComment() {
+    void deleteComment_shouldSucceed() {
         comment.setParentId(null);
         when(userService.getSignedUser()).thenReturn(user);
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
@@ -179,7 +180,7 @@ class CommentServiceImplTest {
     }
 
     @Test
-    void testPatchComment() {
+    void patchComment_shouldReturnComment() {
         when(userService.getSignedUser()).thenReturn(user);
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
         when(commentMapper.commentEntityToResponse(comment)).thenReturn(commentResponse);

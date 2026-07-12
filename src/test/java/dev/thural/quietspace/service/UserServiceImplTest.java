@@ -92,7 +92,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testGetUserById() {
+    void getUserById_shouldReturnUser() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         User foundUser = userService.getUserById(userId).orElseThrow(null);
@@ -102,7 +102,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testGetUserResponseById() {
+    void getUserResponseById_shouldReturnUser() {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         UserResponse foundUser = userService.getUserResponseById(userId).orElseThrow();
@@ -112,7 +112,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testListAllTest() {
+    void listAll_shouldReturnUsers() {
         PageRequest pageRequest = PagingProvider.buildPageRequest(1, 50, null);
         when(userRepository.findAll(pageRequest)).thenReturn(Page.empty());
 
@@ -123,7 +123,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testGetUsersFromIdList() {
+    void getUsersFromIdList_shouldReturnUsers() {
         List<UUID> userIdList = List.of(UUID.randomUUID(), UUID.randomUUID());
         when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
 
@@ -134,7 +134,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testGetSignedUser() {
+    void getSignedUser_shouldReturnUser() {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
 
@@ -145,7 +145,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testGetSignedUserResponse() {
+    void getSignedUserResponse_shouldReturnUser() {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
 
@@ -156,7 +156,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testDeleteUser() {
+    void deleteUser_shouldSucceed() {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
         SecurityContextHolder.setContext(securityContext);
@@ -168,7 +168,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testUpdateUser() {
+    void updateUser_shouldReturnUser() {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
