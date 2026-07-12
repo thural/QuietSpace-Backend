@@ -1,4 +1,4 @@
-package dev.thural.quietspace.model.response;
+package dev.thural.quietspace.shared.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;

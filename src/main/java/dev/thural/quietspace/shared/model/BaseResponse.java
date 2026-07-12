@@ -1,4 +1,4 @@
-package dev.thural.quietspace.model.response;
+package dev.thural.quietspace.shared.model;
 
 import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;

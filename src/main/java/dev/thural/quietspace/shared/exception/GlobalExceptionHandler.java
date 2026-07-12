@@ -1,6 +1,6 @@
 package dev.thural.quietspace.shared.exception;
 
-import dev.thural.quietspace.model.response.CustomErrorResponse;
+import dev.thural.quietspace.shared.model.CustomErrorResponse;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;

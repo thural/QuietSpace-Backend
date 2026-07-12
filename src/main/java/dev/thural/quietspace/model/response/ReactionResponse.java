@@ -1,4 +1,5 @@
 package dev.thural.quietspace.model.response;
+import dev.thural.quietspace.shared.model.BaseResponse;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import dev.thural.quietspace.shared.enums.ReactionType;
