@@ -18,6 +18,7 @@ import dev.thural.quietspace.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,6 +50,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    @Transactional
     public UserResponse addMemberWithId(UUID memberId, UUID chatId) {
         Chat foundChat = findChatEntityById(chatId);
         User foundMember = userService.getUserById(memberId).orElseThrow(UserNotFoundException::new);
@@ -59,6 +61,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    @Transactional
     public List<UserResponse> removeMemberWithId(UUID memberId, UUID chatId) {
         Chat foundChat = findChatEntityById(chatId);
         User foundMember = getUserById(memberId);
