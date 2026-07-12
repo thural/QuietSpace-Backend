@@ -68,6 +68,7 @@ class ReactionFlowIT {
     void setUp() throws Exception {
         IntegrationTestHelper.cleanDatabase(entityManager);
         userRepository.deleteAll();
+        entityManager.flush();
         helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
         jwtToken = helper.registerAndLogin("reactuser@test.com", "password123");
         userId = userRepository.findUserEntityByEmail("reactuser@test.com").orElseThrow().getId();

@@ -73,6 +73,7 @@ class ChatFlowIT {
         messageRepository.deleteAll();
         chatRepository.deleteAll();
         userRepository.deleteAll();
+        entityManager.flush();
 
         helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
         user1Jwt = helper.registerAndLogin("chatuser1@test.com", "password123");

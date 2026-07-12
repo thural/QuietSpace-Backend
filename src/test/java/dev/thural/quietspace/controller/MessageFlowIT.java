@@ -76,6 +76,7 @@ class MessageFlowIT {
         messageRepository.deleteAll();
         chatRepository.deleteAll();
         userRepository.deleteAll();
+        entityManager.flush();
 
         helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
 

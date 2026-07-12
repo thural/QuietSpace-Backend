@@ -75,6 +75,7 @@ class CommentFlowIT {
         commentRepository.deleteAll();
         postRepository.deleteAll();
         userRepository.deleteAll();
+        entityManager.flush();
 
         helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
 

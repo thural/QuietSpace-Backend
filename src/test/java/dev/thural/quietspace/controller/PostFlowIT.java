@@ -68,6 +68,7 @@ class PostFlowIT {
         IntegrationTestHelper.cleanDatabase(entityManager);
         postRepository.deleteAll();
         userRepository.deleteAll();
+        entityManager.flush();
         helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
         jwtToken = helper.registerAndLogin("postuser@test.com", "password123");
         userId = userRepository.findUserEntityByEmail("postuser@test.com").orElseThrow().getId();

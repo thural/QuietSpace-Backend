@@ -67,6 +67,7 @@ class UserFlowIT {
     void setUp() throws Exception {
         IntegrationTestHelper.cleanDatabase(entityManager);
         userRepository.deleteAll();
+        entityManager.flush();
         helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
         user1Jwt = helper.registerAndLogin("user1@test.com", "password123");
         user1Id = userRepository.findUserEntityByEmail("user1@test.com").orElseThrow().getId();

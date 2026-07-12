@@ -54,6 +54,7 @@ class PhotoFlowIT {
     void setUp() throws Exception {
         IntegrationTestHelper.cleanDatabase(entityManager);
         userRepository.deleteAll();
+        entityManager.flush();
         helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
         jwtToken = helper.registerAndLogin("photouser@test.com", "password123");
         userId = userRepository.findUserEntityByEmail("photouser@test.com").orElseThrow().getId();

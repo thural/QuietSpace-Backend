@@ -77,6 +77,7 @@ class WebSocketFlowIT {
     void setUp() throws Exception {
         IntegrationTestHelper.cleanDatabase(entityManager);
         userRepository.deleteAll();
+        entityManager.flush();
         helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
         user1Jwt = helper.registerAndLogin("wsuser1@test.com", "password123");
         user1Id = userRepository.findUserEntityByEmail("wsuser1@test.com").orElseThrow().getId();

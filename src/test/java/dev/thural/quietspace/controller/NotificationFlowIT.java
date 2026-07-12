@@ -2,6 +2,9 @@ package dev.thural.quietspace.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.config.TestcontainersConfig;
+import dev.thural.quietspace.entity.Notification;
+import dev.thural.quietspace.enums.NotificationType;
+import dev.thural.quietspace.repository.NotificationRepository;
 import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.PhotoService;
 import dev.thural.quietspace.utils.IntegrationTestHelper;
@@ -44,6 +47,9 @@ class NotificationFlowIT {
     private UserRepository userRepository;
 
     @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -59,15 +65,18 @@ class NotificationFlowIT {
     private String user1Jwt;
     private String user2Jwt;
     private UUID user1Id;
+    private UUID user2Id;
 
     @BeforeEach
     void setUp() throws Exception {
         IntegrationTestHelper.cleanDatabase(entityManager);
         userRepository.deleteAll();
+        entityManager.flush();
         helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
         user1Jwt = helper.registerAndLogin("notifuser1@test.com", "password123");
         user1Id = userRepository.findUserEntityByEmail("notifuser1@test.com").orElseThrow().getId();
         user2Jwt = helper.registerAndLogin("notifuser2@test.com", "password456");
+        user2Id = userRepository.findUserEntityByEmail("notifuser2@test.com").orElseThrow().getId();
     }
 
     @Test
@@ -112,12 +121,16 @@ class NotificationFlowIT {
 
     @Test
     void markNotificationAsSeen_shouldReturn202() throws Exception {
-        mockMvc.perform(post("/api/v1/users/follow/{userId}/toggle-follow", user1Id)
-                        .header("Authorization", "Bearer " + user2Jwt))
-                .andExpect(status().isOk());
+        Notification notification = Notification.builder()
+                .userId(user1Id)
+                .actorId(user2Id)
+                .contentId(user2Id)
+                .isSeen(false)
+                .notificationType(dev.thural.quietspace.enums.NotificationType.FOLLOW_REQUEST)
+                .build();
+        notificationRepository.save(notification);
 
-        var notificationId = user1Id;
-        mockMvc.perform(post("/api/v1/notifications/seen/{contentId}", notificationId)
+        mockMvc.perform(post("/api/v1/notifications/seen/{contentId}", notification.getId())
                         .header("Authorization", "Bearer " + user1Jwt))
                 .andExpect(status().isAccepted());
     }
@@ -127,7 +140,7 @@ class NotificationFlowIT {
         mockMvc.perform(post("/api/v1/notifications/process")
                         .header("Authorization", "Bearer " + user1Jwt)
                         .param("type", "FOLLOW_REQUEST")
-                        .param("contentId", UUID.randomUUID().toString()))
+                        .param("contentId", user2Id.toString()))
                 .andExpect(status().isOk());
     }
 }
