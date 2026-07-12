@@ -153,7 +153,6 @@ class CommentControllerTest {
     }
 
     @Test
-    @WithUserDetails
     void createComment() throws Exception {
         when(commentService.createComment(any(CommentRequest.class))).thenReturn(commentResponse);
 
@@ -189,7 +188,14 @@ class CommentControllerTest {
     }
 
     @Test
-    void deleteComment() {
+    void deleteComment() throws Exception {
+        doNothing().when(commentService).deleteComment(any());
+
+        mockMvc.perform(delete(CommentController.COMMENT_PATH + "/" + comment.getId()))
+                .andExpect(status().isNoContent());
+
+        verify(commentService).deleteComment(uuidArgumentCaptor.capture());
+        assertThat(comment.getId()).isEqualTo(uuidArgumentCaptor.getValue());
     }
 
     @Test

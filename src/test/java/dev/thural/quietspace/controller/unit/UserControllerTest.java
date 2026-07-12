@@ -116,7 +116,7 @@ public class UserControllerTest {
         registerRequest.setPassword("testPasswordUpdated");
         String userBodyJson = objectMapper.writeValueAsString(registerRequest);
 
-        mockMvc.perform(patch(UserController.USER_PATH, registerRequest)
+        mockMvc.perform(patch(UserController.USER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userBodyJson))

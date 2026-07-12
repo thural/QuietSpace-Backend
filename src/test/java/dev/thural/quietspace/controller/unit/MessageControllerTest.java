@@ -172,7 +172,7 @@ class MessageControllerTest {
                         .param("page-number", "1")
                         .param("page-size", "10")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().isOk());
 
         verify(messageService).getMessagesByChatId(1, 10, messageResponse.getId());
     }
