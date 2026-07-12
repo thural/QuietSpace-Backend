@@ -143,8 +143,8 @@ public class UserServiceImpl implements UserService {
         return userMapper.toResponse(userRepository.save(signedUser));
     }
 
-    private static boolean isHasAdminRole(User signedUser) {
-        return signedUser.getRole().name().equals("ROLE_".concat(Role.ADMIN.name()));
+    private boolean isHasAdminRole(User signedUser) {
+        return signedUser.getRole() == Role.ADMIN;
     }
 
     private User checkUserProfileAccessAndReturnUser(UUID userId) {

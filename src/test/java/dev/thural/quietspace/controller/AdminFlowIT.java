@@ -61,6 +61,7 @@ class AdminFlowIT {
     void setUp() throws Exception {
         IntegrationTestHelper.cleanDatabase(entityManager);
         userRepository.deleteAll();
+        entityManager.flush();
         helper = new IntegrationTestHelper(mockMvc, objectMapper, userRepository, passwordEncoder);
         adminJwt = helper.registerAndLoginAdmin("admin@test.com", "password123");
     }
