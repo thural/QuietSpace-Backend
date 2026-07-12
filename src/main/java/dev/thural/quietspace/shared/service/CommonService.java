@@ -1,4 +1,4 @@
-package dev.thural.quietspace.service;
+package dev.thural.quietspace.shared.service;
 
 import dev.thural.quietspace.entity.User;
 

@@ -7,7 +7,7 @@ import dev.thural.quietspace.shared.exception.ImageUploadException;
 import dev.thural.quietspace.shared.exception.UnsupportedImageTypeException;
 import dev.thural.quietspace.model.response.PhotoResponse;
 import dev.thural.quietspace.repository.PhotoRepository;
-import dev.thural.quietspace.service.CommonService;
+import dev.thural.quietspace.shared.service.CommonService;
 import dev.thural.quietspace.shared.util.ImageCompressionUtil;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;

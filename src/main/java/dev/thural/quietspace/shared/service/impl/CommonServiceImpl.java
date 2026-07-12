@@ -1,9 +1,9 @@
-package dev.thural.quietspace.service.impl;
+package dev.thural.quietspace.shared.service.impl;
 
 import dev.thural.quietspace.entity.User;
 import dev.thural.quietspace.shared.exception.UserNotFoundException;
 import dev.thural.quietspace.repository.UserRepository;
-import dev.thural.quietspace.service.CommonService;
+import dev.thural.quietspace.shared.service.CommonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
