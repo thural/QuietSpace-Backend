@@ -20,6 +20,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class IntegrationTestHelper {
 
     public static void cleanDatabase(EntityManager entityManager) {
+        entityManager.createNativeQuery("DELETE FROM message").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM reaction").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM notification").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM comment").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM poll_option_votes").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM poll_option").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM poll").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM post").executeUpdate();
         entityManager.createNativeQuery("DELETE FROM token").executeUpdate();
         entityManager.createNativeQuery("DELETE FROM user_followings").executeUpdate();
         entityManager.createNativeQuery("DELETE FROM user_chat").executeUpdate();
