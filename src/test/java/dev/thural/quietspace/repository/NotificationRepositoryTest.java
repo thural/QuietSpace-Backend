@@ -1,7 +1,8 @@
 package dev.thural.quietspace.repository;
+import dev.thural.quietspace.user.UserRepository;
 
 import dev.thural.quietspace.entity.Notification;
-import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.shared.enums.NotificationType;
 import dev.thural.quietspace.shared.enums.Role;

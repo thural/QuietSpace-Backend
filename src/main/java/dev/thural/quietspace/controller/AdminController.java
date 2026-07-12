@@ -1,8 +1,8 @@
 package dev.thural.quietspace.controller;
 
 
-import dev.thural.quietspace.model.response.UserResponse;
-import dev.thural.quietspace.service.UserService;
+import dev.thural.quietspace.user.dto.UserResponse;
+import dev.thural.quietspace.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;

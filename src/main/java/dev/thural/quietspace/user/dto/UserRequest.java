@@ -1,4 +1,4 @@
-package dev.thural.quietspace.model.request;
+package dev.thural.quietspace.user.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.*;

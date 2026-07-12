@@ -1,8 +1,9 @@
 package dev.thural.quietspace.service;
+import dev.thural.quietspace.user.UserService;
 
 import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.entity.Message;
-import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.mapper.MessageMapper;
 import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.MessageResponse;

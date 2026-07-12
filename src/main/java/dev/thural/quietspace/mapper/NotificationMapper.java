@@ -1,10 +1,10 @@
 package dev.thural.quietspace.mapper;
 
 import dev.thural.quietspace.entity.Notification;
-import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.exception.UserNotFoundException;
 import dev.thural.quietspace.model.response.NotificationResponse;
-import dev.thural.quietspace.repository.UserRepository;
+import dev.thural.quietspace.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;

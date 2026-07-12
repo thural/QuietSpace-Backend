@@ -1,4 +1,4 @@
-package dev.thural.quietspace.entity;
+package dev.thural.quietspace.user;
 import dev.thural.quietspace.shared.entity.BaseEntity;
 
 import jakarta.persistence.Entity;

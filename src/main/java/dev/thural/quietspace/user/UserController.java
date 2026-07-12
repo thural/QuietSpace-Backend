@@ -1,12 +1,12 @@
-package dev.thural.quietspace.controller;
+package dev.thural.quietspace.user;
 
-import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.model.request.ProfileSettingsRequest;
-import dev.thural.quietspace.model.request.UserRequest;
-import dev.thural.quietspace.model.response.ProfileSettingsResponse;
-import dev.thural.quietspace.model.response.UserResponse;
+import dev.thural.quietspace.user.User;
+import dev.thural.quietspace.user.dto.ProfileSettingsRequest;
+import dev.thural.quietspace.user.dto.UserRequest;
+import dev.thural.quietspace.user.dto.ProfileSettingsResponse;
+import dev.thural.quietspace.user.dto.UserResponse;
 import dev.thural.quietspace.service.NotificationService;
-import dev.thural.quietspace.service.UserService;
+import dev.thural.quietspace.user.UserService;
 import dev.thural.quietspace.websocket.model.UserRepresentation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

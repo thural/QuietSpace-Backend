@@ -1,9 +1,10 @@
 package dev.thural.quietspace.service;
+import dev.thural.quietspace.user.UserService;
 
 import dev.thural.quietspace.entity.Poll;
 import dev.thural.quietspace.entity.PollOption;
 import dev.thural.quietspace.entity.Post;
-import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.Role;
 import dev.thural.quietspace.mapper.PostMapper;
 import dev.thural.quietspace.model.request.PostRequest;

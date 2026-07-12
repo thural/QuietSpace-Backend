@@ -1,7 +1,7 @@
 package dev.thural.quietspace.websocket.config;
 
-import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.repository.UserRepository;
+import dev.thural.quietspace.user.User;
+import dev.thural.quietspace.user.UserRepository;
 import dev.thural.quietspace.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

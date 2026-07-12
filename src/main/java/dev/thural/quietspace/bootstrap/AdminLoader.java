@@ -1,8 +1,8 @@
 package dev.thural.quietspace.bootstrap;
 
-import dev.thural.quietspace.entity.ProfileSettings;
-import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.repository.UserRepository;
+import dev.thural.quietspace.user.ProfileSettings;
+import dev.thural.quietspace.user.User;
+import dev.thural.quietspace.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

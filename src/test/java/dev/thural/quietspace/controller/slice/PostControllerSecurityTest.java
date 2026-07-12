@@ -1,4 +1,5 @@
 package dev.thural.quietspace.controller.slice;
+import dev.thural.quietspace.user.User;
 
 import dev.thural.quietspace.controller.PostController;
 import dev.thural.quietspace.repository.TokenRepository;

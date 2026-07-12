@@ -1,12 +1,14 @@
 package dev.thural.quietspace.controller.slice;
+import dev.thural.quietspace.user.User;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.controller.UserController;
-import dev.thural.quietspace.model.request.UserRequest;
-import dev.thural.quietspace.model.response.UserResponse;
+import dev.thural.quietspace.user.UserController;
+import dev.thural.quietspace.user.dto.UserRequest;
+import dev.thural.quietspace.user.dto.UserResponse;
 import dev.thural.quietspace.repository.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.*;
+import dev.thural.quietspace.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

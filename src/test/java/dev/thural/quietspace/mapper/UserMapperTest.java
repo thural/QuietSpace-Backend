@@ -1,10 +1,11 @@
 package dev.thural.quietspace.mapper;
+import dev.thural.quietspace.user.UserMapper;
 
-import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.Role;
 import dev.thural.quietspace.model.response.PhotoResponse;
-import dev.thural.quietspace.model.response.ProfileSettingsResponse;
-import dev.thural.quietspace.model.response.UserResponse;
+import dev.thural.quietspace.user.dto.ProfileSettingsResponse;
+import dev.thural.quietspace.user.dto.UserResponse;
 import dev.thural.quietspace.service.PhotoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -2,7 +2,7 @@ package dev.thural.quietspace.service;
 
 import dev.thural.quietspace.model.request.CreateChatRequest;
 import dev.thural.quietspace.model.response.ChatResponse;
-import dev.thural.quietspace.model.response.UserResponse;
+import dev.thural.quietspace.user.dto.UserResponse;
 
 import java.util.List;
 import java.util.UUID;

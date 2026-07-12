@@ -2,6 +2,7 @@ package dev.thural.quietspace.service.impl;
 
 import dev.thural.quietspace.entity.*;
 import dev.thural.quietspace.shared.enums.EntityType;
+import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.mapper.PostMapper;
 import dev.thural.quietspace.model.request.PostRequest;
 import dev.thural.quietspace.model.request.RepostRequest;
@@ -11,7 +12,7 @@ import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.repository.specifications.PostSpecifications;
 import dev.thural.quietspace.service.PhotoService;
 import dev.thural.quietspace.service.PostService;
-import dev.thural.quietspace.service.UserService;
+import dev.thural.quietspace.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;

@@ -1,11 +1,11 @@
-package dev.thural.quietspace.mapper;
+package dev.thural.quietspace.user;
 
 import dev.thural.quietspace.shared.entity.BaseEntity;
-import dev.thural.quietspace.entity.ProfileSettings;
-import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.user.ProfileSettings;
+import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.model.response.PhotoResponse;
-import dev.thural.quietspace.model.response.ProfileSettingsResponse;
-import dev.thural.quietspace.model.response.UserResponse;
+import dev.thural.quietspace.user.dto.ProfileSettingsResponse;
+import dev.thural.quietspace.user.dto.UserResponse;
 import dev.thural.quietspace.service.PhotoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;

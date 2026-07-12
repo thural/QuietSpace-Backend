@@ -1,8 +1,9 @@
 package dev.thural.quietspace.controller;
+import dev.thural.quietspace.user.User;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.config.TestcontainersConfig;
-import dev.thural.quietspace.repository.UserRepository;
+import dev.thural.quietspace.user.UserRepository;
 import dev.thural.quietspace.shared.util.IntegrationTestHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

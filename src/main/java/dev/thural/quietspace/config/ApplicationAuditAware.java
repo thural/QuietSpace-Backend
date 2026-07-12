@@ -1,7 +1,7 @@
 package dev.thural.quietspace.config;
 
 
-import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.user.User;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;

@@ -1,10 +1,10 @@
 package dev.thural.quietspace.controller.unit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.controller.UserController;
-import dev.thural.quietspace.model.request.UserRequest;
-import dev.thural.quietspace.model.response.UserResponse;
-import dev.thural.quietspace.service.UserService;
+import dev.thural.quietspace.user.UserController;
+import dev.thural.quietspace.user.dto.UserRequest;
+import dev.thural.quietspace.user.dto.UserResponse;
+import dev.thural.quietspace.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

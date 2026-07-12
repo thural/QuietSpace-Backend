@@ -1,7 +1,8 @@
 package dev.thural.quietspace.service;
+import dev.thural.quietspace.user.UserService;
 
 import dev.thural.quietspace.entity.Reaction;
-import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.shared.enums.ReactionType;
 import dev.thural.quietspace.mapper.ReactionMapper;

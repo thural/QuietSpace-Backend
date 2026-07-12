@@ -1,6 +1,6 @@
-package dev.thural.quietspace.repository;
+package dev.thural.quietspace.user;
 
-import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

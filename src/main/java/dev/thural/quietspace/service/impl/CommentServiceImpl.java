@@ -2,7 +2,7 @@ package dev.thural.quietspace.service.impl;
 
 import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
-import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.exception.UnauthorizedException;
 import dev.thural.quietspace.mapper.CommentMapper;
 import dev.thural.quietspace.model.request.CommentRequest;
@@ -10,7 +10,7 @@ import dev.thural.quietspace.model.response.CommentResponse;
 import dev.thural.quietspace.repository.CommentRepository;
 import dev.thural.quietspace.repository.PostRepository;
 import dev.thural.quietspace.service.CommentService;
-import dev.thural.quietspace.service.UserService;
+import dev.thural.quietspace.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

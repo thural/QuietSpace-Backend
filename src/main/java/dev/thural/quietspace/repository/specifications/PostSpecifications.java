@@ -2,9 +2,9 @@ package dev.thural.quietspace.repository.specifications;
 
 import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
-import dev.thural.quietspace.entity.ProfileSettings;
-import dev.thural.quietspace.entity.User;
-import dev.thural.quietspace.service.UserService;
+import dev.thural.quietspace.user.ProfileSettings;
+import dev.thural.quietspace.user.User;
+import dev.thural.quietspace.user.UserService;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;

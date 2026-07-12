@@ -1,8 +1,9 @@
 package dev.thural.quietspace.service;
+import dev.thural.quietspace.user.UserService;
 
 import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Post;
-import dev.thural.quietspace.entity.User;
+import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.mapper.CommentMapper;
 import dev.thural.quietspace.model.request.CommentRequest;
 import dev.thural.quietspace.model.response.CommentResponse;
