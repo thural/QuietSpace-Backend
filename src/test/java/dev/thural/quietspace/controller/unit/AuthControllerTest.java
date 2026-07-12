@@ -1,4 +1,4 @@
-package dev.thural.quietspace.authentication.controller;
+package dev.thural.quietspace.controller.unit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.authentication.model.AuthRequest;

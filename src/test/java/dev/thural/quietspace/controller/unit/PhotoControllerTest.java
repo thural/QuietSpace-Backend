@@ -1,5 +1,7 @@
-package dev.thural.quietspace.controller;
+package dev.thural.quietspace.controller.unit;
 
+import dev.thural.quietspace.controller.PhotoController;
+import dev.thural.quietspace.exception.GlobalExceptionHandler;
 import dev.thural.quietspace.model.response.PhotoResponse;
 import dev.thural.quietspace.service.PhotoService;
 import jakarta.persistence.EntityNotFoundException;
@@ -13,8 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import dev.thural.quietspace.exception.GlobalExceptionHandler;
 
 import java.util.UUID;
 
