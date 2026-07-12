@@ -19,7 +19,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.util.UUID;
+
+import javax.imageio.ImageIO;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -62,13 +66,16 @@ class PhotoFlowIT {
 
     @Test
     void uploadProfilePhoto_shouldReturn201() throws Exception {
-        MockMultipartFile image = new MockMultipartFile(
-                "image", "photo.jpg", MediaType.IMAGE_JPEG_VALUE,
-                new byte[]{ (byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0, 0x10, 'J', 'F', 'I', 'F', 0 }
+        BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", baos);
+        byte[] imageBytes = baos.toByteArray();
+        MockMultipartFile file = new MockMultipartFile(
+                "image", "photo.png", "image/png", imageBytes
         );
 
         mockMvc.perform(multipart("/api/v1/photos/profile")
-                        .file(image)
+                        .file(file)
                         .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isCreated());
     }

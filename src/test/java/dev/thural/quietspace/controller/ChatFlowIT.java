@@ -220,6 +220,6 @@ class ChatFlowIT {
 
         mockMvc.perform(patch("/api/v1/chats/{chatId}/members/remove/{userId}", chatId, user2Id)
                         .header("Authorization", "Bearer " + user1Jwt))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 }
