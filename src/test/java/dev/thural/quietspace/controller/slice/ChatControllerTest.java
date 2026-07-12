@@ -13,6 +13,7 @@ import dev.thural.quietspace.model.response.MessageResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.MessageRepository;
 import dev.thural.quietspace.repository.TokenRepository;
+import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.ChatService;
 import dev.thural.quietspace.service.MessageService;
@@ -67,6 +68,8 @@ class ChatControllerTest {
     JwtService jwtService;
     @MockitoBean
     UserDetailsService userDetailsService;
+    @MockitoBean
+    UserRepository userRepository;
 
     @TestConfiguration
     static class TestConfig {
