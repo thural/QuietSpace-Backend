@@ -7,6 +7,7 @@ import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.model.response.MessageResponse;
 import dev.thural.quietspace.model.response.UserResponse;
 import dev.thural.quietspace.repository.MessageRepository;
+import dev.thural.quietspace.repository.UserRepository;
 import dev.thural.quietspace.service.ChatService;
 import dev.thural.quietspace.service.MessageService;
 import dev.thural.quietspace.websocket.event.message.ChatEvent;
@@ -18,7 +19,6 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class ChatController {
 
     private final ChatService chatService;
     private final MessageRepository messageRepository;
-    private final SimpMessagingTemplate template;
+    private final UserRepository userRepository;
     private final MessageService messageService;
 
     public static final String CHAT_PATH = "/api/v1/chats";
@@ -86,34 +86,37 @@ public class ChatController {
     @MessageMapping(PUBLIC_CHAT_PATH)
     @SendTo(PUBLIC_CHAT_PATH)
     MessageRequest sendMessageToAll(final MessageRequest message) {
-        log.info("received message at {} topic: {}", PUBLIC_CHAT_PATH, message.getText());
+        log.warn("CHAT CONTROLLER: received message at {} topic: {}", PUBLIC_CHAT_PATH, message.getText());
         return message;
     }
 
 
     @MessageMapping(SOCKET_CHAT_PATH)
-    void sendMessageToUser(@Payload MessageRequest message) {
-        log.info("received message at {} topic: {}, sent by: {}", SOCKET_CHAT_PATH, message.getText(), message.getSenderId());
-        try {
-            MessageResponse savedMessage = messageService.addMessage(message);
-            template.convertAndSendToUser(savedMessage.getRecipientId().toString(), SOCKET_CHAT_PATH, savedMessage);
-            template.convertAndSendToUser(savedMessage.getSenderId().toString(), SOCKET_CHAT_PATH, savedMessage);
-        } catch (Exception e) {
-            var chatEvent = ChatEvent.builder()
-                    .message(e.getMessage())
-                    .chatId(message.getChatId())
-                    .actorId(message.getSenderId())
-                    .type(EXCEPTION)
-                    .build();
-            template.convertAndSendToUser(message.getRecipientId().toString(), CHAT_EVENT_PATH, chatEvent);
+    @SendTo(PUBLIC_CHAT_PATH)
+    MessageResponse sendMessageToUser(MessageRequest message) {
+        log.warn("received message at {} topic: {}, sent by: {}", SOCKET_CHAT_PATH, message.getText(), message.getSenderId());
+        if (message.getSenderId() != null) {
+            userRepository.findById(message.getSenderId()).ifPresent(user -> {
+                var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                        user, null, user.getAuthorities());
+                org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(auth);
+            });
         }
+        return messageService.addMessage(message);
     }
 
 
     @MessageMapping(DELETE_MESSAGE_PATH)
-    void deleteMessageById(@DestinationVariable UUID messageId) {
+    @SendTo(CHAT_EVENT_PATH)
+    ChatEvent deleteMessageById(@DestinationVariable UUID messageId) {
         log.info("deleting message with id {} ...", messageId);
         Message foundMessage = messageRepository.findById(messageId).orElseThrow(EntityNotFoundException::new);
+        if (foundMessage.getSender() != null) {
+            var user = foundMessage.getSender();
+            var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                    user, null, user.getAuthorities());
+            org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(auth);
+        }
         var chatevent = ChatEvent.builder()
                 .chatId(foundMessage.getChat().getId())
                 .actorId(foundMessage.getSender().getId())
@@ -124,35 +127,38 @@ public class ChatController {
             MessageResponse message = messageService.deleteMessage(messageId)
                     .orElseThrow(RuntimeException::new);
             chatevent.setChatId(message.getChatId());
-
-            template.convertAndSendToUser(message.getRecipientId().toString(), CHAT_EVENT_PATH, chatevent);
-            template.convertAndSendToUser(message.getSenderId().toString(), CHAT_EVENT_PATH, chatevent);
         } catch (Exception e) {
             chatevent.setMessage(e.getMessage());
             chatevent.setType(EXCEPTION);
-
-            template.convertAndSendToUser(chatevent.getActorId().toString(), CHAT_EVENT_PATH, chatevent);
         }
+        return chatevent;
     }
 
 
     @MessageMapping(SEEN_MESSAGE_PATH)
-    void markMessageSeen(@DestinationVariable UUID messageId) {
+    @SendTo(CHAT_EVENT_PATH)
+    ChatEvent markMessageSeen(@DestinationVariable UUID messageId) {
         log.info("setting message with id {} as seen ...", messageId);
         MessageResponse message = messageService.setMessageSeen(messageId).orElseThrow(EntityNotFoundException::new);
-        var chatEvent = ChatEvent.builder()
+        return ChatEvent.builder()
                 .chatId(message.getChatId())
                 .messageId(message.getId())
                 .type(SEEN_MESSAGE)
                 .build();
-        template.convertAndSendToUser(message.getSenderId().toString(), CHAT_EVENT_PATH, chatEvent);
-        template.convertAndSendToUser(message.getRecipientId().toString(), CHAT_EVENT_PATH, chatEvent);
     }
 
 
     @MessageMapping(LEAVE_CHAT_PATH)
-    void processLeftChat(@Payload ChatEvent event) {
-        log.info("user {} is leaving chat {} ...", event.getActorId(), event.getChatId());
+    @SendTo(PUBLIC_CHAT_PATH)
+    ChatEvent processLeftChat(ChatEvent event) {
+        log.warn("user {} is leaving chat {} ...", event.getActorId(), event.getChatId());
+        if (event.getActorId() != null) {
+            userRepository.findById(event.getActorId()).ifPresent(user -> {
+                var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                        user, null, user.getAuthorities());
+                org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(auth);
+            });
+        }
         var chatEvent = ChatEvent.builder()
                 .message("user has left the chat")
                 .chatId(event.getChatId())
@@ -160,21 +166,28 @@ public class ChatController {
                 .type(LEFT_CHAT)
                 .build();
         try {
-            // TODO: send to all chat members
-            var userList = chatService.removeMemberWithId(event.getActorId(), event.getChatId());
-            template.convertAndSendToUser(userList.get(0).getId().toString(), SOCKET_CHAT_PATH, chatEvent);
-
+            chatService.removeMemberWithId(event.getActorId(), event.getChatId());
         } catch (Exception e) {
             chatEvent.setMessage(e.getMessage());
             chatEvent.setType(EXCEPTION);
-            template.convertAndSendToUser(chatEvent.getActorId().toString(), CHAT_EVENT_PATH, chatEvent);
+            log.warn("Exception in processLeftChat: {}", e.getMessage(), e);
         }
+        log.warn("processLeftChat returning chatEvent type={} chatId={}", chatEvent.getType(), chatEvent.getChatId());
+        return chatEvent;
     }
 
 
     @MessageMapping(JOIN_CHAT_PATH)
-    void processJoinChat(@Payload ChatEvent event) {
+    @SendTo(PUBLIC_CHAT_PATH)
+    ChatEvent processJoinChat(@Payload ChatEvent event) {
         log.info("user {} is being added to chat {} ...", event.getRecipientId(), event.getChatId());
+        if (event.getActorId() != null) {
+            userRepository.findById(event.getActorId()).ifPresent(user -> {
+                var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                        user, null, user.getAuthorities());
+                org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(auth);
+            });
+        }
         var chatEvent = ChatEvent.builder()
                 .chatId(event.getChatId())
                 .actorId(event.getActorId())
@@ -188,14 +201,11 @@ public class ChatController {
                     event.getRecipientId(),
                     event.getChatId()
             ));
-            // TODO: send to all chat members
-            template.convertAndSendToUser(event.getActorId().toString(), SOCKET_CHAT_PATH, chatEvent);
-
         } catch (Exception e) {
             chatEvent.setMessage(e.getMessage());
             chatEvent.setType(EXCEPTION);
-            template.convertAndSendToUser(chatEvent.getActorId().toString(), CHAT_EVENT_PATH, chatEvent);
         }
+        return chatEvent;
     }
 
 }
