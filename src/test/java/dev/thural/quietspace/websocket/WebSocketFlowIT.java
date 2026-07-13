@@ -24,9 +24,9 @@ import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestcontainersConfig.class)
 @ActiveProfiles("testcontainers")
-@Transactional
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class WebSocketFlowIT {
 
     @LocalServerPort
@@ -155,7 +155,6 @@ class WebSocketFlowIT {
         assertThat(result).contains("Hello from WebSocket test!");
     }
 
-    @Disabled("Flaky - WebSocket user destination delivery not working in test environment")
     @Test
     void sendPrivateMessage_shouldDeliver() throws Exception {
         StompSession user1Session = connectStomp(user1Jwt);
@@ -182,11 +181,10 @@ class WebSocketFlowIT {
                 .text("Private message test")
                 .build());
 
-        String result = user2Received.get(10, TimeUnit.SECONDS);
+        String result = user2Received.get(30, TimeUnit.SECONDS);
         assertThat(result).contains("Private message test");
     }
 
-    @Disabled("Flaky - WebSocket user destination delivery not working in test environment")
     @Test
     void deleteMessage_shouldNotifyParticipants() throws Exception {
         StompSession user1Session = connectStomp(user1Jwt);
@@ -227,16 +225,15 @@ class WebSocketFlowIT {
                 .text("Message to delete")
                 .build());
 
-        String sentJson = messageSent.get(10, TimeUnit.SECONDS);
+        String sentJson = messageSent.get(30, TimeUnit.SECONDS);
         String messageId = objectMapper.readTree(sentJson).get("id").asText();
 
         user1Session.send("/app/private/chat/delete/" + messageId, null);
 
-        String event = eventReceived.get(10, TimeUnit.SECONDS);
+        String event = eventReceived.get(30, TimeUnit.SECONDS);
         assertThat(event).contains("DELETE_MESSAGE");
     }
 
-    @Disabled("Flaky - WebSocket user destination delivery not working in test environment")
     @Test
     void markMessageAsSeen_shouldNotifyParticipants() throws Exception {
         StompSession user1Session = connectStomp(user1Jwt);
@@ -277,16 +274,15 @@ class WebSocketFlowIT {
                 .text("Message to mark seen")
                 .build());
 
-        String sentJson = messageSent.get(10, TimeUnit.SECONDS);
+        String sentJson = messageSent.get(30, TimeUnit.SECONDS);
         String messageId = objectMapper.readTree(sentJson).get("id").asText();
 
         user2Session.send("/app/private/chat/seen/" + messageId, null);
 
-        String event = eventReceived.get(10, TimeUnit.SECONDS);
+        String event = eventReceived.get(30, TimeUnit.SECONDS);
         assertThat(event).contains("SEEN_MESSAGE");
     }
 
-    @Disabled("Flaky - WebSocket user destination delivery not working in test environment")
     @Test
     void leaveChat_shouldNotifyParticipants() throws Exception {
         StompSession user1Session = connectStomp(user1Jwt);
@@ -322,11 +318,10 @@ class WebSocketFlowIT {
 
         user1Session.send("/app/private/chat/leave", chatEvent);
 
-        String event = notification.get(10, TimeUnit.SECONDS);
+        String event = notification.get(30, TimeUnit.SECONDS);
         assertThat(event).contains("LEFT_CHAT");
     }
 
-    @Disabled("Flaky - WebSocket user destination delivery not working in test environment")
     @Test
     void joinChat_shouldNotifyParticipants() throws Exception {
         StompSession user1Session = connectStomp(user1Jwt);
@@ -362,7 +357,7 @@ class WebSocketFlowIT {
 
         user1Session.send("/app/private/chat/join", chatEvent);
 
-        String event = notification.get(10, TimeUnit.SECONDS);
+        String event = notification.get(30, TimeUnit.SECONDS);
         assertThat(event).contains("JOINED_CHAT");
     }
 }
