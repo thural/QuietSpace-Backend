@@ -1,15 +1,21 @@
 spring:
   application:
     urls:
-      frontend: http://${FRONTEND_HOST}:${FRONTEND_PORT}
+      frontend: http://localhost:3000
+    mailing:
+      frontend:
+        activation-url: http://localhost:3000/activate
   devtools:
     livereload.enabled: true
     restart:
       enabled: true
   datasource:
-    url: jdbc:mysql://${DB_HOST_NAME:localhost}:3306/${DB_NAME:quietspace}
+    url: jdbc:mysql://localhost:3306/quietspace
     username: ${DB_USER_USERNAME}
     password: ${DB_USER_PASSWORD}
+  mail:
+    host: localhost
+    port: 1025
   jpa:
     properties:
       hibernate:
