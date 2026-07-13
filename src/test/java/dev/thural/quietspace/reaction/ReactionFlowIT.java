@@ -74,7 +74,7 @@ class ReactionFlowIT {
         jwtToken = helper.registerAndLogin("reactuser@test.com", "password123");
         userId = userRepository.findUserEntityByEmail("reactuser@test.com").orElseThrow().getId();
 
-        var request = dev.thural.quietspace.model.request.PostRequest.builder()
+        var request = dev.thural.quietspace.post.dto.PostRequest.builder()
                 .userId(userId)
                 .title("Test Post for Reaction")
                 .text("This post will be reacted to")

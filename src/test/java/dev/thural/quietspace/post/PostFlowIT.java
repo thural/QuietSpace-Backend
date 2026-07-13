@@ -285,7 +285,7 @@ class PostFlowIT {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString()).get("id").asText();
 
-        var commentReq = dev.thural.quietspace.model.request.CommentRequest.builder()
+        var commentReq = dev.thural.quietspace.comment.dto.CommentRequest.builder()
                 .userId(userId)
                 .postId(UUID.fromString(postId))
                 .text("A comment on this post")
