@@ -42,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(controllers = PostController.class)
-class PostControllerTest {
+class PostControllerSliceTest {
 
     @Autowired
     MockMvc mockMvc;

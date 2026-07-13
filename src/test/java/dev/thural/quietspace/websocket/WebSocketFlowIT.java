@@ -80,7 +80,7 @@ class WebSocketFlowIT {
         user2Jwt = helper.registerAndLogin("wsuser2@test.com", "password456");
         user2Id = userRepository.findUserEntityByEmail("wsuser2@test.com").orElseThrow().getId();
 
-        var createChatReq = dev.thural.quietspace.model.request.CreateChatRequest.builder()
+        var createChatReq = dev.thural.quietspace.chat.dto.CreateChatRequest.builder()
                 .isGroupChat(false)
                 .recipientId(user2Id)
                 .text("Chat for WS test")

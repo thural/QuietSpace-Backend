@@ -44,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(controllers = CommentController.class)
-class CommentControllerTest {
+class CommentControllerSliceTest {
 
     @Autowired
     MockMvc mockMvc;
