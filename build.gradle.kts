@@ -94,16 +94,27 @@ tasks.withType<Test> {
     environment("DOCKER_API_VERSION", "1.40")
 }
 
+tasks.named<Test>("test") {
+    filter {
+        excludeTestsMatching("*IT")
+        excludeTestsMatching("*ITCase")
+        excludeTestsMatching("*FlowIT")
+    }
+}
+
 val integrationTest by tasks.registering(Test::class) {
     description = "Runs integration tests only."
     group = "verification"
 
     useJUnitPlatform()
+    dependsOn(tasks.named("testClasses"))
 
-    filter {
-        includeTestsMatching("*IT")
-        includeTestsMatching("*ITCase")
-    }
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+
+    include("**/*IT.class")
+    include("**/*FlowIT.class")
+    include("**/*ITCase.class")
 
     shouldRunAfter(tasks.named("test"))
 }
