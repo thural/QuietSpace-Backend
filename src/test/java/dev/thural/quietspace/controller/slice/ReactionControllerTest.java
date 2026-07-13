@@ -7,7 +7,7 @@ import dev.thural.quietspace.shared.enums.ReactionType;
 import dev.thural.quietspace.reaction.dto.ReactionRequest;
 import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
-import dev.thural.quietspace.service.NotificationService;
+import dev.thural.quietspace.notification.NotificationService;
 import dev.thural.quietspace.reaction.ReactionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

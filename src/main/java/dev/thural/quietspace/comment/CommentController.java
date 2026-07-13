@@ -3,7 +3,7 @@ package dev.thural.quietspace.comment;
 import dev.thural.quietspace.comment.dto.CommentRequest;
 import dev.thural.quietspace.comment.dto.CommentResponse;
 import dev.thural.quietspace.comment.CommentService;
-import dev.thural.quietspace.service.NotificationService;
+import dev.thural.quietspace.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;

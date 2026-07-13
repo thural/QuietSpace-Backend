@@ -14,7 +14,7 @@ import dev.thural.quietspace.post.PostRepository;
 import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.comment.CommentService;
-import dev.thural.quietspace.service.NotificationService;
+import dev.thural.quietspace.notification.NotificationService;
 import dev.thural.quietspace.reaction.ReactionService;
 import dev.thural.quietspace.user.UserService;
 import org.junit.jupiter.api.BeforeEach;

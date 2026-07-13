@@ -1,16 +1,17 @@
 package dev.thural.quietspace.service.impl;
+import dev.thural.quietspace.notification.NotificationServiceImpl;
 
 import dev.thural.quietspace.comment.Comment;
-import dev.thural.quietspace.entity.Notification;
+import dev.thural.quietspace.notification.Notification;
 import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.shared.enums.EventType;
 import dev.thural.quietspace.shared.enums.NotificationType;
-import dev.thural.quietspace.mapper.NotificationMapper;
-import dev.thural.quietspace.model.response.NotificationResponse;
+import dev.thural.quietspace.notification.NotificationMapper;
+import dev.thural.quietspace.notification.dto.NotificationResponse;
 import dev.thural.quietspace.comment.CommentRepository;
-import dev.thural.quietspace.repository.NotificationRepository;
+import dev.thural.quietspace.notification.NotificationRepository;
 import dev.thural.quietspace.post.PostRepository;
 import dev.thural.quietspace.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,8 +33,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dev.thural.quietspace.controller.NotificationController.NOTIFICATION_EVENT_PATH;
-import static dev.thural.quietspace.controller.NotificationController.NOTIFICATION_SUBJECT_PATH;
+import static dev.thural.quietspace.notification.NotificationController.NOTIFICATION_EVENT_PATH;
+import static dev.thural.quietspace.notification.NotificationController.NOTIFICATION_SUBJECT_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;

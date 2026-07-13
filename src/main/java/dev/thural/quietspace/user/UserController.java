@@ -5,7 +5,7 @@ import dev.thural.quietspace.user.dto.ProfileSettingsRequest;
 import dev.thural.quietspace.user.dto.UserRequest;
 import dev.thural.quietspace.user.dto.ProfileSettingsResponse;
 import dev.thural.quietspace.user.dto.UserResponse;
-import dev.thural.quietspace.service.NotificationService;
+import dev.thural.quietspace.notification.NotificationService;
 import dev.thural.quietspace.user.UserService;
 import dev.thural.quietspace.websocket.model.UserRepresentation;
 import jakarta.validation.Valid;

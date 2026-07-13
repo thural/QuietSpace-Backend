@@ -1,11 +1,12 @@
 package dev.thural.quietspace.mapper;
+import dev.thural.quietspace.notification.NotificationMapper;
 
-import dev.thural.quietspace.entity.Notification;
+import dev.thural.quietspace.notification.Notification;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.shared.enums.NotificationType;
 import dev.thural.quietspace.shared.exception.UserNotFoundException;
-import dev.thural.quietspace.model.response.NotificationResponse;
+import dev.thural.quietspace.notification.dto.NotificationResponse;
 import dev.thural.quietspace.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

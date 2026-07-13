@@ -4,7 +4,7 @@ import dev.thural.quietspace.post.dto.PostRequest;
 import dev.thural.quietspace.post.dto.RepostRequest;
 import dev.thural.quietspace.post.dto.VoteRequest;
 import dev.thural.quietspace.post.dto.PostResponse;
-import dev.thural.quietspace.service.NotificationService;
+import dev.thural.quietspace.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import jakarta.validation.Valid;

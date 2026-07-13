@@ -1,18 +1,18 @@
-package dev.thural.quietspace.service.impl;
+package dev.thural.quietspace.notification;
 
 import dev.thural.quietspace.comment.Comment;
-import dev.thural.quietspace.entity.Notification;
+import dev.thural.quietspace.notification.Notification;
 import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.shared.enums.NotificationType;
 import dev.thural.quietspace.shared.exception.UserNotFoundException;
-import dev.thural.quietspace.mapper.NotificationMapper;
-import dev.thural.quietspace.model.response.NotificationResponse;
+import dev.thural.quietspace.notification.NotificationMapper;
+import dev.thural.quietspace.notification.dto.NotificationResponse;
 import dev.thural.quietspace.comment.CommentRepository;
-import dev.thural.quietspace.repository.NotificationRepository;
+import dev.thural.quietspace.notification.NotificationRepository;
 import dev.thural.quietspace.post.PostRepository;
-import dev.thural.quietspace.service.NotificationService;
+import dev.thural.quietspace.notification.NotificationService;
 import dev.thural.quietspace.user.UserService;
 import dev.thural.quietspace.websocket.event.message.NotificationEvent;
 import jakarta.persistence.EntityNotFoundException;
@@ -28,8 +28,8 @@ import org.springframework.web.client.ResourceAccessException;
 
 import java.util.UUID;
 
-import static dev.thural.quietspace.controller.NotificationController.NOTIFICATION_EVENT_PATH;
-import static dev.thural.quietspace.controller.NotificationController.NOTIFICATION_SUBJECT_PATH;
+import static dev.thural.quietspace.notification.NotificationController.NOTIFICATION_EVENT_PATH;
+import static dev.thural.quietspace.notification.NotificationController.NOTIFICATION_SUBJECT_PATH;
 import static dev.thural.quietspace.shared.enums.EventType.SEEN_NOTIFICATION;
 import static dev.thural.quietspace.shared.enums.NotificationType.COMMENT_REACTION;
 import static dev.thural.quietspace.shared.enums.NotificationType.POST_REACTION;

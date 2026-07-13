@@ -1,10 +1,11 @@
 package dev.thural.quietspace.shared.util;
+import dev.thural.quietspace.notification.Notification;
 import dev.thural.quietspace.reaction.Reaction;
 import dev.thural.quietspace.message.Message;
 import dev.thural.quietspace.comment.Comment;
 import dev.thural.quietspace.user.User;
 
-import dev.thural.quietspace.entity.*;
+// entity wildcard removed - all entities moved to feature packages
 import dev.thural.quietspace.chat.Chat;
 import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.post.Poll;
