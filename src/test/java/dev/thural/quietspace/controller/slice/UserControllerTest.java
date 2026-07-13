@@ -1,4 +1,5 @@
 package dev.thural.quietspace.controller.slice;
+import dev.thural.quietspace.comment.CommentService;
 import dev.thural.quietspace.user.User;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

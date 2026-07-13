@@ -1,7 +1,8 @@
 package dev.thural.quietspace.repository;
+import dev.thural.quietspace.comment.CommentRepository;
 import dev.thural.quietspace.user.UserRepository;
 
-import dev.thural.quietspace.entity.Comment;
+import dev.thural.quietspace.comment.Comment;
 import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.post.PostRepository;
 import dev.thural.quietspace.user.User;

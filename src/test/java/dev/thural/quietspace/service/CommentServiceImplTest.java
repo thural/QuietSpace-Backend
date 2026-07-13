@@ -1,15 +1,15 @@
 package dev.thural.quietspace.service;
 import dev.thural.quietspace.user.UserService;
 
-import dev.thural.quietspace.entity.Comment;
+import dev.thural.quietspace.comment.Comment;
 import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.user.User;
-import dev.thural.quietspace.mapper.CommentMapper;
-import dev.thural.quietspace.model.request.CommentRequest;
-import dev.thural.quietspace.model.response.CommentResponse;
-import dev.thural.quietspace.repository.CommentRepository;
+import dev.thural.quietspace.comment.CommentMapper;
+import dev.thural.quietspace.comment.dto.CommentRequest;
+import dev.thural.quietspace.comment.dto.CommentResponse;
+import dev.thural.quietspace.comment.CommentRepository;
 import dev.thural.quietspace.post.PostRepository;
-import dev.thural.quietspace.service.impl.CommentServiceImpl;
+import dev.thural.quietspace.comment.CommentServiceImpl;
 import dev.thural.quietspace.shared.util.PagingProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

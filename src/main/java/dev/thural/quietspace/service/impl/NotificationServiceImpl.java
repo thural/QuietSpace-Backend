@@ -1,6 +1,6 @@
 package dev.thural.quietspace.service.impl;
 
-import dev.thural.quietspace.entity.Comment;
+import dev.thural.quietspace.comment.Comment;
 import dev.thural.quietspace.entity.Notification;
 import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.user.User;
@@ -9,7 +9,7 @@ import dev.thural.quietspace.shared.enums.NotificationType;
 import dev.thural.quietspace.shared.exception.UserNotFoundException;
 import dev.thural.quietspace.mapper.NotificationMapper;
 import dev.thural.quietspace.model.response.NotificationResponse;
-import dev.thural.quietspace.repository.CommentRepository;
+import dev.thural.quietspace.comment.CommentRepository;
 import dev.thural.quietspace.repository.NotificationRepository;
 import dev.thural.quietspace.post.PostRepository;
 import dev.thural.quietspace.service.NotificationService;

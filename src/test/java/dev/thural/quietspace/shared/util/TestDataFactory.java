@@ -1,4 +1,5 @@
 package dev.thural.quietspace.shared.util;
+import dev.thural.quietspace.comment.Comment;
 import dev.thural.quietspace.user.User;
 
 import dev.thural.quietspace.entity.*;

@@ -1,12 +1,12 @@
-package dev.thural.quietspace.mapper;
+package dev.thural.quietspace.comment;
 
-import dev.thural.quietspace.entity.Comment;
+import dev.thural.quietspace.comment.Comment;
 import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.user.User;
-import dev.thural.quietspace.model.request.CommentRequest;
-import dev.thural.quietspace.model.response.CommentResponse;
+import dev.thural.quietspace.comment.dto.CommentRequest;
+import dev.thural.quietspace.comment.dto.CommentResponse;
 import dev.thural.quietspace.model.response.ReactionResponse;
-import dev.thural.quietspace.repository.CommentRepository;
+import dev.thural.quietspace.comment.CommentRepository;
 import dev.thural.quietspace.post.PostRepository;
 import dev.thural.quietspace.repository.ReactionRepository;
 import dev.thural.quietspace.user.UserRepository;

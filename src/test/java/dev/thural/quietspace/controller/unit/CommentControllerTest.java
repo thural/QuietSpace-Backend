@@ -1,14 +1,14 @@
 package dev.thural.quietspace.controller.unit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.controller.CommentController;
-import dev.thural.quietspace.entity.Comment;
+import dev.thural.quietspace.comment.CommentController;
+import dev.thural.quietspace.comment.Comment;
 import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.Role;
-import dev.thural.quietspace.model.request.CommentRequest;
-import dev.thural.quietspace.model.response.CommentResponse;
-import dev.thural.quietspace.service.CommentService;
+import dev.thural.quietspace.comment.dto.CommentRequest;
+import dev.thural.quietspace.comment.dto.CommentResponse;
+import dev.thural.quietspace.comment.CommentService;
 import dev.thural.quietspace.service.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

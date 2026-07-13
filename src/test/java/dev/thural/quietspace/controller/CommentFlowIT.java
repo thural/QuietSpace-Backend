@@ -3,9 +3,9 @@ import dev.thural.quietspace.user.User;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.config.TestcontainersConfig;
-import dev.thural.quietspace.model.request.CommentRequest;
+import dev.thural.quietspace.comment.dto.CommentRequest;
 import dev.thural.quietspace.post.dto.PostRequest;
-import dev.thural.quietspace.repository.CommentRepository;
+import dev.thural.quietspace.comment.CommentRepository;
 import dev.thural.quietspace.post.PostRepository;
 import dev.thural.quietspace.user.UserRepository;
 import dev.thural.quietspace.photo.PhotoService;

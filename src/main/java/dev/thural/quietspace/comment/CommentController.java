@@ -1,8 +1,8 @@
-package dev.thural.quietspace.controller;
+package dev.thural.quietspace.comment;
 
-import dev.thural.quietspace.model.request.CommentRequest;
-import dev.thural.quietspace.model.response.CommentResponse;
-import dev.thural.quietspace.service.CommentService;
+import dev.thural.quietspace.comment.dto.CommentRequest;
+import dev.thural.quietspace.comment.dto.CommentResponse;
+import dev.thural.quietspace.comment.CommentService;
 import dev.thural.quietspace.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

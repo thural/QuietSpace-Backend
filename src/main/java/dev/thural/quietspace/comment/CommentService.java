@@ -1,7 +1,7 @@
-package dev.thural.quietspace.service;
+package dev.thural.quietspace.comment;
 
-import dev.thural.quietspace.model.request.CommentRequest;
-import dev.thural.quietspace.model.response.CommentResponse;
+import dev.thural.quietspace.comment.dto.CommentRequest;
+import dev.thural.quietspace.comment.dto.CommentResponse;
 import org.springframework.data.domain.Page;
 
 import java.util.Optional;
