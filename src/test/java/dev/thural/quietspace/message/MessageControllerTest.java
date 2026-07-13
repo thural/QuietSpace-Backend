@@ -14,7 +14,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -22,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,6 +57,7 @@ class MessageControllerTest {
 
     private MessageRequest messageRequest;
     private MessageResponse messageResponse;
+    private UUID chatId;
 
 
     @BeforeEach
@@ -80,6 +84,8 @@ class MessageControllerTest {
         Chat chat = Chat.builder()
                 .id(UUID.randomUUID())
                 .build();
+
+        this.chatId = chat.getId();
 
         Message message = Message.builder()
                 .id(UUID.randomUUID())
@@ -166,15 +172,16 @@ class MessageControllerTest {
 
     @Test
     void getMessagesByChatId() throws Exception {
-        when(messageService.getMessagesByChatId(any(), any(), any())).thenReturn(Page.empty());
+        Pageable pageable = PageRequest.of(0, 10);
+        when(messageService.getMessagesByChatId(any(), any(), any())).thenReturn(new PageImpl<>(List.of(), pageable, 0));
 
-        mockMvc.perform(get(MessageController.MESSAGE_PATH + "/chat/" + messageResponse.getId())
+        mockMvc.perform(get(MessageController.MESSAGE_PATH + "/chat/" + chatId)
                         .param("page-number", "1")
                         .param("page-size", "10")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        verify(messageService).getMessagesByChatId(1, 10, messageResponse.getId());
+        verify(messageService).getMessagesByChatId(1, 10, chatId);
     }
 
 }
