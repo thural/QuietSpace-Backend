@@ -1,11 +1,11 @@
 package dev.thural.quietspace.controller.slice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.controller.PhotoController;
-import dev.thural.quietspace.model.response.PhotoResponse;
+import dev.thural.quietspace.photo.PhotoController;
+import dev.thural.quietspace.photo.dto.PhotoResponse;
 import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
-import dev.thural.quietspace.service.PhotoService;
+import dev.thural.quietspace.photo.PhotoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;

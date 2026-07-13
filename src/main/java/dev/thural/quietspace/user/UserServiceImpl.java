@@ -13,7 +13,7 @@ import dev.thural.quietspace.user.dto.ProfileSettingsResponse;
 import dev.thural.quietspace.user.dto.UserResponse;
 import dev.thural.quietspace.user.UserQuery;
 import dev.thural.quietspace.user.UserRepository;
-import dev.thural.quietspace.service.PhotoService;
+import dev.thural.quietspace.photo.PhotoService;
 import dev.thural.quietspace.user.UserService;
 import dev.thural.quietspace.shared.util.PageUtils;
 import dev.thural.quietspace.shared.util.PagingProvider;

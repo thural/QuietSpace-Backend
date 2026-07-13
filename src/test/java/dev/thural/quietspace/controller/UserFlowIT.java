@@ -6,7 +6,7 @@ import dev.thural.quietspace.config.TestcontainersConfig;
 import dev.thural.quietspace.user.dto.ProfileSettingsRequest;
 import dev.thural.quietspace.user.dto.UserRequest;
 import dev.thural.quietspace.user.UserRepository;
-import dev.thural.quietspace.service.PhotoService;
+import dev.thural.quietspace.photo.PhotoService;
 import dev.thural.quietspace.shared.util.IntegrationTestHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

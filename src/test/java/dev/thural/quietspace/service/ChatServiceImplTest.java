@@ -1,17 +1,17 @@
 package dev.thural.quietspace.service;
 import dev.thural.quietspace.user.UserService;
 
-import dev.thural.quietspace.entity.Chat;
+import dev.thural.quietspace.chat.Chat;
 import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.user.User;
-import dev.thural.quietspace.mapper.ChatMapper;
+import dev.thural.quietspace.chat.ChatMapper;
 import dev.thural.quietspace.user.UserMapper;
-import dev.thural.quietspace.model.request.CreateChatRequest;
-import dev.thural.quietspace.model.response.ChatResponse;
+import dev.thural.quietspace.chat.dto.CreateChatRequest;
+import dev.thural.quietspace.chat.dto.ChatResponse;
 import dev.thural.quietspace.user.dto.UserResponse;
-import dev.thural.quietspace.repository.ChatRepository;
+import dev.thural.quietspace.chat.ChatRepository;
 import dev.thural.quietspace.repository.MessageRepository;
-import dev.thural.quietspace.service.impl.ChatServiceImpl;
+import dev.thural.quietspace.chat.ChatServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

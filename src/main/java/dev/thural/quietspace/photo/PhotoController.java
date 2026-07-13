@@ -1,7 +1,6 @@
-package dev.thural.quietspace.controller;
+package dev.thural.quietspace.photo;
 
-import dev.thural.quietspace.model.response.PhotoResponse;
-import dev.thural.quietspace.service.PhotoService;
+import dev.thural.quietspace.photo.dto.PhotoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

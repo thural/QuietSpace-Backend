@@ -2,11 +2,12 @@ package dev.thural.quietspace.shared.util;
 import dev.thural.quietspace.user.User;
 
 import dev.thural.quietspace.entity.*;
+import dev.thural.quietspace.chat.Chat;
 import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.post.Poll;
 import dev.thural.quietspace.post.PollOption;
 import dev.thural.quietspace.shared.enums.*;
-import dev.thural.quietspace.model.response.PhotoResponse;
+import dev.thural.quietspace.photo.dto.PhotoResponse;
 
 import java.time.OffsetDateTime;
 import java.util.List;

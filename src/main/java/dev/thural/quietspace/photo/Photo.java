@@ -1,4 +1,4 @@
-package dev.thural.quietspace.entity;
+package dev.thural.quietspace.photo;
 import dev.thural.quietspace.shared.entity.BaseEntity;
 
 import dev.thural.quietspace.shared.enums.EntityType;

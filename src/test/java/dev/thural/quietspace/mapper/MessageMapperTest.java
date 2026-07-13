@@ -1,14 +1,14 @@
 package dev.thural.quietspace.mapper;
 
-import dev.thural.quietspace.entity.Chat;
+import dev.thural.quietspace.chat.Chat;
 import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.MessageResponse;
-import dev.thural.quietspace.model.response.PhotoResponse;
-import dev.thural.quietspace.repository.ChatRepository;
+import dev.thural.quietspace.photo.dto.PhotoResponse;
+import dev.thural.quietspace.chat.ChatRepository;
 import dev.thural.quietspace.user.UserRepository;
-import dev.thural.quietspace.service.PhotoService;
+import dev.thural.quietspace.photo.PhotoService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

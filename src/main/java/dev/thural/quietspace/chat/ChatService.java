@@ -1,7 +1,7 @@
-package dev.thural.quietspace.service;
+package dev.thural.quietspace.chat;
 
-import dev.thural.quietspace.model.request.CreateChatRequest;
-import dev.thural.quietspace.model.response.ChatResponse;
+import dev.thural.quietspace.chat.dto.ChatResponse;
+import dev.thural.quietspace.chat.dto.CreateChatRequest;
 import dev.thural.quietspace.user.dto.UserResponse;
 
 import java.util.List;

@@ -1,6 +1,5 @@
-package dev.thural.quietspace.repository;
+package dev.thural.quietspace.chat;
 
-import dev.thural.quietspace.entity.Chat;
 import dev.thural.quietspace.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

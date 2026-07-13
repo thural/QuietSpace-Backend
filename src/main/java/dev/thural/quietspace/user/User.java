@@ -1,5 +1,5 @@
 package dev.thural.quietspace.user;
-import dev.thural.quietspace.entity.Chat;
+import dev.thural.quietspace.chat.Chat;
 import dev.thural.quietspace.entity.Comment;
 import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.post.Post;

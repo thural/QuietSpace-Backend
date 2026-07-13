@@ -1,6 +1,5 @@
-package dev.thural.quietspace.repository;
+package dev.thural.quietspace.photo;
 
-import dev.thural.quietspace.entity.Photo;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

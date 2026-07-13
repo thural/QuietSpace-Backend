@@ -2,7 +2,7 @@ package dev.thural.quietspace.controller.slice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.controller.MessageController;
-import dev.thural.quietspace.entity.Chat;
+import dev.thural.quietspace.chat.Chat;
 import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.model.request.MessageRequest;

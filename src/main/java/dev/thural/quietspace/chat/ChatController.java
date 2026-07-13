@@ -1,14 +1,13 @@
-package dev.thural.quietspace.controller;
+package dev.thural.quietspace.chat;
 
+import dev.thural.quietspace.chat.dto.ChatResponse;
+import dev.thural.quietspace.chat.dto.CreateChatRequest;
 import dev.thural.quietspace.entity.Message;
-import dev.thural.quietspace.model.request.CreateChatRequest;
 import dev.thural.quietspace.model.request.MessageRequest;
-import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.model.response.MessageResponse;
 import dev.thural.quietspace.user.dto.UserResponse;
 import dev.thural.quietspace.repository.MessageRepository;
 import dev.thural.quietspace.user.UserRepository;
-import dev.thural.quietspace.service.ChatService;
 import dev.thural.quietspace.service.MessageService;
 import dev.thural.quietspace.websocket.event.message.ChatEvent;
 import jakarta.persistence.EntityNotFoundException;

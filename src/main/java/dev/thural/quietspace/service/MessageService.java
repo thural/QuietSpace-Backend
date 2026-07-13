@@ -1,6 +1,6 @@
 package dev.thural.quietspace.service;
 
-import dev.thural.quietspace.entity.Chat;
+import dev.thural.quietspace.chat.Chat;
 import dev.thural.quietspace.model.request.MessageRequest;
 import dev.thural.quietspace.model.response.MessageResponse;
 import org.springframework.data.domain.Page;

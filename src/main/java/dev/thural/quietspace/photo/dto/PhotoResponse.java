@@ -1,16 +1,13 @@
-package dev.thural.quietspace.model.response;
-
-import dev.thural.quietspace.user.dto.UserResponse;
+package dev.thural.quietspace.photo.dto;
 import dev.thural.quietspace.shared.model.BaseResponse;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-
-import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,10 +15,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ChatResponse extends BaseResponse {
-    
-    private List<UUID> userIds;
-    private List<UserResponse> members;
-    private MessageResponse recentMessage;
+public class PhotoResponse extends BaseResponse {
 
+    private String name;
+    private String type;
+    @Lob
+    private byte[] data;
+    
 }

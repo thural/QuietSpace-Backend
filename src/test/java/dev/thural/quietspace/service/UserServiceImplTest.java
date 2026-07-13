@@ -15,7 +15,7 @@ import dev.thural.quietspace.user.UserQuery;
 import dev.thural.quietspace.user.UserRepository;
 import dev.thural.quietspace.user.UserServiceImpl;
 import dev.thural.quietspace.shared.util.PagingProvider;
-import dev.thural.quietspace.service.PhotoService;
+import dev.thural.quietspace.photo.PhotoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

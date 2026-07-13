@@ -13,7 +13,7 @@ import dev.thural.quietspace.post.dto.VoteRequest;
 import dev.thural.quietspace.post.dto.PostResponse;
 import dev.thural.quietspace.post.PostRepository;
 import dev.thural.quietspace.post.PostSpecifications;
-import dev.thural.quietspace.service.PhotoService;
+import dev.thural.quietspace.photo.PhotoService;
 import dev.thural.quietspace.post.PostServiceImpl;
 import dev.thural.quietspace.shared.util.PagingProvider;
 import jakarta.persistence.EntityNotFoundException;

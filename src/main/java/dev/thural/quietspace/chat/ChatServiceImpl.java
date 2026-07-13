@@ -1,19 +1,15 @@
-package dev.thural.quietspace.service.impl;
+package dev.thural.quietspace.chat;
 
-import dev.thural.quietspace.entity.Chat;
+import dev.thural.quietspace.chat.dto.ChatResponse;
+import dev.thural.quietspace.chat.dto.CreateChatRequest;
 import dev.thural.quietspace.entity.Message;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.exception.CustomErrorException;
 import dev.thural.quietspace.shared.exception.UnauthorizedException;
 import dev.thural.quietspace.shared.exception.UserNotFoundException;
-import dev.thural.quietspace.mapper.ChatMapper;
 import dev.thural.quietspace.user.UserMapper;
-import dev.thural.quietspace.model.request.CreateChatRequest;
-import dev.thural.quietspace.model.response.ChatResponse;
 import dev.thural.quietspace.user.dto.UserResponse;
-import dev.thural.quietspace.repository.ChatRepository;
 import dev.thural.quietspace.repository.MessageRepository;
-import dev.thural.quietspace.service.ChatService;
 import dev.thural.quietspace.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
