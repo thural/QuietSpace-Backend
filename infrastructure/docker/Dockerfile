@@ -12,27 +12,23 @@ COPY src ./src
 
 RUN ./gradlew clean bootJar -x test
 
-
-
 FROM eclipse-temurin:25-jre-alpine AS builder
 
-WORKDIR extracted
+WORKDIR /builder
 
-COPY --from=build /build/build/libs/*.jar ./app.jar
+COPY --from=build /build/build/libs/*.jar ./application.jar
 
-RUN java -Djarmode=layertools -jar app.jar extract
-
-
+RUN java -Djarmode=tools -jar application.jar extract --layers --destination extracted
 
 FROM eclipse-temurin:25-jre-alpine
 
-WORKDIR application
+WORKDIR /application
 
-COPY --from=builder extracted/dependencies/ ./
-COPY --from=builder extracted/spring-boot-loader/ ./
-COPY --from=builder extracted/snapshot-dependencies/ ./
-COPY --from=builder extracted/application/ ./
+COPY --from=builder /builder/extracted/dependencies/ ./
+COPY --from=builder /builder/extracted/spring-boot-loader/ ./
+COPY --from=builder /builder/extracted/snapshot-dependencies/ ./
+COPY --from=builder /builder/extracted/application/ ./
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
+ENTRYPOINT ["java", "-jar", "application.jar"]
