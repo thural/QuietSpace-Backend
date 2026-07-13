@@ -1,6 +1,5 @@
 package dev.thural.quietspace.post;
 
-import dev.thural.quietspace.entity.*;
 import dev.thural.quietspace.photo.Photo;
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.user.User;
