@@ -1,0 +1,63 @@
+package dev.thural.quietspace.post;
+import dev.thural.quietspace.user.User;
+
+import dev.thural.quietspace.post.PostController;
+import dev.thural.quietspace.security.TokenRepository;
+import dev.thural.quietspace.security.JwtService;
+import dev.thural.quietspace.notification.NotificationService;
+import dev.thural.quietspace.post.PostService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.UUID;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(PostController.class)
+class PostControllerSecurityTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private PostService postService;
+    @MockitoBean
+    private NotificationService notificationService;
+    @MockitoBean
+    private TokenRepository tokenRepository;
+    @MockitoBean
+    private JwtService jwtService;
+    @MockitoBean
+    private UserDetailsService userDetailsService;
+
+    @Test
+    void getPostById_withoutToken_shouldReturn401() throws Exception {
+        mockMvc.perform(get("/api/v1/posts/{id}", UUID.randomUUID()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void getAllPosts_withoutToken_shouldReturn401() throws Exception {
+        mockMvc.perform(get("/api/v1/posts"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void createPost_withoutToken_shouldReturn401() throws Exception {
+        mockMvc.perform(post("/api/v1/posts"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void deletePost_withoutToken_shouldReturn401() throws Exception {
+        mockMvc.perform(delete("/api/v1/posts/{id}", UUID.randomUUID()))
+                .andExpect(status().isUnauthorized());
+    }
+}
