@@ -1,4 +1,4 @@
-package dev.thural.quietspace.controller;
+package dev.thural.quietspace.user;
 
 
 import dev.thural.quietspace.user.dto.UserResponse;

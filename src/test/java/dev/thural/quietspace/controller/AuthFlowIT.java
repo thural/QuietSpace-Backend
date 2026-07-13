@@ -10,7 +10,7 @@ import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.user.UserRepository;
 import dev.thural.quietspace.photo.PhotoService;
-import dev.thural.quietspace.service.impl.EmailService;
+import dev.thural.quietspace.shared.service.impl.EmailService;
 import dev.thural.quietspace.shared.util.IntegrationTestHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

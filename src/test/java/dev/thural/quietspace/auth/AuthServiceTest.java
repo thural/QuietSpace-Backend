@@ -12,7 +12,7 @@ import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.user.UserRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.user.UserService;
-import dev.thural.quietspace.service.impl.EmailService;
+import dev.thural.quietspace.shared.service.impl.EmailService;
 import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

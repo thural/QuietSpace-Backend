@@ -3,7 +3,7 @@ package dev.thural.quietspace.service;
 import dev.thural.quietspace.config.TestcontainersConfig;
 import dev.thural.quietspace.shared.enums.EmailTemplateName;
 import dev.thural.quietspace.photo.PhotoService;
-import dev.thural.quietspace.service.impl.EmailService;
+import dev.thural.quietspace.shared.service.impl.EmailService;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
