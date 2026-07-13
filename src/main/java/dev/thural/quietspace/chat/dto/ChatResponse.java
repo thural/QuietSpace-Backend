@@ -1,7 +1,7 @@
 package dev.thural.quietspace.chat.dto;
 
 import dev.thural.quietspace.user.dto.UserResponse;
-import dev.thural.quietspace.model.response.MessageResponse;
+import dev.thural.quietspace.message.dto.MessageResponse;
 import dev.thural.quietspace.shared.model.BaseResponse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

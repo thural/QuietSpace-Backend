@@ -1,4 +1,4 @@
-package dev.thural.quietspace.model.response;
+package dev.thural.quietspace.message.dto;
 import dev.thural.quietspace.photo.dto.PhotoResponse;
 import dev.thural.quietspace.shared.model.BaseResponse;
 

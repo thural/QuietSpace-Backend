@@ -1,7 +1,7 @@
-package dev.thural.quietspace.repository;
+package dev.thural.quietspace.message;
 
 import dev.thural.quietspace.chat.Chat;
-import dev.thural.quietspace.entity.Message;
+import dev.thural.quietspace.message.Message;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

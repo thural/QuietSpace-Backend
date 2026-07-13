@@ -2,13 +2,13 @@ package dev.thural.quietspace.chat;
 
 import dev.thural.quietspace.chat.dto.ChatResponse;
 import dev.thural.quietspace.chat.dto.CreateChatRequest;
-import dev.thural.quietspace.entity.Message;
-import dev.thural.quietspace.model.request.MessageRequest;
-import dev.thural.quietspace.model.response.MessageResponse;
+import dev.thural.quietspace.message.Message;
+import dev.thural.quietspace.message.dto.MessageRequest;
+import dev.thural.quietspace.message.dto.MessageResponse;
 import dev.thural.quietspace.user.dto.UserResponse;
-import dev.thural.quietspace.repository.MessageRepository;
+import dev.thural.quietspace.message.MessageRepository;
 import dev.thural.quietspace.user.UserRepository;
-import dev.thural.quietspace.service.MessageService;
+import dev.thural.quietspace.message.MessageService;
 import dev.thural.quietspace.websocket.event.message.ChatEvent;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

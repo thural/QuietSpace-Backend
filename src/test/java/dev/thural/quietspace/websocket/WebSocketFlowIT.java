@@ -3,8 +3,8 @@ import dev.thural.quietspace.user.User;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.config.TestcontainersConfig;
-import dev.thural.quietspace.model.request.MessageRequest;
-import dev.thural.quietspace.model.response.MessageResponse;
+import dev.thural.quietspace.message.dto.MessageRequest;
+import dev.thural.quietspace.message.dto.MessageResponse;
 import dev.thural.quietspace.user.UserRepository;
 import dev.thural.quietspace.photo.PhotoService;
 import dev.thural.quietspace.shared.util.IntegrationTestHelper;

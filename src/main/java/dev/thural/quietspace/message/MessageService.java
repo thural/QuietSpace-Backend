@@ -1,8 +1,8 @@
-package dev.thural.quietspace.service;
+package dev.thural.quietspace.message;
 
 import dev.thural.quietspace.chat.Chat;
-import dev.thural.quietspace.model.request.MessageRequest;
-import dev.thural.quietspace.model.response.MessageResponse;
+import dev.thural.quietspace.message.dto.MessageRequest;
+import dev.thural.quietspace.message.dto.MessageResponse;
 import org.springframework.data.domain.Page;
 
 import java.util.Optional;

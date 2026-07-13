@@ -1,8 +1,8 @@
-package dev.thural.quietspace.controller;
+package dev.thural.quietspace.message;
 
-import dev.thural.quietspace.model.request.MessageRequest;
-import dev.thural.quietspace.model.response.MessageResponse;
-import dev.thural.quietspace.service.MessageService;
+import dev.thural.quietspace.message.dto.MessageRequest;
+import dev.thural.quietspace.message.dto.MessageResponse;
+import dev.thural.quietspace.message.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import jakarta.validation.Valid;

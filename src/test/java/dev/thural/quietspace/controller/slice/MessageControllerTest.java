@@ -1,15 +1,15 @@
 package dev.thural.quietspace.controller.slice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.controller.MessageController;
+import dev.thural.quietspace.message.MessageController;
 import dev.thural.quietspace.chat.Chat;
-import dev.thural.quietspace.entity.Message;
+import dev.thural.quietspace.message.Message;
 import dev.thural.quietspace.user.User;
-import dev.thural.quietspace.model.request.MessageRequest;
-import dev.thural.quietspace.model.response.MessageResponse;
+import dev.thural.quietspace.message.dto.MessageRequest;
+import dev.thural.quietspace.message.dto.MessageResponse;
 import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
-import dev.thural.quietspace.service.MessageService;
+import dev.thural.quietspace.message.MessageService;
 import dev.thural.quietspace.post.PostService;
 import dev.thural.quietspace.service.ReactionService;
 import org.junit.jupiter.api.BeforeEach;

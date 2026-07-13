@@ -1,4 +1,4 @@
-package dev.thural.quietspace.entity;
+package dev.thural.quietspace.message;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.chat.Chat;
 import dev.thural.quietspace.shared.entity.BaseEntity;

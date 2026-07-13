@@ -1,9 +1,10 @@
 package dev.thural.quietspace.repository;
+import dev.thural.quietspace.message.MessageRepository;
 import dev.thural.quietspace.user.UserRepository;
 
 import dev.thural.quietspace.chat.Chat;
 import dev.thural.quietspace.chat.ChatRepository;
-import dev.thural.quietspace.entity.Message;
+import dev.thural.quietspace.message.Message;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.Role;
 import org.junit.jupiter.api.AfterEach;

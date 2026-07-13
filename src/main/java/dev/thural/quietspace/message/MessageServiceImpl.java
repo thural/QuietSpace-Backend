@@ -1,16 +1,16 @@
-package dev.thural.quietspace.service.impl;
+package dev.thural.quietspace.message;
 
 import dev.thural.quietspace.chat.Chat;
-import dev.thural.quietspace.entity.Message;
+import dev.thural.quietspace.message.Message;
 import dev.thural.quietspace.photo.Photo;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.EntityType;
-import dev.thural.quietspace.mapper.MessageMapper;
-import dev.thural.quietspace.model.request.MessageRequest;
-import dev.thural.quietspace.model.response.MessageResponse;
+import dev.thural.quietspace.message.MessageMapper;
+import dev.thural.quietspace.message.dto.MessageRequest;
+import dev.thural.quietspace.message.dto.MessageResponse;
 import dev.thural.quietspace.chat.ChatRepository;
-import dev.thural.quietspace.repository.MessageRepository;
-import dev.thural.quietspace.service.MessageService;
+import dev.thural.quietspace.message.MessageRepository;
+import dev.thural.quietspace.message.MessageService;
 import dev.thural.quietspace.photo.PhotoService;
 import dev.thural.quietspace.user.UserService;
 import jakarta.persistence.EntityNotFoundException;

@@ -1,6 +1,6 @@
 package dev.thural.quietspace.chat;
 import dev.thural.quietspace.user.User;
-import dev.thural.quietspace.entity.Message;
+import dev.thural.quietspace.message.Message;
 import dev.thural.quietspace.shared.entity.BaseEntity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;

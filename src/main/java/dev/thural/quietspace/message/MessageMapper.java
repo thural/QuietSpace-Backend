@@ -1,10 +1,10 @@
-package dev.thural.quietspace.mapper;
+package dev.thural.quietspace.message;
 
 import dev.thural.quietspace.chat.Chat;
-import dev.thural.quietspace.entity.Message;
+import dev.thural.quietspace.message.Message;
 import dev.thural.quietspace.user.User;
-import dev.thural.quietspace.model.request.MessageRequest;
-import dev.thural.quietspace.model.response.MessageResponse;
+import dev.thural.quietspace.message.dto.MessageRequest;
+import dev.thural.quietspace.message.dto.MessageResponse;
 import dev.thural.quietspace.photo.dto.PhotoResponse;
 import dev.thural.quietspace.chat.ChatRepository;
 import dev.thural.quietspace.user.UserRepository;
