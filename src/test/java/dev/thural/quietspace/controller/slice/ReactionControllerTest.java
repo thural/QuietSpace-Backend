@@ -1,14 +1,14 @@
 package dev.thural.quietspace.controller.slice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.controller.ReactionController;
+import dev.thural.quietspace.reaction.ReactionController;
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.shared.enums.ReactionType;
-import dev.thural.quietspace.model.request.ReactionRequest;
+import dev.thural.quietspace.reaction.dto.ReactionRequest;
 import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.service.NotificationService;
-import dev.thural.quietspace.service.ReactionService;
+import dev.thural.quietspace.reaction.ReactionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;

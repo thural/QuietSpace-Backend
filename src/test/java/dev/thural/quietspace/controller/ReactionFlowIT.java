@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.config.TestcontainersConfig;
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.shared.enums.ReactionType;
-import dev.thural.quietspace.model.request.ReactionRequest;
+import dev.thural.quietspace.reaction.dto.ReactionRequest;
 import dev.thural.quietspace.user.UserRepository;
 import dev.thural.quietspace.photo.PhotoService;
 import dev.thural.quietspace.shared.util.IntegrationTestHelper;

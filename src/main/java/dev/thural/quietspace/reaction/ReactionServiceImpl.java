@@ -1,14 +1,14 @@
-package dev.thural.quietspace.service.impl;
+package dev.thural.quietspace.reaction;
 
-import dev.thural.quietspace.entity.Reaction;
+import dev.thural.quietspace.reaction.Reaction;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.shared.enums.ReactionType;
-import dev.thural.quietspace.mapper.ReactionMapper;
-import dev.thural.quietspace.model.request.ReactionRequest;
-import dev.thural.quietspace.model.response.ReactionResponse;
-import dev.thural.quietspace.repository.ReactionRepository;
-import dev.thural.quietspace.service.ReactionService;
+import dev.thural.quietspace.reaction.ReactionMapper;
+import dev.thural.quietspace.reaction.dto.ReactionRequest;
+import dev.thural.quietspace.reaction.dto.ReactionResponse;
+import dev.thural.quietspace.reaction.ReactionRepository;
+import dev.thural.quietspace.reaction.ReactionService;
 import dev.thural.quietspace.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

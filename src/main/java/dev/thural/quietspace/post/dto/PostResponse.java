@@ -1,6 +1,6 @@
 package dev.thural.quietspace.post.dto;
 import dev.thural.quietspace.photo.dto.PhotoResponse;
-import dev.thural.quietspace.model.response.ReactionResponse;
+import dev.thural.quietspace.reaction.dto.ReactionResponse;
 import dev.thural.quietspace.shared.model.BaseResponse;
 
 import com.fasterxml.jackson.annotation.JsonInclude;

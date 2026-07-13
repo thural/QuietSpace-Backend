@@ -1,9 +1,10 @@
 package dev.thural.quietspace.repository;
+import dev.thural.quietspace.reaction.ReactionRepository;
 import dev.thural.quietspace.user.UserRepository;
 
 import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.post.PostRepository;
-import dev.thural.quietspace.entity.Reaction;
+import dev.thural.quietspace.reaction.Reaction;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.shared.enums.ReactionType;

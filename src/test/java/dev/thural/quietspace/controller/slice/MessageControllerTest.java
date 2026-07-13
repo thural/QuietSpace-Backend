@@ -11,7 +11,7 @@ import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.message.MessageService;
 import dev.thural.quietspace.post.PostService;
-import dev.thural.quietspace.service.ReactionService;
+import dev.thural.quietspace.reaction.ReactionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

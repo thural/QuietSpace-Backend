@@ -5,12 +5,12 @@ import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.comment.dto.CommentRequest;
 import dev.thural.quietspace.comment.dto.CommentResponse;
-import dev.thural.quietspace.model.response.ReactionResponse;
+import dev.thural.quietspace.reaction.dto.ReactionResponse;
 import dev.thural.quietspace.comment.CommentRepository;
 import dev.thural.quietspace.post.PostRepository;
-import dev.thural.quietspace.repository.ReactionRepository;
+import dev.thural.quietspace.reaction.ReactionRepository;
 import dev.thural.quietspace.user.UserRepository;
-import dev.thural.quietspace.service.ReactionService;
+import dev.thural.quietspace.reaction.ReactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
