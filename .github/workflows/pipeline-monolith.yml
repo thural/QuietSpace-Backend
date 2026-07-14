@@ -4,11 +4,11 @@ on:
   push:
     branches: [ "main", "prod" ]
     paths:
-      - src
+      - 'src/**'
       - 'build.gradle.kts'
-      - 'docker-compose-prod.yaml'
-      - ./docker/prod/Dockerfile
-      - ./github/workflows/*-monolith.yml
+      - 'infrastructure/docker/docker-compose.yaml'
+      - 'infrastructure/docker/Dockerfile'
+      - '.github/workflows/*-monolith.yml'
 
 jobs:
 
