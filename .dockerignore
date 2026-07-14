@@ -1,0 +1,42 @@
+# Version control
+.git/
+.gitignore
+
+# IDE files
+.idea/
+.vscode/
+*.iws
+*.iml
+*.ipr
+
+# Build artifacts
+build/
+target/
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Environment files (secrets)
+.env
+.env.*
+
+# Documentation
+docs/
+README.md
+LICENSE
+
+# Docker compose files (not needed inside image)
+infrastructure/docker/docker-compose*.yaml
+
+# Kubernetes manifests (not needed inside image)
+infrastructure/k8s/
+
+# Test sources (not needed in production image)
+src/test/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+quietspace.log
