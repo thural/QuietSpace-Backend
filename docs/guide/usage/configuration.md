@@ -43,6 +43,24 @@ QuietSpace uses a layered configuration system with `.env` as the single source 
 
 ## Environment Variables (.env)
 
+### Setup
+
+```bash
+cp .env.example .env   # create from template
+# edit .env with your values
+```
+
+**Mode switching:** Edit `SPRING_PROFILES_ACTIVE` in `.env` to toggle between `dev` and `prod`. The dev profile hardcodes most hostnames/port values in `application-dev.yml`, so only a few `.env` values are read in dev mode.
+
+| `.env` variable | Read in dev mode? | Read in prod mode? |
+|---|---|---|
+| `ADMIN_PASSWORD` | Yes | Yes |
+| `JWT_SECRET_KEY` | Yes | Yes |
+| `DB_USER_USERNAME` | Yes | Yes |
+| `DB_USER_PASSWORD` | Yes | Yes |
+| `SPRING_PROFILES_ACTIVE` | Yes | Yes |
+| All other variables | No (overridden by dev profile) | Yes |
+
 ### Database Configuration
 
 | Variable | Description | Dev Value | Prod Value | Sync Required |

@@ -165,7 +165,15 @@ DEPLOY_EOF
 | `DB_USER_USERNAME` | Database username | `quietspace_user` |
 | `DB_USER_PASSWORD` | Database password | `userpassword` |
 | `DB_PORT_NUMBER` | Database port | `3306` |
-| `DB_HOST_NAME` | Database hostname | `quietspace-monolith-db` |
+| `DB_HOST_NAME` | Database hostname on VPS | `quietspace-monolith-db` |
+| `SERVER_PORT_NUMBER` | Application port | `8080` |
+| `ADMIN_PASSWORD` | Admin account password | (your choice) |
+| `JWT_SECRET_KEY` | JWT signing key | (your choice) |
+| `ACTIVATION_URL` | Email activation link | `https://yourdomain.com/activate` |
+| `FRONTEND_HOST` | Frontend hostname | `yourdomain.com` |
+| `FRONTEND_PORT` | Frontend port | `3000` |
+| `MAILDEV_HOST` | Mail server hostname | `mail.yourdomain.com` |
+| `MAILDEV_PORT` | Mail server port | `1025` |
 
 ## Deployment Commands
 
@@ -273,19 +281,22 @@ docker compose -f docker-compose.yaml up -d
 
 ## Environment Variables
 
-All environment variables are defined in the `.env` file at the project root. See [Configuration Guide](../guide/usage/configuration.md) for details.
+The pipeline generates a `.env` file on the VPS from GitHub Secrets. See [Configuration Guide](../guide/usage/configuration.md) for details.
 
-| Variable | Purpose | Default |
+| Variable | Source | Purpose |
 |---|---|---|
-| `DB_HOST_NAME` | MySQL hostname | `quietspace-monolith-db` |
-| `DB_PORT_NUMBER` | MySQL port | `3306` |
-| `DB_NAME` | Database name | `quietspace` |
-| `DB_USER_USERNAME` | Database username | `quietspace_user` |
-| `DB_USER_PASSWORD` | Database password | `userpassword` |
-| `DB_ROOT_PASSWORD` | MySQL root password | `rootpassword` |
-| `SERVER_PORT_NUMBER` | Application port | `8080` |
-| `SPRING_PROFILES_ACTIVE` | Active Spring profile | `prod` |
-| `MAILDEV_HOST` | Mail server hostname | `mail-dev` |
-| `MAILDEV_PORT` | Mail server port | `1025` |
-| `FRONTEND_HOST` | Frontend hostname | `localhost` |
-| `FRONTEND_PORT` | Frontend port | `3000` |
+| `DB_HOST_NAME` | GitHub Secret | MySQL hostname on VPS |
+| `DB_PORT_NUMBER` | GitHub Secret | MySQL port |
+| `DB_NAME` | GitHub Secret | Database name |
+| `DB_USER_USERNAME` | GitHub Secret | Database username |
+| `DB_USER_PASSWORD` | GitHub Secret | Database password |
+| `DB_ROOT_PASSWORD` | GitHub Secret | MySQL root password |
+| `SERVER_PORT_NUMBER` | GitHub Secret | Application port |
+| `ADMIN_PASSWORD` | GitHub Secret | Admin account password |
+| `JWT_SECRET_KEY` | GitHub Secret | JWT signing key |
+| `ACTIVATION_URL` | GitHub Secret | Email activation URL |
+| `MAILDEV_HOST` | GitHub Secret | Mail server hostname |
+| `MAILDEV_PORT` | GitHub Secret | Mail server port |
+| `FRONTEND_HOST` | GitHub Secret | Frontend hostname |
+| `FRONTEND_PORT` | GitHub Secret | Frontend port |
+| `SPRING_PROFILES_ACTIVE` | Hardcoded | Always `prod` on VPS |

@@ -92,6 +92,14 @@ jobs:
       DB_USER_PASSWORD: ${{ secrets.DB_USER_PASSWORD }}
       DB_PORT_NUMBER: ${{ secrets.DB_PORT_NUMBER }}
       DB_HOST_NAME: ${{ secrets.DB_HOST_NAME }}
+      SERVER_PORT_NUMBER: ${{ secrets.SERVER_PORT_NUMBER }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+      ACTIVATION_URL: ${{ secrets.ACTIVATION_URL }}
+      FRONTEND_HOST: ${{ secrets.FRONTEND_HOST }}
+      FRONTEND_PORT: ${{ secrets.FRONTEND_PORT }}
+      MAILDEV_HOST: ${{ secrets.MAILDEV_HOST }}
+      MAILDEV_PORT: ${{ secrets.MAILDEV_PORT }}
     steps:
       - name: checkout code
         uses: actions/checkout@v4
@@ -115,12 +123,15 @@ jobs:
           MYSQL_DATABASE=$DB_NAME
           MYSQL_USER=$DB_USER_USERNAME
           MYSQL_PASSWORD=$DB_USER_PASSWORD
-          SERVER_PORT_NUMBER=8080
+          SERVER_PORT_NUMBER=$SERVER_PORT_NUMBER
           SPRING_PROFILES_ACTIVE=prod
-          MAILDEV_HOST=mail-dev
-          MAILDEV_PORT=1025
-          FRONTEND_HOST=localhost
-          FRONTEND_PORT=3000
+          ADMIN_PASSWORD=$ADMIN_PASSWORD
+          JWT_SECRET_KEY=$JWT_SECRET_KEY
+          ACTIVATION_URL=$ACTIVATION_URL
+          MAILDEV_HOST=$MAILDEV_HOST
+          MAILDEV_PORT=$MAILDEV_PORT
+          FRONTEND_HOST=$FRONTEND_HOST
+          FRONTEND_PORT=$FRONTEND_PORT
           EOF
           scp /tmp/deploy-env $VPS_USERNAME@$VPS_IP:deployment/.env
           rm /tmp/deploy-env
