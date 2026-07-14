@@ -272,6 +272,7 @@ SPRING_PROFILES_ACTIVE=dev
 SPRING_PROFILES_ACTIVE=prod
 DB_HOST_NAME=quietspace-monolith-db
 MAILDEV_HOST=mail-dev
+FRONTEND_HOST=quietspace-frontend
 
 # Run from infrastructure/docker:
 docker compose -f docker-compose.yaml up -d

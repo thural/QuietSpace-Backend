@@ -2,6 +2,10 @@
 
 > Analysis of the existing continuous integration / continuous deployment configuration for the
 > QuietSpace Spring Boot backend. Findings are based on the repository state at the time of review.
+>
+> **Status: All issues in this report have been resolved.** See
+> [CI Pipeline](../architecture/ci-pipeline.md) and [CD Pipeline](../architecture/cd-pipeline.md)
+> for the current pipeline configuration.
 
 ## Verdict
 

@@ -11,9 +11,10 @@
          ┌────────────────┴────────────────┐
          ▼                                 ▼
    [ CI Pipeline ]                   [ CD Pipeline ]
-   - Compile                        - Build Docker Image
-   - Test                           - Push to GHCR
-   - Package                        - Deploy to VPS
+   - Test                           - Build Docker Image
+   - (main + prod)                  - Push to GHCR
+                                     - Deploy to VPS
+                                     - (prod only)
          │                                 │
          └────────────────┬────────────────┘
                           ▼
@@ -33,17 +34,16 @@
 | Stage | Tool | Purpose |
 |---|---|---|
 | Source Control | GitHub | Code hosting, branch protection, PR reviews |
-| CI Engine | GitHub Actions | Automated build, test, package |
+| CI Engine | GitHub Actions | Automated test |
 | Container Registry | GHCR (ghcr.io) | Docker image storage |
 | Deployment Target | VPS (Ubuntu) | Running containers via Docker Compose |
 
 ## Branch Strategy
 
-| Branch | Purpose | Pipeline Trigger |
-|---|---|---|
-| `main` | Development branch | CI + CD on push |
-| `prod` | Production branch | CI + CD on push |
-| `feature/*` | Feature development | CI only (on PR) |
+| Branch | CI Stages | CD Stages | Trigger |
+|---|---|---|---|
+| `main` | test | — | Push to `main` |
+| `prod` | test | build, deploy | Push to `prod` |
 
 ## Key Files
 
@@ -52,7 +52,8 @@
 | `.github/workflows/pipeline-monolith.yml` | GitHub Actions CI/CD pipeline |
 | `infrastructure/docker/Dockerfile` | Multi-stage Docker build |
 | `infrastructure/docker/docker-compose.yaml` | Container orchestration |
-| `.env` | Environment variables (single source of truth) |
+| `.env.example` | Environment variable template (committed) |
+| `.env` | Environment variables (gitignored) |
 | `.dockerignore` | Docker build context exclusions |
 
 ## Related Documentation
