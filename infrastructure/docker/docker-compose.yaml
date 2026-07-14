@@ -37,6 +37,12 @@ services:
         condition: service_healthy
     env_file:
       - ../../.env
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - monolith-network
     ports:
