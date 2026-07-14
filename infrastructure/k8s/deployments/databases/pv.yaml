@@ -8,5 +8,5 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: /path/to/persistent/storage
+    path: /data/mysql
 
