@@ -205,3 +205,7 @@ quietspace-backend/
 3. Commit changes
 4. Push and create a pull request
 
+## License Notice
+
+This project is licensed under a **Proprietary License**. All other rights reserved. See the [LICENSE.md](./LICENSE.md) file for full terms.
+
