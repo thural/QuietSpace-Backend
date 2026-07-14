@@ -6,8 +6,7 @@ on:
     paths:
       - 'src/**'
       - 'build.gradle.kts'
-      - 'infrastructure/docker/docker-compose.yaml'
-      - 'infrastructure/docker/Dockerfile'
+      - 'infrastructure/docker/**'
       - '.github/workflows/*-monolith.yml'
 
 jobs:
@@ -82,6 +81,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     name: Build Docker Image
+    if: github.ref == 'refs/heads/prod'
     needs: [ package ]
     steps:
       - name: checkout code
@@ -126,6 +126,7 @@ jobs:
   deploy:
     name: Deploy Backend to VPS
     runs-on: ubuntu-22.04
+    if: github.ref == 'refs/heads/prod'
     needs: [ build ]
     steps:
       - name: Create Deployment Folder

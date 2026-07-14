@@ -2,24 +2,62 @@
 
 ## Overview
 
-The Continuous Deployment (CD) pipeline deploys the application to a VPS after the CI pipeline successfully builds and pushes the Docker image to GHCR.
+The Continuous Deployment (CD) pipeline runs only on the `prod` branch. It builds the Docker image, pushes it to GHCR, and deploys to the production VPS. The CI pipeline (compile, test, package) runs first on `prod` before the CD stages execute.
 
 ## Pipeline Stages
 
 ```
-[ Build Docker Image ] ──> [ Deploy to VPS ]
-        │                          │
-        ▼                          ▼
-   [ Push to GHCR ]        [ SSH + Docker Compose ]
+[ CI: Compile ] ──> [ CI: Test ] ──> [ CI: Package ] ──> [ CD: Build ] ──> [ CD: Deploy ]
+                                                         │                   │
+                                                         ▼                   ▼
+                                                   [ Push to GHCR ]   [ SSH + Docker Compose ]
 ```
+
+**Note:** The CI stages (compile, test, package) run on both `main` and `prod` branches. The CD stages (build, deploy) only run on `prod`.
+
+## Branch Behavior
+
+| Branch | CI Stages | CD Stages |
+|---|---|---|
+| `main` | compile, test, package | — |
+| `prod` | compile, test, package | build, deploy |
 
 ## Stage Details
 
-### 1. Deploy to VPS
+### 1. Build Docker Image
+
+**Purpose:** Build and push the Docker image to GitHub Container Registry (GHCR).
+
+**Runner:** `ubuntu-22.04`
+
+**Condition:** Only runs on `prod` branch (`if: github.ref == 'refs/heads/prod'`).
+
+**Dependencies:** Requires `package` stage to succeed.
+
+**Steps:**
+1. Checkout code with full git history
+2. Setup JDK 25 (Amazon Corretto)
+3. Setup Gradle with caching
+4. Extract project version from `build.gradle.kts`
+5. Login to GHCR using `GITHUB_TOKEN`
+6. Build and push Docker image
+
+**Docker Build:**
+- **Base image:** `eclipse-temurin:25-jre-alpine`
+- **Build context:** Project root (`./`)
+- **Dockerfile:** `infrastructure/docker/Dockerfile`
+- **Platform:** `linux/amd64`
+- **Tags:**
+  - `ghcr.io/<repo>/quietspace:monolith-<version>`
+  - `ghcr.io/<repo>/quietspace:monolith-latest`
+
+### 2. Deploy to VPS
 
 **Purpose:** Deploy the application to the production VPS using Docker Compose.
 
 **Runner:** `ubuntu-22.04`
+
+**Condition:** Only runs on `prod` branch (`if: github.ref == 'refs/heads/prod'`).
 
 **Dependencies:** Requires `build` stage to succeed.
 

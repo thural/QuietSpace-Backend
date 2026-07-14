@@ -2,17 +2,18 @@
 
 ## Overview
 
-The Continuous Integration (CI) pipeline runs automatically on every push to `main` or `prod` branches when source code, build configuration, or Docker files change.
+The Continuous Integration (CI) pipeline runs automatically on every push to `main` or `prod` branches when source code, build configuration, or Docker files change. The CI pipeline handles verification only — it answers the question: "Is this code safe to merge and free of regressions?"
 
 ## Pipeline Stages
 
 ```
-[ Compile ] ──> [ Test ] ──> [ Package ] ──> [ Build Docker Image ]
-     │              │              │                    │
-     └──────────────┴──────────────┘                    │
-         (runs in parallel)                             ▼
-                                              [ Push to GHCR ]
+[ Compile ] ──> [ Test ] ──> [ Package ]
+     │              │              │
+     └──────────────┴──────────────┘
+         (runs in parallel)
 ```
+
+**Note:** The Build Docker Image and Deploy stages are part of the [CD Pipeline](cd-pipeline.md) and only run on the `prod` branch.
 
 ## Stage Details
 
@@ -68,52 +69,29 @@ The Continuous Integration (CI) pipeline runs automatically on every push to `ma
 
 **Trigger:** Runs after compile and test succeed.
 
-### 4. Build Docker Image
-
-**Purpose:** Build and push the Docker image to GitHub Container Registry (GHCR).
-
-**Runner:** `ubuntu-22.04`
-
-**Dependencies:** Requires `package` to succeed.
-
-**Steps:**
-1. Checkout code with full git history
-2. Setup JDK 25 (Amazon Corretto)
-3. Setup Gradle with caching
-4. Extract project version from `build.gradle.kts`
-5. Login to GHCR using `GITHUB_TOKEN`
-6. Build and push Docker image
-
-**Docker Build:**
-- **Base image:** `eclipse-temurin:25-jre-alpine`
-- **Build context:** Project root (`./`)
-- **Dockerfile:** `infrastructure/docker/Dockerfile`
-- **Platform:** `linux/amd64`
-- **Tags:**
-  - `ghcr.io/<repo>/quietspace:monolith-<version>`
-  - `ghcr.io/<repo>/quietspace:monolith-latest`
-
-**Trigger:** Runs after package succeeds.
-
 ## Trigger Configuration
 
-The pipeline triggers on pushes to `main` or `prod` branches when any of these files change:
+The CI pipeline triggers on pushes to `main` or `prod` branches when any of these files change:
 
 ```yaml
 paths:
-  - 'src/**'                                    # Source code changes
-  - 'build.gradle.kts'                          # Build configuration changes
-  - 'infrastructure/docker/docker-compose.yaml' # Docker Compose changes
-  - 'infrastructure/docker/Dockerfile'          # Dockerfile changes
-  - '.github/workflows/*-monolith.yml'          # Pipeline changes
+  - 'src/**'                         # Source code changes
+  - 'build.gradle.kts'               # Build configuration changes
+  - 'infrastructure/docker/**'       # Docker files changes
+  - '.github/workflows/*-monolith.yml' # Pipeline changes
 ```
+
+**Branch behavior:**
+| Branch | CI Stages | CD Stages |
+|---|---|---|
+| `main` | compile, test, package | — |
+| `prod` | compile, test, package | build, deploy |
 
 ## Caching Strategy
 
 | Cache | Mechanism | Benefit |
 |---|---|---|
 | Gradle dependencies | `gradle/actions/setup-gradle@v4` | Faster subsequent builds |
-| Docker layers | Docker BuildKit (multi-stage) | Reuse unchanged layers |
 | GitHub Actions | Built-in action cache | Faster step execution |
 
 ## Required GitHub Secrets
@@ -127,7 +105,6 @@ paths:
 | Artifact | Location | Retention |
 |---|---|---|
 | Spring Boot JAR | `build/libs/quietspace-*.jar` | Build only (not persisted) |
-| Docker Image | `ghcr.io/<repo>/quietspace` | Permanent |
 
 ## Running CI Locally
 
@@ -142,7 +119,4 @@ To run the CI pipeline locally:
 
 # Package
 ./gradlew clean bootJar
-
-# Build Docker image
-docker compose -f infrastructure/docker/docker-compose.yaml build quietspace-monolith
 ```
