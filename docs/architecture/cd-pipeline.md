@@ -2,25 +2,25 @@
 
 ## Overview
 
-The Continuous Deployment (CD) pipeline runs only on the `prod` branch. It builds the Docker image, pushes it to GHCR, and deploys to the production VPS. The CI pipeline (compile, test, package) runs first on `prod` before the CD stages execute.
+The Continuous Deployment (CD) pipeline runs only on the `prod` branch. It builds the Docker image, pushes it to GHCR, and deploys to the production VPS. The CI pipeline (test) runs first on `prod` before the CD stages execute.
 
 ## Pipeline Stages
 
 ```
-[ CI: Compile ] ──> [ CI: Test ] ──> [ CI: Package ] ──> [ CD: Build ] ──> [ CD: Deploy ]
-                                                         │                   │
-                                                         ▼                   ▼
-                                                   [ Push to GHCR ]   [ SSH + Docker Compose ]
+[ CI: Test ] ──> [ CD: Build ] ──> [ CD: Deploy ]
+                      │                   │
+                      ▼                   ▼
+                [ Push to GHCR ]   [ SSH + Docker Compose ]
 ```
 
-**Note:** The CI stages (compile, test, package) run on both `main` and `prod` branches. The CD stages (build, deploy) only run on `prod`.
+**Note:** The CI stage (test) runs on both `main` and `prod` branches. The CD stages (build, deploy) only run on `prod`.
 
 ## Branch Behavior
 
 | Branch | CI Stages | CD Stages |
 |---|---|---|
-| `main` | compile, test, package | — |
-| `prod` | compile, test, package | build, deploy |
+| `main` | test | — |
+| `prod` | test | build, deploy |
 
 ## Stage Details
 
@@ -32,7 +32,7 @@ The Continuous Deployment (CD) pipeline runs only on the `prod` branch. It build
 
 **Condition:** Only runs on `prod` branch (`if: github.ref == 'refs/heads/prod'`).
 
-**Dependencies:** Requires `package` stage to succeed.
+**Dependencies:** Requires `test` stage to succeed.
 
 **Steps:**
 1. Checkout code with full git history
@@ -62,9 +62,11 @@ The Continuous Deployment (CD) pipeline runs only on the `prod` branch. It build
 **Dependencies:** Requires `build` stage to succeed.
 
 **Steps:**
-1. Create deployment folder on VPS via SSH
-2. Copy Docker Compose file to VPS via SCP
-3. Set environment variables and deploy via SSH
+1. Checkout code
+2. Create deployment folder on VPS via SSH
+3. Copy Docker Compose file to VPS via SCP
+4. Create `.env` file on VPS with secrets (via `env:` block + SCP)
+5. Deploy via SSH
 
 **Deployment Commands:**
 ```bash
@@ -72,17 +74,17 @@ The Continuous Deployment (CD) pipeline runs only on the `prod` branch. It build
 ssh $VPS_USERNAME@$VPS_IP "mkdir -p deployment"
 
 # Copy Docker Compose file
-scp docker-compose.yml $VPS_USERNAME@$VPS_IP:deployment/docker-compose-prod.yaml
+scp infrastructure/docker/docker-compose.yaml $VPS_USERNAME@$VPS_IP:deployment/docker-compose.yaml
 
-# Deploy with environment variables
-ssh $VPS_USERNAME@$VPS_IP <<EOF
-  export DB_USER_PASSWORD=...
-  export DB_HOST_NAME=...
-  # ... other env vars
-  cd deployment
-  docker-compose -f docker-compose.yaml pull -q
-  docker-compose -f docker-compose.yaml up -d
-EOF
+# Create .env file on VPS
+scp /tmp/deploy-env $VPS_USERNAME@$VPS_IP:deployment/.env
+
+# Deploy
+ssh $VPS_USERNAME@$VPS_IP << 'DEPLOY_EOF'
+cd deployment
+docker compose -f docker-compose.yaml pull -q
+docker compose -f docker-compose.yaml up -d
+DEPLOY_EOF
 ```
 
 **Trigger:** Runs after build succeeds.
@@ -177,16 +179,16 @@ ssh $VPS_USERNAME@$VPS_IP
 cd deployment
 
 # Pull latest images
-docker-compose -f docker-compose.yaml pull -q
+docker compose -f docker-compose.yaml pull -q
 
 # Start/restart containers
-docker-compose -f docker-compose.yaml up -d
+docker compose -f docker-compose.yaml up -d
 
 # View logs
-docker-compose -f docker-compose.yaml logs -f quietspace-monolith
+docker compose -f docker-compose.yaml logs -f quietspace-monolith
 
 # Check container status
-docker-compose -f docker-compose.yaml ps
+docker compose -f docker-compose.yaml ps
 ```
 
 ### Local Deployment (Development)
@@ -244,20 +246,20 @@ docker exec quietspace-monolith-db mysqladmin ping -u root -p$MYSQL_ROOT_PASSWOR
 ssh $VPS_USERNAME@$VPS_IP
 
 # Stop current containers
-docker-compose -f docker-compose.yaml down
+docker compose -f docker-compose.yaml down
 
 # Pull previous version (if tagged)
 docker pull ghcr.io/<repo>/quietspace:monolith-<previous-version>
 
 # Update image tag in docker-compose.yaml and restart
-docker-compose -f docker-compose.yaml up -d
+docker compose -f docker-compose.yaml up -d
 ```
 
 ### Full Rollback
 
 ```bash
 # Stop all containers
-docker-compose -f docker-compose.yaml down
+docker compose -f docker-compose.yaml down
 
 # Remove persistent data (if needed)
 docker volume rm quietspace_monolith_data
@@ -266,7 +268,7 @@ docker volume rm quietspace_monolith_data
 # ...
 
 # Start with previous version
-docker-compose -f docker-compose.yaml up -d
+docker compose -f docker-compose.yaml up -d
 ```
 
 ## Environment Variables

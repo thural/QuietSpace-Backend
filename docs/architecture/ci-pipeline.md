@@ -7,19 +7,19 @@ The Continuous Integration (CI) pipeline runs automatically on every push to `ma
 ## Pipeline Stages
 
 ```
-[ Compile ] ──> [ Test ] ──> [ Package ]
-     │              │              │
-     └──────────────┴──────────────┘
-         (runs in parallel)
+[ Test ]
+    │
+    └──> [ Build Docker Image ] ──> [ Deploy ]
+              (prod only)            (prod only)
 ```
 
 **Note:** The Build Docker Image and Deploy stages are part of the [CD Pipeline](cd-pipeline.md) and only run on the `prod` branch.
 
 ## Stage Details
 
-### 1. Compile
+### 1. Test
 
-**Purpose:** Verify that the Java source code compiles without errors.
+**Purpose:** Compile Java source code and execute unit tests to verify code correctness.
 
 **Runner:** `ubuntu-22.04`
 
@@ -27,21 +27,7 @@ The Continuous Integration (CI) pipeline runs automatically on every push to `ma
 1. Checkout code with full git history (`fetch-depth: 0`)
 2. Setup JDK 25 (Amazon Corretto)
 3. Setup Gradle with caching (`gradle/actions/setup-gradle@v4`)
-4. Run `./gradlew clean compileJava`
-
-**Trigger:** Always runs on pipeline trigger.
-
-### 2. Test
-
-**Purpose:** Execute unit tests to verify code correctness.
-
-**Runner:** `ubuntu-22.04`
-
-**Steps:**
-1. Checkout code with full git history
-2. Setup JDK 25 (Amazon Corretto)
-3. Setup Gradle with caching
-4. Run `./gradlew clean test`
+4. Run `./gradlew test`
 
 **Test Configuration:**
 - Unit tests: All tests except `*IT`, `*ITCase`, `*FlowIT` patterns
@@ -49,25 +35,7 @@ The Continuous Integration (CI) pipeline runs automatically on every push to `ma
 - Test database: H2 in-memory (MySQL compatibility mode)
 - Testcontainers: Enabled for MySQL integration tests
 
-**Trigger:** Always runs on pipeline trigger (parallel with Compile).
-
-### 3. Package
-
-**Purpose:** Build the executable Spring Boot JAR (bootJar).
-
-**Runner:** `ubuntu-22.04`
-
-**Dependencies:** Requires `compile` and `test` to succeed.
-
-**Steps:**
-1. Checkout code with full git history
-2. Setup JDK 25 (Amazon Corretto)
-3. Setup Gradle with caching
-4. Run `./gradlew clean bootJar`
-
-**Output:** `build/libs/quietspace-0.0.1-SNAPSHOT.jar` (layered JAR)
-
-**Trigger:** Runs after compile and test succeed.
+**Trigger:** Always runs on pipeline trigger.
 
 ## Trigger Configuration
 
@@ -84,8 +52,8 @@ paths:
 **Branch behavior:**
 | Branch | CI Stages | CD Stages |
 |---|---|---|
-| `main` | compile, test, package | — |
-| `prod` | compile, test, package | build, deploy |
+| `main` | test | — |
+| `prod` | test | build, deploy |
 
 ## Caching Strategy
 
@@ -100,23 +68,11 @@ paths:
 |---|---|---|
 | `GITHUB_TOKEN` | GHCR authentication | Build stage (auto-provided) |
 
-## Artifacts
-
-| Artifact | Location | Retention |
-|---|---|---|
-| Spring Boot JAR | `build/libs/quietspace-*.jar` | Build only (not persisted) |
-
 ## Running CI Locally
 
 To run the CI pipeline locally:
 
 ```bash
-# Compile
-./gradlew clean compileJava
-
-# Test
-./gradlew clean test
-
-# Package
-./gradlew clean bootJar
+# Test (compiles and runs tests)
+./gradlew test
 ```
