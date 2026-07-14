@@ -104,20 +104,21 @@ jobs:
           VERSION=$(grep -oP 'version = "\K[^"]+' build.gradle.kts)
           echo "VERSION=$VERSION" >> GITHUB_OUTPUT
 
-      - name: Login to Dockerhub
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          username: ${{secrets.DOCKERHUB_USERNAME}}
-          password: ${{secrets.DOCKERHUB_PASSWORD}}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push to DockerHub
+      - name: Build and Push to GHCR
         uses: docker/build-push-action@v5
         with:
           context: ./
           file: infrastructure/docker/Dockerfile
           push: true
           platforms: linux/amd64
-          tags: ${{secrets.DOCKERHUB_USERNAME}}/quietspace:monolith-${{steps.project-version.outputs.VERSION}},${{secrets.DOCKERHUB_USERNAME}}/quietspace:monolith-latest
+          tags: ghcr.io/${{ github.repository }}/quietspace:monolith-${{steps.project-version.outputs.VERSION}},ghcr.io/${{ github.repository }}/quietspace:monolith-latest
           build-args: |
             PROFILE=default
             VERSION=${{steps.project-version.outputs.VERSION}}
