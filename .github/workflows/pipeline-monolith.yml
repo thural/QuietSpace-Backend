@@ -33,34 +33,11 @@ jobs:
         run: |
           ./gradlew test
 
-  package:
-    name: Package Project
-    runs-on: ubuntu-22.04
-    needs: [ test ]
-    steps:
-      - name: checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: 25
-          distribution: 'corretto'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: package project
-        run: |
-          ./gradlew bootJar
-
   build:
     runs-on: ubuntu-22.04
     name: Build Docker Image
     if: github.ref == 'refs/heads/prod'
-    needs: [ package ]
+    needs: [ test ]
     steps:
       - name: checkout code
         uses: actions/checkout@v4
