@@ -10,7 +10,7 @@ services:
       - quietspace_monolith_data:/var/lib/mysql
       - ../mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
-      - ./.env
+      - ../../.env
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
@@ -36,7 +36,7 @@ services:
       quietspace-monolith-db:
         condition: service_healthy
     env_file:
-      - ./.env
+      - ../../.env
     networks:
       - monolith-network
     ports:
@@ -48,7 +48,7 @@ services:
     depends_on:
       - quietspace-monolith
     env_file:
-      - ./.env
+      - ../../.env
     networks:
       - monolith-network
     ports:
