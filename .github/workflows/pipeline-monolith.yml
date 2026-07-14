@@ -141,10 +141,10 @@ jobs:
           export DB_PORT_NUMBER=${{secrets.DB_PORT_NUMBER}}
           export DB_HOST_NAME=${{secrets.DB_HOST_NAME}}
           export DB_NAME=${{secrets.DB_NAME}}
-          export MYSQL_ROOT_PASSWORD: ${{secrets.DB_ROOT_PASSWORD}}
-          export MYSQL_DATABASE: ${{secrets.DB_NAME}}
-          export MYSQL_USER: ${{secrets.DB_USER_USERNAME}}
-          export MYSQL_PASSWORD: ${{secrets.DB_USER_PASSWORD}}
+          export MYSQL_ROOT_PASSWORD=${{secrets.DB_ROOT_PASSWORD}}
+          export MYSQL_DATABASE=${{secrets.DB_NAME}}
+          export MYSQL_USER=${{secrets.DB_USER_USERNAME}}
+          export MYSQL_PASSWORD=${{secrets.DB_USER_PASSWORD}}
           cd deployment
           docker-compose -f docker-compose.yaml pull -q
           docker-compose -f docker-compose.yaml up -d
