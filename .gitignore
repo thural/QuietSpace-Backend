@@ -42,3 +42,7 @@ build/
 /quietspace
 /quietspace.log
 /infrastructure/keycloak/realms/realm-export.json
+
+### Kubernetes secrets ###
+*-secret.yaml
+*-secrets.yaml
