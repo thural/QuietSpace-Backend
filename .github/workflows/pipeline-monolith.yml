@@ -83,26 +83,52 @@ jobs:
     runs-on: ubuntu-22.04
     if: github.ref == 'refs/heads/prod'
     needs: [ build ]
+    env:
+      VPS_USERNAME: ${{ secrets.VPS_USERNAME }}
+      VPS_IP: ${{ secrets.VPS_IP }}
+      DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_USER_USERNAME: ${{ secrets.DB_USER_USERNAME }}
+      DB_USER_PASSWORD: ${{ secrets.DB_USER_PASSWORD }}
+      DB_PORT_NUMBER: ${{ secrets.DB_PORT_NUMBER }}
+      DB_HOST_NAME: ${{ secrets.DB_HOST_NAME }}
     steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
       - name: Create Deployment Folder
-        run: ssh ${{secrets.VPS_USERNAME}}@${{secrets.VPS_IP}} "mkdir -p deployment"
+        run: ssh $VPS_USERNAME@$VPS_IP "mkdir -p deployment"
 
       - name: Copy Docker Compose File
-        run: scp docker-compose.yml ${{secrets.VPS_USERNAME}}@${{secrets.VPS_IP}}:deployment/docker-compose-prod.yaml
+        run: scp infrastructure/docker/docker-compose.yaml $VPS_USERNAME@$VPS_IP:deployment/docker-compose.yaml
 
-      - name: Set ENV Variables and Deploy
+      - name: Create .env file on VPS
         run: |
-          ssh ${{secrets.VPS_USERNAME}}@${{secrets.VPS_IP}} "mkdir -p deployment" <<EOF
-          export DB_USER_PASSWORD=${{secrets.DB_USER_PASSWORD}}
-          export DB_USER_USERNAME=${{secrets.DB_USER_USERNAME}}
-          export DB_PORT_NUMBER=${{secrets.DB_PORT_NUMBER}}
-          export DB_HOST_NAME=${{secrets.DB_HOST_NAME}}
-          export DB_NAME=${{secrets.DB_NAME}}
-          export MYSQL_ROOT_PASSWORD=${{secrets.DB_ROOT_PASSWORD}}
-          export MYSQL_DATABASE=${{secrets.DB_NAME}}
-          export MYSQL_USER=${{secrets.DB_USER_USERNAME}}
-          export MYSQL_PASSWORD=${{secrets.DB_USER_PASSWORD}}
-          cd deployment
-          docker-compose -f docker-compose.yaml pull -q
-          docker-compose -f docker-compose.yaml up -d
+          cat > /tmp/deploy-env << EOF
+          DB_ROOT_PASSWORD=$DB_ROOT_PASSWORD
+          DB_NAME=$DB_NAME
+          DB_USER_USERNAME=$DB_USER_USERNAME
+          DB_USER_PASSWORD=$DB_USER_PASSWORD
+          DB_PORT_NUMBER=$DB_PORT_NUMBER
+          DB_HOST_NAME=$DB_HOST_NAME
+          MYSQL_ROOT_PASSWORD=$DB_ROOT_PASSWORD
+          MYSQL_DATABASE=$DB_NAME
+          MYSQL_USER=$DB_USER_USERNAME
+          MYSQL_PASSWORD=$DB_USER_PASSWORD
+          SERVER_PORT_NUMBER=8080
+          SPRING_PROFILES_ACTIVE=prod
+          MAILDEV_HOST=mail-dev
+          MAILDEV_PORT=1025
+          FRONTEND_HOST=localhost
+          FRONTEND_PORT=3000
           EOF
+          scp /tmp/deploy-env $VPS_USERNAME@$VPS_IP:deployment/.env
+          rm /tmp/deploy-env
+
+      - name: Deploy to VPS
+        run: |
+          ssh $VPS_USERNAME@$VPS_IP << 'DEPLOY_EOF'
+          cd deployment
+          docker compose -f docker-compose.yaml pull -q
+          docker compose -f docker-compose.yaml up -d
+          DEPLOY_EOF
