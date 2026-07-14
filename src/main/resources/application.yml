@@ -58,3 +58,12 @@ springwolf:
 
 springdoc:
   use-fqn: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: when-authorized
