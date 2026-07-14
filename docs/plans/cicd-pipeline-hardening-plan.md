@@ -2,7 +2,7 @@
 
 ## Overview
 
-This plan addresses gaps in the QuietSpace-Backend CI/CD pipeline by fixing critical issues, aligning with the industry-standard blueprint (GitHub Actions + Docker + GHCR), and adding production-readiness features.
+This plan addresses gaps in the quietspace-backend CI/CD pipeline by fixing critical issues, aligning with the industry-standard blueprint (GitHub Actions + Docker + GHCR), and adding production-readiness features.
 
 ---
 

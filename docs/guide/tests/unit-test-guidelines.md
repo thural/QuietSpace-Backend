@@ -1,4 +1,4 @@
-# Unit Testing Guidelines — QuietSpace-Backend
+# Unit Testing Guidelines — quietspace-backend
 
 ## Table of Contents
 1. [FIRST Principles](#1-first-principles)

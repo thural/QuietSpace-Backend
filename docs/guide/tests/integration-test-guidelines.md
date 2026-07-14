@@ -1,4 +1,4 @@
-# Integration Testing Guidelines — QuietSpace-Backend
+# Integration Testing Guidelines — quietspace-backend
 
 ## Table of Contents
 1. [What Is an Integration Test?](#1-what-is-an-integration-test)

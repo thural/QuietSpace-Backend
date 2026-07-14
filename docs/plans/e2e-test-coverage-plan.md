@@ -1,4 +1,4 @@
-# E2E Test Coverage Plan — QuietSpace-Backend
+# E2E Test Coverage Plan — quietspace-backend
 
 > **Based on:** E2E coverage gap analysis (July 2026)  
 > **Goal:** Lift E2E (`@SpringBootTest` + Testcontainers) coverage to 100% of controllers with meaningful flow tests, closing all gaps identified in the assessment  

@@ -1,4 +1,4 @@
-# Unit Test Implementation Plan — QuietSpace-Backend
+# Unit Test Implementation Plan — quietspace-backend
 
 > **Target:** Reach ~70% instruction coverage from unit tests per the testing pyramid standard.  
 > **Framework:** JUnit 5 + Mockito (`@ExtendWith(MockitoExtension.class)`) — no Spring context in unit tests.  

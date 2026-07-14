@@ -103,7 +103,7 @@ MailDev web UI: <http://localhost:1080> (captured emails). SMTP listens on `1025
 ### 3. Export `.env` and run the application
 
 ```bash
-cd /path/to/QuietSpace-Backend
+cd /path/to/quietspace-backend
 set -a && . ./.env && set +a   # export all variables into the shell
 ./gradlew bootRun
 ```

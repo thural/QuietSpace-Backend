@@ -1,4 +1,4 @@
-# Integration Test Implementation Plan — QuietSpace-Backend
+# Integration Test Implementation Plan — quietspace-backend
 
 > **Based on:** `docs/reports/integration-test-assessment.md`  
 > **Goal:** Lift integration coverage from current baseline to >= 70% across all layers  

@@ -103,7 +103,7 @@ networking, emphasizing clean code, security, and real-time interaction.
 ## Detailed Project Structure
 
 ```plaintext
-QuietSpace-Backend/
+quietspace-backend/
 ├── src/
 │   ├── main/
 │   │   ├── java/
@@ -167,8 +167,8 @@ QuietSpace-Backend/
 
 1. Clone the repository
    ```bash
-   git clone https://github.com/thural/QuietSpace-Backend.git
-   cd QuietSpace-Backend
+   git clone https://github.com/thural/quietspace-backend.git
+   cd quietspace-backend
    ```
 
 2. Configure Environment
