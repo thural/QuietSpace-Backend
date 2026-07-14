@@ -31,7 +31,7 @@ jobs:
 
       - name: compile project
         run: |
-          ./gradlew clean compileJava
+          ./gradlew compileJava
 
   test:
     name: Test Project
@@ -53,7 +53,7 @@ jobs:
 
       - name: test project
         run: |
-          ./gradlew clean test
+          ./gradlew test
 
   package:
     name: Package Project
@@ -76,7 +76,7 @@ jobs:
 
       - name: package project
         run: |
-          ./gradlew clean bootJar
+          ./gradlew bootJar
 
   build:
     runs-on: ubuntu-22.04
