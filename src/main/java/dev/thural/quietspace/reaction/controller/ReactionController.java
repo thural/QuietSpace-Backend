@@ -47,6 +47,15 @@ public class ReactionController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/post/{postId}")
+    Page<ReactionResponse> getReactionsByPostId(
+            @PathVariable UUID postId,
+            @RequestParam(name = "page-number", required = false) Integer pageNumber,
+            @RequestParam(name = "page-size", required = false) Integer pageSize
+    ) {
+        return reactionService.getReactionsByContentIdAndContentType(postId, EntityType.POST, pageNumber, pageSize);
+    }
+
     @GetMapping("/count")
     ResponseEntity<Integer> countByContentIdAndReactionType(@RequestParam UUID contentId, @RequestParam ReactionType type) {
         return ResponseEntity.ok(reactionService.countByContentIdAndReactionType(contentId, type));
