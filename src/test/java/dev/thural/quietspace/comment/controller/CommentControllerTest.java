@@ -1,35 +1,23 @@
-package dev.thural.quietspace.comment;
+package dev.thural.quietspace.comment.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.comment.CommentController;
 import dev.thural.quietspace.comment.Comment;
-import dev.thural.quietspace.post.Post;
-import dev.thural.quietspace.user.User;
-import dev.thural.quietspace.shared.enums.Role;
-import dev.thural.quietspace.comment.CommentMapper;
+import dev.thural.quietspace.comment.CommentService;
 import dev.thural.quietspace.comment.dto.CommentRequest;
 import dev.thural.quietspace.comment.dto.CommentResponse;
-import dev.thural.quietspace.comment.CommentRepository;
-import dev.thural.quietspace.post.PostRepository;
-import dev.thural.quietspace.security.TokenRepository;
-import dev.thural.quietspace.security.JwtService;
-import dev.thural.quietspace.comment.CommentService;
 import dev.thural.quietspace.notification.NotificationService;
-import dev.thural.quietspace.reaction.ReactionService;
-import dev.thural.quietspace.user.UserService;
+import dev.thural.quietspace.post.Post;
+import dev.thural.quietspace.shared.enums.Role;
+import dev.thural.quietspace.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -42,46 +30,27 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc(addFilters = false)
-@WebMvcTest(controllers = CommentController.class)
-class CommentControllerSliceTest {
+@ExtendWith(MockitoExtension.class)
+@WithMockUser(username = "user", roles = "USER", authorities = "USER, ADMIN")
+class CommentControllerTest {
 
-    @Autowired
     MockMvc mockMvc;
-    @Autowired
+    @Spy
     ObjectMapper objectMapper;
 
-    @MockitoBean
+    @Mock
     CommentService commentService;
-    @MockitoBean
-    CommentMapper commentMapper;
-    @MockitoBean
+
+    @Mock
     NotificationService notificationService;
-    @MockitoBean
-    UserService userService;
-    @MockitoBean
-    CommentRepository commentRepository;
-    @MockitoBean
-    PostRepository postRepository;
-    @MockitoBean
-    ReactionService reactionService;
-    @MockitoBean
-    JwtService jwtService;
-    @MockitoBean
-    TokenRepository tokenRepository;
-    @MockitoBean
-    UserDetailsService userDetailsService;
 
-    @TestConfiguration
-    static class TestConfig {
-        @Bean
-        ObjectMapper objectMapper() {
-            return new com.fasterxml.jackson.databind.ObjectMapper();
-        }
-    }
+    @InjectMocks
+    CommentController commentController;
 
-    ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
-    ArgumentCaptor<CommentRequest> commentRequestCaptor = ArgumentCaptor.forClass(CommentRequest.class);
+    @Captor
+    ArgumentCaptor<UUID> uuidArgumentCaptor;
+    @Captor
+    ArgumentCaptor<CommentRequest> commentRequestCaptor;
 
     private Comment comment;
     private CommentResponse commentResponse;
@@ -91,6 +60,8 @@ class CommentControllerSliceTest {
 
     @BeforeEach
     public void setUp() {
+
+        this.mockMvc = MockMvcBuilders.standaloneSetup(commentController).build();
 
         this.user = User.builder()
                 .id(UUID.randomUUID())
@@ -180,7 +151,6 @@ class CommentControllerSliceTest {
     }
 
     @Test
-    @WithMockUser(username = "user", roles = "USER")
     void createComment() throws Exception {
         when(commentService.createComment(any(CommentRequest.class))).thenReturn(commentResponse);
 
@@ -216,7 +186,14 @@ class CommentControllerSliceTest {
     }
 
     @Test
-    void deleteComment() {
+    void deleteComment() throws Exception {
+        doNothing().when(commentService).deleteComment(any());
+
+        mockMvc.perform(delete(CommentController.COMMENT_PATH + "/" + comment.getId()))
+                .andExpect(status().isNoContent());
+
+        verify(commentService).deleteComment(uuidArgumentCaptor.capture());
+        assertThat(comment.getId()).isEqualTo(uuidArgumentCaptor.getValue());
     }
 
     @Test

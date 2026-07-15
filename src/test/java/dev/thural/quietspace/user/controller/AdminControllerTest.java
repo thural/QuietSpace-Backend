@@ -1,15 +1,14 @@
-package dev.thural.quietspace.user;
+package dev.thural.quietspace.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.user.AdminController;
-import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.security.JwtService;
+import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.user.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;

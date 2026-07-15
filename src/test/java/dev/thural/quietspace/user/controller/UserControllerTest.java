@@ -1,10 +1,9 @@
-package dev.thural.quietspace.user;
+package dev.thural.quietspace.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.user.UserController;
+import dev.thural.quietspace.user.UserService;
 import dev.thural.quietspace.user.dto.UserRequest;
 import dev.thural.quietspace.user.dto.UserResponse;
-import dev.thural.quietspace.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,7 +48,6 @@ public class UserControllerTest {
     UserRequest registerRequest;
     UserResponse userResponse;
 
-
     @BeforeEach
     void setUp() {
 
@@ -85,7 +83,6 @@ public class UserControllerTest {
 
         verify(userService).queryUsers("admin", "admin", "admin", 0, 10);
     }
-
 
     @Test
     void getUserById() throws Exception {
@@ -149,6 +146,5 @@ public class UserControllerTest {
 
         verify(userService, times(1)).getLoggedUserResponse();
     }
-
 
 }

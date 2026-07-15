@@ -1,30 +1,29 @@
-package dev.thural.quietspace.message;
+package dev.thural.quietspace.message.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.message.MessageController;
 import dev.thural.quietspace.chat.Chat;
 import dev.thural.quietspace.message.Message;
-import dev.thural.quietspace.user.User;
+import dev.thural.quietspace.message.MessageService;
 import dev.thural.quietspace.message.dto.MessageRequest;
 import dev.thural.quietspace.message.dto.MessageResponse;
-import dev.thural.quietspace.security.TokenRepository;
-import dev.thural.quietspace.security.JwtService;
-import dev.thural.quietspace.message.MessageService;
 import dev.thural.quietspace.post.PostService;
 import dev.thural.quietspace.reaction.ReactionService;
+import dev.thural.quietspace.security.JwtService;
+import dev.thural.quietspace.security.TokenRepository;
+import dev.thural.quietspace.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.nio.charset.StandardCharsets;
@@ -33,9 +32,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -75,7 +72,6 @@ class MessageControllerSliceTest {
 
     private MessageRequest messageRequest;
     private MessageResponse messageResponse;
-
 
     @BeforeEach
     void setUp() {

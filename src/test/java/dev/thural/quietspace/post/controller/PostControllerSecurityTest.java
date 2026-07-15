@@ -1,13 +1,13 @@
-package dev.thural.quietspace.post;
-import dev.thural.quietspace.post.PostController;
-import dev.thural.quietspace.security.TokenRepository;
-import dev.thural.quietspace.security.JwtService;
+package dev.thural.quietspace.post.controller;
+
 import dev.thural.quietspace.notification.NotificationService;
 import dev.thural.quietspace.post.PostService;
+import dev.thural.quietspace.security.JwtService;
+import dev.thural.quietspace.security.TokenRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;

@@ -1,5 +1,6 @@
 package dev.thural.quietspace.user;
 import dev.thural.quietspace.user.User;
+import dev.thural.quietspace.user.controller.UserController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.config.TestcontainersConfig;

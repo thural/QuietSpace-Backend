@@ -1,36 +1,25 @@
-package dev.thural.quietspace.chat;
+package dev.thural.quietspace.chat.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.chat.ChatController;
 import dev.thural.quietspace.chat.Chat;
-import dev.thural.quietspace.message.Message;
-import dev.thural.quietspace.user.User;
-import dev.thural.quietspace.shared.enums.Role;
-import dev.thural.quietspace.chat.dto.CreateChatRequest;
-import dev.thural.quietspace.message.dto.MessageRequest;
-import dev.thural.quietspace.chat.dto.ChatResponse;
-import dev.thural.quietspace.message.dto.MessageResponse;
-import dev.thural.quietspace.user.dto.UserResponse;
-import dev.thural.quietspace.message.MessageRepository;
-import dev.thural.quietspace.security.TokenRepository;
-import dev.thural.quietspace.user.UserRepository;
-import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.chat.ChatService;
-import dev.thural.quietspace.message.MessageService;
-import dev.thural.quietspace.reaction.ReactionService;
+import dev.thural.quietspace.chat.dto.ChatResponse;
+import dev.thural.quietspace.chat.dto.CreateChatRequest;
+import dev.thural.quietspace.message.Message;
+import dev.thural.quietspace.message.dto.MessageRequest;
+import dev.thural.quietspace.message.dto.MessageResponse;
+import dev.thural.quietspace.shared.enums.Role;
+import dev.thural.quietspace.user.User;
+import dev.thural.quietspace.user.dto.UserResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 import java.util.UUID;
@@ -43,44 +32,25 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc(addFilters = false)
-@WebMvcTest(controllers = ChatController.class)
-class ChatControllerSliceTest {
+@ExtendWith(MockitoExtension.class)
+@WithMockUser(username = "user", roles = "USER", authorities = "USER, ADMIN")
+class ChatControllerTest {
 
-    @Autowired
     MockMvc mockMvc;
-    @Autowired
+
+    @Spy
     ObjectMapper objectMapper;
 
-    @MockitoBean
+    @Mock
     ChatService chatService;
-    @MockitoBean
-    MessageService messageService;
-    @MockitoBean
-    SimpMessagingTemplate template;
-    @MockitoBean
-    ReactionService reactionService;
-    @MockitoBean
-    TokenRepository tokenRepository;
-    @MockitoBean
-    MessageRepository messageRepository;
-    @MockitoBean
-    JwtService jwtService;
-    @MockitoBean
-    UserDetailsService userDetailsService;
-    @MockitoBean
-    UserRepository userRepository;
 
-    @TestConfiguration
-    static class TestConfig {
-        @Bean
-        ObjectMapper objectMapper() {
-            return new com.fasterxml.jackson.databind.ObjectMapper();
-        }
-    }
+    @InjectMocks
+    ChatController chatController;
 
-    ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
-    ArgumentCaptor<CreateChatRequest> chatRequestArgumentCaptor = ArgumentCaptor.forClass(CreateChatRequest.class);
+    @Captor
+    ArgumentCaptor<UUID> uuidArgumentCaptor;
+    @Captor
+    ArgumentCaptor<CreateChatRequest> chatRequestArgumentCaptor;
 
     private User user1;
     private User user2;
@@ -94,6 +64,8 @@ class ChatControllerSliceTest {
 
     @BeforeEach
     void setUp() {
+        this.mockMvc = MockMvcBuilders.standaloneSetup(chatController).build();
+
         this.user1 = User.builder()
                 .id(UUID.randomUUID())
                 .username("user1")

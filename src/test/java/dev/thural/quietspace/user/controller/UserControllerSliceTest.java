@@ -1,30 +1,28 @@
-package dev.thural.quietspace.user;
-import dev.thural.quietspace.notification.NotificationService;
-import dev.thural.quietspace.reaction.ReactionService;
-import dev.thural.quietspace.comment.CommentService;
-import dev.thural.quietspace.user.User;
+package dev.thural.quietspace.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.user.UserController;
-import dev.thural.quietspace.user.dto.UserRequest;
-import dev.thural.quietspace.user.dto.UserResponse;
+import dev.thural.quietspace.comment.CommentService;
+import dev.thural.quietspace.notification.NotificationService;
+import dev.thural.quietspace.post.PostService;
+import dev.thural.quietspace.reaction.ReactionService;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.security.TokenRepository;
-import dev.thural.quietspace.post.PostService;
+import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserService;
+import dev.thural.quietspace.user.dto.UserRequest;
+import dev.thural.quietspace.user.dto.UserResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
@@ -35,7 +33,6 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(controllers = UserController.class)
@@ -53,8 +50,6 @@ public class UserControllerSliceTest {
     UserService userService;
     @MockitoBean
     NotificationService notificationService;
-    @MockitoBean
-    SimpMessagingTemplate simpMessagingTemplate;
     @MockitoBean
     TokenRepository tokenRepository;
     @MockitoBean
@@ -79,7 +74,6 @@ public class UserControllerSliceTest {
     private UUID userId;
     private UserRequest registerRequest;
     private UserResponse userResponse;
-
 
     @BeforeEach
     void setUp() {
@@ -126,7 +120,6 @@ public class UserControllerSliceTest {
 
         verify(userService).queryUsers("user", null, null, 0, 10);
     }
-
 
     @Test
     void getUserById() throws Exception {
@@ -213,6 +206,5 @@ public class UserControllerSliceTest {
                         .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isBadRequest());
     }
-
 
 }

@@ -1,16 +1,15 @@
-package dev.thural.quietspace.photo;
+package dev.thural.quietspace.photo.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.photo.PhotoController;
-import dev.thural.quietspace.photo.dto.PhotoResponse;
-import dev.thural.quietspace.security.TokenRepository;
-import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.photo.PhotoService;
+import dev.thural.quietspace.photo.dto.PhotoResponse;
+import dev.thural.quietspace.security.JwtService;
+import dev.thural.quietspace.security.TokenRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;

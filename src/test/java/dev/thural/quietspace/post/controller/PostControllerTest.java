@@ -1,34 +1,30 @@
-package dev.thural.quietspace.post;
+package dev.thural.quietspace.post.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.post.PostController;
 import dev.thural.quietspace.post.Post;
-import dev.thural.quietspace.user.User;
-import dev.thural.quietspace.post.dto.PostRequest;
-import dev.thural.quietspace.post.dto.VoteRequest;
-import dev.thural.quietspace.post.dto.PostResponse;
-import dev.thural.quietspace.security.TokenRepository;
-import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.post.PostService;
-import dev.thural.quietspace.reaction.ReactionService;
-import dev.thural.quietspace.notification.NotificationService;
-import dev.thural.quietspace.user.UserService;
+import dev.thural.quietspace.post.dto.PostRequest;
+import dev.thural.quietspace.post.dto.PostResponse;
+import dev.thural.quietspace.post.dto.VoteRequest;
+import dev.thural.quietspace.shared.enums.Role;
+import dev.thural.quietspace.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,40 +36,24 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc(addFilters = false)
-@WebMvcTest(controllers = PostController.class)
-class PostControllerSliceTest {
+@ExtendWith(MockitoExtension.class)
+@WithMockUser(username = "user", roles = "USER", authorities = "USER, ADMIN")
+class PostControllerTest {
 
-    @Autowired
     MockMvc mockMvc;
-    @Autowired
+    @Spy
     ObjectMapper objectMapper;
 
-    @MockitoBean
-    UserService userService;
-    @MockitoBean
+    @Mock
     PostService postService;
-    @MockitoBean
-    ReactionService reactionService;
-    @MockitoBean
-    JwtService jwtService;
-    @MockitoBean
-    TokenRepository tokenRepository;
-    @MockitoBean
-    UserDetailsService userDetailsService;
-    @MockitoBean
-    NotificationService notificationService;
 
-    @TestConfiguration
-    static class TestConfig {
-        @Bean
-        ObjectMapper objectMapper() {
-            return new com.fasterxml.jackson.databind.ObjectMapper();
-        }
-    }
+    @InjectMocks
+    PostController postController;
 
-    ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
-    ArgumentCaptor<PostRequest> postRequestArgumentCaptor = ArgumentCaptor.forClass(PostRequest.class);
+    @Captor
+    ArgumentCaptor<UUID> uuidArgumentCaptor;
+    @Captor
+    ArgumentCaptor<PostRequest> postRequestArgumentCaptor;
 
     private PostRequest postRequest;
     private VoteRequest voteRequest;
@@ -81,12 +61,16 @@ class PostControllerSliceTest {
 
     @BeforeEach
     public void setUp() {
+
+        this.mockMvc = MockMvcBuilders.standaloneSetup(postController).build();
+
         UUID userId = UUID.randomUUID();
 
         User user = User.builder()
                 .id(userId)
                 .username("user")
                 .email("user@email.com")
+                .role(Role.ADMIN)
                 .password("pAsSword")
                 .build();
 
@@ -119,7 +103,8 @@ class PostControllerSliceTest {
 
     @Test
     void getAllPosts() throws Exception {
-        when(postService.getAllPosts(1, 10)).thenReturn(Page.empty());
+        Pageable pageable = PageRequest.of(0, 10);
+        when(postService.getAllPosts(1, 10)).thenReturn(new PageImpl<>(List.of(), pageable, 0));
 
         mockMvc.perform(get(PostController.POST_PATH)
                         .param("page-number", "1")
@@ -133,7 +118,8 @@ class PostControllerSliceTest {
 
     @Test
     void getPostsByQuery() throws Exception {
-        when(postService.getAllByQuery(any(), any(), any())).thenReturn(Page.empty());
+        Pageable pageable = PageRequest.of(0, 10);
+        when(postService.getAllByQuery(any(), any(), any())).thenReturn(new PageImpl<>(List.of(), pageable, 0));
 
         mockMvc.perform(get(PostController.POST_PATH + "/search")
                         .param("page-number", "1")
@@ -159,7 +145,9 @@ class PostControllerSliceTest {
                 .andExpect(jsonPath("$.id", is(postResponse.getId().toString())))
                 .andExpect(status().isOk());
 
-        verify(postService, times(1)).addPost(any(PostRequest.class));
+        verify(postService, times(1)).addPost(postRequestArgumentCaptor.capture());
+        assertThat(postRequestArgumentCaptor.getValue().getUserId()).isEqualTo(postRequest.getUserId());
+        assertThat(postRequestArgumentCaptor.getValue().getPhotoData()).isNotNull();
     }
 
     @Test
@@ -175,7 +163,8 @@ class PostControllerSliceTest {
                 .andExpect(jsonPath("$.id", is(postResponse.getId().toString())))
                 .andExpect(status().isOk());
 
-        verify(postService, times(1)).addPost(any(PostRequest.class));
+        verify(postService, times(1)).addPost(postRequestArgumentCaptor.capture());
+        assertThat(postRequestArgumentCaptor.getValue().getPhotoData()).isNull();
     }
 
     @Test

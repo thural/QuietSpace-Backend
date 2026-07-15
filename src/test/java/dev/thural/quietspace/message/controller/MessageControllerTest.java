@@ -1,14 +1,13 @@
-package dev.thural.quietspace.message;
+package dev.thural.quietspace.message.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.thural.quietspace.message.MessageController;
 import dev.thural.quietspace.chat.Chat;
 import dev.thural.quietspace.message.Message;
-import dev.thural.quietspace.user.User;
-import dev.thural.quietspace.shared.enums.Role;
+import dev.thural.quietspace.message.MessageService;
 import dev.thural.quietspace.message.dto.MessageRequest;
 import dev.thural.quietspace.message.dto.MessageResponse;
-import dev.thural.quietspace.message.MessageService;
+import dev.thural.quietspace.shared.enums.Role;
+import dev.thural.quietspace.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,7 +57,6 @@ class MessageControllerTest {
     private MessageRequest messageRequest;
     private MessageResponse messageResponse;
     private UUID chatId;
-
 
     @BeforeEach
     void setUp() {
