@@ -32,6 +32,11 @@ public class AuthController {
         return ResponseEntity.ok(authService.authenticate(request));
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+        return ResponseEntity.ok(authService.authenticate(request));
+    }
+
     @PostMapping("/activate-account")
     public ResponseEntity<Void> confirm(@RequestParam String token) throws MessagingException {
         authService.activateAccount(token);
@@ -44,8 +49,19 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/logout")
+    ResponseEntity<Void> logout(@RequestHeader("Authorization") String authHeader) {
+        authService.signout(authHeader);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/refresh-token")
     ResponseEntity<AuthResponse> refreshToken(@RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.ok(authService.refreshToken(authHeader));
+    }
+
+    @PostMapping("/refresh")
+    ResponseEntity<AuthResponse> refresh(@RequestHeader("Authorization") String authHeader) {
         return ResponseEntity.ok(authService.refreshToken(authHeader));
     }
 
