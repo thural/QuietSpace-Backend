@@ -27,6 +27,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -172,6 +173,39 @@ class MessageControllerSliceTest {
 
         verify(messageService).deleteMessage(uuidArgumentCaptor.capture());
         assertThat(messageResponse.getId()).isEqualTo(uuidArgumentCaptor.getValue());
+    }
+
+    @Test
+    void getUnreadCount() throws Exception {
+        when(messageService.getUnreadCount()).thenReturn(3L);
+
+        mockMvc.perform(get(MessageController.MESSAGE_PATH + "/unread")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", is(3)))
+                .andExpect(status().isOk());
+
+        verify(messageService).getUnreadCount();
+    }
+
+    @Test
+    void markAsRead() throws Exception {
+        when(messageService.setMessageSeen(any())).thenReturn(Optional.of(messageResponse));
+
+        mockMvc.perform(put(MessageController.MESSAGE_PATH + "/" + messageResponse.getId() + "/read")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is(messageResponse.getId().toString())))
+                .andExpect(status().isOk());
+
+        verify(messageService).setMessageSeen(messageResponse.getId());
+    }
+
+    @Test
+    void markAsRead_givenNonExistent_shouldReturn404() throws Exception {
+        when(messageService.setMessageSeen(any())).thenReturn(Optional.empty());
+
+        mockMvc.perform(put(MessageController.MESSAGE_PATH + "/" + UUID.randomUUID() + "/read")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
