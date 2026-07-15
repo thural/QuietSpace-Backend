@@ -58,4 +58,11 @@ public class MessageController {
         return ResponseEntity.ok(messageService.getUnreadCount());
     }
 
+    @PutMapping("/{messageId}/read")
+    ResponseEntity<MessageResponse> markAsRead(@PathVariable UUID messageId) {
+        return messageService.setMessageSeen(messageId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
 }
