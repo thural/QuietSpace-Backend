@@ -22,6 +22,8 @@ public final class WebSocketPaths {
     public static final String TYPING_STATUS = PRIVATE_CHAT + "/typing";
 
     public static final String USER_PUBLIC = "/user/public";
+    public static final String ERROR_EVENT = "/_error";
+    public static final String SYSTEM_EVENT = "/system/event";
     public static final String UNREAD_COUNT = "/user/unread-count";
 
     public static final String PUBLIC_BROKER = "/public";

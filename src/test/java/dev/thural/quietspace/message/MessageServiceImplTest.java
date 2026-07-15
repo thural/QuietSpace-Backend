@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,6 +48,9 @@ class MessageServiceImplTest {
     @Mock
     private PhotoService photoService;
 
+    @Mock
+    private SimpMessagingTemplate template;
+
     @InjectMocks
     private MessageServiceImpl messageService;
 
@@ -76,6 +80,7 @@ class MessageServiceImplTest {
         this.message = Message.builder()
                 .id(UUID.randomUUID())
                 .sender(user)
+                .recipient(user)
                 .chat(chat)
                 .text("sample text")
                 .build();
@@ -147,6 +152,7 @@ class MessageServiceImplTest {
         when(messageRepository.findById(message.getId())).thenReturn(Optional.of(message));
         when(messageRepository.save(any(Message.class))).thenReturn(message);
         when(messageMapper.toResponse(message)).thenReturn(messageResponse);
+        when(messageRepository.countByRecipientIdAndIsSeen(any(), anyBoolean())).thenReturn(0L);
 
         Optional<MessageResponse> result = messageService.setMessageSeen(message.getId());
 

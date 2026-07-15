@@ -16,6 +16,7 @@ import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.shared.enums.Role;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserRepository;
+import dev.thural.quietspace.user.UserService;
 import dev.thural.quietspace.user.dto.UserResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,6 +70,9 @@ class ChatControllerSliceTest {
     UserDetailsService userDetailsService;
     @MockitoBean
     UserRepository userRepository;
+
+    @MockitoBean
+    UserService userService;
 
     @TestConfiguration
     static class TestConfig {
