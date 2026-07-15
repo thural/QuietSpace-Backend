@@ -57,4 +57,6 @@ public interface UserService {
     void removeUserFromBlockList(UUID userId);
 
     List<UserResponse> getBlockedUsers();
+
+    void disableUser(UUID userId);
 }

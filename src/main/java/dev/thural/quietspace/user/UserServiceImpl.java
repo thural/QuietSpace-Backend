@@ -93,6 +93,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public void disableUser(UUID userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        user.setEnabled(false);
+        userRepository.save(user);
+    }
+
+    @Override
     public List<UserResponse> getBlockedUsers() {
         User signedUser = getSignedUser();
         return signedUser.getProfileSettings().getBlockedUsers().stream()

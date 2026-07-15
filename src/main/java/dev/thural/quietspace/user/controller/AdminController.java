@@ -37,4 +37,11 @@ public class AdminController {
         return ResponseEntity.ok(userService.listUsers(pageNumber, pageSize));
     }
 
+    @PutMapping("/users/{userId}/disable")
+    @PreAuthorize("hasAuthority('admin:update')")
+    ResponseEntity<Void> disableUser(@PathVariable UUID userId) {
+        userService.disableUser(userId);
+        return ResponseEntity.ok().build();
+    }
+
 }
