@@ -23,4 +23,8 @@ public interface ReactionService {
 
     Page<ReactionResponse> getReactionsByUserIdAndContentType(UUID userId, EntityType contentType, Integer pageNumber, Integer pageSize);
 
+    void addReaction(ReactionRequest reaction);
+
+    void removeReaction(UUID reactionId);
+
 }

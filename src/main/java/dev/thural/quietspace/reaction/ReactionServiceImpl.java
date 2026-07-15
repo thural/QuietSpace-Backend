@@ -45,6 +45,23 @@ public class ReactionServiceImpl implements ReactionService {
     }
 
     @Override
+    public void addReaction(ReactionRequest reaction) {
+        User user = userService.getSignedUser();
+        Reaction foundReaction = reactionRepository.findByContentIdAndUserId(reaction.getContentId(), user.getId()).orElse(null);
+        if (foundReaction == null) {
+            reactionRepository.save(reactionMapper.reactionRequestToEntity(reaction));
+        } else {
+            foundReaction.setReactionType(reaction.getReactionType());
+            reactionRepository.save(foundReaction);
+        }
+    }
+
+    @Override
+    public void removeReaction(UUID reactionId) {
+        reactionRepository.deleteById(reactionId);
+    }
+
+    @Override
     public Optional<ReactionResponse> getUserReactionByContentId(UUID contentId) {
         User user = userService.getSignedUser();
         Optional<Reaction> userReaction = reactionRepository.findByContentIdAndUserId(contentId, user.getId());

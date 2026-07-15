@@ -40,6 +40,19 @@ public class ReactionController {
         return reactionService.getReactionsByContentIdAndContentType(contentId, contentType, pageNumber, pageSize);
     }
 
+    @PostMapping
+    ResponseEntity<Void> addReaction(@RequestBody ReactionRequest reaction) {
+        reactionService.addReaction(reaction);
+        notificationService.processNotificationByReaction(reaction.getContentType(), reaction.getContentId());
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{reactionId}")
+    ResponseEntity<Void> removeReaction(@PathVariable UUID reactionId) {
+        reactionService.removeReaction(reactionId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/toggle-reaction")
     ResponseEntity<?> toggleReaction(@RequestBody ReactionRequest reaction) {
         reactionService.handleReaction(reaction);
