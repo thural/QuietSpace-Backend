@@ -18,9 +18,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static dev.thural.quietspace.websocket.constant.WebSocketPaths.UNREAD_COUNT;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -37,6 +40,7 @@ public class MessageServiceImpl implements MessageService {
     private final MessageMapper messageMapper;
     private final PhotoService photoService;
     private final UserService userService;
+    private final SimpMessagingTemplate template;
 
     @Override
     @Transactional
@@ -87,6 +91,10 @@ public class MessageServiceImpl implements MessageService {
         Message existingMessage = findMessageOrElseThrow(messageId);
         existingMessage.setIsSeen(true);
         Message savedMessage = messageRepository.save(existingMessage);
+        long unreadCount = messageRepository.countByRecipientIdAndIsSeen(
+                existingMessage.getRecipient().getId(), false);
+        template.convertAndSendToUser(
+                existingMessage.getRecipient().getId().toString(), UNREAD_COUNT, unreadCount);
         return Optional.ofNullable(messageMapper.toResponse(savedMessage));
     }
 

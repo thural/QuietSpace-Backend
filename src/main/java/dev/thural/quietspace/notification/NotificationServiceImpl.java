@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import static dev.thural.quietspace.websocket.constant.WebSocketPaths.NOTIFICATION_EVENT;
 import static dev.thural.quietspace.websocket.constant.WebSocketPaths.NOTIFICATION_SUBJECT;
+import static dev.thural.quietspace.websocket.constant.WebSocketPaths.UNREAD_COUNT;
 import static dev.thural.quietspace.shared.enums.EventType.SEEN_NOTIFICATION;
 import static dev.thural.quietspace.shared.enums.NotificationType.COMMENT_REACTION;
 import static dev.thural.quietspace.shared.enums.NotificationType.POST_REACTION;
@@ -64,6 +65,8 @@ public class NotificationServiceImpl implements NotificationService {
                 .type(SEEN_NOTIFICATION)
                 .build();
         template.convertAndSendToUser(user.getId().toString(), NOTIFICATION_EVENT, event);
+        int unreadCount = notificationRepository.countByUserIdAndIsSeen(user.getId(), false);
+        template.convertAndSendToUser(user.getId().toString(), UNREAD_COUNT, unreadCount);
     }
 
     @Override
@@ -107,6 +110,8 @@ public class NotificationServiceImpl implements NotificationService {
         try {
             log.info("notified {} user {}", response.getType(), response.getActorId());
             template.convertAndSendToUser(recipientId.toString(), NOTIFICATION_SUBJECT, response);
+            int unreadCount = notificationRepository.countByUserIdAndIsSeen(recipientId, false);
+            template.convertAndSendToUser(recipientId.toString(), UNREAD_COUNT, unreadCount);
         } catch (MessagingException exception) {
             log.info("failed to notify {} user {}", response.getType(), response.getActorId());
         }
