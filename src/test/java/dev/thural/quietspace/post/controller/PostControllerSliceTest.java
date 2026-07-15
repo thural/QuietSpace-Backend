@@ -250,6 +250,26 @@ class PostControllerSliceTest {
     }
 
     @Test
+    void savePostForUser() throws Exception {
+        doNothing().when(postService).savePostForUser(any());
+
+        mockMvc.perform(post(PostController.POST_PATH + "/" + postResponse.getId() + "/save"))
+                .andExpect(status().isOk());
+
+        verify(postService).savePostForUser(postResponse.getId());
+    }
+
+    @Test
+    void unsavePostForUser() throws Exception {
+        doNothing().when(postService).unsavePostForUser(any());
+
+        mockMvc.perform(delete(PostController.POST_PATH + "/" + postResponse.getId() + "/save"))
+                .andExpect(status().isNoContent());
+
+        verify(postService).unsavePostForUser(postResponse.getId());
+    }
+
+    @Test
     void votePoll() throws Exception {
         ArgumentCaptor<VoteRequest> voteRequestArgumentCaptor = ArgumentCaptor.forClass(VoteRequest.class);
 
