@@ -28,8 +28,8 @@ import org.springframework.web.client.ResourceAccessException;
 
 import java.util.UUID;
 
-import static dev.thural.quietspace.notification.NotificationController.NOTIFICATION_EVENT_PATH;
-import static dev.thural.quietspace.notification.NotificationController.NOTIFICATION_SUBJECT_PATH;
+import static dev.thural.quietspace.websocket.constant.WebSocketPaths.NOTIFICATION_EVENT;
+import static dev.thural.quietspace.websocket.constant.WebSocketPaths.NOTIFICATION_SUBJECT;
 import static dev.thural.quietspace.shared.enums.EventType.SEEN_NOTIFICATION;
 import static dev.thural.quietspace.shared.enums.NotificationType.COMMENT_REACTION;
 import static dev.thural.quietspace.shared.enums.NotificationType.POST_REACTION;
@@ -63,7 +63,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .recipientId(notification.getUserId())
                 .type(SEEN_NOTIFICATION)
                 .build();
-        template.convertAndSendToUser(user.getId().toString(), NOTIFICATION_EVENT_PATH, event);
+        template.convertAndSendToUser(user.getId().toString(), NOTIFICATION_EVENT, event);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class NotificationServiceImpl implements NotificationService {
         var response = notificationMapper.toResponse(notification);
         try {
             log.info("notified {} user {}", response.getType(), response.getActorId());
-            template.convertAndSendToUser(recipientId.toString(), NOTIFICATION_SUBJECT_PATH, response);
+            template.convertAndSendToUser(recipientId.toString(), NOTIFICATION_SUBJECT, response);
         } catch (MessagingException exception) {
             log.info("failed to notify {} user {}", response.getType(), response.getActorId());
         }

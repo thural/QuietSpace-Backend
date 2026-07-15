@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dev.thural.quietspace.notification.NotificationController.NOTIFICATION_EVENT_PATH;
-import static dev.thural.quietspace.notification.NotificationController.NOTIFICATION_SUBJECT_PATH;
+import static dev.thural.quietspace.websocket.constant.WebSocketPaths.NOTIFICATION_EVENT;
+import static dev.thural.quietspace.websocket.constant.WebSocketPaths.NOTIFICATION_SUBJECT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -116,7 +116,7 @@ class NotificationServiceImplTest {
         assertThat(notification.getIsSeen()).isTrue();
         verify(template).convertAndSendToUser(
                 eq(signedUserId.toString()),
-                eq(NOTIFICATION_EVENT_PATH),
+                eq(NOTIFICATION_EVENT),
                 any()
         );
     }
@@ -131,7 +131,7 @@ class NotificationServiceImplTest {
 
         verify(template).convertAndSendToUser(
                 eq(signedUserId.toString()),
-                eq(NOTIFICATION_EVENT_PATH),
+                eq(NOTIFICATION_EVENT),
                 any()
         );
     }
@@ -221,7 +221,7 @@ class NotificationServiceImplTest {
 
         verify(template).convertAndSendToUser(
                 eq(post.getUser().getId().toString()),
-                eq(NOTIFICATION_SUBJECT_PATH),
+                eq(NOTIFICATION_SUBJECT),
                 eq(notificationResponse)
         );
     }
