@@ -145,6 +145,12 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/{userId}/followers/{followerId}")
+    ResponseEntity<Void> removeFollowerById(@PathVariable UUID userId, @PathVariable UUID followerId) {
+        userService.removeFollower(followerId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{userId}/followings")
     Page<UserResponse> listFollowings(
             @PathVariable UUID userId,

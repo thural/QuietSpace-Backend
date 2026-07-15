@@ -31,6 +31,13 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/users/{userId}")
+    @PreAuthorize("hasAuthority('admin:delete')")
+    ResponseEntity<Void> deleteUser(@PathVariable UUID userId) {
+        userService.deleteUserById(userId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/users")
     @PreAuthorize("hasAuthority('admin:read')")
     ResponseEntity<Page<UserResponse>> getPagedUsers(@RequestParam Integer pageNumber, @RequestParam Integer pageSize) {
