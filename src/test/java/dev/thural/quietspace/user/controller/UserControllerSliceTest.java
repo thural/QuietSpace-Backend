@@ -25,6 +25,7 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -205,6 +206,97 @@ public class UserControllerSliceTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getMe() throws Exception {
+        when(userService.getLoggedUserResponse()).thenReturn(Optional.of(userResponse));
+
+        mockMvc.perform(get(UserController.USER_PATH + "/me")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.username", is(userResponse.getUsername())))
+                .andExpect(status().isOk());
+
+        verify(userService).getLoggedUserResponse();
+    }
+
+    @Test
+    void getMe_whenNotFound_shouldReturn404() throws Exception {
+        when(userService.getLoggedUserResponse()).thenReturn(Optional.empty());
+
+        mockMvc.perform(get(UserController.USER_PATH + "/me")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void patchMe() throws Exception {
+        registerRequest.setPassword("validPassword123");
+        when(userService.patchUser(any())).thenReturn(userResponse);
+
+        mockMvc.perform(patch(UserController.USER_PATH + "/me")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registerRequest)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void followUser() throws Exception {
+        doNothing().when(userService).followUser(any());
+        doNothing().when(notificationService).processNotification(any(), any());
+
+        mockMvc.perform(post(UserController.USER_PATH + "/" + userId + "/follow"))
+                .andExpect(status().isOk());
+
+        verify(userService).followUser(uuidArgumentCaptor.capture());
+        assertThat(userId).isEqualTo(uuidArgumentCaptor.getValue());
+    }
+
+    @Test
+    void unfollowUser() throws Exception {
+        doNothing().when(userService).unfollowUser(any());
+
+        mockMvc.perform(delete(UserController.USER_PATH + "/" + userId + "/follow"))
+                .andExpect(status().isNoContent());
+
+        verify(userService).unfollowUser(uuidArgumentCaptor.capture());
+        assertThat(userId).isEqualTo(uuidArgumentCaptor.getValue());
+    }
+
+    @Test
+    void unblockUserProfile() throws Exception {
+        doNothing().when(userService).removeUserFromBlockList(any());
+
+        mockMvc.perform(delete(UserController.USER_PATH + "/profile/block/" + userId))
+                .andExpect(status().isNoContent());
+
+        verify(userService).removeUserFromBlockList(uuidArgumentCaptor.capture());
+        assertThat(userId).isEqualTo(uuidArgumentCaptor.getValue());
+    }
+
+    @Test
+    void getBlockedUsers() throws Exception {
+        when(userService.getBlockedUsers()).thenReturn(List.of(userResponse));
+
+        mockMvc.perform(get(UserController.USER_PATH + "/profile/blocked")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].username", is(userResponse.getUsername())))
+                .andExpect(status().isOk());
+
+        verify(userService).getBlockedUsers();
+    }
+
+    @Test
+    void getOnlineUsers() throws Exception {
+        when(userService.findConnectedFollowings()).thenReturn(List.of(userResponse));
+
+        mockMvc.perform(get(UserController.USER_PATH + "/online")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].username", is(userResponse.getUsername())))
+                .andExpect(status().isOk());
+
+        verify(userService).findConnectedFollowings();
     }
 
 }
