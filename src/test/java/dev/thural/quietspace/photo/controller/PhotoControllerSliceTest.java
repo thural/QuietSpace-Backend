@@ -19,9 +19,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
 
+import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc(addFilters = false)
@@ -82,4 +85,52 @@ class PhotoControllerSliceTest {
         mockMvc.perform(delete("/api/v1/photos/profile/{userId}", UUID.randomUUID()))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    void uploadPhoto_shouldReturn201() throws Exception {
+        PhotoResponse photoResponse = PhotoResponse.builder()
+                .name("post-photo.jpg")
+                .type("image/jpeg")
+                .build();
+        when(photoService.uploadPhoto(any())).thenReturn(photoResponse);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "image", "photo.jpg", "image/jpeg", "photo-content".getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/v1/photos")
+                        .file(file))
+                .andExpect(jsonPath("$.name", is("post-photo.jpg")))
+                .andExpect(status().isCreated());
+
+        verify(photoService).uploadPhoto(any());
+    }
+
+    @Test
+    void deletePhotoById_shouldReturn204() throws Exception {
+        UUID photoId = UUID.randomUUID();
+
+        mockMvc.perform(delete("/api/v1/photos/{photoId}", photoId))
+                .andExpect(status().isNoContent());
+
+        verify(photoService).deletePhotoById(photoId);
+    }
+
+    @Test
+    void getPhotoByPostId_shouldReturn200() throws Exception {
+        UUID postId = UUID.randomUUID();
+        PhotoResponse photoResponse = PhotoResponse.builder()
+                .name("post-photo.jpg")
+                .type("image/jpeg")
+                .data(new byte[]{1, 2, 3})
+                .build();
+        when(photoService.getPhotoByEntityId(postId)).thenReturn(photoResponse);
+
+        mockMvc.perform(get("/api/v1/photos/post/{postId}", postId))
+                .andExpect(jsonPath("$.name", is("post-photo.jpg")))
+                .andExpect(status().isOk());
+
+        verify(photoService).getPhotoByEntityId(postId);
+    }
+
 }
