@@ -38,6 +38,10 @@ build/
 .gradle/
 !gradle/wrapper/gradle-wrapper.jar
 
+### Temporarily colocated repos for migration ###
+/quietspace-infrastructure/
+/QuietSpace-Frontend/
+
 ### other files ###
 /quietspace
 /quietspace.log
