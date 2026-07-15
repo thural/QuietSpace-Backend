@@ -359,6 +359,93 @@ class UserServiceImplTest {
     }
 
     @Test
+    void followUser_shouldFollowUser() {
+        User signedUser = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        User target = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(signedUser));
+        when(userRepository.findById(target.getId())).thenReturn(Optional.of(target));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        userService.followUser(target.getId());
+
+        assertThat(signedUser.getFollowings()).contains(target);
+        assertThat(target.getFollowers()).contains(signedUser);
+    }
+
+    @Test
+    void followUser_givenAlreadyFollowing_shouldBeNoOp() {
+        User target = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        User signedUser = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        signedUser.getFollowings().add(target);
+        target.getFollowers().add(signedUser);
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(signedUser));
+        when(userRepository.findById(target.getId())).thenReturn(Optional.of(target));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        userService.followUser(target.getId());
+
+        assertThat(signedUser.getFollowings()).hasSize(1);
+        assertThat(target.getFollowers()).hasSize(1);
+    }
+
+    @Test
+    void followUser_givenSelf_shouldThrow() {
+        User signedUser = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(signedUser));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        assertThatThrownBy(() -> userService.followUser(signedUser.getId()))
+                .isInstanceOf(CustomErrorException.class)
+                .hasMessageContaining("cannot follow yourself");
+    }
+
+    @Test
+    void unfollowUser_shouldUnfollowUser() {
+        User target = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        User signedUser = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        signedUser.getFollowings().add(target);
+        target.getFollowers().add(signedUser);
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(signedUser));
+        when(userRepository.findById(target.getId())).thenReturn(Optional.of(target));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        userService.unfollowUser(target.getId());
+
+        assertThat(signedUser.getFollowings()).doesNotContain(target);
+        assertThat(target.getFollowers()).doesNotContain(signedUser);
+    }
+
+    @Test
+    void unfollowUser_givenNotFollowing_shouldBeNoOp() {
+        User target = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        User signedUser = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(signedUser));
+        when(userRepository.findById(target.getId())).thenReturn(Optional.of(target));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        userService.unfollowUser(target.getId());
+
+        assertThat(signedUser.getFollowings()).doesNotContain(target);
+    }
+
+    @Test
+    void unfollowUser_givenSelf_shouldThrow() {
+        User signedUser = User.builder().id(UUID.randomUUID()).followers(new ArrayList<>()).followings(new ArrayList<>()).build();
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(signedUser));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        assertThatThrownBy(() -> userService.unfollowUser(signedUser.getId()))
+                .isInstanceOf(CustomErrorException.class)
+                .hasMessageContaining("cannot unfollow yourself");
+    }
+
+    @Test
     void addUserToBlockList_givenExistingUser_shouldAddToBlocked() {
         ProfileSettings settings = ProfileSettings.builder().blockedUsers(new ArrayList<>()).build();
         user.setProfileSettings(settings);
