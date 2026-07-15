@@ -35,6 +35,7 @@ import java.util.UUID;
 
 import static dev.thural.quietspace.websocket.constant.WebSocketPaths.NOTIFICATION_EVENT;
 import static dev.thural.quietspace.websocket.constant.WebSocketPaths.NOTIFICATION_SUBJECT;
+import static dev.thural.quietspace.websocket.constant.WebSocketPaths.UNREAD_COUNT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -110,6 +111,7 @@ class NotificationServiceImplTest {
     void handleSeen_givenOwnNotification_shouldMarkSeenAndSendEvent() {
         when(userService.getSignedUser()).thenReturn(signedUser);
         when(notificationRepository.findById(notificationId)).thenReturn(Optional.of(notification));
+        when(notificationRepository.countByUserIdAndIsSeen(signedUserId, false)).thenReturn(0);
 
         notificationService.handleSeen(notificationId);
 
@@ -119,6 +121,11 @@ class NotificationServiceImplTest {
                 eq(NOTIFICATION_EVENT),
                 any()
         );
+        verify(template).convertAndSendToUser(
+                eq(signedUserId.toString()),
+                eq(UNREAD_COUNT),
+                eq(0)
+        );
     }
 
     @Test
@@ -126,6 +133,7 @@ class NotificationServiceImplTest {
         notification.setIsSeen(true);
         when(userService.getSignedUser()).thenReturn(signedUser);
         when(notificationRepository.findById(notificationId)).thenReturn(Optional.of(notification));
+        when(notificationRepository.countByUserIdAndIsSeen(signedUserId, false)).thenReturn(0);
 
         notificationService.handleSeen(notificationId);
 
@@ -133,6 +141,11 @@ class NotificationServiceImplTest {
                 eq(signedUserId.toString()),
                 eq(NOTIFICATION_EVENT),
                 any()
+        );
+        verify(template).convertAndSendToUser(
+                eq(signedUserId.toString()),
+                eq(UNREAD_COUNT),
+                eq(0)
         );
     }
 
@@ -203,11 +216,13 @@ class NotificationServiceImplTest {
 
     @Test
     void processNotification_givenPostReaction_shouldCreateAndSend() {
+        UUID recipientId = post.getUser().getId();
         when(userService.getSignedUser()).thenReturn(signedUser);
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
-        when(userService.getUserById(any(UUID.class))).thenReturn(Optional.of(post.getUser()));
+        when(userService.getUserById(recipientId)).thenReturn(Optional.of(post.getUser()));
         when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
         when(notificationMapper.toResponse(any(Notification.class))).thenReturn(notificationResponse);
+        when(notificationRepository.countByUserIdAndIsSeen(recipientId, false)).thenReturn(1);
 
         notificationService.processNotification(NotificationType.POST_REACTION, post.getId());
 
@@ -217,28 +232,41 @@ class NotificationServiceImplTest {
         assertThat(saved.getNotificationType()).isEqualTo(NotificationType.POST_REACTION);
         assertThat(saved.getContentId()).isEqualTo(post.getId());
         assertThat(saved.getActorId()).isEqualTo(signedUserId);
-        assertThat(saved.getUserId()).isEqualTo(post.getUser().getId());
+        assertThat(saved.getUserId()).isEqualTo(recipientId);
 
         verify(template).convertAndSendToUser(
-                eq(post.getUser().getId().toString()),
+                eq(recipientId.toString()),
                 eq(NOTIFICATION_SUBJECT),
                 eq(notificationResponse)
+        );
+        verify(template).convertAndSendToUser(
+                eq(recipientId.toString()),
+                eq(UNREAD_COUNT),
+                eq(1)
         );
     }
 
     @Test
     void processNotification_givenCommentReaction_shouldCreateAndSend() {
+        UUID recipientId = comment.getUser().getId();
         when(userService.getSignedUser()).thenReturn(signedUser);
         when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
-        when(userService.getUserById(any(UUID.class))).thenReturn(Optional.of(comment.getUser()));
+        when(userService.getUserById(recipientId)).thenReturn(Optional.of(comment.getUser()));
         when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
         when(notificationMapper.toResponse(any(Notification.class))).thenReturn(notificationResponse);
+        when(notificationRepository.countByUserIdAndIsSeen(recipientId, false)).thenReturn(1);
 
         notificationService.processNotification(NotificationType.COMMENT_REACTION, comment.getId());
 
         ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
         verify(notificationRepository).save(captor.capture());
-        assertThat(captor.getValue().getUserId()).isEqualTo(comment.getUser().getId());
+        assertThat(captor.getValue().getUserId()).isEqualTo(recipientId);
+
+        verify(template).convertAndSendToUser(
+                eq(recipientId.toString()),
+                eq(UNREAD_COUNT),
+                eq(1)
+        );
     }
 
     @Test
@@ -248,12 +276,19 @@ class NotificationServiceImplTest {
         when(userService.getUserById(contentId)).thenReturn(Optional.of(User.builder().id(contentId).username("other").build()));
         when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
         when(notificationMapper.toResponse(any(Notification.class))).thenReturn(notificationResponse);
+        when(notificationRepository.countByUserIdAndIsSeen(contentId, false)).thenReturn(1);
 
         notificationService.processNotification(NotificationType.FOLLOW_REQUEST, contentId);
 
         ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
         verify(notificationRepository).save(captor.capture());
         assertThat(captor.getValue().getUserId()).isEqualTo(contentId);
+
+        verify(template).convertAndSendToUser(
+                eq(contentId.toString()),
+                eq(UNREAD_COUNT),
+                eq(1)
+        );
     }
 
     @Test
@@ -264,7 +299,7 @@ class NotificationServiceImplTest {
         when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
         when(notificationMapper.toResponse(any(Notification.class))).thenReturn(notificationResponse);
         doThrow(new MessagingException("websocket error"))
-                .when(template).convertAndSendToUser(anyString(), anyString(), any());
+                .when(template).convertAndSendToUser(eq(post.getUser().getId().toString()), eq(NOTIFICATION_SUBJECT), any());
 
         assertDoesNotThrow(() ->
                 notificationService.processNotification(NotificationType.POST_REACTION, post.getId())
