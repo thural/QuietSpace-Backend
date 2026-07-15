@@ -1,15 +1,13 @@
-package dev.thural.quietspace.notification;
+package dev.thural.quietspace.notification.controller;
 
+import dev.thural.quietspace.notification.NotificationService;
+import dev.thural.quietspace.notification.dto.NotificationResponse;
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.shared.enums.NotificationType;
-import dev.thural.quietspace.notification.dto.NotificationResponse;
-import dev.thural.quietspace.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -23,22 +21,12 @@ public class NotificationController {
     public static final String NOTIFICATION_PATH = "/api/v1/notifications";
     public static final String NOTIFICATION_PATH_ID = "/{notificationId}";
 
-    public static final String NOTIFICATION_SUBJECT_PATH = "/private/notifications";
-    public static final String NOTIFICATION_EVENT_PATH = NOTIFICATION_SUBJECT_PATH + "/event";
-    public static final String NOTIFICATION_SEEN_PATH = NOTIFICATION_SUBJECT_PATH + "/seen/{notificationId}";
-
     private final NotificationService notificationService;
-
 
     @PostMapping("/seen/{contentId}")
     ResponseEntity<?> handleSeen(@PathVariable UUID contentId) {
         notificationService.handleSeen(contentId);
         return ResponseEntity.accepted().build();
-    }
-
-    @MessageMapping(NOTIFICATION_SEEN_PATH)
-    void markMessageSeen(@DestinationVariable UUID notificationId) {
-        notificationService.handleSeen(notificationId);
     }
 
     @GetMapping
