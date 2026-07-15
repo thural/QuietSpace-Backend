@@ -5,6 +5,7 @@ import dev.thural.quietspace.chat.Chat;
 import dev.thural.quietspace.chat.ChatService;
 import dev.thural.quietspace.chat.dto.ChatResponse;
 import dev.thural.quietspace.chat.dto.CreateChatRequest;
+import dev.thural.quietspace.chat.dto.UpdateChatRequest;
 import dev.thural.quietspace.message.Message;
 import dev.thural.quietspace.message.MessageRepository;
 import dev.thural.quietspace.message.MessageService;
@@ -229,6 +230,35 @@ class ChatControllerSliceTest {
                 .andExpect(status().isNoContent());
 
         verify(chatService).removeMemberWithId(user1.getId(), chat.getId());
+    }
+
+    @Test
+    void getMyChats() throws Exception {
+        when(userService.getSignedUser()).thenReturn(user1);
+        when(chatService.getChatsByUserId(user1.getId())).thenReturn(List.of(chatResponse));
+
+        mockMvc.perform(get(ChatController.CHAT_PATH)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id", is(chat.getId().toString())))
+                .andExpect(status().isOk());
+
+        verify(chatService).getChatsByUserId(user1.getId());
+    }
+
+    @Test
+    void updateChat() throws Exception {
+        UpdateChatRequest request = UpdateChatRequest.builder().name("updated chat").build();
+        when(userService.getSignedUser()).thenReturn(user1);
+        when(chatService.updateChat(any(), any())).thenReturn(chatResponse);
+
+        mockMvc.perform(patch(ChatController.CHAT_PATH + "/" + chat.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(jsonPath("$.id", is(chat.getId().toString())))
+                .andExpect(status().isOk());
+
+        verify(chatService).updateChat(any(), any());
     }
 
     @Test
