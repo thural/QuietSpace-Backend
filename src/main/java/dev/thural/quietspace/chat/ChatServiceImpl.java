@@ -2,6 +2,7 @@ package dev.thural.quietspace.chat;
 
 import dev.thural.quietspace.chat.dto.ChatResponse;
 import dev.thural.quietspace.chat.dto.CreateChatRequest;
+import dev.thural.quietspace.chat.dto.UpdateChatRequest;
 import dev.thural.quietspace.message.Message;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.exception.CustomErrorException;
@@ -92,6 +93,15 @@ public class ChatServiceImpl implements ChatService {
     public ChatResponse getChatById(UUID chatId) {
         Chat foundChat = findChatEntityById(chatId);
         return chatMapper.chatEntityToResponse(foundChat);
+    }
+
+    @Override
+    @Transactional
+    public ChatResponse updateChat(UUID chatId, UpdateChatRequest request) {
+        Chat foundChat = findChatEntityById(chatId);
+        if (request.getName() != null) foundChat.setName(request.getName());
+        Chat saved = chatRepository.save(foundChat);
+        return chatMapper.chatEntityToResponse(saved);
     }
 
     private User getUserById(UUID memberId) {

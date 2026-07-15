@@ -2,6 +2,7 @@ package dev.thural.quietspace.chat;
 
 import dev.thural.quietspace.chat.dto.ChatResponse;
 import dev.thural.quietspace.chat.dto.CreateChatRequest;
+import dev.thural.quietspace.chat.dto.UpdateChatRequest;
 import dev.thural.quietspace.user.dto.UserResponse;
 
 import java.util.List;
@@ -20,5 +21,7 @@ public interface ChatService {
     ChatResponse createChat(CreateChatRequest chatRequest);
 
     ChatResponse getChatById(UUID chatId);
+
+    ChatResponse updateChat(UUID chatId, UpdateChatRequest request);
 
 }

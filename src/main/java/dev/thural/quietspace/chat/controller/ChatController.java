@@ -3,6 +3,7 @@ package dev.thural.quietspace.chat.controller;
 import dev.thural.quietspace.chat.ChatService;
 import dev.thural.quietspace.chat.dto.ChatResponse;
 import dev.thural.quietspace.chat.dto.CreateChatRequest;
+import dev.thural.quietspace.chat.dto.UpdateChatRequest;
 import dev.thural.quietspace.user.UserService;
 import dev.thural.quietspace.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,11 @@ public class ChatController {
     @PostMapping
     ResponseEntity<ChatResponse> createChat(@RequestBody CreateChatRequest chat) {
         return ResponseEntity.ok(chatService.createChat(chat));
+    }
+
+    @PatchMapping("/{chatId}")
+    ResponseEntity<ChatResponse> updateChat(@PathVariable UUID chatId, @RequestBody UpdateChatRequest request) {
+        return ResponseEntity.ok(chatService.updateChat(chatId, request));
     }
 
     @PatchMapping("/{chatId}/members/add/{userId}")

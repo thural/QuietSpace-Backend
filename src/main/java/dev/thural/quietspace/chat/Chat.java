@@ -22,6 +22,8 @@ import java.util.List;
 @NoArgsConstructor
 public class Chat extends BaseEntity {
 
+    private String name;
+
     @JsonBackReference
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "user_chat",
