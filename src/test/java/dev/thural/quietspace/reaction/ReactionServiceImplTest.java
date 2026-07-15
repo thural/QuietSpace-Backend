@@ -145,6 +145,38 @@ class ReactionServiceImplTest {
     }
 
     @Test
+    void addReaction_shouldCreateNewReaction() {
+        when(userService.getSignedUser()).thenReturn(user);
+        when(reactionRepository.findByContentIdAndUserId(any(), any())).thenReturn(Optional.empty());
+        when(reactionMapper.reactionRequestToEntity(any(ReactionRequest.class))).thenReturn(reaction);
+
+        reactionService.addReaction(reactionRequest);
+
+        verify(reactionRepository).save(any(Reaction.class));
+    }
+
+    @Test
+    void addReaction_givenExisting_shouldUpdateType() {
+        Reaction existing = Reaction.builder().id(UUID.randomUUID()).reactionType(ReactionType.DISLIKE).build();
+        when(userService.getSignedUser()).thenReturn(user);
+        when(reactionRepository.findByContentIdAndUserId(contentId, userId)).thenReturn(Optional.of(existing));
+
+        reactionService.addReaction(reactionRequest);
+
+        assertThat(existing.getReactionType()).isEqualTo(ReactionType.LIKE);
+        verify(reactionRepository).save(existing);
+    }
+
+    @Test
+    void removeReaction_shouldDeleteReaction() {
+        UUID reactionId = UUID.randomUUID();
+
+        reactionService.removeReaction(reactionId);
+
+        verify(reactionRepository).deleteById(reactionId);
+    }
+
+    @Test
     void getReactionsByUserId() {
         when(reactionRepository.findAllByUserIdAndContentType(eq(userId), eq(EntityType.POST), any(PageRequest.class))).thenReturn(reactionPage);
         when(reactionMapper.reactionEntityToResponse(any(Reaction.class))).thenReturn(ReactionResponse.builder().build());

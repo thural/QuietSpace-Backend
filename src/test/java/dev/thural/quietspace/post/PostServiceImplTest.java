@@ -314,6 +314,17 @@ public class PostServiceImplTest {
     }
 
     @Test
+    void unsavePostForUser_givenSavedPost_shouldRemove() {
+        user.setSavedPosts(new ArrayList<>(List.of(post)));
+        when(userService.getSignedUser()).thenReturn(user);
+        when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
+
+        postService.unsavePostForUser(post.getId());
+
+        assertThat(user.getSavedPosts()).doesNotContain(post);
+    }
+
+    @Test
     void getCommentedPostsByUserId_givenValidUser_shouldReturnPage() {
         Specification<Post> mockSpec = Specification.where((root, query, cb) -> cb.conjunction());
         when(postSpecifications.visibleToUser()).thenReturn(mockSpec);

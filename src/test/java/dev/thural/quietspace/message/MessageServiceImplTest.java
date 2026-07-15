@@ -148,6 +148,17 @@ class MessageServiceImplTest {
     }
 
     @Test
+    void getUnreadCount_shouldReturnCount() {
+        when(messageRepository.countByRecipientIdAndIsSeen(any(), anyBoolean())).thenReturn(5L);
+        when(userService.getSignedUser()).thenReturn(user);
+
+        long count = messageService.getUnreadCount();
+
+        assertThat(count).isEqualTo(5L);
+        verify(messageRepository).countByRecipientIdAndIsSeen(user.getId(), false);
+    }
+
+    @Test
     void setMessageSeen_givenExistingMessage_shouldSaveAndReturnSeenResponse() {
         when(messageRepository.findById(message.getId())).thenReturn(Optional.of(message));
         when(messageRepository.save(any(Message.class))).thenReturn(message);
@@ -159,6 +170,22 @@ class MessageServiceImplTest {
         assertThat(result).isPresent();
         assertThat(message.getIsSeen()).isTrue();
         verify(messageRepository).save(message);
+    }
+
+    @Test
+    void setMessageSeen_shouldPushUnreadCount() {
+        when(messageRepository.findById(message.getId())).thenReturn(Optional.of(message));
+        when(messageRepository.save(any(Message.class))).thenReturn(message);
+        when(messageMapper.toResponse(message)).thenReturn(messageResponse);
+        when(messageRepository.countByRecipientIdAndIsSeen(any(), anyBoolean())).thenReturn(0L);
+
+        messageService.setMessageSeen(message.getId());
+
+        verify(template).convertAndSendToUser(
+                eq(user.getId().toString()),
+                eq("/user/unread-count"),
+                eq(0L)
+        );
     }
 
     @Test

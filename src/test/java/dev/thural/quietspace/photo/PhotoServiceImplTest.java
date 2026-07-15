@@ -128,6 +128,26 @@ class PhotoServiceImplTest {
     }
 
     @Test
+    void uploadPhoto_shouldPersistWithNullEntityType() throws IOException {
+        MockMultipartFile file = new MockMultipartFile(
+                "image", "photo.jpg", "image/jpeg", "original-image-data".getBytes()
+        );
+        when(commonService.getSignedUser()).thenReturn(signedUser);
+        when(imageCompressionUtil.compressImage(any(InputStream.class), anyInt())).thenReturn(compressedData);
+        when(photoRepository.save(any(Photo.class))).thenReturn(photo);
+
+        PhotoResponse result = photoService.uploadPhoto(file);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("photo-name.jpg");
+
+        ArgumentCaptor<Photo> photoCaptor = ArgumentCaptor.forClass(Photo.class);
+        verify(photoRepository).save(photoCaptor.capture());
+        Photo savedPhoto = photoCaptor.getValue();
+        assertThat(savedPhoto.getEntityType()).isNull();
+    }
+
+    @Test
     void persistPhotoEntity_whenCompressionFails_shouldThrow() throws IOException {
         MockMultipartFile file = new MockMultipartFile(
                 "image", "photo.jpg", "image/jpeg", "data".getBytes()

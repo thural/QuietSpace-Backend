@@ -8,6 +8,7 @@ import dev.thural.quietspace.chat.ChatMapper;
 import dev.thural.quietspace.user.UserMapper;
 import dev.thural.quietspace.chat.dto.CreateChatRequest;
 import dev.thural.quietspace.chat.dto.ChatResponse;
+import dev.thural.quietspace.chat.dto.UpdateChatRequest;
 import dev.thural.quietspace.user.dto.UserResponse;
 import dev.thural.quietspace.chat.ChatRepository;
 import dev.thural.quietspace.message.MessageRepository;
@@ -191,6 +192,36 @@ public class ChatServiceImplTest {
         ChatResponse result = chatService.getChatById(chat.getId());
 
         assertThat(result).isEqualTo(chatResponse);
+    }
+
+    @Test
+    void updateChat_shouldUpdateName() {
+        UpdateChatRequest request = UpdateChatRequest.builder().name("new name").build();
+        when(userService.getSignedUser()).thenReturn(user1);
+        when(chatRepository.findById(chat.getId())).thenReturn(Optional.of(chat));
+        when(chatRepository.save(chat)).thenReturn(chat);
+        when(chatMapper.chatEntityToResponse(chat)).thenReturn(chatResponse);
+
+        ChatResponse result = chatService.updateChat(chat.getId(), request);
+
+        assertThat(chat.getName()).isEqualTo("new name");
+        assertThat(result).isEqualTo(chatResponse);
+        verify(chatRepository).save(chat);
+    }
+
+    @Test
+    void updateChat_givenNullName_shouldNotChange() {
+        UpdateChatRequest request = UpdateChatRequest.builder().name(null).build();
+        when(userService.getSignedUser()).thenReturn(user1);
+        when(chatRepository.findById(chat.getId())).thenReturn(Optional.of(chat));
+        when(chatRepository.save(chat)).thenReturn(chat);
+        when(chatMapper.chatEntityToResponse(chat)).thenReturn(chatResponse);
+
+        ChatResponse result = chatService.updateChat(chat.getId(), request);
+
+        assertThat(chat.getName()).isNull();
+        assertThat(result).isEqualTo(chatResponse);
+        verify(chatRepository).save(chat);
     }
 
     @Test
