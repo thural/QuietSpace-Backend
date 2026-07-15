@@ -1,8 +1,8 @@
-package dev.thural.quietspace.comment;
+package dev.thural.quietspace.comment.controller;
 
+import dev.thural.quietspace.comment.CommentService;
 import dev.thural.quietspace.comment.dto.CommentRequest;
 import dev.thural.quietspace.comment.dto.CommentResponse;
-import dev.thural.quietspace.comment.CommentService;
 import dev.thural.quietspace.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,7 +24,6 @@ public class CommentController {
 
     private final CommentService commentService;
     private final NotificationService notificationService;
-
 
     @GetMapping("/post/{postId}")
     Page<CommentResponse> getCommentsByPostId(
@@ -82,13 +81,11 @@ public class CommentController {
             @PathVariable UUID commentId,
             @RequestBody @Validated CommentRequest comment
     ) {
-        // TODO: broadcast the update over socket
         return ResponseEntity.ok(commentService.updateComment(commentId, comment));
     }
 
     @DeleteMapping(COMMENT_PATH_ID)
     ResponseEntity<?> deleteComment(@PathVariable UUID commentId) {
-        // TODO: broadcast the update over socket
         commentService.deleteComment(commentId);
         return ResponseEntity.noContent().build();
     }

@@ -1,13 +1,14 @@
-package dev.thural.quietspace.post;
+package dev.thural.quietspace.post.controller;
 
+import dev.thural.quietspace.notification.NotificationService;
+import dev.thural.quietspace.post.PostService;
 import dev.thural.quietspace.post.dto.PostRequest;
+import dev.thural.quietspace.post.dto.PostResponse;
 import dev.thural.quietspace.post.dto.RepostRequest;
 import dev.thural.quietspace.post.dto.VoteRequest;
-import dev.thural.quietspace.post.dto.PostResponse;
-import dev.thural.quietspace.notification.NotificationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

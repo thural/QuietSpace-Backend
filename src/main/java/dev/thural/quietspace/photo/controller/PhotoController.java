@@ -1,5 +1,6 @@
-package dev.thural.quietspace.photo;
+package dev.thural.quietspace.photo.controller;
 
+import dev.thural.quietspace.photo.PhotoService;
 import dev.thural.quietspace.photo.dto.PhotoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

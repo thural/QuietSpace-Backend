@@ -1,5 +1,6 @@
-package dev.thural.quietspace.auth;
+package dev.thural.quietspace.auth.controller;
 
+import dev.thural.quietspace.auth.AuthService;
 import dev.thural.quietspace.auth.dto.AuthRequest;
 import dev.thural.quietspace.auth.dto.AuthResponse;
 import dev.thural.quietspace.auth.dto.RegistrationRequest;
