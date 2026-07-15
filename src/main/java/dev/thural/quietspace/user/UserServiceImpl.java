@@ -86,6 +86,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    public void removeUserFromBlockList(UUID userId) {
+        User signedUser = getSignedUser();
+        User requestedUser = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        signedUser.getProfileSettings().getBlockedUsers().remove(requestedUser);
+    }
+
+    @Override
+    public List<UserResponse> getBlockedUsers() {
+        User signedUser = getSignedUser();
+        return signedUser.getProfileSettings().getBlockedUsers().stream()
+                .map(userMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional
     public Page<UserResponse> listUsersByUsername(String username, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = PagingProvider.buildPageRequest(pageNumber, pageSize, DEFAULT_SORT_OPTION);
         if (StringUtils.hasText(username)) {

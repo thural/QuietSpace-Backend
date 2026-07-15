@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 import static dev.thural.quietspace.shared.enums.NotificationType.FOLLOW_REQUEST;
@@ -95,6 +96,17 @@ public class UserController {
     public ResponseEntity<Void> blockUserProfile(@PathVariable UUID userId) {
         userService.addUserToBlockList(userId);
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/profile/block/{userId}")
+    public ResponseEntity<Void> unblockUserProfile(@PathVariable UUID userId) {
+        userService.removeUserFromBlockList(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/profile/blocked")
+    public ResponseEntity<List<UserResponse>> getBlockedUsers() {
+        return ResponseEntity.ok(userService.getBlockedUsers());
     }
 
     @PatchMapping("/profile/settings")

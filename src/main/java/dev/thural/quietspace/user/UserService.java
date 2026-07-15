@@ -53,4 +53,8 @@ public interface UserService {
     ProfileSettingsResponse saveProfileSettings(ProfileSettingsRequest request);
 
     void addUserToBlockList(UUID userId);
+
+    void removeUserFromBlockList(UUID userId);
+
+    List<UserResponse> getBlockedUsers();
 }
