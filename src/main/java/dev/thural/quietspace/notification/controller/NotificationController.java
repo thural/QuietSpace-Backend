@@ -51,6 +51,12 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.getCountOfPendingNotifications());
     }
 
+    @PutMapping("/{notificationId}/read")
+    ResponseEntity<Void> markAsRead(@PathVariable UUID notificationId) {
+        notificationService.handleSeen(notificationId);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/process")
     ResponseEntity<?> processNotification(NotificationType type, UUID contentId) {
         notificationService.processNotification(type, contentId);
