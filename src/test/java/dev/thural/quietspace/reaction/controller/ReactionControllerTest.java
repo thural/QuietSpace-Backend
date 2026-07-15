@@ -24,9 +24,8 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -98,6 +97,43 @@ class ReactionControllerTest {
         mockMvc.perform(post("/api/v1/reactions/toggle-reaction")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void addReaction() throws Exception {
+        doNothing().when(reactionService).addReaction(any());
+        doNothing().when(notificationService).processNotificationByReaction(any(), any());
+
+        ReactionRequest request = ReactionRequest.builder()
+                .userId(UUID.randomUUID())
+                .contentId(UUID.randomUUID())
+                .contentType(EntityType.POST)
+                .reactionType(ReactionType.LIKE)
+                .build();
+
+        mockMvc.perform(post("/api/v1/reactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void removeReaction() throws Exception {
+        doNothing().when(reactionService).removeReaction(any());
+
+        mockMvc.perform(delete("/api/v1/reactions/{reactionId}", UUID.randomUUID()))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void getReactionsByPostId() throws Exception {
+        when(reactionService.getReactionsByContentIdAndContentType(any(), any(), anyInt(), anyInt()))
+                .thenReturn(Page.empty());
+
+        mockMvc.perform(get("/api/v1/reactions/post/{postId}", UUID.randomUUID())
+                        .param("page-number", "1")
+                        .param("page-size", "10"))
                 .andExpect(status().isOk());
     }
 
