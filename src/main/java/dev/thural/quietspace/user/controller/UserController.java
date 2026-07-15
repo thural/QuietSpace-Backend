@@ -104,6 +104,11 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/online")
+    public ResponseEntity<List<UserResponse>> getOnlineUsers() {
+        return ResponseEntity.ok(userService.findConnectedFollowings());
+    }
+
     @GetMapping("/profile/blocked")
     public ResponseEntity<List<UserResponse>> getBlockedUsers() {
         return ResponseEntity.ok(userService.getBlockedUsers());
