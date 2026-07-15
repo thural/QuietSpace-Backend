@@ -2,6 +2,7 @@ package dev.thural.quietspace.chat.controller;
 
 import dev.thural.quietspace.chat.ChatService;
 import dev.thural.quietspace.message.Message;
+import dev.thural.quietspace.shared.enums.EventType;
 import dev.thural.quietspace.message.MessageRepository;
 import dev.thural.quietspace.message.MessageService;
 import dev.thural.quietspace.message.dto.MessageRequest;
@@ -19,7 +20,9 @@ import org.springframework.stereotype.Controller;
 
 import java.util.UUID;
 
-import static dev.thural.quietspace.shared.enums.EventType.*;
+import static dev.thural.quietspace.shared.enums.EventType.EXCEPTION;
+import static dev.thural.quietspace.shared.enums.EventType.JOINED_CHAT;
+import static dev.thural.quietspace.shared.enums.EventType.LEFT_CHAT;
 import static dev.thural.quietspace.websocket.constant.WebSocketPaths.*;
 
 @Slf4j
@@ -55,7 +58,7 @@ public class ChatWebSocketController {
                 .chatId(foundMessage.getChat().getId())
                 .actorId(foundMessage.getSender().getId())
                 .messageId(foundMessage.getId())
-                .type(DELETE_MESSAGE)
+                .type(EventType.DELETE_MESSAGE)
                 .build();
         try {
             MessageResponse message = messageService.deleteMessage(messageId)
@@ -76,7 +79,7 @@ public class ChatWebSocketController {
         return ChatEvent.builder()
                 .chatId(message.getChatId())
                 .messageId(message.getId())
-                .type(SEEN_MESSAGE)
+                .type(EventType.SEEN_MESSAGE)
                 .build();
     }
 
