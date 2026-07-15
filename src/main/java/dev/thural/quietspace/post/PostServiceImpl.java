@@ -176,6 +176,13 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
+    public void unsavePostForUser(UUID postId) {
+        Post foundPost = findPostEntityById(postId);
+        userService.getSignedUser().getSavedPosts().remove(foundPost);
+    }
+
+    @Override
     public Page<PostResponse> getCommentedPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         Specification<Post> specification = postSpecifications.combine(

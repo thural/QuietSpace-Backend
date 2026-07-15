@@ -76,6 +76,18 @@ public class PostController {
         return postService.getSavedPostsByUser(pageNumber, pageSize);
     }
 
+    @PostMapping("/{postId}/save")
+    ResponseEntity<Void> savePostForUser(@PathVariable UUID postId) {
+        postService.savePostForUser(postId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{postId}/save")
+    ResponseEntity<Void> unsavePostForUser(@PathVariable UUID postId) {
+        postService.unsavePostForUser(postId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PatchMapping("/saved/{postId}")
     ResponseEntity<Void> savePost(@PathVariable UUID postId) {
         postService.savePostForUser(postId);

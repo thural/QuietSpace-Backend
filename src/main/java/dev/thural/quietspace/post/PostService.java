@@ -37,5 +37,7 @@ public interface PostService {
 
     void savePostForUser(UUID postId);
 
+    void unsavePostForUser(UUID postId);
+
     Page<PostResponse> getCommentedPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize);
 }
