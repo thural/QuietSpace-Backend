@@ -19,6 +19,8 @@ public final class WebSocketPaths {
     public static final String NOTIFICATION_EVENT = NOTIFICATION_SUBJECT + "/event";
     public static final String NOTIFICATION_SEEN = NOTIFICATION_SUBJECT + "/seen/{notificationId}";
 
+    public static final String TYPING_STATUS = PRIVATE_CHAT + "/typing";
+
     public static final String USER_PUBLIC = "/user/public";
     public static final String PUBLIC_BROKER = "/public";
 }

@@ -1,6 +1,7 @@
 package dev.thural.quietspace.chat.controller;
 
 import dev.thural.quietspace.chat.ChatService;
+import dev.thural.quietspace.chat.dto.TypingStatus;
 import dev.thural.quietspace.message.Message;
 import dev.thural.quietspace.shared.enums.EventType;
 import dev.thural.quietspace.message.MessageRepository;
@@ -102,6 +103,13 @@ public class ChatWebSocketController {
         }
         log.warn("processLeftChat returning chatEvent type={} chatId={}", chatEvent.getType(), chatEvent.getChatId());
         return chatEvent;
+    }
+
+    @MessageMapping(TYPING_STATUS)
+    @SendTo(CHAT_EVENT)
+    TypingStatus handleTypingStatus(@Payload TypingStatus status) {
+        log.info("user {} is typing in chat {}: {}", status.getUserId(), status.getChatId(), status.getIsTyping());
+        return status;
     }
 
     @MessageMapping(JOIN_CHAT)
