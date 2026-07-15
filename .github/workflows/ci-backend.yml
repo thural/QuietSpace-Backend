@@ -1,0 +1,100 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ "main", "prod" ]
+    paths:
+      - 'src/**'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'Dockerfile'
+      - '.github/workflows/ci-backend.yml'
+  pull_request:
+    branches: [ "main", "prod" ]
+    paths:
+      - 'src/**'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'Dockerfile'
+
+jobs:
+
+  test:
+    name: Test Project
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run tests
+        run: ./gradlew test
+
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-22.04
+    if: github.event_name != 'pull_request'
+    needs: [ test ]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Extract Project Version
+        id: project-version
+        run: |
+          VERSION=$(grep -oP 'version = "\K[^"]+' build.gradle.kts)
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/quietspace-backend:latest
+            ghcr.io/${{ github.repository_owner }}/quietspace-backend:${{ steps.project-version.outputs.VERSION }}
+            ghcr.io/${{ github.repository_owner }}/quietspace-backend:${{ github.sha }}
+
+      - name: Repository Dispatch to Infra Repo
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.INFRA_REPO_ACCESS_TOKEN }}
+          repository: ${{ github.repository_owner }}/quietspace-infrastructure
+          event-type: deploy-backend
+          client-payload: |
+            {
+              "sha": "${{ github.sha }}",
+              "ref": "${{ github.ref_name }}",
+              "version": "${{ steps.project-version.outputs.VERSION }}",
+              "image": "ghcr.io/${{ github.repository_owner }}/quietspace-backend:${{ github.sha }}"
+            }
