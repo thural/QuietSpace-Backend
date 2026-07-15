@@ -20,6 +20,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -150,4 +151,50 @@ class AuthControllerSliceTest {
                         .header("Authorization", "Bearer some.jwt.token"))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void loginAlias() throws Exception {
+        AuthResponse authResponse = AuthResponse.builder()
+                .accessToken("access-token")
+                .refreshToken("refresh-token")
+                .userId("user-id")
+                .message("authentication was successful")
+                .build();
+        when(authService.authenticate(any(AuthRequest.class))).thenReturn(authResponse);
+
+        AuthRequest request = AuthRequest.builder()
+                .email("test@example.com")
+                .password("password123")
+                .build();
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("access-token"))
+                .andExpect(jsonPath("$.refreshToken").value("refresh-token"));
+    }
+
+    @Test
+    void logoutAlias() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/logout")
+                        .header("Authorization", "Bearer some.jwt.token"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void refreshAlias() throws Exception {
+        AuthResponse authResponse = AuthResponse.builder()
+                .accessToken("new-access-token")
+                .message("token was refreshed")
+                .build();
+        when(authService.refreshToken(any())).thenReturn(authResponse);
+
+        mockMvc.perform(post("/api/v1/auth/refresh")
+                        .header("Authorization", "Bearer some.refresh.token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("new-access-token"))
+                .andExpect(jsonPath("$.message").value("token was refreshed"));
+    }
+
 }
