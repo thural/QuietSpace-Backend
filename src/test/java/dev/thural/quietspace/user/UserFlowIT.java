@@ -174,6 +174,17 @@ class UserFlowIT {
     }
 
     @Test
+    void unblockUser_shouldReturn204() throws Exception {
+        mockMvc.perform(post(UserController.USER_PATH + "/profile/block/{userId}", user2Id)
+                        .header("Authorization", "Bearer " + user1Jwt))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(delete(UserController.USER_PATH + "/profile/block/{userId}", user2Id)
+                        .header("Authorization", "Bearer " + user1Jwt))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
     void removeFollower_shouldReturn200() throws Exception {
         mockMvc.perform(post(UserController.USER_PATH + "/follow/{userId}/toggle-follow", user2Id)
                         .header("Authorization", "Bearer " + user1Jwt))

@@ -160,6 +160,54 @@ class MessageFlowIT {
     }
 
     @Test
+    void getUnreadCount_shouldReturnCount() throws Exception {
+        MessageRequest request = MessageRequest.builder()
+                .chatId(UUID.fromString(chatId))
+                .senderId(user1Id)
+                .recipientId(user2Id)
+                .text("Unread message")
+                .build();
+
+        mockMvc.perform(multipart("/api/v1/messages")
+                        .file(new org.springframework.mock.web.MockMultipartFile(
+                                "messageRequest", "", "application/json",
+                                objectMapper.writeValueAsString(request).getBytes(StandardCharsets.UTF_8)))
+                        .header("Authorization", "Bearer " + user1Jwt)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/messages/unread")
+                        .header("Authorization", "Bearer " + user2Jwt))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void markAsRead_givenExistingMessage_shouldReturn200() throws Exception {
+        MessageRequest request = MessageRequest.builder()
+                .chatId(UUID.fromString(chatId))
+                .senderId(user1Id)
+                .recipientId(user2Id)
+                .text("Message to mark as read")
+                .build();
+
+        String responseBody = mockMvc.perform(multipart("/api/v1/messages")
+                        .file(new org.springframework.mock.web.MockMultipartFile(
+                                "messageRequest", "", "application/json",
+                                objectMapper.writeValueAsString(request).getBytes(StandardCharsets.UTF_8)))
+                        .header("Authorization", "Bearer " + user1Jwt)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String messageId = objectMapper.readTree(responseBody).get("id").asText();
+
+        mockMvc.perform(put("/api/v1/messages/{messageId}/read", messageId)
+                        .header("Authorization", "Bearer " + user2Jwt))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(messageId));
+    }
+
+    @Test
     void deleteMessage_givenExistingId_shouldReturn204() throws Exception {
         MessageRequest request = MessageRequest.builder()
                 .chatId(UUID.fromString(chatId))

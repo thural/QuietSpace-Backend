@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.config.TestcontainersConfig;
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.shared.enums.ReactionType;
+import dev.thural.quietspace.reaction.ReactionRepository;
 import dev.thural.quietspace.reaction.dto.ReactionRequest;
 import dev.thural.quietspace.user.UserRepository;
 import dev.thural.quietspace.photo.PhotoService;
@@ -27,8 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -59,6 +59,9 @@ class ReactionFlowIT {
 
     @MockitoBean
     private SimpMessagingTemplate simpMessagingTemplate;
+
+    @Autowired
+    private ReactionRepository reactionRepository;
 
     private IntegrationTestHelper helper;
     private String jwtToken;
@@ -92,6 +95,49 @@ class ReactionFlowIT {
                 .andReturn().getResponse().getContentAsString();
 
         postId = UUID.fromString(objectMapper.readTree(responseBody).get("id").asText());
+    }
+
+    @Test
+    void addReaction_shouldReturn200() throws Exception {
+        ReactionRequest reaction = ReactionRequest.builder()
+                .userId(userId)
+                .contentId(postId)
+                .contentType(EntityType.POST)
+                .reactionType(ReactionType.LIKE)
+                .build();
+
+        mockMvc.perform(post("/api/v1/reactions")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reaction)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void removeReaction_shouldReturn204() throws Exception {
+        ReactionRequest reaction = ReactionRequest.builder()
+                .userId(userId)
+                .contentId(postId)
+                .contentType(EntityType.POST)
+                .reactionType(ReactionType.LIKE)
+                .build();
+
+        mockMvc.perform(post("/api/v1/reactions/toggle-reaction")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reaction)))
+                .andExpect(status().isOk());
+
+        entityManager.flush();
+
+        UUID reactionId = reactionRepository.findAllByContentIdAndContentType(
+                postId, EntityType.POST,
+                org.springframework.data.domain.PageRequest.of(0, 10)
+        ).getContent().get(0).getId();
+
+        mockMvc.perform(delete("/api/v1/reactions/{reactionId}", reactionId)
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isNoContent());
     }
 
     @Test

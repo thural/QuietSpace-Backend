@@ -4,6 +4,7 @@ import dev.thural.quietspace.user.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.config.TestcontainersConfig;
 import dev.thural.quietspace.chat.dto.CreateChatRequest;
+import dev.thural.quietspace.chat.dto.UpdateChatRequest;
 import dev.thural.quietspace.chat.ChatRepository;
 import dev.thural.quietspace.message.MessageRepository;
 import dev.thural.quietspace.user.UserRepository;
@@ -198,6 +199,33 @@ class ChatFlowIT {
 
         mockMvc.perform(patch("/api/v1/chats/{chatId}/members/add/{userId}", chatId, user3Id)
                         .header("Authorization", "Bearer " + user1Jwt))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void updateChat_givenValidRequest_shouldReturn200() throws Exception {
+        CreateChatRequest request = CreateChatRequest.builder()
+                .isGroupChat(false)
+                .recipientId(user2Id)
+                .text("Hello!")
+                .userIds(List.of(user1Id, user2Id))
+                .build();
+
+        String responseBody = mockMvc.perform(post("/api/v1/chats")
+                        .header("Authorization", "Bearer " + user1Jwt)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String chatId = objectMapper.readTree(responseBody).get("id").asText();
+
+        UpdateChatRequest updateRequest = UpdateChatRequest.builder().name("Updated Chat Name").build();
+
+        mockMvc.perform(patch("/api/v1/chats/{chatId}", chatId)
+                        .header("Authorization", "Bearer " + user1Jwt)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isOk());
     }
 

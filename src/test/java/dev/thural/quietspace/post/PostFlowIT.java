@@ -324,6 +324,28 @@ class PostFlowIT {
     }
 
     @Test
+    void unsavePost_shouldReturn204() throws Exception {
+        String postId = objectMapper.readTree(mockMvc.perform(multipart("/api/v1/posts")
+                        .file(new org.springframework.mock.web.MockMultipartFile(
+                                "post", "", "application/json",
+                                objectMapper.writeValueAsString(
+                                        PostRequest.builder().userId(userId).title("Unsavable").text("Unsave me").build()
+                                ).getBytes(StandardCharsets.UTF_8)))
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString()).get("id").asText();
+
+        mockMvc.perform(post("/api/v1/posts/{postId}/save", postId)
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(delete("/api/v1/posts/{postId}/save", postId)
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
     void getSavedPosts_shouldReturn200() throws Exception {
         String postId = objectMapper.readTree(mockMvc.perform(multipart("/api/v1/posts")
                         .file(new org.springframework.mock.web.MockMultipartFile(
