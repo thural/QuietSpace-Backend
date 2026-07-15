@@ -192,6 +192,30 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    public void followUser(UUID userId) {
+        User signedUser = getSignedUser();
+        if (signedUser.getId().equals(userId))
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, "cannot follow yourself");
+        User target = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        if (!signedUser.getFollowings().contains(target)) {
+            signedUser.getFollowings().add(target);
+            target.getFollowers().add(signedUser);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void unfollowUser(UUID userId) {
+        User signedUser = getSignedUser();
+        if (signedUser.getId().equals(userId))
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, "cannot unfollow yourself");
+        User target = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        signedUser.getFollowings().remove(target);
+        target.getFollowers().remove(signedUser);
+    }
+
+    @Override
+    @Transactional
     public void removeFollower(UUID followingUserId) {
         User signedUser = getSignedUser();
         if (signedUser.getId().equals(followingUserId))

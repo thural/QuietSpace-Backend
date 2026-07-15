@@ -34,6 +34,10 @@ public interface UserService {
 
     void toggleFollow(UUID followedUserId);
 
+    void followUser(UUID userId);
+
+    void unfollowUser(UUID userId);
+
     User getSignedUser();
 
     void removeFollower(UUID followingUserId);

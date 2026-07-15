@@ -102,6 +102,19 @@ public class UserController {
         return ResponseEntity.ok(userService.saveProfileSettings(request));
     }
 
+    @PostMapping("/{userId}/follow")
+    ResponseEntity<Void> followUser(@PathVariable UUID userId) {
+        userService.followUser(userId);
+        notificationService.processNotification(FOLLOW_REQUEST, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{userId}/follow")
+    ResponseEntity<Void> unfollowUser(@PathVariable UUID userId) {
+        userService.unfollowUser(userId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping(FOLLOW_USER_TOGGLE_PATH)
     ResponseEntity<?> toggleFollow(@PathVariable UUID userId) {
         userService.toggleFollow(userId);
