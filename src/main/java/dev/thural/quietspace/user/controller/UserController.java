@@ -67,9 +67,21 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/me")
+    ResponseEntity<UserResponse> patchMe(@RequestBody @Valid UserRequest userRequest) {
+        return ResponseEntity.ok(userService.patchUser(userRequest));
+    }
+
     @PatchMapping
     ResponseEntity<UserResponse> patchUser(@RequestBody @Valid UserRequest userRequest) {
         return ResponseEntity.ok(userService.patchUser(userRequest));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getMe() {
+        return userService.getLoggedUserResponse()
+                .map(profile -> ResponseEntity.ok().body(profile))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/profile")
