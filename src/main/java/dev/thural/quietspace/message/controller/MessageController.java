@@ -53,4 +53,9 @@ public class MessageController {
         return ResponseEntity.ok(messageService.getMessageById(messageId, chatId));
     }
 
+    @GetMapping("/unread")
+    ResponseEntity<Long> getUnreadCount() {
+        return ResponseEntity.ok(messageService.getUnreadCount());
+    }
+
 }

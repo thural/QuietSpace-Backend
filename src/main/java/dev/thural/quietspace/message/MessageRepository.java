@@ -18,4 +18,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
 
     @Query("SELECT m FROM Message m WHERE m.chat.id = :chatId AND m.id = :messageId")
     Optional<Message> findByMessageIdAndChatId(UUID messageId, UUID chatId);
+
+    long countByRecipientIdAndIsSeen(UUID recipientId, Boolean isSeen);
 }

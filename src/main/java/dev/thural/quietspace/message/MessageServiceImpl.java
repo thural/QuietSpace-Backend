@@ -97,6 +97,12 @@ public class MessageServiceImpl implements MessageService {
                 .orElseThrow(EntityNotFoundException::new);
     }
 
+    @Override
+    public long getUnreadCount() {
+        User loggedUser = userService.getSignedUser();
+        return messageRepository.countByRecipientIdAndIsSeen(loggedUser.getId(), false);
+    }
+
     private void saveMessagePhoto(MessageRequest request, Message message) {
         Photo savedPhoto = photoService.persistPhotoEntity(request.getPhotoData(), message.getId(), EntityType.MESSAGE);
         message.setPhotoId(savedPhoto.getId());
