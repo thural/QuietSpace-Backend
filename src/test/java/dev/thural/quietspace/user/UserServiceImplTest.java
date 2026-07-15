@@ -460,4 +460,83 @@ class UserServiceImplTest {
         assertThat(user.getProfileSettings().getBlockedUsers()).contains(target);
     }
 
+    @Test
+    void removeUserFromBlockList_shouldRemoveBlockedUser() {
+        User target = User.builder().id(UUID.randomUUID()).build();
+        ProfileSettings settings = ProfileSettings.builder().blockedUsers(new ArrayList<>(List.of(target))).build();
+        user.setProfileSettings(settings);
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
+        when(userRepository.findById(target.getId())).thenReturn(Optional.of(target));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        userService.removeUserFromBlockList(target.getId());
+
+        assertThat(user.getProfileSettings().getBlockedUsers()).doesNotContain(target);
+    }
+
+    @Test
+    void removeUserFromBlockList_givenNotBlocked_shouldBeNoOp() {
+        User target = User.builder().id(UUID.randomUUID()).build();
+        ProfileSettings settings = ProfileSettings.builder().blockedUsers(new ArrayList<>()).build();
+        user.setProfileSettings(settings);
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
+        when(userRepository.findById(target.getId())).thenReturn(Optional.of(target));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        userService.removeUserFromBlockList(target.getId());
+
+        assertThat(user.getProfileSettings().getBlockedUsers()).doesNotContain(target);
+    }
+
+    @Test
+    void getBlockedUsers_shouldReturnList() {
+        User blocked = User.builder().id(UUID.randomUUID()).build();
+        ProfileSettings settings = ProfileSettings.builder().blockedUsers(new ArrayList<>(List.of(blocked))).build();
+        user.setProfileSettings(settings);
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
+        when(userMapper.toResponse(blocked)).thenReturn(new UserResponse());
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        List<UserResponse> result = userService.getBlockedUsers();
+
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void getBlockedUsers_givenNone_shouldReturnEmpty() {
+        ProfileSettings settings = ProfileSettings.builder().blockedUsers(new ArrayList<>()).build();
+        user.setProfileSettings(settings);
+        when(userRepository.findUserByUsername(any())).thenReturn(Optional.of(user));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        List<UserResponse> result = userService.getBlockedUsers();
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void disableUser_shouldSetEnabledToFalse() {
+        User target = User.builder().id(UUID.randomUUID()).enabled(true).build();
+        when(userRepository.findById(target.getId())).thenReturn(Optional.of(target));
+        when(userRepository.save(target)).thenReturn(target);
+
+        userService.disableUser(target.getId());
+
+        verify(userRepository).save(target);
+        assertThat(target.isEnabled()).isFalse();
+    }
+
+    @Test
+    void disableUser_givenNonExistent_shouldThrow() {
+        UUID id = UUID.randomUUID();
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.disableUser(id))
+                .isInstanceOf(dev.thural.quietspace.shared.exception.UserNotFoundException.class);
+    }
+
 }
