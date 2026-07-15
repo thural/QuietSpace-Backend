@@ -10,6 +10,8 @@ public interface PhotoService {
 
     String uploadProfilePhoto(MultipartFile file);
 
+    PhotoResponse uploadPhoto(MultipartFile file);
+
     Photo persistPhotoEntity(MultipartFile file, UUID entityId, EntityType entityType);
 
     PhotoResponse getPhotoByName(String name);

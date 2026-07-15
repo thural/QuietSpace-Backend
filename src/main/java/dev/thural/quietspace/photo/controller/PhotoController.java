@@ -20,6 +20,12 @@ public class PhotoController {
 
     private final PhotoService photoService;
 
+    @PostMapping
+    public ResponseEntity<PhotoResponse> uploadPhoto(@RequestParam("image") MultipartFile file) {
+        PhotoResponse response = photoService.uploadPhoto(file);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
     @PostMapping("/profile")
     public ResponseEntity<String> uploadProfilePhoto(@RequestParam("image") MultipartFile file) {
         String photoName = photoService.uploadProfilePhoto(file);
@@ -37,6 +43,18 @@ public class PhotoController {
     @DeleteMapping("profile/{userId}")
     public ResponseEntity<Void> removePhotoByUserId(@PathVariable UUID userId) {
         photoService.deletePhotoByEntityId(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/post/{postId}")
+    public ResponseEntity<PhotoResponse> getPhotoByPostId(@PathVariable UUID postId) {
+        PhotoResponse response = photoService.getPhotoByEntityId(postId);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{photoId}")
+    public ResponseEntity<Void> deletePhotoById(@PathVariable UUID photoId) {
+        photoService.deletePhotoById(photoId);
         return ResponseEntity.noContent().build();
     }
 

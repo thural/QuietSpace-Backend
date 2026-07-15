@@ -46,6 +46,18 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     @Transactional
+    public PhotoResponse uploadPhoto(MultipartFile file) {
+        User signedUser = commonService.getSignedUser();
+        Photo savedPhoto = persistPhotoEntity(file, signedUser.getId(), null);
+        return PhotoResponse.builder()
+                .id(savedPhoto.getId())
+                .name(savedPhoto.getName())
+                .type(savedPhoto.getType())
+                .build();
+    }
+
+    @Override
+    @Transactional
     public Photo persistPhotoEntity(MultipartFile file, UUID entityId, EntityType entityType) {
 
         String contentType = file.getContentType();
