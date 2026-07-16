@@ -43,7 +43,7 @@ public class PostController {
 
     @GetMapping("/search")
     Page<PostResponse> getPostsByQuery(
-            @RequestParam(name = "query", required = true) String query,
+            @RequestParam(name = "query") String query,
             @RequestParam(name = "page-number", required = false) Integer pageNumber,
             @RequestParam(name = "page-size", required = false) Integer pageSize
     ) {

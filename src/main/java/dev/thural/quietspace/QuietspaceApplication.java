@@ -14,7 +14,7 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 @SpringBootApplication
 public class QuietspaceApplication {
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(QuietspaceApplication.class, args);
     }
 

@@ -180,7 +180,7 @@ public class AuthService {
             generatedCode.append(characters.charAt(randomIndex));
         }
 
-        log.info("generated activation token: {}", generatedCode.toString());
+        log.info("generated activation token: {}", generatedCode);
         return generatedCode.toString();
     }
 

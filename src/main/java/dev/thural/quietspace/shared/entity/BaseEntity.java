@@ -58,7 +58,7 @@ public class BaseEntity {
     private OffsetDateTime createDate;
 
     @LastModifiedDate
-    @Column(insertable = false, nullable = true)
+    @Column(insertable = false)
     private OffsetDateTime updateDate;
 
 
