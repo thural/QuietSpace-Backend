@@ -47,6 +47,9 @@ build/
 /quietspace.log
 /infrastructure/keycloak/realms/realm-export.json
 
+### Qodana reports ###
+*.sarif.json
+
 ### Kubernetes secrets ###
 *-secret.yaml
 *-secrets.yaml
