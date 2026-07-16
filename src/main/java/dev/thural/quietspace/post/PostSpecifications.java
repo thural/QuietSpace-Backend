@@ -81,10 +81,5 @@ public class PostSpecifications {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("user"), user);
     }
-
-    public Specification<Post> combine(Specification<Post>... specifications) {
-        return Specification.where(specifications[0])
-                .and(Specification.where(specifications[1]));
-    }
 }
 

@@ -126,11 +126,9 @@ public class PostServiceImpl implements PostService {
     public Page<PostResponse> getPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         if (userId != null) {
-            Specification<Post> specification = postSpecifications.combine(
-                    postSpecifications.visibleToUser(),
-                    (root, query, criteriaBuilder) ->
-                            criteriaBuilder.equal(root.get("user").get("id"), userId)
-            );
+            Specification<Post> specification = postSpecifications.visibleToUser()
+                    .and((root, query, criteriaBuilder) ->
+                            criteriaBuilder.equal(root.get("user").get("id"), userId));
             return postRepository.findAll(specification, pageRequest)
                     .map(postMapper::postEntityToResponse);
         } else {
@@ -142,10 +140,10 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<PostResponse> getAllByQuery(String searchText, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
-        Specification<Post> specification = postSpecifications.combine(
-                postSpecifications.visibleToUser(),
-                StringUtils.hasText(searchText) ? postSpecifications.containsText(searchText) : null
-        );
+        Specification<Post> specification = postSpecifications.visibleToUser();
+        if (StringUtils.hasText(searchText)) {
+            specification = specification.and(postSpecifications.containsText(searchText));
+        }
         return postRepository.findAll(specification, pageRequest)
                 .map(postMapper::postEntityToResponse);
     }
@@ -160,10 +158,8 @@ public class PostServiceImpl implements PostService {
     public Page<PostResponse> getSavedPostsByUser(Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
         UUID userId = userService.getSignedUser().getId();
-        Specification<Post> specification = postSpecifications.combine(
-                postSpecifications.visibleToUser(),
-                postSpecifications.savedByUser(userId)
-        );
+        Specification<Post> specification = postSpecifications.visibleToUser()
+                .and(postSpecifications.savedByUser(userId));
         return postRepository.findAll(specification, pageRequest)
                 .map(postMapper::postEntityToResponse);
     }
@@ -185,10 +181,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<PostResponse> getCommentedPostsByUserId(UUID userId, Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, null);
-        Specification<Post> specification = postSpecifications.combine(
-                postSpecifications.visibleToUser(),
-                postSpecifications.commentedByUser(userId)
-        );
+        Specification<Post> specification = postSpecifications.visibleToUser()
+                .and(postSpecifications.commentedByUser(userId));
         return postRepository.findAll(specification, pageRequest)
                 .map(postMapper::postEntityToResponse);
     }
