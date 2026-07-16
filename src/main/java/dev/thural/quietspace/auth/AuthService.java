@@ -94,7 +94,8 @@ public class AuthService {
 
             var claims = new HashMap<String, Object>();
             User user = ((User) auth.getPrincipal());
-            claims.put("fullName", user != null ? user.getFullName() : null);
+            if (user == null) throw new IllegalStateException("authenticated principal cannot be null");
+            claims.put("fullName", user.getFullName());
 
             String jwtAccessToken = jwtService.generateToken(claims, user);
             String jwtRefreshToken = jwtService.generateRefreshToken(claims, user);

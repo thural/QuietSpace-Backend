@@ -25,6 +25,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
             @Nullable HttpServletResponse response,
             @Nullable AccessDeniedException accessDeniedException
     ) throws IOException {
+        if (request == null || response == null || accessDeniedException == null) return;
         SecurityErrorHandler.handleSecurityError(
                 request,
                 response,

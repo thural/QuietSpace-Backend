@@ -161,7 +161,7 @@ public class UserServiceImpl implements UserService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
             log.info("granted authorities in patchUser: {}", auth.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority).reduce(" ", String::concat));
+                    .map(GrantedAuthority::getAuthority).reduce(" ", (a, b) -> a + b));
         }
         User signedUser = getSignedUser();
         boolean hasAdminRole = isHasAdminRole(signedUser);

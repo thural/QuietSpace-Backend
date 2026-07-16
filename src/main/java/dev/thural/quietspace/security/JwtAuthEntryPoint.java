@@ -25,6 +25,7 @@ public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
             @Nullable HttpServletResponse response,
             @Nullable AuthenticationException authException
     ) throws IOException {
+        if (request == null || response == null || authException == null) return;
         SecurityErrorHandler.handleSecurityError(
                 request,
                 response,
