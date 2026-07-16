@@ -1,5 +1,6 @@
 package dev.thural.quietspace.security;
 
+import org.springframework.lang.Nullable;
 import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,9 +21,9 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
     public void handle(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            AccessDeniedException accessDeniedException
+            @Nullable HttpServletRequest request,
+            @Nullable HttpServletResponse response,
+            @Nullable AccessDeniedException accessDeniedException
     ) throws IOException {
         SecurityErrorHandler.handleSecurityError(
                 request,

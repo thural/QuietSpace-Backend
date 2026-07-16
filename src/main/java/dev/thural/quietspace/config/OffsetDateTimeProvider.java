@@ -1,6 +1,7 @@
 package dev.thural.quietspace.config;
 
 import org.springframework.data.auditing.DateTimeProvider;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
@@ -11,6 +12,7 @@ import java.util.Optional;
 public class OffsetDateTimeProvider implements DateTimeProvider {
 
     @Override
+    @Nullable
     public Optional<TemporalAccessor> getNow() {
         return Optional.of(OffsetDateTime.now());
     }

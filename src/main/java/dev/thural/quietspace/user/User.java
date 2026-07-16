@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.security.Principal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import org.springframework.lang.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -124,6 +125,7 @@ public class User extends BaseEntity implements UserDetails, Principal {
     private Role role;
 
     @Override
+    @Nullable
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.role.getAuthorities();
     }
@@ -134,6 +136,7 @@ public class User extends BaseEntity implements UserDetails, Principal {
     }
 
     @Override
+    @Nullable
     public String getUsername() {
         return username;
     }

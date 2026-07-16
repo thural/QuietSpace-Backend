@@ -1,5 +1,6 @@
 package dev.thural.quietspace.security;
 
+import org.springframework.lang.Nullable;
 import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,9 +21,9 @@ public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            AuthenticationException authException
+            @Nullable HttpServletRequest request,
+            @Nullable HttpServletResponse response,
+            @Nullable AuthenticationException authException
     ) throws IOException {
         SecurityErrorHandler.handleSecurityError(
                 request,

@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.lang.Nullable;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -62,7 +63,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(new ChannelInterceptor() {
             @Override
-            public Message<?> preSend(Message<?> message, MessageChannel channel) {
+            public Message<?> preSend(@Nullable Message<?> message, @Nullable MessageChannel channel) {
                 StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
                 if (accessor == null) return message;
 

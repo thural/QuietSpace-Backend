@@ -5,6 +5,7 @@ import dev.thural.quietspace.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
@@ -22,9 +23,9 @@ class CustomHandshakeHandler extends DefaultHandshakeHandler {
 
     @Override
     protected Principal determineUser(
-            ServerHttpRequest request,
-            WebSocketHandler wsHandler,
-            Map<String, Object> attributes
+            @Nullable ServerHttpRequest request,
+            @Nullable WebSocketHandler wsHandler,
+            @Nullable Map<String, Object> attributes
     ) {
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
             log.debug("No authentication available during WebSocket handshake; deferring to STOMP-level auth");
