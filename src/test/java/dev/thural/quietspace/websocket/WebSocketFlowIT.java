@@ -101,7 +101,9 @@ class WebSocketFlowIT {
 
     private StompSession connectStomp(String jwt) throws Exception {
         WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
-        stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+        @SuppressWarnings("removal")
+        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+        stompClient.setMessageConverter(converter);
 
         StompHeaders connectHeaders = new StompHeaders();
         connectHeaders.set("Authorization", "Bearer " + jwt);

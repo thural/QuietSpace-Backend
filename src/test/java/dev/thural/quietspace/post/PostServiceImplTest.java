@@ -128,7 +128,6 @@ public class PostServiceImplTest {
     void getPostByUserId_shouldReturnPosts() {
         Specification<Post> mockSpec = Specification.where((root, query, cb) -> cb.conjunction());
         when(postSpecifications.visibleToUser()).thenReturn(mockSpec);
-        when(postSpecifications.combine(any(), any())).thenReturn(mockSpec);
         when(postRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(Page.empty());
 
         Page<PostResponse> posts = postService.getPostsByUserId(user.getId(), 1, 50);
@@ -245,7 +244,7 @@ public class PostServiceImplTest {
     void getAllByQuery_givenSearchText_shouldReturnFilteredPage() {
         Specification<Post> mockSpec = Specification.where((root, query, cb) -> cb.conjunction());
         when(postSpecifications.visibleToUser()).thenReturn(mockSpec);
-        when(postSpecifications.combine(any(), any())).thenReturn(mockSpec);
+        when(postSpecifications.containsText(any())).thenReturn(mockSpec);
         PageRequest pageRequest = PagingProvider.buildPageRequest(0, 10, null);
         when(postRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(Page.empty());
 
@@ -258,7 +257,6 @@ public class PostServiceImplTest {
     void getAllByQuery_givenNullSearchText_shouldReturnAllVisible() {
         Specification<Post> mockSpec = Specification.where((root, query, cb) -> cb.conjunction());
         when(postSpecifications.visibleToUser()).thenReturn(mockSpec);
-        when(postSpecifications.combine(any(), any())).thenReturn(mockSpec);
         when(postRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(Page.empty());
 
         Page<PostResponse> result = postService.getAllByQuery(null, 0, 10);
@@ -285,7 +283,6 @@ public class PostServiceImplTest {
         Specification<Post> mockSpec = Specification.where((root, query, cb) -> cb.conjunction());
         when(postSpecifications.visibleToUser()).thenReturn(mockSpec);
         when(postSpecifications.savedByUser(any())).thenReturn(mockSpec);
-        when(postSpecifications.combine(any(), any())).thenReturn(mockSpec);
         when(userService.getSignedUser()).thenReturn(user);
         when(postRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(Page.empty());
 
@@ -329,7 +326,6 @@ public class PostServiceImplTest {
         Specification<Post> mockSpec = Specification.where((root, query, cb) -> cb.conjunction());
         when(postSpecifications.visibleToUser()).thenReturn(mockSpec);
         when(postSpecifications.commentedByUser(any())).thenReturn(mockSpec);
-        when(postSpecifications.combine(any(), any())).thenReturn(mockSpec);
         when(postRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(Page.empty());
 
         Page<PostResponse> result = postService.getCommentedPostsByUserId(user.getId(), 0, 10);
