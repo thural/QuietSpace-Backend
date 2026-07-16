@@ -127,7 +127,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getSignedUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) throw new UnauthorizedException("no authenticated user");
+        String username = authentication.getName();
         return userRepository.findUserByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
@@ -157,8 +159,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse patchUser(UserRequest userRequest) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        log.info("granted authorities in patchUser: {}", auth.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority).reduce(" ", String::concat));
+        if (auth != null) {
+            log.info("granted authorities in patchUser: {}", auth.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority).reduce(" ", String::concat));
+        }
         User signedUser = getSignedUser();
         boolean hasAdminRole = isHasAdminRole(signedUser);
         if (!hasAdminRole && !userRequest.getEmail().equals(signedUser.getEmail()))

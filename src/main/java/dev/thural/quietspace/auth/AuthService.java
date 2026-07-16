@@ -95,7 +95,7 @@ public class AuthService {
 
             var claims = new HashMap<String, Object>();
             User user = ((User) auth.getPrincipal());
-            claims.put("fullName", user.getFullName());
+            claims.put("fullName", user != null ? user.getFullName() : null);
 
             String jwtAccessToken = jwtService.generateToken(claims, user);
             String jwtRefreshToken = jwtService.generateRefreshToken(claims, user);
@@ -131,7 +131,8 @@ public class AuthService {
 
     @Transactional
     public void signout(String authHeader) {
-        String currentUserName = SecurityContextHolder.getContext().getAuthentication().getName();
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = authentication != null ? authentication.getName() : "unknown";
         log.info("username in security context on signing out: {}", currentUserName);
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             addToBlacklist(authHeader, currentUserName);

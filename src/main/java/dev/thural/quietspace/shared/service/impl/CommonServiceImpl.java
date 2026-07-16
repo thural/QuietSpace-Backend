@@ -16,7 +16,9 @@ public class CommonServiceImpl implements CommonService {
 
     @Override
     public User getSignedUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) throw new UserNotFoundException("no authenticated user");
+        String username = authentication.getName();
         return userRepository.findUserByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 }
