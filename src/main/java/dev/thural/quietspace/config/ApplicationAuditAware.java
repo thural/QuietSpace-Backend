@@ -3,7 +3,6 @@ package dev.thural.quietspace.config;
 
 import dev.thural.quietspace.user.User;
 import org.springframework.data.domain.AuditorAware;
-import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,7 +11,6 @@ import java.util.Optional;
 
 public class ApplicationAuditAware implements AuditorAware<String> {
     @Override
-    @Nullable
     public Optional<String> getCurrentAuditor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null ||
