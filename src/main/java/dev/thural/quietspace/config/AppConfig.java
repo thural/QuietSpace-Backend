@@ -4,7 +4,6 @@ import dev.thural.quietspace.shared.exception.UserNotFoundException;
 import dev.thural.quietspace.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -31,9 +30,6 @@ import java.util.stream.Stream;
 @Slf4j
 public class AppConfig {
     private final UserRepository userRepository;
-
-    @Value("${spring.application.urls.frontend}")
-    private String FRONTEND_URL;
 
     @Bean
     @Primary

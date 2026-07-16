@@ -5,7 +5,6 @@ import dev.thural.quietspace.user.UserRepository;
 import dev.thural.quietspace.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -50,9 +49,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final UserRepository userRepository;
     private final CustomHandshakeHandler handshakeHandler;
 
-    @Value("${spring.application.urls.frontend}")
-    private String FRONTEND_URL;
-
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/user", "/public", "/private");
@@ -63,12 +59,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOrigins(FRONTEND_URL)
+                .setAllowedOriginPatterns("*")
                 .setHandshakeHandler(handshakeHandler)
                 .withSockJS();
 
         registry.addEndpoint("/ws/raw")
-                .setAllowedOrigins(FRONTEND_URL)
+                .setAllowedOriginPatterns("*")
                 .setHandshakeHandler(handshakeHandler);
     }
 

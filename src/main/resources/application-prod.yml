@@ -2,11 +2,11 @@ spring:
 
   application:
     urls:
-      frontend: http://${FRONTEND_HOST}:${FRONTEND_PORT}
+      frontend: http://${FRONTEND_HOST:localhost}:${FRONTEND_PORT:80}
 
   datasource:
-    url: jdbc:mysql://${DB_HOST_NAME}:${DB_PORT_NUMBER:3306}/${DB_NAME}
-    username: ${DB_USER_USERNAME}
+    url: jdbc:mysql://${DB_HOST_NAME:database}:${DB_PORT_NUMBER:3306}/${DB_NAME:quietspace}
+    username: ${DB_USER_USERNAME:quietspace_user}
     password: ${DB_USER_PASSWORD}
 
     hikari:
@@ -42,4 +42,4 @@ spring:
       mode: never
 
 server:
-  port: ${SERVER_PORT_NUMBER}
+  port: ${SERVER_PORT_NUMBER:8080}
