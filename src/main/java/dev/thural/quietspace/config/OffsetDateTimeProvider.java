@@ -1,7 +1,7 @@
 package dev.thural.quietspace.config;
 
 import org.springframework.data.auditing.DateTimeProvider;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
