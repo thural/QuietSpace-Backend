@@ -14,6 +14,7 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
 
     @Override
     public boolean beforeHandshake(@Nullable ServerHttpRequest request, @Nullable ServerHttpResponse response, @Nullable WebSocketHandler wsHandler, @Nullable Map<String, Object> attributes) throws Exception {
+        if (attributes == null) return false;
         SecurityContext context = SecurityContextHolder.getContext();
         attributes.put("SPRING_SECURITY_CONTEXT", context);
         return true;

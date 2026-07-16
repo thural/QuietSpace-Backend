@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -123,6 +124,7 @@ public class User extends BaseEntity implements UserDetails, Principal {
     private Role role;
 
     @Override
+    @NonNull
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.role.getAuthorities();
     }
@@ -133,6 +135,7 @@ public class User extends BaseEntity implements UserDetails, Principal {
     }
 
     @Override
+    @NonNull
     public String getUsername() {
         return username;
     }
