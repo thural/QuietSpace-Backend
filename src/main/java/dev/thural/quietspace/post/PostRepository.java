@@ -13,7 +13,7 @@ public interface PostRepository extends JpaRepository<Post, UUID>, JpaSpecificat
     Page<Post> findAllByUserId(UUID userId, Pageable pageable);
 
     @Query("SELECT p FROM Post p WHERE p.title LIKE %:query% OR p.text LIKE %:query%")
-    Page<Post> findAllByQuery(String query, PageRequest pageRequest);
+    Page<Post> findAllByQuery(String query, Pageable pageable);
 
     @Query("SELECT p FROM Post p JOIN p.savedByUsers u WHERE u.id = :userId")
     Page<Post> findSavedPostsByUserId(UUID userId, Pageable pageable);

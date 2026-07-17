@@ -50,7 +50,7 @@ class PhotoControllerTest {
         mockMvc.perform(multipart("/api/v1/photos/profile")
                         .file(file))
                 .andExpect(status().isCreated())
-                .andExpect(content().string("photo-name.jpg"));
+                .andExpect(jsonPath("$.photoName").value("photo-name.jpg"));
     }
 
     @Test

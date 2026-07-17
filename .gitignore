@@ -53,3 +53,6 @@ build/
 ### Kubernetes secrets ###
 *-secret.yaml
 *-secrets.yaml
+
+### Temporal files ###
+/temp/
