@@ -22,7 +22,7 @@ public interface CommentRepository extends JpaRepository<Comment, UUID> {
 
     Page<Comment> findAllByParentId(UUID commentId, Pageable pageable);
 
-    Page<Comment> findAllByUserId(UUID userId, PageRequest pageRequest);
+    Page<Comment> findAllByUserId(UUID userId, Pageable pageable);
 
     @Query("SELECT c FROM Comment c " +
             "WHERE c.post.id = :postId " +
