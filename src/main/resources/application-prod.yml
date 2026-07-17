@@ -1,8 +1,6 @@
 spring:
 
   application:
-    urls:
-      frontend: http://${FRONTEND_HOST:localhost}:${FRONTEND_PORT:80}
 
   datasource:
     url: jdbc:mysql://${DB_HOST_NAME:database}:${DB_PORT_NUMBER:3306}/${DB_NAME:quietspace}

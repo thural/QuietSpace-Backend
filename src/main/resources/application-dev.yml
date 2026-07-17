@@ -1,7 +1,5 @@
 spring:
   application:
-    urls:
-      frontend: http://localhost:3000
     mailing:
       frontend:
         activation-url: http://localhost:3000/activate
