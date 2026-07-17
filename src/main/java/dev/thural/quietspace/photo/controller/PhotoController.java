@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -27,13 +28,13 @@ public class PhotoController {
     }
 
     @PostMapping("/profile")
-    public ResponseEntity<String> uploadProfilePhoto(@RequestParam("image") MultipartFile file) {
+    public ResponseEntity<Map<String, String>> uploadProfilePhoto(@RequestParam("image") MultipartFile file) {
         String photoName = photoService.uploadProfilePhoto(file);
-        return ResponseEntity.status(HttpStatus.CREATED).body(photoName);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("photoName", photoName));
     }
 
     @GetMapping("/{name}")
-    public ResponseEntity<byte[]> getPhotoByName(@PathVariable("name") String name) {
+    public ResponseEntity<byte[]> getPhotoByName(@PathVariable String name) {
         PhotoResponse photoResponse = photoService.getPhotoByName(name);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(photoResponse.getType()))

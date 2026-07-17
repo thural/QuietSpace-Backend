@@ -64,7 +64,7 @@ public class ChatController {
     }
 
     @DeleteMapping("/{chatId}")
-    ResponseEntity<?> deleteChatWithId(@PathVariable("chatId") UUID chatId) {
+    ResponseEntity<?> deleteChatWithId(@PathVariable UUID chatId) {
         chatService.deleteChatById(chatId);
         return ResponseEntity.noContent().build();
     }
