@@ -3,8 +3,18 @@
 ####################################################################################################################
 
 version: "1.0"
-linter: qodana-jvm-community
+
+# Switches to the premium JVM linter to activate your 60-day trial features
+linter: jetbrains/qodana-jvm:2026.1
+
+# Specifies the standard recommended profile for code analysis
 profile:
   name: qodana.recommended
+
+# Activates advanced premium analysis features for your commercial backend
 include:
+  # Runs the advanced license compliance and third-party audit check
   - name: CheckDependencyLicenses
+  
+  # Tracks unsafe user inputs to prevent security flaws like SQL injection or XSS
+  - name: TaintAnalysis
