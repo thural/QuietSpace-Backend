@@ -1,6 +1,5 @@
 package dev.thural.quietspace.reaction;
 
-import dev.thural.quietspace.reaction.Reaction;
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.shared.enums.ReactionType;
 import org.springframework.data.domain.Page;

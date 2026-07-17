@@ -7,7 +7,6 @@ import dev.thural.quietspace.post.PostService;
 import dev.thural.quietspace.reaction.ReactionService;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.security.TokenRepository;
-import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserService;
 import dev.thural.quietspace.user.dto.UserRequest;
 import dev.thural.quietspace.user.dto.UserResponse;

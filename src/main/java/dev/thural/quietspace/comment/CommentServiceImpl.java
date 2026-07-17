@@ -1,15 +1,11 @@
 package dev.thural.quietspace.comment;
 
-import dev.thural.quietspace.comment.Comment;
-import dev.thural.quietspace.post.Post;
-import dev.thural.quietspace.user.User;
-import dev.thural.quietspace.shared.exception.UnauthorizedException;
-import dev.thural.quietspace.comment.CommentMapper;
 import dev.thural.quietspace.comment.dto.CommentRequest;
 import dev.thural.quietspace.comment.dto.CommentResponse;
-import dev.thural.quietspace.comment.CommentRepository;
+import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.post.PostRepository;
-import dev.thural.quietspace.comment.CommentService;
+import dev.thural.quietspace.shared.exception.UnauthorizedException;
+import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;

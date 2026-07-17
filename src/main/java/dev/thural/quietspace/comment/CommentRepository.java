@@ -1,6 +1,5 @@
 package dev.thural.quietspace.comment;
 
-import dev.thural.quietspace.comment.Comment;
 import dev.thural.quietspace.post.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

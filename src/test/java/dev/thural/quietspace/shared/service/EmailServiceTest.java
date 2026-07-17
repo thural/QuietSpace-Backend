@@ -1,7 +1,7 @@
 package dev.thural.quietspace.shared.service;
-import dev.thural.quietspace.shared.service.impl.EmailService;
 
 import dev.thural.quietspace.shared.enums.EmailTemplateName;
+import dev.thural.quietspace.shared.service.impl.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
@@ -9,10 +9,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.mail.javamail.JavaMailSender;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -1,14 +1,14 @@
 package dev.thural.quietspace.websocket.config;
 
+import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserRepository;
-import dev.thural.quietspace.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.jspecify.annotations.Nullable;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.config.ChannelRegistration;

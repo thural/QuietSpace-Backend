@@ -1,12 +1,12 @@
 package dev.thural.quietspace.user;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import dev.thural.quietspace.chat.Chat;
 import dev.thural.quietspace.comment.Comment;
 import dev.thural.quietspace.message.Message;
 import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.shared.entity.BaseEntity;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import dev.thural.quietspace.shared.enums.Role;
 import dev.thural.quietspace.shared.enums.StatusType;
 import jakarta.persistence.*;

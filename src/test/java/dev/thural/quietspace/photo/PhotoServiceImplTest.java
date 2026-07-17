@@ -1,15 +1,15 @@
 package dev.thural.quietspace.photo;
 
 import dev.thural.quietspace.photo.Photo;
-import dev.thural.quietspace.user.User;
+import dev.thural.quietspace.photo.PhotoRepository;
+import dev.thural.quietspace.photo.PhotoServiceImpl;
+import dev.thural.quietspace.photo.dto.PhotoResponse;
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.shared.exception.ImageUploadException;
 import dev.thural.quietspace.shared.exception.UnsupportedImageTypeException;
-import dev.thural.quietspace.photo.dto.PhotoResponse;
-import dev.thural.quietspace.photo.PhotoRepository;
-import dev.thural.quietspace.photo.PhotoServiceImpl;
 import dev.thural.quietspace.shared.service.CommonService;
 import dev.thural.quietspace.shared.util.ImageCompressionUtil;
+import dev.thural.quietspace.user.User;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;

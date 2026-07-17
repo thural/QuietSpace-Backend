@@ -1,18 +1,18 @@
 package dev.thural.quietspace.comment;
-import dev.thural.quietspace.comment.CommentRepository;
-import dev.thural.quietspace.user.UserRepository;
 
 import dev.thural.quietspace.comment.Comment;
+import dev.thural.quietspace.comment.CommentRepository;
 import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.post.PostRepository;
-import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.Role;
+import dev.thural.quietspace.user.User;
+import dev.thural.quietspace.user.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.data.domain.Page;
 
 import java.time.OffsetDateTime;

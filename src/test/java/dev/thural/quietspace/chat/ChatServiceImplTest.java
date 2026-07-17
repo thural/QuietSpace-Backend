@@ -1,18 +1,19 @@
 package dev.thural.quietspace.chat;
-import dev.thural.quietspace.user.UserService;
 
 import dev.thural.quietspace.chat.Chat;
-import dev.thural.quietspace.message.Message;
-import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.chat.ChatMapper;
-import dev.thural.quietspace.user.UserMapper;
-import dev.thural.quietspace.chat.dto.CreateChatRequest;
-import dev.thural.quietspace.chat.dto.ChatResponse;
-import dev.thural.quietspace.chat.dto.UpdateChatRequest;
-import dev.thural.quietspace.user.dto.UserResponse;
 import dev.thural.quietspace.chat.ChatRepository;
-import dev.thural.quietspace.message.MessageRepository;
 import dev.thural.quietspace.chat.ChatServiceImpl;
+import dev.thural.quietspace.chat.dto.ChatResponse;
+import dev.thural.quietspace.chat.dto.CreateChatRequest;
+import dev.thural.quietspace.chat.dto.UpdateChatRequest;
+import dev.thural.quietspace.message.Message;
+import dev.thural.quietspace.message.MessageRepository;
+import dev.thural.quietspace.user.User;
+import dev.thural.quietspace.user.UserMapper;
+import dev.thural.quietspace.user.UserService;
+import dev.thural.quietspace.user.dto.UserResponse;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +27,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import jakarta.persistence.EntityNotFoundException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;

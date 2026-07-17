@@ -1,33 +1,32 @@
 package dev.thural.quietspace.message;
-import dev.thural.quietspace.user.UserService;
 
 import dev.thural.quietspace.chat.Chat;
+import dev.thural.quietspace.chat.ChatRepository;
 import dev.thural.quietspace.message.Message;
-import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.message.MessageMapper;
+import dev.thural.quietspace.message.MessageRepository;
+import dev.thural.quietspace.message.MessageServiceImpl;
 import dev.thural.quietspace.message.dto.MessageRequest;
 import dev.thural.quietspace.message.dto.MessageResponse;
-import dev.thural.quietspace.chat.ChatRepository;
-import dev.thural.quietspace.message.MessageRepository;
 import dev.thural.quietspace.photo.PhotoService;
-import dev.thural.quietspace.message.MessageServiceImpl;
+import dev.thural.quietspace.user.User;
+import dev.thural.quietspace.user.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import jakarta.persistence.EntityNotFoundException;
-import java.util.Optional;
 import static dev.thural.quietspace.shared.util.PagingProvider.buildPageRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

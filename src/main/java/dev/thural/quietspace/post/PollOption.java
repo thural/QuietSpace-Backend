@@ -1,7 +1,7 @@
 package dev.thural.quietspace.post;
-import dev.thural.quietspace.shared.entity.BaseEntity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import dev.thural.quietspace.shared.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;

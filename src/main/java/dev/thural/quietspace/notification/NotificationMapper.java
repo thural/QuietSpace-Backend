@@ -1,9 +1,8 @@
 package dev.thural.quietspace.notification;
 
-import dev.thural.quietspace.notification.Notification;
-import dev.thural.quietspace.user.User;
-import dev.thural.quietspace.shared.exception.UserNotFoundException;
 import dev.thural.quietspace.notification.dto.NotificationResponse;
+import dev.thural.quietspace.shared.exception.UserNotFoundException;
+import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;

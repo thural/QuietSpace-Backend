@@ -1,8 +1,8 @@
 package dev.thural.quietspace.reaction.dto;
-import dev.thural.quietspace.shared.model.BaseResponse;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import dev.thural.quietspace.shared.enums.ReactionType;
+import dev.thural.quietspace.shared.model.BaseResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

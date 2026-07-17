@@ -2,12 +2,12 @@ package dev.thural.quietspace.chat;
 
 import dev.thural.quietspace.chat.dto.ChatResponse;
 import dev.thural.quietspace.chat.dto.CreateChatRequest;
+import dev.thural.quietspace.message.MessageService;
+import dev.thural.quietspace.message.dto.MessageResponse;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserMapper;
-import dev.thural.quietspace.message.dto.MessageResponse;
-import dev.thural.quietspace.user.dto.UserResponse;
-import dev.thural.quietspace.message.MessageService;
 import dev.thural.quietspace.user.UserService;
+import dev.thural.quietspace.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

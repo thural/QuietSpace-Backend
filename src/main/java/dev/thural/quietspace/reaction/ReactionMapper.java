@@ -1,9 +1,8 @@
 package dev.thural.quietspace.reaction;
 
-import dev.thural.quietspace.reaction.Reaction;
-import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.reaction.dto.ReactionRequest;
 import dev.thural.quietspace.reaction.dto.ReactionResponse;
+import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;

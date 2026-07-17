@@ -1,10 +1,10 @@
 package dev.thural.quietspace.message;
-import dev.thural.quietspace.user.User;
-import dev.thural.quietspace.chat.Chat;
-import dev.thural.quietspace.shared.entity.BaseEntity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import dev.thural.quietspace.chat.Chat;
+import dev.thural.quietspace.shared.entity.BaseEntity;
+import dev.thural.quietspace.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;

@@ -1,12 +1,12 @@
 package dev.thural.quietspace.photo;
 
-import dev.thural.quietspace.user.User;
+import dev.thural.quietspace.photo.dto.PhotoResponse;
 import dev.thural.quietspace.shared.enums.EntityType;
 import dev.thural.quietspace.shared.exception.ImageUploadException;
 import dev.thural.quietspace.shared.exception.UnsupportedImageTypeException;
-import dev.thural.quietspace.photo.dto.PhotoResponse;
 import dev.thural.quietspace.shared.service.CommonService;
 import dev.thural.quietspace.shared.util.ImageCompressionUtil;
+import dev.thural.quietspace.user.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

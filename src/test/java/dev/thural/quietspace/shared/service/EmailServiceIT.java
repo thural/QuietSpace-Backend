@@ -1,8 +1,8 @@
 package dev.thural.quietspace.shared.service;
 
 import dev.thural.quietspace.config.TestcontainersConfig;
-import dev.thural.quietspace.shared.enums.EmailTemplateName;
 import dev.thural.quietspace.photo.PhotoService;
+import dev.thural.quietspace.shared.enums.EmailTemplateName;
 import dev.thural.quietspace.shared.service.impl.EmailService;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
@@ -13,11 +13,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestcontainersConfig.class)

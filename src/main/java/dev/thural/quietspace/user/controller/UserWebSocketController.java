@@ -16,9 +16,7 @@ import org.springframework.stereotype.Controller;
 import java.util.List;
 
 import static dev.thural.quietspace.shared.enums.StatusType.OFFLINE;
-import static dev.thural.quietspace.websocket.constant.WebSocketPaths.ONLINE_USERS;
-import static dev.thural.quietspace.websocket.constant.WebSocketPaths.SET_ONLINE_STATUS;
-import static dev.thural.quietspace.websocket.constant.WebSocketPaths.USER_PUBLIC;
+import static dev.thural.quietspace.websocket.constant.WebSocketPaths.*;
 
 @Slf4j
 @Controller

@@ -1,16 +1,16 @@
 package dev.thural.quietspace.chat;
-import dev.thural.quietspace.user.UserRepository;
 
 import dev.thural.quietspace.chat.Chat;
 import dev.thural.quietspace.chat.ChatRepository;
-import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.Role;
+import dev.thural.quietspace.user.User;
+import dev.thural.quietspace.user.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
 import java.time.OffsetDateTime;
 import java.util.List;

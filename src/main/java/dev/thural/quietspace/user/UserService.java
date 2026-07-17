@@ -1,10 +1,9 @@
 package dev.thural.quietspace.user;
 
-import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.enums.StatusType;
 import dev.thural.quietspace.user.dto.ProfileSettingsRequest;
-import dev.thural.quietspace.user.dto.UserRequest;
 import dev.thural.quietspace.user.dto.ProfileSettingsResponse;
+import dev.thural.quietspace.user.dto.UserRequest;
 import dev.thural.quietspace.user.dto.UserResponse;
 import org.springframework.data.domain.Page;
 

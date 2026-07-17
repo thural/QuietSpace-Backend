@@ -3,11 +3,11 @@ package dev.thural.quietspace.chat.controller;
 import dev.thural.quietspace.chat.ChatService;
 import dev.thural.quietspace.chat.dto.TypingStatus;
 import dev.thural.quietspace.message.Message;
-import dev.thural.quietspace.shared.enums.EventType;
 import dev.thural.quietspace.message.MessageRepository;
 import dev.thural.quietspace.message.MessageService;
 import dev.thural.quietspace.message.dto.MessageRequest;
 import dev.thural.quietspace.message.dto.MessageResponse;
+import dev.thural.quietspace.shared.enums.EventType;
 import dev.thural.quietspace.user.UserRepository;
 import dev.thural.quietspace.websocket.event.message.ChatEvent;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,10 +21,10 @@ import org.springframework.stereotype.Controller;
 
 import java.util.UUID;
 
-import static dev.thural.quietspace.shared.enums.EventType.EXCEPTION;
-import static dev.thural.quietspace.shared.enums.EventType.JOINED_CHAT;
-import static dev.thural.quietspace.shared.enums.EventType.LEFT_CHAT;
+import static dev.thural.quietspace.shared.enums.EventType.*;
 import static dev.thural.quietspace.websocket.constant.WebSocketPaths.*;
+import static dev.thural.quietspace.websocket.constant.WebSocketPaths.DELETE_MESSAGE;
+import static dev.thural.quietspace.websocket.constant.WebSocketPaths.SEEN_MESSAGE;
 
 @Slf4j
 @Controller

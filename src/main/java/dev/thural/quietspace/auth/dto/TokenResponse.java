@@ -1,7 +1,7 @@
 package dev.thural.quietspace.auth.dto;
-import dev.thural.quietspace.shared.model.BaseResponse;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import dev.thural.quietspace.shared.model.BaseResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

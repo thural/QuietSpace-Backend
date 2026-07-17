@@ -1,21 +1,15 @@
 package dev.thural.quietspace.post;
-import dev.thural.quietspace.user.UserService;
 
-import dev.thural.quietspace.post.Poll;
-import dev.thural.quietspace.post.PollOption;
-import dev.thural.quietspace.post.Post;
-import dev.thural.quietspace.user.User;
-import dev.thural.quietspace.shared.enums.Role;
-import dev.thural.quietspace.post.PostMapper;
+import dev.thural.quietspace.photo.PhotoService;
+import dev.thural.quietspace.post.*;
 import dev.thural.quietspace.post.dto.PostRequest;
+import dev.thural.quietspace.post.dto.PostResponse;
 import dev.thural.quietspace.post.dto.RepostRequest;
 import dev.thural.quietspace.post.dto.VoteRequest;
-import dev.thural.quietspace.post.dto.PostResponse;
-import dev.thural.quietspace.post.PostRepository;
-import dev.thural.quietspace.post.PostSpecifications;
-import dev.thural.quietspace.photo.PhotoService;
-import dev.thural.quietspace.post.PostServiceImpl;
+import dev.thural.quietspace.shared.enums.Role;
 import dev.thural.quietspace.shared.util.PagingProvider;
+import dev.thural.quietspace.user.User;
+import dev.thural.quietspace.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +23,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.util.*;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;

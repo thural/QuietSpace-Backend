@@ -1,10 +1,10 @@
 package dev.thural.quietspace.security;
 
-import tools.jackson.databind.ObjectMapper;
 import dev.thural.quietspace.shared.model.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 

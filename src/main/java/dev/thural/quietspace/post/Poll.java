@@ -1,7 +1,7 @@
 package dev.thural.quietspace.post;
-import dev.thural.quietspace.shared.entity.BaseEntity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import dev.thural.quietspace.shared.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

@@ -1,22 +1,17 @@
 package dev.thural.quietspace.user;
 
-import dev.thural.quietspace.user.User;
+import dev.thural.quietspace.photo.PhotoService;
 import dev.thural.quietspace.shared.enums.Role;
 import dev.thural.quietspace.shared.enums.StatusType;
 import dev.thural.quietspace.shared.exception.CustomErrorException;
 import dev.thural.quietspace.shared.exception.UnauthorizedException;
 import dev.thural.quietspace.shared.exception.UserNotFoundException;
-import dev.thural.quietspace.user.UserMapper;
-import dev.thural.quietspace.user.dto.ProfileSettingsRequest;
-import dev.thural.quietspace.user.dto.UserRequest;
-import dev.thural.quietspace.user.dto.ProfileSettingsResponse;
-import dev.thural.quietspace.user.dto.UserResponse;
-import dev.thural.quietspace.user.UserQuery;
-import dev.thural.quietspace.user.UserRepository;
-import dev.thural.quietspace.photo.PhotoService;
-import dev.thural.quietspace.user.UserService;
 import dev.thural.quietspace.shared.util.PageUtils;
 import dev.thural.quietspace.shared.util.PagingProvider;
+import dev.thural.quietspace.user.dto.ProfileSettingsRequest;
+import dev.thural.quietspace.user.dto.ProfileSettingsResponse;
+import dev.thural.quietspace.user.dto.UserRequest;
+import dev.thural.quietspace.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;

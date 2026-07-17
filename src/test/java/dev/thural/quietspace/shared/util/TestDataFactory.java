@@ -1,22 +1,22 @@
 package dev.thural.quietspace.shared.util;
-import dev.thural.quietspace.notification.Notification;
-import dev.thural.quietspace.reaction.Reaction;
-import dev.thural.quietspace.message.Message;
-import dev.thural.quietspace.comment.Comment;
-import dev.thural.quietspace.user.User;
 
-// entity wildcard removed - all entities moved to feature packages
 import dev.thural.quietspace.chat.Chat;
-import dev.thural.quietspace.post.Post;
+import dev.thural.quietspace.comment.Comment;
+import dev.thural.quietspace.message.Message;
+import dev.thural.quietspace.notification.Notification;
+import dev.thural.quietspace.photo.dto.PhotoResponse;
 import dev.thural.quietspace.post.Poll;
 import dev.thural.quietspace.post.PollOption;
-import dev.thural.quietspace.shared.enums.*;
-import dev.thural.quietspace.photo.dto.PhotoResponse;
+import dev.thural.quietspace.post.Post;
+import dev.thural.quietspace.reaction.Reaction;
+import dev.thural.quietspace.user.User;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+// entity wildcard removed - all entities moved to feature packages
 
 /**
  * Factory class for creating test data entities and objects.

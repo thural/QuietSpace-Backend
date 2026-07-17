@@ -1,18 +1,17 @@
 package dev.thural.quietspace.notification;
-import dev.thural.quietspace.notification.NotificationServiceImpl;
 
 import dev.thural.quietspace.comment.Comment;
-import dev.thural.quietspace.notification.Notification;
-import dev.thural.quietspace.post.Post;
-import dev.thural.quietspace.user.User;
-import dev.thural.quietspace.shared.enums.EntityType;
-import dev.thural.quietspace.shared.enums.EventType;
-import dev.thural.quietspace.shared.enums.NotificationType;
-import dev.thural.quietspace.notification.NotificationMapper;
-import dev.thural.quietspace.notification.dto.NotificationResponse;
 import dev.thural.quietspace.comment.CommentRepository;
+import dev.thural.quietspace.notification.Notification;
+import dev.thural.quietspace.notification.NotificationMapper;
 import dev.thural.quietspace.notification.NotificationRepository;
+import dev.thural.quietspace.notification.NotificationServiceImpl;
+import dev.thural.quietspace.notification.dto.NotificationResponse;
+import dev.thural.quietspace.post.Post;
 import dev.thural.quietspace.post.PostRepository;
+import dev.thural.quietspace.shared.enums.EntityType;
+import dev.thural.quietspace.shared.enums.NotificationType;
+import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,9 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dev.thural.quietspace.websocket.constant.WebSocketPaths.NOTIFICATION_EVENT;
-import static dev.thural.quietspace.websocket.constant.WebSocketPaths.NOTIFICATION_SUBJECT;
-import static dev.thural.quietspace.websocket.constant.WebSocketPaths.UNREAD_COUNT;
+import static dev.thural.quietspace.websocket.constant.WebSocketPaths.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;

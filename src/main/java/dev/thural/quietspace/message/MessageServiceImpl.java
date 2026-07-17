@@ -1,17 +1,13 @@
 package dev.thural.quietspace.message;
 
 import dev.thural.quietspace.chat.Chat;
-import dev.thural.quietspace.message.Message;
-import dev.thural.quietspace.photo.Photo;
-import dev.thural.quietspace.user.User;
-import dev.thural.quietspace.shared.enums.EntityType;
-import dev.thural.quietspace.message.MessageMapper;
+import dev.thural.quietspace.chat.ChatRepository;
 import dev.thural.quietspace.message.dto.MessageRequest;
 import dev.thural.quietspace.message.dto.MessageResponse;
-import dev.thural.quietspace.chat.ChatRepository;
-import dev.thural.quietspace.message.MessageRepository;
-import dev.thural.quietspace.message.MessageService;
+import dev.thural.quietspace.photo.Photo;
 import dev.thural.quietspace.photo.PhotoService;
+import dev.thural.quietspace.shared.enums.EntityType;
+import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -23,13 +19,12 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static dev.thural.quietspace.websocket.constant.WebSocketPaths.UNREAD_COUNT;
-
 import java.util.Optional;
 import java.util.UUID;
 
 import static dev.thural.quietspace.shared.util.PagingProvider.DEFAULT_SORT_OPTION;
 import static dev.thural.quietspace.shared.util.PagingProvider.buildPageRequest;
+import static dev.thural.quietspace.websocket.constant.WebSocketPaths.UNREAD_COUNT;
 
 @Slf4j
 @Service

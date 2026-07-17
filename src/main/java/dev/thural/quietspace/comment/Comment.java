@@ -1,9 +1,9 @@
 package dev.thural.quietspace.comment;
-import dev.thural.quietspace.post.Post;
-import dev.thural.quietspace.user.User;
-import dev.thural.quietspace.shared.entity.BaseEntity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import dev.thural.quietspace.post.Post;
+import dev.thural.quietspace.shared.entity.BaseEntity;
+import dev.thural.quietspace.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;

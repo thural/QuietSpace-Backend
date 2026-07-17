@@ -1,8 +1,8 @@
 package dev.thural.quietspace.shared.service;
 
-import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.shared.exception.UserNotFoundException;
 import dev.thural.quietspace.shared.service.impl.CommonServiceImpl;
+import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

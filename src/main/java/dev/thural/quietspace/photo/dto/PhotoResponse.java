@@ -1,7 +1,7 @@
 package dev.thural.quietspace.photo.dto;
-import dev.thural.quietspace.shared.model.BaseResponse;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import dev.thural.quietspace.shared.model.BaseResponse;
 import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
