@@ -6,7 +6,6 @@ import dev.thural.quietspace.auth.dto.AuthResponse;
 import dev.thural.quietspace.auth.dto.RegistrationRequest;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +21,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody @Valid RegistrationRequest request) throws MessagingException {
+    public ResponseEntity<Void> register(@RequestBody @Valid RegistrationRequest request) {
         authService.register(request);
         return ResponseEntity.ok().build();
     }
@@ -38,7 +37,7 @@ public class AuthController {
     }
 
     @PostMapping("/activate-account")
-    public ResponseEntity<Void> confirm(@RequestParam String token) throws MessagingException {
+    public ResponseEntity<Void> confirm(@RequestParam String token) {
         authService.activateAccount(token);
         return ResponseEntity.ok().build();
     }
@@ -66,7 +65,7 @@ public class AuthController {
     }
 
     @PostMapping("/resend-code")
-    ResponseEntity<Void> resendActivationEmail(@RequestParam String email) throws MessagingException {
+    ResponseEntity<Void> resendActivationEmail(@RequestParam String email) {
         authService.resendActivationToken(email);
         return ResponseEntity.ok().build();
     }

@@ -6,22 +6,19 @@ import dev.thural.quietspace.auth.dto.RegistrationRequest;
 import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.security.Token;
 import dev.thural.quietspace.security.TokenRepository;
-import dev.thural.quietspace.shared.enums.EmailTemplateName;
 import dev.thural.quietspace.shared.enums.StatusType;
 import dev.thural.quietspace.shared.exception.ActivationTokenException;
 import dev.thural.quietspace.shared.exception.CustomErrorException;
 import dev.thural.quietspace.shared.exception.UserNotFoundException;
-import dev.thural.quietspace.shared.service.impl.EmailService;
+import dev.thural.quietspace.shared.service.EmailService;
 import dev.thural.quietspace.user.ProfileSettings;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserRepository;
 import dev.thural.quietspace.user.UserService;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -35,6 +32,7 @@ import org.springframework.util.StringUtils;
 import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
+import java.util.Map;
 
 import static dev.thural.quietspace.shared.enums.Role.USER;
 import static dev.thural.quietspace.shared.enums.StatusType.OFFLINE;
@@ -56,7 +54,7 @@ public class AuthService {
     @Value("${spring.application.mailing.frontend.activation-url}")
     private String activationUrl;
 
-    public void register(RegistrationRequest request) throws MessagingException {
+    public void register(RegistrationRequest request) {
         log.info("registering new user with email: {}", request.getEmail());
 
         if (userRepository.existsByEmail(request.getEmail()) || userRepository.existsByUsername(request.getUsername())) {
@@ -115,7 +113,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void activateAccount(String token) throws MessagingException {
+    public void activateAccount(String token) {
         Token existingToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new ActivationTokenException("invalid token, please try again"));
 
@@ -155,18 +153,20 @@ public class AuthService {
         return activationCode;
     }
 
-    @Async
-    public void sendValidationEmail(User user) throws MessagingException {
+    public void sendValidationEmail(User user) {
         log.info("sending activation code to email address: {}", user.getEmail());
         String newActivationCode = generateAndSaveActivationToken(user);
 
-        emailService.sendEmail(
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("username", user.getFullName());
+        variables.put("confirmationUrl", activationUrl);
+        variables.put("activationCode", newActivationCode);
+
+        emailService.sendHtmlEmail(
                 user.getEmail(),
-                user.getFullName(),
-                EmailTemplateName.ACTIVATE_ACCOUNT,
-                activationUrl,
-                newActivationCode,
-                "account activation"
+                "account activation",
+                "activate_account",
+                variables
         );
     }
 
@@ -230,7 +230,7 @@ public class AuthService {
                 .build();
     }
 
-    public void resendActivationToken(String email) throws MessagingException {
+    public void resendActivationToken(String email) {
         User foundUser = userRepository
                 .findUserEntityByEmail(email).orElseThrow(UserNotFoundException::new);
         if (foundUser.isEnabled())
