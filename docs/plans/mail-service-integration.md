@@ -122,18 +122,13 @@ A Thymeleaf plain text version for email clients that don't render HTML. Uses `t
 
 **File:** `quietspace-infrastructure/docker-compose.yaml`
 
-Change the `mail-dev` service image from `maildev/maildev` to `axllent/mailpit`.
-
-Keep the service name as `mail-dev` to minimize cascading changes:
-- Backend env vars reference `mail-dev` hostname (via `MAILDEV_HOST` default)
-- Nginx upstream references `mail-dev`
-- Container name `mail-dev` stays the same
+Replace the `mail-dev` service with `mailpit` using `axllent/mailpit` image and rename the container to `quietspace-mailpit`.
 
 ### Step 4.2 — Update Mailpit web UI port in docker-compose.override.yaml
 
 **File:** `quietspace-infrastructure/docker-compose.override.yaml`
 
-Change the mail-dev web UI port mapping from `"1080:1080"` to `"8025:8025"` (Mailpit's default web UI port).
+Change the mailpit web UI port mapping from `"1080:1080"` to `"8025:8025"` (Mailpit's default web UI port).
 
 SMTP port `"1025:1025"` remains unchanged.
 
@@ -141,9 +136,9 @@ SMTP port `"1025:1025"` remains unchanged.
 
 **File:** `quietspace-infrastructure/nginx.conf`
 
-Change the `maildev_upstream` server from `mail-dev:1080` to `mail-dev:8025`.
+Rename `maildev_upstream` to `mailpit_upstream` and change server from `mail-dev:8025` to `mailpit:8025`.
 
-The `/mail/` location block stays unchanged — only the upstream target port changes.
+The `/mail/` location block stays unchanged — only the upstream name and port change.
 
 ### Step 4.4 — Add POSTMARK_SERVER_TOKEN to .env.example
 

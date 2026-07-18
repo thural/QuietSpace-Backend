@@ -95,7 +95,7 @@ cp .env.example .env   # create from template
 
 | Variable | Description | Dev Value | Prod Value | Sync Required |
 |---|---|---|---|---|
-| `MAILDEV_HOST` | Mail server hostname | `localhost` | `mail-dev` | Must match docker service name in prod |
+| `MAILDEV_HOST` | Mail server hostname | `localhost` | `mailpit` | Must match docker service name in prod |
 | `MAILDEV_PORT` | Mail server port | `1025` | `1025` | Must match docker-compose.yaml port mapping |
 
 ## Profile-Specific Configuration
@@ -155,7 +155,7 @@ These values MUST be kept in sync across files to avoid connection failures:
 
 | Location | Variable | Must Match |
 |---|---|---|
-| `.env` | `MAILDEV_HOST` | Docker service name `mail-dev` |
+| `.env` | `MAILDEV_HOST` | Docker service name `mailpit` |
 | `application.yml` | `spring.mail.host` | Uses `${MAILDEV_HOST}` from `.env` |
 | `application-dev.yml` | `spring.mail.host` | Hardcoded `localhost` (overrides base) |
 
@@ -205,7 +205,7 @@ docker compose -f infrastructure/docker/docker-compose.yaml up -d
 **Fix:**
 ```bash
 # In .env, ensure:
-MAILDEV_HOST=mail-dev
+MAILDEV_HOST=mailpit
 
 # For local dev (not in Docker), use:
 MAILDEV_HOST=localhost
@@ -271,7 +271,7 @@ SPRING_PROFILES_ACTIVE=dev
 # Ensure .env has:
 SPRING_PROFILES_ACTIVE=prod
 DB_HOST_NAME=quietspace-monolith-db
-MAILDEV_HOST=mail-dev
+MAILDEV_HOST=mailpit
 FRONTEND_HOST=quietspace-frontend
 
 # Run from infrastructure/docker:

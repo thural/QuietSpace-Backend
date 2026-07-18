@@ -108,7 +108,7 @@ DEPLOY_EOF
 │           monolith-network                              │
 │                    │                                    │
 │  ┌─────────────────┐  ┌─────────────────┐              │
-│  │  quietspace-    │  │  mail-dev       │              │
+│  │  quietspace-    │  │  mailpit        │              │
 │  │  frontend       │  │  (MailDev)      │              │
 │  │  :3000          │  │  :1080, :1025   │              │
 │  └─────────────────┘  └─────────────────┘              │
@@ -146,7 +146,7 @@ DEPLOY_EOF
 | Port | `80` → `3000` |
 | Depends On | `quietspace-monolith` |
 
-### Mail Dev (mail-dev)
+### Mailpit (mailpit)
 
 | Setting | Value |
 |---|---|

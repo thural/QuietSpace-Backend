@@ -15,7 +15,7 @@ spring:
     default: default
     active: dev
   mail:
-    host: ${MAILDEV_HOST:mail-dev}
+    host: ${MAILDEV_HOST:mailpit}
     port: ${MAILDEV_PORT:1025}
     username: ${MAIL_USERNAME:thural}
     password: ${MAIL_PASSWORD:thural}
