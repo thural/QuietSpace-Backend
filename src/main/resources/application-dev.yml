@@ -19,6 +19,13 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
+      # INTEGRATED HERE (Optimized for Spring Boot 4.x+):
+      jakarta:
+        persistence:
+          schema-generation:
+            scripts:
+              action: create
+              create-target: src/main/resources/db.migration/schema/generated.sql
     hibernate:
       ddl-auto: update
     show-sql: true
