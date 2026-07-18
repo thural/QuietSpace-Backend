@@ -1,12 +1,11 @@
 spring:
-
   application:
+    name: quietspace
 
   datasource:
     url: jdbc:mysql://${DB_HOST_NAME:database}:${DB_PORT_NUMBER:3306}/${DB_NAME:quietspace}
     username: ${DB_USER_USERNAME:quietspace_user}
     password: ${DB_USER_PASSWORD}
-
     hikari:
       data-source-properties:
         cachePrepStmts: true
@@ -41,3 +40,5 @@ spring:
 
 server:
   port: ${SERVER_PORT_NUMBER:8080}
+  forward-headers-strategy: framework
+  shutdown: graceful

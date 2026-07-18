@@ -4,7 +4,8 @@ spring:
       frontend:
         activation-url: http://localhost:3000/activate
   devtools:
-    livereload.enabled: true
+    livereload:
+      enabled: true
     restart:
       enabled: true
   datasource:
@@ -19,7 +20,6 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
-      # INTEGRATED HERE (Optimized for Spring Boot 4.x+):
       jakarta:
         persistence:
           schema-generation:
@@ -31,9 +31,8 @@ spring:
     show-sql: true
   flyway:
     enabled: false
+
 logging:
-  #  file:
-  #    name: quietspace.log
   level:
     root: INFO
     org.springframework.messaging: INFO
@@ -47,5 +46,6 @@ logging:
     rollingpolicy:
       max-file-size: 2MB
       max-history: 3
+
 server:
   port: 8080

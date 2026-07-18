@@ -4,10 +4,11 @@ spring:
       enabled: true
   config:
     import: optional:file:.env
-  servlet.multipart:
-    enabled: true
-    max-file-size: 3MB
-    max-request-size: 10MB
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 3MB
+      max-request-size: 10MB
   custom:
     admin-password: ${ADMIN_PASSWORD}
   profiles:
@@ -35,7 +36,7 @@ spring:
     open-in-view: false
   flyway:
     baseline-description: "init"
-    baseline-version: 0
+    baseline-version: "0"
     locations: classpath:db/migration/structure, classpath:db/migration/data
   application:
     name: quietspace-backend
