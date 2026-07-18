@@ -1,71 +1,58 @@
 package dev.thural.quietspace.shared.service.impl;
 
-import dev.thural.quietspace.shared.enums.EmailTemplateName;
+import dev.thural.quietspace.shared.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
+import org.springframework.context.annotation.Profile;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StreamUtils;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.thymeleaf.context.Context;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.mail.javamail.MimeMessageHelper.MULTIPART_MODE_MIXED;
 
+@Profile("dev")
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class EmailService {
+public class SmtpEmailService implements EmailService {
+
     private final JavaMailSender mailSender;
-    private final ResourceLoader resourceLoader;
+    private final SpringTemplateEngine templateEngine;
 
-    public void sendEmail(
-            String to,
-            String username,
-            EmailTemplateName emailTemplate,
-            String confirmationUrl,
-            String activationCode,
-            String subject
-    ) throws MessagingException {
+    @Async("emailExecutor")
+    @Override
+    public void sendHtmlEmail(String to, String subject, String templateName, Map<String, Object> variables) {
+        try {
+            Context context = new Context();
+            context.setVariables(variables);
 
-        String templateName;
-        if (emailTemplate == null) templateName = "confirm-email";
-        else templateName = emailTemplate.getName();
+            String htmlBody = templateEngine.process(templateName, context);
 
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(
-                mimeMessage,
-                MULTIPART_MODE_MIXED,
-                UTF_8.name()
-        );
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(
+                    mimeMessage,
+                    MULTIPART_MODE_MIXED,
+                    UTF_8.name()
+            );
 
-        String templateContent;
-        Resource resource = resourceLoader.getResource("classpath:templates/" + templateName + ".html");
-        try (InputStream inputStream = resource.getInputStream()) {
-            templateContent = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            log.error("Failed to load email template: {}", templateName, e);
-            throw new MessagingException("Failed to load email template: " + templateName, e);
+            helper.setFrom("contact@quietspace.com");
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlBody, true);
+
+            mailSender.send(mimeMessage);
+            log.info("sent email to {}", to);
+        } catch (MessagingException e) {
+            log.error("failed to send email to {}: {}", to, e.getMessage());
+            throw new RuntimeException("Failed to send email", e);
         }
-
-        String htmlBody = templateContent
-                .replace("{{username}}", username != null ? username : "")
-                .replace("{{confirmationUrl}}", confirmationUrl != null ? confirmationUrl : "")
-                .replace("{{activation_code}}", activationCode != null ? activationCode : "");
-
-        helper.setFrom("tural.musaibov@gmail.com");
-        helper.setTo(to);
-        helper.setSubject(subject);
-        helper.setText(htmlBody, true);
-
-        mailSender.send(mimeMessage);
-        log.info("sent email to {}", to);
     }
 }
