@@ -12,11 +12,11 @@ public class AsyncConfig implements AsyncConfigurer {
 
     @Bean(name = "emailExecutor")
     public Executor emailExecutor() {
-        return Executors.newVirtualThreadPerTaskFactory();
+        return Executors.newVirtualThreadPerTaskExecutor();
     }
 
     @Override
     public Executor getAsyncExecutor() {
-        return Executors.newVirtualThreadPerTaskFactory();
+        return Executors.newVirtualThreadPerTaskExecutor();
     }
 }
