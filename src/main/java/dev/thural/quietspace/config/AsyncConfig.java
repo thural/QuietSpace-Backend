@@ -6,18 +6,22 @@ import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 @Configuration
 public class AsyncConfig implements AsyncConfigurer {
 
     @Bean(name = "emailExecutor")
-    public Executor emailExecutor() {
-        return Executors.newVirtualThreadPerTaskFactory();
+    public ThreadPoolTaskExecutor emailExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(5);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("email-");
+        return executor;
     }
 
     @Override
     public Executor getAsyncExecutor() {
-        return Executors.newVirtualThreadPerTaskFactory();
+        return emailExecutor();
     }
 }

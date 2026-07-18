@@ -9,11 +9,10 @@ import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.shared.enums.Role;
 import dev.thural.quietspace.shared.exception.ActivationTokenException;
 import dev.thural.quietspace.shared.exception.UserNotFoundException;
-import dev.thural.quietspace.shared.service.impl.EmailService;
+import dev.thural.quietspace.shared.service.EmailService;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserRepository;
 import dev.thural.quietspace.user.UserService;
-import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -99,7 +98,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void register_givenValidRequest_shouldSaveUserAndSendEmail() throws MessagingException {
+    void register_givenValidRequest_shouldSaveUserAndSendEmail() {
         when(passwordEncoder.encode("rawPassword")).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -119,19 +118,19 @@ class AuthServiceTest {
         assertThat(savedUser.isEnabled()).isFalse();
         assertThat(savedUser.getProfileSettings()).isNotNull();
 
-        verify(emailService).sendEmail(
-                eq("test@example.com"), anyString(), any(), anyString(), anyString(), anyString()
+        verify(emailService).sendHtmlEmail(
+                eq("test@example.com"), anyString(), anyString(), any()
         );
     }
 
     @Test
-    void register_whenEmailServiceFails_shouldPropagate() throws MessagingException {
+    void register_whenEmailServiceFails_shouldPropagate() {
         when(passwordEncoder.encode(anyString())).thenReturn("encoded");
         when(userRepository.save(any(User.class))).thenReturn(user);
-        doThrow(new MessagingException("SMTP error")).when(emailService).sendEmail(anyString(), anyString(), any(), anyString(), anyString(), anyString());
+        doThrow(new RuntimeException("SMTP error")).when(emailService).sendHtmlEmail(anyString(), anyString(), anyString(), any());
 
         assertThatThrownBy(() -> authService.register(registrationRequest))
-                .isInstanceOf(MessagingException.class)
+                .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("SMTP error");
     }
 
@@ -162,7 +161,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void activateAccount_givenValidToken_shouldNotThrow() throws MessagingException {
+    void activateAccount_givenValidToken_shouldNotThrow() {
         Token validToken = Token.builder()
                 .token("valid-code")
                 .expireDate(OffsetDateTime.now().plusMinutes(15))
@@ -175,7 +174,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void activateAccount_givenExpiredToken_shouldResendEmailAndThrow() throws MessagingException {
+    void activateAccount_givenExpiredToken_shouldResendEmailAndThrow() {
         Token expiredToken = Token.builder()
                 .token("expired-code")
                 .expireDate(OffsetDateTime.now().minusMinutes(5))
@@ -187,7 +186,7 @@ class AuthServiceTest {
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("expired");
 
-        verify(emailService).sendEmail(anyString(), anyString(), any(), anyString(), anyString(), anyString());
+        verify(emailService).sendHtmlEmail(anyString(), anyString(), anyString(), any());
     }
 
     @Test
@@ -296,12 +295,12 @@ class AuthServiceTest {
     }
 
     @Test
-    void resendActivationToken_givenDisabledAccount_shouldResendEmail() throws MessagingException {
+    void resendActivationToken_givenDisabledAccount_shouldResendEmail() {
         when(userRepository.findUserEntityByEmail("test@example.com")).thenReturn(Optional.of(user));
 
         authService.resendActivationToken("test@example.com");
 
-        verify(emailService).sendEmail(anyString(), anyString(), any(), anyString(), anyString(), anyString());
+        verify(emailService).sendHtmlEmail(anyString(), anyString(), anyString(), any());
     }
 
     @Test

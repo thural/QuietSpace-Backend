@@ -1,22 +1,18 @@
 package dev.thural.quietspace.shared.service;
 
-import dev.thural.quietspace.shared.enums.EmailTemplateName;
-import dev.thural.quietspace.shared.service.impl.EmailService;
-import jakarta.mail.MessagingException;
+import dev.thural.quietspace.shared.service.impl.SmtpEmailService;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.thymeleaf.context.Context;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,74 +21,37 @@ class EmailServiceTest {
     @Mock
     private JavaMailSender mailSender;
     @Mock
-    private ResourceLoader resourceLoader;
+    private SpringTemplateEngine templateEngine;
 
     @InjectMocks
-    private EmailService emailService;
+    private SmtpEmailService emailService;
 
     @Test
-    void sendEmail_givenAllParams_shouldSendMimeMessage() throws MessagingException, IOException {
+    void sendHtmlEmail_givenAllParams_shouldSendMimeMessage() {
         MimeMessage mimeMessage = mock(MimeMessage.class);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        
-        Resource resource = mock(Resource.class);
-        when(resourceLoader.getResource(anyString())).thenReturn(resource);
-        when(resource.getInputStream()).thenReturn(new ByteArrayInputStream("<html>Hello {{username}}</html>".getBytes()));
+        when(templateEngine.process(anyString(), any(Context.class))).thenReturn("<html>Hello TestUser</html>");
 
-        emailService.sendEmail(
-                "recipient@example.com",
-                "TestUser",
-                EmailTemplateName.ACTIVATE_ACCOUNT,
-                "http://localhost:8080/activate",
-                "123456",
-                "Account Activation"
+        Map<String, Object> variables = Map.of(
+                "username", "TestUser",
+                "confirmationUrl", "http://localhost:8080/activate",
+                "activationCode", "123456"
         );
 
+        emailService.sendHtmlEmail("recipient@example.com", "Account Activation", "activate_account", variables);
+
+        verify(templateEngine).process(eq("activate_account"), any(Context.class));
         verify(mailSender).send(mimeMessage);
     }
 
     @Test
-    void sendEmail_givenNullTemplate_shouldUseDefaultName() throws MessagingException, IOException {
-        MimeMessage mimeMessage = mock(MimeMessage.class);
-        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-
-        Resource resource = mock(Resource.class);
-        when(resourceLoader.getResource("classpath:templates/confirm-email.html")).thenReturn(resource);
-        when(resource.getInputStream()).thenReturn(new ByteArrayInputStream("<html>Hello {{username}}</html>".getBytes()));
-
-        emailService.sendEmail(
-                "recipient@example.com",
-                "TestUser",
-                null,
-                "http://localhost:8080/activate",
-                "123456",
-                "Account Activation"
-        );
-
-        verify(resourceLoader).getResource("classpath:templates/confirm-email.html");
-        verify(mailSender).send(mimeMessage);
-    }
-
-    @Test
-    void sendEmail_whenMailSenderFails_shouldPropagate() throws MessagingException, IOException {
-        MimeMessage mimeMessage = mock(MimeMessage.class);
-        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-
-        Resource resource = mock(Resource.class);
-        when(resourceLoader.getResource(anyString())).thenReturn(resource);
-        when(resource.getInputStream()).thenReturn(new ByteArrayInputStream("<html>Hello {{username}}</html>".getBytes()));
-
+    void sendHtmlEmail_whenMailSenderFails_shouldPropagate() {
+        when(mailSender.createMimeMessage()).thenReturn(mock(MimeMessage.class));
+        when(templateEngine.process(anyString(), any(Context.class))).thenReturn("<html>Hello</html>");
         doThrow(new RuntimeException("SMTP error")).when(mailSender).send(any(MimeMessage.class));
 
-        assertThatThrownBy(() ->
-                emailService.sendEmail(
-                        "recipient@example.com",
-                        "TestUser",
-                        EmailTemplateName.ACTIVATE_ACCOUNT,
-                        "http://localhost:8080/activate",
-                        "123456",
-                        "Account Activation"
-                )
-        ).isInstanceOf(RuntimeException.class).hasMessageContaining("SMTP error");
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                emailService.sendHtmlEmail("recipient@example.com", "Subject", "template", Map.of())
+        ).isInstanceOf(RuntimeException.class).hasMessageContaining("Failed to send email");
     }
 }

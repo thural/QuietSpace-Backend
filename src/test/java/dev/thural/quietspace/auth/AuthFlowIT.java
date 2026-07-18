@@ -8,7 +8,7 @@ import dev.thural.quietspace.config.TestcontainersConfig;
 import dev.thural.quietspace.photo.PhotoService;
 import dev.thural.quietspace.security.Token;
 import dev.thural.quietspace.security.TokenRepository;
-import dev.thural.quietspace.shared.service.impl.EmailService;
+import dev.thural.quietspace.shared.service.EmailService;
 import dev.thural.quietspace.shared.util.IntegrationTestHelper;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserRepository;

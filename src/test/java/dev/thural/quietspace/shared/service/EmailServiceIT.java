@@ -1,48 +1,46 @@
 package dev.thural.quietspace.shared.service;
 
-import dev.thural.quietspace.config.TestcontainersConfig;
-import dev.thural.quietspace.photo.PhotoService;
-import dev.thural.quietspace.shared.enums.EmailTemplateName;
-import dev.thural.quietspace.shared.service.impl.EmailService;
+import dev.thural.quietspace.shared.service.impl.SmtpEmailService;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.thymeleaf.context.Context;
+
+import java.util.Map;
 
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(TestcontainersConfig.class)
-@ActiveProfiles("testcontainers")
+@ExtendWith(MockitoExtension.class)
 class EmailServiceIT {
 
-    @MockitoBean
-    private PhotoService photoService;
-
-    @Autowired
-    private EmailService emailService;
-
-    @MockitoBean
+    @Mock
     private JavaMailSender mailSender;
+    @Mock
+    private SpringTemplateEngine templateEngine;
+
+    @InjectMocks
+    private SmtpEmailService emailService;
 
     @Test
-    void sendEmail_shouldDeliverSuccessfully() throws Exception {
+    void sendHtmlEmail_shouldDeliverSuccessfully() {
         MimeMessage mimeMessage = mock(MimeMessage.class);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        when(templateEngine.process(anyString(), any(Context.class))).thenReturn("<html>Hello</html>");
 
-        emailService.sendEmail(
-                "recipient@test.com",
-                "Test User",
-                EmailTemplateName.ACTIVATE_ACCOUNT,
-                "http://localhost:3000/activate",
-                "123456",
-                "Account Activation"
+        Map<String, Object> variables = Map.of(
+                "username", "Test User",
+                "confirmationUrl", "http://localhost:3000/activate",
+                "activationCode", "123456"
         );
 
+        emailService.sendHtmlEmail("recipient@test.com", "Account Activation", "activate_account", variables);
+
+        verify(templateEngine).process(eq("activate_account"), any(Context.class));
         verify(mailSender, timeout(3000)).send(mimeMessage);
     }
 }
