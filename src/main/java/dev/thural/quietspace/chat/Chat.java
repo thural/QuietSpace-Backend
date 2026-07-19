@@ -27,8 +27,8 @@ public class Chat extends BaseEntity {
     @JsonBackReference
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "user_chat",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "chat_id",
+            joinColumns = @JoinColumn(name = "chat_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id",
                     referencedColumnName = "id"))
     private List<User> users;
 

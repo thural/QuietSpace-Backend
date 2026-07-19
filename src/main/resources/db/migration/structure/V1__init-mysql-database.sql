@@ -8,6 +8,7 @@ CREATE TABLE `chat` (
   `create_date` datetime(6) NOT NULL,
   `update_date` datetime(6) DEFAULT NULL,
   `version` int DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
   `created_by` varchar(36) DEFAULT NULL,
   `updated_by` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -206,8 +207,8 @@ CREATE TABLE `user_chat` (
   `user_id` varchar(36) NOT NULL,
   KEY `FK60ku9ru56yadhj2tu35hshsms` (`chat_id`),
   KEY `FKfw0o0kaepbdntrg31qkbj3en7` (`user_id`),
-  CONSTRAINT `FK60ku9ru56yadhj2tu35hshsms` FOREIGN KEY (`chat_id`) REFERENCES `user` (`id`),
-  CONSTRAINT `FKfw0o0kaepbdntrg31qkbj3en7` FOREIGN KEY (`user_id`) REFERENCES `chat` (`id`)
+  CONSTRAINT `FK60ku9ru56yadhj2tu35hshsms` FOREIGN KEY (`chat_id`) REFERENCES `chat` (`id`),
+  CONSTRAINT `FKfw0o0kaepbdntrg31qkbj3en7` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Create user_followings table
