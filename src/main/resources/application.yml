@@ -49,7 +49,6 @@ spring:
       pool-name: RestDB-Pool
       maximum-pool-size: 5
   jpa:
-    database: mysql
     open-in-view: false
     properties:
       hibernate:
