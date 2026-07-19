@@ -39,7 +39,7 @@ public class PostmarkEmailService implements EmailService {
             String htmlBody = templateEngine.process(templateName, context);
 
             Map<String, String> body = Map.of(
-                    "From", "contact@quietspace.com",
+                    "From", "contact@quietspace.live",
                     "To", to,
                     "Subject", subject,
                     "HtmlBody", htmlBody

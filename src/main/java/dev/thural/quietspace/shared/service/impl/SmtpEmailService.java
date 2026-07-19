@@ -43,7 +43,7 @@ public class SmtpEmailService implements EmailService {
                     UTF_8.name()
             );
 
-            helper.setFrom("contact@quietspace.com");
+            helper.setFrom("contact@quietspace.live");
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlBody, true);
