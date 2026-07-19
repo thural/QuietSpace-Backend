@@ -88,7 +88,7 @@ dependencies {
     // WireMock
     testImplementation("org.wiremock:wiremock-standalone:3.9.1")
 
-    runtimeOnly("org.springframework.boot:spring-boot-devtools")
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
 
 tasks.withType<Test> {
