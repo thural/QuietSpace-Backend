@@ -31,13 +31,42 @@ spring:
         writetimeout: 5000
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST_NAME:database}:${DB_PORT_NUMBER:3306}/${DB_NAME:quietspace}
+    username: ${DB_USER_USERNAME:quietspace_user}
+    password: ${DB_USER_PASSWORD}
+    hikari:
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+        useLocalSessionState: true
+        rewriteBatchedStatements: true
+        cacheResultSetMetadata: true
+        cacheServerConfiguration: true
+        elideSetAutoCommits: true
+        maintainTimeStats: false
+      pool-name: RestDB-Pool
+      maximum-pool-size: 5
   jpa:
     database: mysql
     open-in-view: false
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: false
+    hibernate:
+      ddl-auto: validate
   flyway:
     baseline-description: "init"
     baseline-version: "0"
     locations: classpath:db/migration/structure, classpath:db/migration/data
+    enabled: true
+    baseline-on-migrate: true
+    validate-on-migrate: true
+  sql:
+    init:
+      mode: never
   application:
     name: quietspace-backend
     security:
@@ -59,6 +88,11 @@ springwolf:
 
 springdoc:
   use-fqn: true
+
+server:
+  port: ${SERVER_PORT_NUMBER:8080}
+  forward-headers-strategy: framework
+  shutdown: graceful
 
 management:
   endpoints:
