@@ -4,8 +4,6 @@ spring:
       frontend:
         activation-url: http://localhost:3000/activate
   devtools:
-    livereload:
-      enabled: true
     restart:
       enabled: true
   datasource:
