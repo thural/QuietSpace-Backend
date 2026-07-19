@@ -61,6 +61,7 @@ dependencies {
 
     runtimeOnly("com.mysql:mysql-connector-j")
     runtimeOnly("com.h2database:h2")
+    developmentOnly("org.springframework.boot:spring-boot-h2console")
 
     compileOnly("org.projectlombok:lombok:$lombokVersion")
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")
