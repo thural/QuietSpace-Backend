@@ -8,5 +8,5 @@ spring:
       mail:
         smtp:
           auth: true
-        starttls:
-          enabled: true
+          starttls:
+            enable: true
