@@ -77,11 +77,7 @@ public class User extends BaseEntity implements UserDetails, Principal {
 
     @Builder.Default
     @JsonManagedReference
-    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinTable(name = "user_chat",
-            joinColumns = @JoinColumn(name = "chat_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id",
-                    referencedColumnName = "id"))
+    @ManyToMany(mappedBy = "users")
     private List<Chat> chats = new ArrayList<>();
 
     @Builder.Default
