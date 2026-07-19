@@ -182,7 +182,7 @@ class MessageServiceImplTest {
 
         verify(template).convertAndSendToUser(
                 eq(user.getId().toString()),
-                eq("/user/unread-count"),
+                eq("/unread-count"),
                 eq(0L)
         );
     }

@@ -18,6 +18,7 @@ import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
+import org.springframework.messaging.simp.stomp.StompSession.Subscription;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
@@ -111,17 +112,14 @@ class WebSocketFlowIT {
                 .get(30, TimeUnit.SECONDS);
     }
 
-    private StompFrameHandler byteArrayHandler(CompletableFuture<String> future) {
-        return new StompFrameHandler() {
-            @Override
-            public Type getPayloadType(StompHeaders headers) {
-                return byte[].class;
-            }
-            @Override
-            public void handleFrame(StompHeaders headers, Object payload) {
-                future.complete(new String((byte[]) payload, StandardCharsets.UTF_8));
-            }
-        };
+    private void awaitSubscription(Subscription sub) throws Exception {
+        Thread.sleep(2000);
+    }
+
+    private Subscription subscribeWithReceipt(StompSession session, String destination, StompFrameHandler handler) throws Exception {
+        Subscription sub = session.subscribe(destination, handler);
+        awaitSubscription(sub);
+        return sub;
     }
 
     @Test
@@ -138,7 +136,7 @@ class WebSocketFlowIT {
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                String json = new String((byte[]) payload, java.nio.charset.StandardCharsets.UTF_8);
+                String json = new String((byte[]) payload, StandardCharsets.UTF_8);
                 receivedMessage.complete(json);
             }
         });
@@ -161,7 +159,7 @@ class WebSocketFlowIT {
 
         CompletableFuture<String> user2Received = new CompletableFuture<>();
 
-        user2Session.subscribe("/public/chat", new StompFrameHandler() {
+        subscribeWithReceipt(user2Session, "/public/chat", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
                 return byte[].class;
@@ -191,7 +189,7 @@ class WebSocketFlowIT {
 
         CompletableFuture<String> eventReceived = new CompletableFuture<>();
 
-        user2Session.subscribe("/private/chat/event", new StompFrameHandler() {
+        subscribeWithReceipt(user2Session, "/private/chat/event", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
                 return byte[].class;
@@ -205,7 +203,7 @@ class WebSocketFlowIT {
 
         CompletableFuture<String> messageSent = new CompletableFuture<>();
 
-        user1Session.subscribe("/public/chat", new StompFrameHandler() {
+        subscribeWithReceipt(user1Session, "/public/chat", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
                 return byte[].class;
@@ -240,7 +238,7 @@ class WebSocketFlowIT {
 
         CompletableFuture<String> eventReceived = new CompletableFuture<>();
 
-        user1Session.subscribe("/private/chat/event", new StompFrameHandler() {
+        subscribeWithReceipt(user1Session, "/private/chat/event", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
                 return byte[].class;
@@ -254,7 +252,7 @@ class WebSocketFlowIT {
 
         CompletableFuture<String> messageSent = new CompletableFuture<>();
 
-        user1Session.subscribe("/public/chat", new StompFrameHandler() {
+        subscribeWithReceipt(user1Session, "/public/chat", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
                 return byte[].class;
@@ -306,8 +304,8 @@ class WebSocketFlowIT {
             }
         };
 
-        user2Session.subscribe("/public/chat", handler);
-        user1Session.subscribe("/public/chat", handler);
+        subscribeWithReceipt(user2Session, "/public/chat", handler);
+        subscribeWithReceipt(user1Session, "/public/chat", handler);
 
         var chatEvent = dev.thural.quietspace.websocket.event.message.ChatEvent.builder()
                 .chatId(chatId)
@@ -345,7 +343,8 @@ class WebSocketFlowIT {
             }
         };
 
-        user1Session.subscribe("/public/chat", handler);
+        subscribeWithReceipt(user1Session, "/public/chat", handler);
+        subscribeWithReceipt(user2Session, "/public/chat", handler);
 
         var chatEvent = dev.thural.quietspace.websocket.event.message.ChatEvent.builder()
                 .chatId(chatId)

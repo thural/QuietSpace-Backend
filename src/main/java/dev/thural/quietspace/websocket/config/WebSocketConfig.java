@@ -25,6 +25,10 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import org.springframework.core.task.TaskDecorator;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.core.context.SecurityContext;
+
 import java.security.Principal;
 import java.util.UUID;
 
@@ -61,6 +65,26 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(Runtime.getRuntime().availableProcessors() * 2);
+        executor.setMaxPoolSize(Runtime.getRuntime().availableProcessors() * 2);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("ws-inbound-");
+        executor.setTaskDecorator(task -> {
+            SecurityContext context = SecurityContextHolder.getContext();
+            SecurityContext snapshot = SecurityContextHolder.createEmptyContext();
+            snapshot.setAuthentication(context.getAuthentication());
+            return (Runnable) () -> {
+                SecurityContextHolder.setContext(snapshot);
+                try {
+                    task.run();
+                } finally {
+                    SecurityContextHolder.clearContext();
+                }
+            };
+        });
+        executor.initialize();
+        registration.taskExecutor(executor);
         registration.interceptors(new ChannelInterceptor() {
             @Override
             public Message<?> preSend(@Nullable Message<?> message, @Nullable MessageChannel channel) {
@@ -73,9 +97,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 } else if (accessor.getCommand() == StompCommand.SEND) {
                     log.warn("SEND dest={} user={}", accessor.getDestination(),
                             accessor.getUser() != null ? accessor.getUser().getName() : "null");
+                    restoreSecurityContext(accessor);
                 } else if (accessor.getCommand() == StompCommand.SUBSCRIBE) {
                     log.warn("SUBSCRIBE dest={} user={}", accessor.getDestination(),
                             accessor.getUser() != null ? accessor.getUser().getName() : "null");
+                    restoreSecurityContext(accessor);
                 }
 
                 return message;
