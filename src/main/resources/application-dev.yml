@@ -9,20 +9,19 @@ spring:
     restart:
       enabled: true
   datasource:
-    url: jdbc:mysql://localhost:3306/quietspace
-    username: ${DB_USER_USERNAME}
-    password: ${DB_USER_PASSWORD}
+    url: jdbc:h2:mem:quietspace
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
   jpa:
     properties:
       hibernate:
         show_sql: true
         format_sql: true
-      jakarta:
-        persistence:
-          schema-generation:
-            scripts:
-              action: create
-              create-target: src/main/resources/db.migration/schema/generated.sql
+        auto_quote_keyword: true
     hibernate:
       ddl-auto: update
     show-sql: true
