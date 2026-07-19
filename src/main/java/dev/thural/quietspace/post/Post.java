@@ -43,7 +43,7 @@ public class Post extends BaseEntity implements Serializable {
     private User user;
 
     @JsonIgnore
-    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Poll poll;
 
     @JsonManagedReference
