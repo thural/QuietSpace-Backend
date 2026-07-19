@@ -86,7 +86,7 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter:1.21.4")
 
     // WireMock
-    testImplementation("org.wiremock:wiremock-standalone:3.9.1")
+    testImplementation("org.wiremock:wiremock-standalone:3.13.2")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
