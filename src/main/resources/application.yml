@@ -29,6 +29,23 @@ spring:
           connectiontimeout: 5000
           timeout: 3000
           writetimeout: 5000
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 3000
+          max-attempts: 3
+          multiplier: 2
+
+email:
+  provider:
+    url: ${EMAIL_PROVIDER_URL:}
+    key: ${EMAIL_API_KEY:}
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${DB_HOST_NAME:database}:${DB_PORT_NUMBER:3306}/${DB_NAME:quietspace}

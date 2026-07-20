@@ -1,12 +1,11 @@
 spring:
-  mail:
-    host: smtp.postmarkapp.com
-    port: 587
-    username: ${POSTMARK_SERVER_TOKEN}
-    password: ${POSTMARK_SERVER_TOKEN}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+
+email:
+  provider:
+    url: ${EMAIL_PROVIDER_URL:https://api.resend.com}
+    key: ${EMAIL_API_KEY}
