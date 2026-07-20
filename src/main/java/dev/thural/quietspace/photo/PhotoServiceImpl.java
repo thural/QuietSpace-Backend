@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -30,6 +31,14 @@ public class PhotoServiceImpl implements PhotoService {
 
     private static final List<String> SUPPORTED_CONTENT_TYPES = Arrays.asList(
             "image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp"
+    );
+
+    private static final Map<String, String> CONTENT_TYPE_TO_EXTENSION = Map.of(
+            "image/jpeg", ".jpg",
+            "image/png", ".png",
+            "image/gif", ".gif",
+            "image/webp", ".webp",
+            "image/bmp", ".bmp"
     );
 
     private static final long MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -65,7 +74,7 @@ public class PhotoServiceImpl implements PhotoService {
 
         try {
             UUID signedUserId = commonService.getSignedUser().getId();
-            String uniqueFileName = generateUniqueFileName(file);
+            String uniqueFileName = generateUniqueFileName(contentType);
 
             byte[] compressedImage = imageCompressionUtil.compressImage(
                     file.getInputStream(),
@@ -142,12 +151,9 @@ public class PhotoServiceImpl implements PhotoService {
                 ));
     }
 
-    private String generateUniqueFileName(MultipartFile file) {
-        String originalFilename = file.getOriginalFilename();
-        String fileExtension = originalFilename != null && originalFilename.contains(".")
-                ? originalFilename.substring(originalFilename.lastIndexOf("."))
-                : "";
-        return UUID.randomUUID() + fileExtension;
+    private String generateUniqueFileName(String contentType) {
+        String extension = CONTENT_TYPE_TO_EXTENSION.getOrDefault(contentType, ".jpg");
+        return UUID.randomUUID() + extension;
     }
 
     @Override
