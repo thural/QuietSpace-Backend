@@ -8,8 +8,9 @@ import dev.thural.quietspace.security.Token;
 import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.shared.enums.Role;
 import dev.thural.quietspace.shared.exception.ActivationTokenException;
+import dev.thural.quietspace.shared.event.EmailEvent;
 import dev.thural.quietspace.shared.exception.UserNotFoundException;
-import dev.thural.quietspace.shared.service.EmailService;
+import dev.thural.quietspace.shared.service.impl.EmailEventPublisher;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserRepository;
 import dev.thural.quietspace.user.UserService;
@@ -54,7 +55,7 @@ class AuthServiceTest {
     @Mock
     private AuthenticationManager authenticationManager;
     @Mock
-    private EmailService emailService;
+    private EmailEventPublisher emailEventPublisher;
     @Mock
     private TokenRepository tokenRepository;
 
@@ -118,20 +119,18 @@ class AuthServiceTest {
         assertThat(savedUser.isEnabled()).isFalse();
         assertThat(savedUser.getProfileSettings()).isNotNull();
 
-        verify(emailService).sendHtmlEmail(
-                eq("test@example.com"), anyString(), anyString(), any()
-        );
+        verify(emailEventPublisher).publish(any(EmailEvent.class));
     }
 
     @Test
-    void register_whenEmailServiceFails_shouldPropagate() {
+    void register_whenPublisherFails_shouldPropagate() {
         when(passwordEncoder.encode(anyString())).thenReturn("encoded");
         when(userRepository.save(any(User.class))).thenReturn(user);
-        doThrow(new RuntimeException("SMTP error")).when(emailService).sendHtmlEmail(anyString(), anyString(), anyString(), any());
+        doThrow(new RuntimeException("Broker error")).when(emailEventPublisher).publish(any(EmailEvent.class));
 
         assertThatThrownBy(() -> authService.register(registrationRequest))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("SMTP error");
+                .hasMessageContaining("Broker error");
     }
 
     @Test
@@ -186,7 +185,7 @@ class AuthServiceTest {
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("expired");
 
-        verify(emailService).sendHtmlEmail(anyString(), anyString(), anyString(), any());
+        verify(emailEventPublisher).publish(any(EmailEvent.class));
     }
 
     @Test
@@ -300,7 +299,7 @@ class AuthServiceTest {
 
         authService.resendActivationToken("test@example.com");
 
-        verify(emailService).sendHtmlEmail(anyString(), anyString(), anyString(), any());
+        verify(emailEventPublisher).publish(any(EmailEvent.class));
     }
 
     @Test

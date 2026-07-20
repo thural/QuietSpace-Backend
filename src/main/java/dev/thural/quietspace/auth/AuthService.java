@@ -7,10 +7,11 @@ import dev.thural.quietspace.security.JwtService;
 import dev.thural.quietspace.security.Token;
 import dev.thural.quietspace.security.TokenRepository;
 import dev.thural.quietspace.shared.enums.StatusType;
+import dev.thural.quietspace.shared.event.EmailEvent;
 import dev.thural.quietspace.shared.exception.ActivationTokenException;
 import dev.thural.quietspace.shared.exception.CustomErrorException;
 import dev.thural.quietspace.shared.exception.UserNotFoundException;
-import dev.thural.quietspace.shared.service.EmailService;
+import dev.thural.quietspace.shared.service.impl.EmailEventPublisher;
 import dev.thural.quietspace.user.ProfileSettings;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserRepository;
@@ -48,7 +49,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final EmailService emailService;
+    private final EmailEventPublisher emailEventPublisher;
     private final TokenRepository tokenRepository;
 
     @Value("${spring.application.mailing.frontend.activation-url}")
@@ -162,12 +163,12 @@ public class AuthService {
         variables.put("confirmationUrl", activationUrl);
         variables.put("activationCode", newActivationCode);
 
-        emailService.sendHtmlEmail(
+        emailEventPublisher.publish(new EmailEvent(
                 user.getEmail(),
                 "account activation",
                 "activate_account",
                 variables
-        );
+        ));
     }
 
     private String generateActivationCode(int length) {
