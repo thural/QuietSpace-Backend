@@ -6,6 +6,7 @@ import dev.thural.quietspace.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +28,7 @@ import java.util.Collections;
 import java.util.stream.Stream;
 
 @Configuration
+@EnableConfigurationProperties(EmailProperties.class)
 @RequiredArgsConstructor
 @Slf4j
 public class AppConfig {

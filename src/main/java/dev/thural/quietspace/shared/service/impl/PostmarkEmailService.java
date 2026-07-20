@@ -1,10 +1,10 @@
 package dev.thural.quietspace.shared.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.thural.quietspace.config.EmailProperties;
 import dev.thural.quietspace.shared.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -26,9 +26,7 @@ public class PostmarkEmailService implements EmailService {
     private final RestTemplate restTemplate;
     private final SpringTemplateEngine templateEngine;
     private final ObjectMapper objectMapper;
-
-    @Value("${spring.mail.username}")
-    private String postmarkServerToken;
+    private final EmailProperties emailProperties;
 
     @Async("emailExecutor")
     @Override
@@ -47,7 +45,7 @@ public class PostmarkEmailService implements EmailService {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("X-Postmark-Server-Token", postmarkServerToken);
+            headers.set("X-Postmark-Server-Token", emailProperties.username());
 
             HttpEntity<String> request = new HttpEntity<>(objectMapper.writeValueAsString(body), headers);
 
