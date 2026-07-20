@@ -25,7 +25,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-import org.springframework.core.task.TaskDecorator;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.context.SecurityContext;
 
@@ -74,7 +73,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             SecurityContext context = SecurityContextHolder.getContext();
             SecurityContext snapshot = SecurityContextHolder.createEmptyContext();
             snapshot.setAuthentication(context.getAuthentication());
-            return (Runnable) () -> {
+            return () -> {
                 SecurityContextHolder.setContext(snapshot);
                 try {
                     task.run();

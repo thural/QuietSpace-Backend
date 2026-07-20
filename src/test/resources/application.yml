@@ -27,8 +27,6 @@ spring:
         writetimeout: 5000
   application:
     name: quietspace-backend
-    urls:
-      frontend: http://localhost:3000
     security:
       jwt:
         secret-key: OLY8kXzmCJ6QTovj6BdaFHVaDGkAulLXXeZeUidysM/1+L8/AN5ko3NyXLZSRL9rShr/IaO85CV10vCs5k2MXg==

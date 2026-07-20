@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -33,11 +34,20 @@ public class PhotoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("photoName", photoName));
     }
 
+    private static final List<MediaType> ALLOWED_IMAGE_TYPES = List.of(
+            MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG, MediaType.IMAGE_GIF,
+            MediaType.parseMediaType("image/webp"), MediaType.parseMediaType("image/svg+xml")
+    );
+
     @GetMapping("/{name}")
     public ResponseEntity<byte[]> getPhotoByName(@PathVariable String name) {
         PhotoResponse photoResponse = photoService.getPhotoByName(name);
+        MediaType mediaType = MediaType.parseMediaType(photoResponse.getType());
+        if (!ALLOWED_IMAGE_TYPES.contains(mediaType)) {
+            mediaType = MediaType.APPLICATION_OCTET_STREAM;
+        }
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(photoResponse.getType()))
+                .contentType(mediaType)
                 .body(photoResponse.getData());
     }
 
