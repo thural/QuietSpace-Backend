@@ -113,6 +113,7 @@ public class AuthService {
                     .userId(user.getId().toString())
                     .accessToken(jwtAccessToken)
                     .refreshToken(jwtRefreshToken)
+                    .refreshTokenId(jwtService.extractJti(jwtRefreshToken))
                     .build();
         } catch (UsernameNotFoundException e) {
             auditService.logLoginFailure(request.getEmail());
@@ -256,6 +257,7 @@ public class AuthService {
         return AuthResponse.builder()
                 .accessToken(newAccessToken)
                 .refreshToken(newRefreshToken)
+                .refreshTokenId(jwtService.extractJti(newRefreshToken))
                 .message("token was refreshed")
                 .userId(String.valueOf(user.getId()))
                 .build();
