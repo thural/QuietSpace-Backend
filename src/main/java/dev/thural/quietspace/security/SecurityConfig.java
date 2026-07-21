@@ -13,7 +13,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
-import static dev.thural.quietspace.shared.enums.Role.ADMIN;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -47,10 +46,6 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(request ->
                                 request
-                                        .requestMatchers("/api/v1/admin/**")
-                                        .hasRole(ADMIN.toString())
-//                                .requestMatchers(GET, "api/v1/posts/**")
-//                                .hasAnyAuthority(USER_READ.toString(), ADMIN_READ.toString())
                                         .requestMatchers(
                                                 "/ws",
                                                 "/ws/**",
