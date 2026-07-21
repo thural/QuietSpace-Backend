@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
 import static dev.thural.quietspace.shared.enums.Role.ADMIN;
@@ -31,7 +32,19 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .ignoringRequestMatchers(
+                                "/api/**",
+                                "/ws", "/ws/**",
+                                "/hello/**",
+                                "/v2/api-docs", "/v3/api-docs", "/v3/api-docs/**",
+                                "/swagger-resources", "/swagger-resources/**",
+                                "/configuration/ui", "/configuration/security",
+                                "/swagger-ui/**", "/webjars/**", "/swagger-ui.html",
+                                "/springwolf/**"
+                        )
+                )
                 .authorizeHttpRequests(request ->
                                 request
                                         .requestMatchers("/api/v1/admin/**")
