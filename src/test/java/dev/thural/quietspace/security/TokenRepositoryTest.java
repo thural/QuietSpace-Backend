@@ -93,4 +93,54 @@ class TokenRepositoryTest {
         assertTrue(foundToken.isPresent());
         assertEquals(token.getToken(), foundToken.get().getToken());
     }
+
+    @Test
+    void existsByJti_whenJtiExists_shouldReturnTrue() {
+        Token jtiToken = Token.builder()
+                .token("jti-token-value")
+                .jti("unique-jti-123")
+                .user(savedUser)
+                .createDate(OffsetDateTime.now())
+                .email("jti-test@email.com")
+                .build();
+        tokenRepository.save(jtiToken);
+
+        boolean exists = tokenRepository.existsByJti("unique-jti-123");
+
+        assertTrue(exists);
+    }
+
+    @Test
+    void findByJti_whenJtiExists_shouldReturnToken() {
+        Token jtiToken = Token.builder()
+                .token("find-by-jti-token")
+                .jti("findable-jti")
+                .user(savedUser)
+                .createDate(OffsetDateTime.now())
+                .email("find-jti@email.com")
+                .build();
+        tokenRepository.save(jtiToken);
+
+        Optional<Token> found = tokenRepository.findByJti("findable-jti");
+
+        assertTrue(found.isPresent());
+        assertEquals("find-by-jti-token", found.get().getToken());
+    }
+
+    @Test
+    void deleteByExpireDateBefore_shouldRemoveExpiredTokens() {
+        Token expiredToken = Token.builder()
+                .token("expired-token-value")
+                .user(savedUser)
+                .createDate(OffsetDateTime.now())
+                .expireDate(OffsetDateTime.now().minusDays(1))
+                .email("expired@email.com")
+                .build();
+        tokenRepository.save(expiredToken);
+
+        int deleted = tokenRepository.deleteByExpireDateBefore(OffsetDateTime.now());
+
+        assertEquals(1, deleted);
+        assertFalse(tokenRepository.existsByToken("expired-token-value"));
+    }
 }
