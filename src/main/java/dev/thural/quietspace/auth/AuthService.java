@@ -12,6 +12,7 @@ import dev.thural.quietspace.shared.exception.ActivationTokenException;
 import dev.thural.quietspace.shared.exception.CustomErrorException;
 import dev.thural.quietspace.shared.exception.UserNotFoundException;
 import dev.thural.quietspace.shared.service.SecurityAuditService;
+import io.micrometer.core.instrument.MeterRegistry;
 import dev.thural.quietspace.shared.service.impl.EmailEventPublisher;
 import dev.thural.quietspace.user.ProfileSettings;
 import dev.thural.quietspace.user.User;
@@ -53,6 +54,7 @@ public class AuthService {
     private final EmailEventPublisher emailEventPublisher;
     private final TokenRepository tokenRepository;
     private final SecurityAuditService auditService;
+    private final MeterRegistry meterRegistry;
 
     @Value("${spring.application.mailing.frontend.activation-url}")
     private String activationUrl;
@@ -104,6 +106,7 @@ public class AuthService {
             String jwtRefreshToken = jwtService.generateRefreshToken(claims, user);
             log.info("jwt token generated successfully for user: {}", user.getUsername());
             auditService.logLoginSuccess(user.getEmail());
+            meterRegistry.counter("auth.login.success").increment();
             saveRefreshTokenJti(jwtRefreshToken, user);
 
             setOnlineStatus(user.getEmail(), ONLINE);
@@ -117,6 +120,7 @@ public class AuthService {
                     .build();
         } catch (UsernameNotFoundException e) {
             auditService.logLoginFailure(request.getEmail());
+            meterRegistry.counter("auth.login.failure").increment();
             throw new org.springframework.security.authentication.BadCredentialsException("Invalid credentials");
         }
     }
@@ -206,6 +210,7 @@ public class AuthService {
 
     private void saveToken(String jwtToken, User user) {
         var jti = jwtService.extractJti(jwtToken);
+        meterRegistry.counter("auth.token.revoked").increment();
         tokenRepository.save(Token.builder()
                 .token(jwtToken)
                 .jti(jti)
@@ -253,6 +258,7 @@ public class AuthService {
         saveRefreshTokenJti(newRefreshToken, user);
 
         auditService.logTokenRefresh(username);
+        meterRegistry.counter("auth.token.refresh").increment();
 
         return AuthResponse.builder()
                 .accessToken(newAccessToken)

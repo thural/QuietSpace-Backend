@@ -118,9 +118,11 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, auditevents
+        include: health, auditevents, metrics
   endpoint:
     health:
       show-details: when-authorized
     auditevents:
+      enabled: true
+    metrics:
       enabled: true

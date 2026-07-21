@@ -12,12 +12,14 @@ import dev.thural.quietspace.shared.event.EmailEvent;
 import dev.thural.quietspace.shared.exception.UserNotFoundException;
 import dev.thural.quietspace.shared.service.SecurityAuditService;
 import dev.thural.quietspace.shared.service.impl.EmailEventPublisher;
+import io.micrometer.core.instrument.MeterRegistry;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserRepository;
 import dev.thural.quietspace.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -61,6 +63,8 @@ class AuthServiceTest {
     private TokenRepository tokenRepository;
     @Mock
     private SecurityAuditService auditService;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private MeterRegistry meterRegistry;
 
     @InjectMocks
     private AuthService authService;
