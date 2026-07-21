@@ -17,6 +17,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
 import java.util.UUID;
@@ -29,6 +30,7 @@ import static dev.thural.quietspace.websocket.constant.WebSocketPaths.SEEN_MESSA
 @Slf4j
 @Controller
 @RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
 public class ChatWebSocketController {
 
     private final ChatService chatService;

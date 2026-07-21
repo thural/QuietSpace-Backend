@@ -11,6 +11,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -21,6 +22,7 @@ import static dev.thural.quietspace.websocket.constant.WebSocketPaths.*;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
 public class UserWebSocketController {
 
     private final UserService userService;
