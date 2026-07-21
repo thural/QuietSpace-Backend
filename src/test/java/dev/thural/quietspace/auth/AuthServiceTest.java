@@ -10,6 +10,7 @@ import dev.thural.quietspace.shared.enums.Role;
 import dev.thural.quietspace.shared.exception.ActivationTokenException;
 import dev.thural.quietspace.shared.event.EmailEvent;
 import dev.thural.quietspace.shared.exception.UserNotFoundException;
+import dev.thural.quietspace.shared.service.SecurityAuditService;
 import dev.thural.quietspace.shared.service.impl.EmailEventPublisher;
 import dev.thural.quietspace.user.User;
 import dev.thural.quietspace.user.UserRepository;
@@ -58,6 +59,8 @@ class AuthServiceTest {
     private EmailEventPublisher emailEventPublisher;
     @Mock
     private TokenRepository tokenRepository;
+    @Mock
+    private SecurityAuditService auditService;
 
     @InjectMocks
     private AuthService authService;

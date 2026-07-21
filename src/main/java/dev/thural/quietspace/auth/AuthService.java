@@ -11,6 +11,7 @@ import dev.thural.quietspace.shared.event.EmailEvent;
 import dev.thural.quietspace.shared.exception.ActivationTokenException;
 import dev.thural.quietspace.shared.exception.CustomErrorException;
 import dev.thural.quietspace.shared.exception.UserNotFoundException;
+import dev.thural.quietspace.shared.service.SecurityAuditService;
 import dev.thural.quietspace.shared.service.impl.EmailEventPublisher;
 import dev.thural.quietspace.user.ProfileSettings;
 import dev.thural.quietspace.user.User;
@@ -51,14 +52,17 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final EmailEventPublisher emailEventPublisher;
     private final TokenRepository tokenRepository;
+    private final SecurityAuditService auditService;
 
     @Value("${spring.application.mailing.frontend.activation-url}")
     private String activationUrl;
 
     public void register(RegistrationRequest request) {
         log.info("registering new user with email: {}", request.getEmail());
+        auditService.logRegistration(request.getEmail());
 
         if (userRepository.existsByEmail(request.getEmail()) || userRepository.existsByUsername(request.getUsername())) {
+            auditService.logEvent("REGISTRATION_FAILED", request.getEmail(), "email or username already taken");
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, "email or username is already taken");
         }
 
@@ -98,7 +102,9 @@ public class AuthService {
 
             String jwtAccessToken = jwtService.generateToken(claims, user);
             String jwtRefreshToken = jwtService.generateRefreshToken(claims, user);
-            log.info("generated jwt token during authentication: {}", jwtAccessToken);
+            log.info("jwt token generated successfully for user: {}", user.getUsername());
+            auditService.logLoginSuccess(user.getEmail());
+            saveRefreshTokenJti(jwtRefreshToken, user);
 
             setOnlineStatus(user.getEmail(), ONLINE);
 
@@ -109,6 +115,7 @@ public class AuthService {
                     .refreshToken(jwtRefreshToken)
                     .build();
         } catch (UsernameNotFoundException e) {
+            auditService.logLoginFailure(request.getEmail());
             throw new org.springframework.security.authentication.BadCredentialsException("Invalid credentials");
         }
     }
@@ -126,13 +133,15 @@ public class AuthService {
         User user = userRepository.findById(existingToken.getUser().getId()).orElseThrow(UserNotFoundException::new);
         user.setEnabled(true);
         existingToken.setValidateDate(OffsetDateTime.now());
+        auditService.logAccountActivation(user.getEmail());
     }
 
     @Transactional
     public void signout(String authHeader) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserName = authentication != null ? authentication.getName() : "unknown";
-        log.info("username in security context on signing out: {}", currentUserName);
+        auditService.logLogout(currentUserName);
+        log.info("user signing out: {}", currentUserName);
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             addToBlacklist(authHeader, currentUserName);
             setOnlineStatus(OFFLINE);
@@ -182,7 +191,7 @@ public class AuthService {
             generatedCode.append(characters.charAt(randomIndex));
         }
 
-        log.info("generated activation token: {}", generatedCode);
+        log.info("generated activation code for user");
         return generatedCode.toString();
     }
 
@@ -195,8 +204,10 @@ public class AuthService {
     }
 
     private void saveToken(String jwtToken, User user) {
+        var jti = jwtService.extractJti(jwtToken);
         tokenRepository.save(Token.builder()
                 .token(jwtToken)
+                .jti(jti)
                 .email(user.getEmail())
                 .user(user)
                 .build());
@@ -214,21 +225,51 @@ public class AuthService {
         if (tokenRepository.existsByToken(refreshToken)) return authResponse;
 
         String username = jwtService.extractUsername(refreshToken);
-        log.info("extracted username during jwt filtering: {}", username);
         if (username == null) return authResponse;
 
         User user = userRepository.findUserByUsername(username).orElseThrow(UserNotFoundException::new);
-        if (!jwtService.isTokenValid(refreshToken, user)) return authResponse;
+        if (!jwtService.isTokenValid(refreshToken, user)) {
+            auditService.logEvent("TOKEN_REFRESH_FAILED", username, "invalid or expired refresh token");
+            return authResponse;
+        }
+
+        String jti = jwtService.extractJti(refreshToken);
+        var storedToken = tokenRepository.findByJti(jti);
+
+        if (storedToken.isPresent()) {
+            if (storedToken.get().isUsed()) {
+                auditService.logEvent("TOKEN_REPLAY_DETECTED", username, "refresh token replay attack detected");
+                return authResponse;
+            }
+            storedToken.get().setUsed(true);
+            tokenRepository.save(storedToken.get());
+        }
 
         var claims = new HashMap<String, Object>();
         claims.put("fullName", user.getFullName());
         String newAccessToken = jwtService.generateToken(claims, user);
+        String newRefreshToken = jwtService.generateRefreshToken(claims, user);
+        saveRefreshTokenJti(newRefreshToken, user);
+
+        auditService.logTokenRefresh(username);
 
         return AuthResponse.builder()
                 .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
                 .message("token was refreshed")
                 .userId(String.valueOf(user.getId()))
                 .build();
+    }
+
+    private void saveRefreshTokenJti(String refreshToken, User user) {
+        String jti = jwtService.extractJti(refreshToken);
+        tokenRepository.save(Token.builder()
+                .token(jti)
+                .jti(jti)
+                .email(user.getEmail())
+                .user(user)
+                .used(false)
+                .build());
     }
 
     public void resendActivationToken(String email) {
