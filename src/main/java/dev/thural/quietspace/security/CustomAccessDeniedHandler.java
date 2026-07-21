@@ -1,5 +1,6 @@
 package dev.thural.quietspace.security;
 
+import dev.thural.quietspace.shared.service.SecurityAuditService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.Nullable;
@@ -14,9 +15,11 @@ import java.io.IOException;
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     private final ObjectMapper objectMapper;
+    private final SecurityAuditService auditService;
 
-    public CustomAccessDeniedHandler(ObjectMapper objectMapper) {
+    public CustomAccessDeniedHandler(ObjectMapper objectMapper, SecurityAuditService auditService) {
         this.objectMapper = objectMapper;
+        this.auditService = auditService;
     }
 
     @Override
@@ -26,6 +29,8 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
             @Nullable AccessDeniedException accessDeniedException
     ) throws IOException {
         if (request == null || response == null || accessDeniedException == null) return;
+        var path = request.getRequestURI();
+        auditService.logAccessDenied(path, extractPrincipal(request));
         SecurityErrorHandler.handleSecurityError(
                 request,
                 response,
@@ -35,5 +40,13 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
                 "Access denied",
                 objectMapper
         );
+    }
+
+    private String extractPrincipal(HttpServletRequest request) {
+        var authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7).substring(0, Math.min(20, authHeader.substring(7).length())) + "...";
+        }
+        return request.getRemoteAddr();
     }
 }
