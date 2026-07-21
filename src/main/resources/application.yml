@@ -122,7 +122,3 @@ management:
   endpoint:
     health:
       show-details: when-authorized
-    auditevents:
-      enabled: true
-    metrics:
-      enabled: true

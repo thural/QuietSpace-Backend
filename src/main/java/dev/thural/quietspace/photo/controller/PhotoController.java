@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -48,6 +50,7 @@ public class PhotoController {
         }
         return ResponseEntity.ok()
                 .contentType(mediaType)
+                .header(CONTENT_DISPOSITION, "attachment; filename=\"" + name + "\"")
                 .body(photoResponse.getData());
     }
 
