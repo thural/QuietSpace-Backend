@@ -1,3 +1,7 @@
+custom:
+  cors:
+    allowed-origins: https://frontend-app.com,http://localhost:3000
+
 spring:
   threads:
     virtual:
