@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -117,17 +118,20 @@ public class PostController {
     }
 
     @PutMapping(POST_PATH_ID)
+    @PreAuthorize("@postSecurity.canAccess(#postId, authentication.name)")
     ResponseEntity<PostResponse> putPost(@PathVariable UUID postId, @RequestBody @Validated PostRequest post) {
         return ResponseEntity.ok(postService.updatePost(postId, post));
     }
 
     @DeleteMapping(POST_PATH_ID)
+    @PreAuthorize("@postSecurity.canAccess(#postId, authentication.name)")
     ResponseEntity<?> deletePost(@PathVariable UUID postId) {
         postService.deletePost(postId);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping(POST_PATH_ID)
+    @PreAuthorize("@postSecurity.canAccess(#postId, authentication.name)")
     ResponseEntity<PostResponse> patchPost(@PathVariable UUID postId, @RequestBody PostRequest post) {
         return ResponseEntity.ok(postService.patchPost(postId, post));
     }
