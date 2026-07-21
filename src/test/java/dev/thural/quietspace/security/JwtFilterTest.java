@@ -83,6 +83,19 @@ class JwtFilterTest {
     }
 
     @Test
+    void doFilter_givenRevokedJti_shouldSkip() throws Exception {
+        when(request.getHeader("Authorization")).thenReturn("Bearer revoked-jti-token");
+        when(tokenRepository.existsByToken("revoked-jti-token")).thenReturn(false);
+        when(jwtService.extractJti("revoked-jti-token")).thenReturn("revoked-jti");
+        when(tokenRepository.existsByJti("revoked-jti")).thenReturn(true);
+
+        jwtFilter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+    }
+
+    @Test
     void doFilter_givenNullUsername_shouldSkip() throws Exception {
         when(request.getHeader("Authorization")).thenReturn("Bearer some-token");
         when(tokenRepository.existsByToken("some-token")).thenReturn(false);
