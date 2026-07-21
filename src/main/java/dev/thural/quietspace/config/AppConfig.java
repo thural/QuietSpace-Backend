@@ -5,6 +5,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.thural.quietspace.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.audit.AuditEventRepository;
+import org.springframework.boot.actuate.audit.InMemoryAuditEventRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -23,7 +26,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 import java.util.stream.Stream;
 
 @Configuration
@@ -32,11 +35,14 @@ import java.util.stream.Stream;
 public class AppConfig {
     private final UserRepository userRepository;
 
+    @Value("${custom.cors.allowed-origins:http://localhost:3000}")
+    private String[] allowedOrigins;
+
     @Bean
     @Primary
     public UserDetailsService userDetailsService() {
         return username -> {
-            log.info("username in user details method: {}", username);
+            log.debug("loading user by identifier");
             return userRepository.findUserEntityByEmail(username).orElseGet(
                     () -> userRepository.findUserByUsername(username)
                             .orElseThrow(() -> new UsernameNotFoundException("User not found"))
@@ -61,7 +67,7 @@ public class AppConfig {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         final CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOriginPatterns(Collections.singletonList("*"));
+        config.setAllowedOrigins(Arrays.asList(allowedOrigins));
         config.setAllowedHeaders(Arrays.asList(
                 HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
                 HttpHeaders.CACHE_CONTROL,
@@ -96,5 +102,10 @@ public class AppConfig {
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
+    }
+
+    @Bean
+    public AuditEventRepository auditEventRepository() {
+        return new InMemoryAuditEventRepository();
     }
 }
