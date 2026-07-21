@@ -48,7 +48,7 @@ jobs:
       - name: Secret scanning
         uses: trufflesecurity/trufflehog@main
         with:
-          extra_args: --only-verified --result-format sarif
+          extra_args: --only-verified
 
   codeql-scan:
     runs-on: ubuntu-latest
