@@ -14,11 +14,11 @@ public class PostSecurityService {
     private final UserRepository userRepository;
 
     public boolean canAccess(UUID postId, String username) {
-        var user = userRepository.findUserEntityByEmail(username)
-                .or(() -> userRepository.findUserByUsername(username));
-        if (user.isEmpty()) return false;
-        return postService.getPostById(postId)
-                .map(post -> post.getUserId().equals(user.get().getId().toString()))
+        return userRepository.findUserEntityByEmail(username)
+                .or(() -> userRepository.findUserByUsername(username))
+                .map(user -> postService.getPostById(postId)
+                        .map(post -> post.getUserId().equals(user.getId().toString()))
+                        .orElse(false))
                 .orElse(false);
     }
 }

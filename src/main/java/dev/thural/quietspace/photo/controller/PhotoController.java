@@ -36,7 +36,7 @@ public class PhotoController {
 
     private static final List<MediaType> ALLOWED_IMAGE_TYPES = List.of(
             MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG, MediaType.IMAGE_GIF,
-            MediaType.parseMediaType("image/webp"), MediaType.parseMediaType("image/svg+xml")
+            MediaType.parseMediaType("image/webp")
     );
 
     @GetMapping("/{name}")
