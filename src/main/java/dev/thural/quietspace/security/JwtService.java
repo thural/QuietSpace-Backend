@@ -33,6 +33,9 @@ public class JwtService {
     @Value("${spring.application.security.jwt.issuer:quietspace-backend}")
     private String issuer;
 
+    @Value("${spring.application.security.jwt.audience:quietspace-backend}")
+    private String audience;
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -69,6 +72,7 @@ public class JwtService {
                 .claims(extraClaims)
                 .id(UUID.randomUUID().toString())
                 .issuer(issuer)
+                .audience().add(audience).and()
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
@@ -83,6 +87,10 @@ public class JwtService {
             var username = claims.getSubject();
             if (!issuer.equals(claims.getIssuer())) {
                 log.warn("token issuer mismatch: expected={}, actual={}", issuer, claims.getIssuer());
+                return false;
+            }
+            if (!claims.getAudience().contains(audience)) {
+                log.warn("token audience mismatch: expected={}, actual={}", audience, claims.getAudience());
                 return false;
             }
             return username.equals(userDetails.getUsername()) && !claims.getExpiration().before(new Date());
