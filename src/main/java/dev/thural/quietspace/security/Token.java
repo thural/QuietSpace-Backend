@@ -28,6 +28,9 @@ public class Token extends BaseEntity {
     @Column(length = 600, unique = true)
     private String token;
 
+    @Column(length = 36, unique = true)
+    private String jti;
+
     @Email
     @NotBlank
     private String email;
@@ -38,5 +41,7 @@ public class Token extends BaseEntity {
 
     private OffsetDateTime expireDate;
     private OffsetDateTime validateDate;
+
+    private boolean used;
 
 }

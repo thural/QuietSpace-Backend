@@ -27,6 +27,7 @@ class JwtServiceTest {
         ReflectionTestUtils.setField(jwtService, "secretKey", SECRET_KEY);
         ReflectionTestUtils.setField(jwtService, "jwtExpiration", 3600000L);
         ReflectionTestUtils.setField(jwtService, "jwtRefreshExpiration", 86400000L);
+        ReflectionTestUtils.setField(jwtService, "issuer", "quietspace-backend");
 
         userDetails = User.builder()
                 .username("testuser")

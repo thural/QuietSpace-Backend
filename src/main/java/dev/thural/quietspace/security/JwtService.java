@@ -14,21 +14,31 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Service
 @Slf4j
 public class JwtService {
+
     @Value("${spring.application.security.jwt.secret-key}")
     private String secretKey;
+
     @Value("${spring.application.security.jwt.expiration}")
     private long jwtExpiration;
 
     @Value("${spring.application.security.jwt.refresh-token.expiration}")
     private long jwtRefreshExpiration;
 
+    @Value("${spring.application.security.jwt.issuer:quietspace-backend}")
+    private String issuer;
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractJti(String token) {
+        return extractClaim(token, Claims::getId);
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -54,11 +64,11 @@ public class JwtService {
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
-        log.info("username during token generation: {}", userDetails.getUsername());
-
         return Jwts
                 .builder()
                 .claims(extraClaims)
+                .id(UUID.randomUUID().toString())
+                .issuer(issuer)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
@@ -68,8 +78,18 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        try {
+            var claims = extractAllClaims(token);
+            var username = claims.getSubject();
+            if (!issuer.equals(claims.getIssuer())) {
+                log.warn("token issuer mismatch: expected={}, actual={}", issuer, claims.getIssuer());
+                return false;
+            }
+            return username.equals(userDetails.getUsername()) && !claims.getExpiration().before(new Date());
+        } catch (Exception e) {
+            log.warn("token validation failed: {}", e.getMessage());
+            return false;
+        }
     }
 
     public boolean isTokenExpired(String token) {

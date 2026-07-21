@@ -45,6 +45,11 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         try {
+            if (tokenRepository.existsByJti(jwtService.extractJti(jwtToken))) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             String username = jwtService.extractUsername(jwtToken);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -61,7 +66,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
-        } catch (io.jsonwebtoken.JwtException e) {
+        } catch (io.jsonwebtoken.JwtException | java.lang.IllegalArgumentException e) {
             log.debug("Rejected invalid JWT token: {}", e.getMessage());
         }
 
